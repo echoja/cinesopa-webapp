@@ -7,9 +7,14 @@
 </template>
 
 <script>
+import { BFormInput, BButton } from 'bootstrap-vue';
+
 export default {
   name: 'Login',
-  components: {},
+  components: {
+    'b-form-input': BFormInput,
+    'b-button': BButton,
+  },
   data() {
     return {
       email: '',
