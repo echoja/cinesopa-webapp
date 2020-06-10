@@ -24,7 +24,7 @@ export default (function(){
   schema.User = userBuilder(mongoose);
   schema.Login = loginBuilder(mongoose);
 
-  console.log(schema)
+  // console.log(schema)
   for(let k in schema){
     model[k] = mongoose.model(k, schema[k]);
   }
