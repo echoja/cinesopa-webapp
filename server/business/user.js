@@ -7,7 +7,7 @@ export const user = {
   },
 
   getUserByAuth: async(email, pwd) => {
-    const login = await model.Login.fidnOne({email})
+    const login = await model.Login.findOne({email})
     if ( login && login.pwd === pwd ) {
       return await model.User.findOne({email});
     } else {

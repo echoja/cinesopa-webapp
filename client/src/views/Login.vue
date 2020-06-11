@@ -34,16 +34,20 @@ export default {
     };
   },
   methods: {
-    login() {
-      const self = this;
-      graphql(exampleQuery, {}).then(
-        (result) => {
-          self.text = result;
-        },
-      ).catch((error) => {
-        console.log(error);
-      });
+    async login() {
+      const result = await graphql(exampleQuery, {});
+      this.text = result;
     },
+    // login() {
+    //   const self = this;
+    //   graphql(exampleQuery, {}).then(
+    //     (result) => {
+    //       self.text = result;
+    //     },
+    //   ).catch((error) => {
+    //     console.log(error);
+    //   });
+    // },
     greet(event) {
       // 메소드 안에서 사용하는 `this` 는 Vue 인스턴스를 가리킵니다
       console.log(`Hello ${this.name}!`);
