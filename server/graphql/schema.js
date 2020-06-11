@@ -9,11 +9,6 @@ const schema = buildSchema(`
     users: [User]
     user(email: String!): User
     pages: [Page]
-    signinUserByEmail(provider: EmailAuthProvider! ): SignInUserPayload
-  }
-
-  type AuthPayload {
-    user: User
   }
 
   type Mutation {
@@ -21,7 +16,12 @@ const schema = buildSchema(`
     createUser(authProvider: EmailAuthProvider!): User
     # createUser(email: String!, pwd: String!, name: String!): User
     createPage(title: String!, content: String!, author: String!): Page
-    login(email: String!, pwd: String!): AuthPayload
+    signinUserByEmail(provider: EmailAuthProvider! ): SignInUserPayload
+    login(provider: EmailAuthProvider!): AuthPayload
+  }
+
+  type AuthPayload {
+    user: User
   }
 
   input EmailAuthProvider {
@@ -65,9 +65,7 @@ var resolver = {
     return await user.getAllUsers();
   },
 
-  login: async ({ email, pwd }, context, info) => {
-    console.log(email);
-    console.log(pwd);
+  login: async ({provider: { email, pwd} }, context, info) => {
     const { user } = await context.authenticate("graphql-local", {
       email,
       password:pwd,

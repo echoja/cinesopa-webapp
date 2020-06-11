@@ -25,10 +25,10 @@ app.use(
     resave: false,
     saveUninitialized: false,
     // cookie: {secure: true}, // send cookies over https
-    // store: new MongoStore({
-    //   url: "mongodb://localhost/cinesopa",
-    //   collection: "sessions",
-    // }), // store
+    store: new MongoStore({
+      url: "mongodb://localhost/cinesopa",
+      collection: "sessions",
+    }), // store
   })
 );
 localAuthConfig();
@@ -36,7 +36,7 @@ app.use(passport.initialize()); // passport 구동
 app.use(passport.session());
 
 // configuring logger
-app.use(logger("combined"));
+app.use(logger("dev"));
 
 // default responding
 app.get("/", (req, res) => {

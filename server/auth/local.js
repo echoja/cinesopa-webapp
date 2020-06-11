@@ -5,28 +5,18 @@ import { user } from "../business/dao.js";
 import gp from "graphql-passport";
 
 export const localAuthConfig = () => {
-  // serializeUser((user, done) => { // Strategy 성공 시 호출됨
-  //   done(null, user); // 여기의 user가 deserializeUser의 첫 번째 매개변수로 이동
-  // });
-
-  // deserializeUser((user, done) => { // 매개변수 user는 serializeUser의 done의 인자 user를 받은 것
-  //   done(null, user); // 여기의 user가 req.user가 됨
-  // });
 
   passport.serializeUser((user, done) => {
-    console.log(user);
     done(null, user.email);
   });
 
   passport.deserializeUser(async (email, done) => {
-    userFound = await user.getUser(email);
+    const userFound = await user.getUser(email);
     done(null, userFound);
   });
 
   passport.use(
     new gp.GraphQLLocalStrategy(async (email, pwd, done) => {
-      console.log(email);
-      console.log(pwd);
       const userFound = await user.getUserByAuth(email, pwd);
       const error = userFound ? null : new Error("no matching user");
       done(error, userFound);

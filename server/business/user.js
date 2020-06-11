@@ -3,7 +3,7 @@ import model from '../mongoose/model.js';
 export const user = {
   // https://mongoosejs.com/docs/guide.html#id
   getUser: async (email) => {
-    return await model.User.findOne({email: email}); // 없을땐 null
+    return await model.User.findOne({email}); // 없을땐 null
   },
 
   getUserByAuth: async(email, pwd) => {
