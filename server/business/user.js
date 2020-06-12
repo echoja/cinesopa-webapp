@@ -1,8 +1,8 @@
-import model from '../mongoose/model.js';
-import { withAuth } from './util.js';
+import model from "../mongoose/model.js";
+import { withAuth } from "./util.js";
 
 export const user = {
-  login: async ({provider:{email, pwd}}, context) => {
+  login: async ({ provider: { email, pwd } }, context) => {
     // 사용자 인증
     const { user } = await context.authenticate("graphql-local", {
       email,
@@ -10,7 +10,7 @@ export const user = {
     });
     // 로그인
     await context.login(user);
-    const redirectLink = context.req.session.redirectLink
+    const redirectLink = context.req.session.redirectLink;
 
     // 본래 있던 redirectLink 삭제
     if (redirectLink) {
@@ -19,62 +19,68 @@ export const user = {
     return { user, redirectLink };
   },
 
-  logout: async(args, context) => {
-    const { email } = args;
+  logout: withAuth(["ADMIN"], async ({ email }, context) => {
     const userFound = await user.getUser(email);
     if (userFound) {
       await context.logout(userFound);
     }
-    return { user: userFound }  ;
+    return { user: userFound };
+  }),
 
+  logoutMe: withAuth(["ADMIN", "GUEST"], async (args, context) => {
+    context.logout()
+  }),
+
+  
+  getUserByEmail: async(email) => {
+    return await model.User.findOne({ email }); // 없을땐 null
   },
-
   // https://mongoosejs.com/docs/guide.html#id
-  getUser: async (email) => {
-    return await model.User.findOne({email}); // 없을땐 null
-  },
+  getUser: withAuth(["ADMIN"], async ({ email }, context) => {
+    return await model.User.findOne({ email }); // 없을땐 null
+  }),
 
-  getUserByAuth: async(email, pwd) => {
-    const login = await model.Login.findOne({email})
-    if ( login && login.pwd === pwd ) {
-      return await model.User.findOne({email});
+  getMe: async (args, context) => {},
+
+  getUserByAuth: async (email, pwd) => {
+    const login = await model.Login.findOne({ email });
+    if (login && login.pwd === pwd) {
+      return await model.User.findOne({ email });
     } else {
       return null;
     }
   },
 
-  getAllUsers: async () => {
+  getAllUsers: withAuth(["ADMIN"], async (args, context) => {
     return await model.User.find();
-  },
+  }),
 
   joinUser: async ({ email, name, pwd, role }) => {
-    if(await getUser(email)) throw "email is existed";
+    if (await getUser(email)) throw "email is existed";
 
-    const newUser = new model.User({email, name});
-    const newLogin = new model.Login({email, pwd});
+    const newUser = new model.User({ email, name });
+    const newLogin = new model.Login({ email, pwd });
     const result = await newUser.save();
     await newLogin.save();
-    
+
     return result;
   },
 
-  updateUser: withAuth(["ADMIN"], async ({email, userinfo}) => {
+  updateUser: withAuth(["ADMIN"], async ({ email, userinfo }, context) => {
     console.log(email);
     console.log(userinfo);
-    const user = await model.User.findOne({email});
-    if(!user) throw new Error("user not found");
+    const user = await model.User.findOne({ email });
+    if (!user) throw new Error("user not found");
     // console.log(user);
-    for( let k in userinfo) {
-      if (userinfo[k] !== null ) {
-        user[k] = userinfo[k]
+    for (let k in userinfo) {
+      if (userinfo[k] !== null) {
+        user[k] = userinfo[k];
       }
     }
     await user.save();
     return user;
-  })
-
-}
-
+  }),
+};
 
 // (function(){
 
@@ -94,7 +100,7 @@ export const user = {
 //     const newLogin = new model.Login({email, pwd});
 //     const result = await newUser.save();
 //     await newLogin.save();
-    
+
 //     return result;
 //   }
 

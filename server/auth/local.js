@@ -11,7 +11,7 @@ export const localAuthConfig = () => {
   });
 
   passport.deserializeUser(async (email, done) => {
-    const userFound = await user.getUser(email);
+    const userFound = await user.getUserByEmail(email);
     done(null, userFound);
   });
 
