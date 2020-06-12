@@ -28,7 +28,10 @@ export const user = {
   }),
 
   logoutMe: withAuth(["ADMIN", "GUEST"], async (args, context) => {
+    const user = context.getUser();
     context.logout()
+    return {user, redirectLink:""};
+
   }),
 
   

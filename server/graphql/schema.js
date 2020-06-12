@@ -20,6 +20,7 @@ const schema = buildSchema(`
     signinUserByEmail(provider: EmailAuthProvider! ): SignInUserPayload
     login(provider: EmailAuthProvider!, redirectLink: String ): AuthPayload
     logout(email: String!): AuthPayload
+    logoutMe : AuthPayload
     updateUser(email: String!, userinfo: UserUpdateInfo): User
   }
 
@@ -107,8 +108,11 @@ var resolver = {
   },
 
   logout: async (args, context, info) => {
-    return await user.logout(args, context);
-    
+    return await user.logoutMe(args, context);
+  },
+
+  logoutMe: async(args, context, info) =>  {
+    return await user.logoutMe(args, context);
   },
 
 

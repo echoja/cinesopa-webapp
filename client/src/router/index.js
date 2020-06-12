@@ -3,18 +3,23 @@ import VueRouter from 'vue-router';
 import Home from '../views/Home.vue';
 import Login from '../views/Login.vue';
 import Me from '../views/Me.vue';
-import { graphql, checkAuthQuery } from '../graphql-client';
+import Logout from '../views/Logout.vue';
+import { graphql, checkAuthQuery, logoutMeQuery } from '../graphql-client';
 
 Vue.use(VueRouter);
 
 const requireAuth = async (from, to, next) => {
   const result = await graphql(checkAuthQuery, { redirectLink: document.location.href });
-  console.log(result);
   if (result?.data?.checkAuth === 'LOGIN_REQUIRED') {
     next({ name: 'Login' });
   } else {
     next();
   }
+};
+
+const logoutBeforeEnter = async (from, to, next) => {
+  await graphql(logoutMeQuery, {});
+  next('/');
 };
 
 
@@ -31,6 +36,12 @@ const routes = [
     // this generates a separate chunk (about.[hash].js) for this route
     // which is lazy-loaded when the route is visited.
     component: () => import(/* webpackChunkName: "about" */ '../views/About.vue'),
+  },
+  {
+    path: '/logout',
+    name: 'Logout',
+    component: Logout,
+    beforeEnter: logoutBeforeEnter,
   },
   {
     path: '/login',
