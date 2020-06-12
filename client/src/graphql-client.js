@@ -33,6 +33,7 @@ mutation Login ($email: String!, $pwd: String!) {
       name
       email
     }
+    redirectLink
   }
 }
 `;

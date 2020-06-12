@@ -2,13 +2,21 @@ import model from '../mongoose/model.js';
 import { withAuth } from './util.js';
 
 export const user = {
-  login: async ({provider:{email, pwd}, redirectLink}, context) => {
+  login: async ({provider:{email, pwd}}, context) => {
+    // 사용자 인증
     const { user } = await context.authenticate("graphql-local", {
       email,
       password: pwd,
     });
+    // 로그인
     await context.login(user);
-    return { user };
+    const redirectLink = context.req.session.redirectLink
+
+    // 본래 있던 redirectLink 삭제
+    if (redirectLink) {
+      delete context.req.session.redirectLink;
+    }
+    return { user, redirectLink };
   },
 
   logout: async(args, context) => {

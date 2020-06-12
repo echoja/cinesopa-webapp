@@ -38,6 +38,12 @@ export default {
       const { email, pwd } = this;
       const result = await graphql(loginQuery, { email, pwd });
       this.text = result;
+
+      // 데이터로부터 redirectLink가 오면 해당 리다이렉트 페이지로 이동
+      const redirectLink = result?.data?.login?.redirectLink;
+      if (redirectLink) {
+        document.location = redirectLink;
+      }
     },
     // login() {
     //   const self = this;

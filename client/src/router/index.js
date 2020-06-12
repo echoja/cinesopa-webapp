@@ -8,7 +8,7 @@ import { graphql, checkAuthQuery } from '../graphql-client';
 Vue.use(VueRouter);
 
 const requireAuth = async (from, to, next) => {
-  const result = await graphql(checkAuthQuery, { redirectLink: 'https://naver.com' });
+  const result = await graphql(checkAuthQuery, { redirectLink: document.location.href });
   console.log(result);
   if (result?.data?.checkAuth === 'LOGIN_REQUIRED') {
     next({ name: 'Login' });

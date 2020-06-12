@@ -25,6 +25,7 @@ const schema = buildSchema(`
 
   type AuthPayload {
     user: User
+    redirectLink: String
   }
 
   input EmailAuthProvider {
