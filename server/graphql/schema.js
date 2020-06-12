@@ -1,4 +1,4 @@
-import { user, page } from "../business/dao.js";
+import { user, page, auth } from "../business/dao.js";
 import pkg from "graphql";
 const { buildSchema } = pkg;
 // const { buildSchema } = require('graphql');
@@ -9,6 +9,7 @@ const schema = buildSchema(`
     users: [User]
     user(email: String!): User
     pages: [Page]
+    checkAuth(redirectLink: String): CheckAuthResponse
   }
 
   type Mutation {
@@ -17,7 +18,9 @@ const schema = buildSchema(`
     # createUser(email: String!, pwd: String!, name: String!): User
     createPage(title: String!, content: String!, author: String!): Page
     signinUserByEmail(provider: EmailAuthProvider! ): SignInUserPayload
-    login(provider: EmailAuthProvider!): AuthPayload
+    login(provider: EmailAuthProvider!, redirectLink: String ): AuthPayload
+    logout(email: String!): AuthPayload
+    updateUser(email: String!, userinfo: UserUpdateInfo): User
   }
 
   type AuthPayload {
@@ -28,8 +31,13 @@ const schema = buildSchema(`
     email: String
     pwd: String
   }
+
+  input UserUpdateInfo {
+    pwd: String
+    name: String
+    role: UserRole
+  }
   
-  # 2. Login existing user
   
 
   # SignInUserPayload bundles information about the user and token
@@ -38,13 +46,28 @@ const schema = buildSchema(`
     token: String
   }
 
+
+  # Enums
+
+  enum UserRole {
+    ADMIN
+    GUEST
+  }
+
+  enum CheckAuthResponse {
+    OK
+    LOGIN_REQUIRED
+  }
+
+  # Types
+
   type User{
     id: String
     email: String
     name: String
     c_date: String
+    role: UserRole
   }
-
   type Login{
     id: String
     email: String
@@ -59,29 +82,42 @@ const schema = buildSchema(`
     c_date: String
   }
 `);
-// 맞춤 스칼라 타입 지정은 어떻게?
+
 var resolver = {
   users: async (args, context, info) => {
     return await user.getAllUsers();
   },
 
-  login: async ({provider: { email, pwd} }, context, info) => {
-    const { user } = await context.authenticate("graphql-local", {
-      email,
-      password:pwd,
-    });
-    await context.login(user);
-    return { user };
-  },
   user: async (args, context, info) => {
     const { email } = args;
 
     return await user.getUser(email);
   },
-  createUser: async (args, context, info) => {
-    const { email, name, pwd } = args;
 
-    return await user.joinUser(email, name, pwd);
+  checkAuth: async (args, context, info) => {
+    return await auth.check(args, context);
+  },
+
+  login: async (args, context, info) => {
+
+    return await user.login(args, context);
+
+    
+  },
+
+  logout: async (args, context, info) => {
+    return await user.logout(args, context);
+    
+  },
+
+
+  createUser: async (args, context, info) => {
+    const { email, name, pwd, role } = args;
+    return await user.joinUser(args);
+  },
+
+  updateUser: async(args, context, info) => {
+    return await user.updateUser(args, context);
   },
   pages: async (args, context, info) => {
     return await page.getAllPages();

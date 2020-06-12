@@ -9,16 +9,16 @@
 
 <script>
 import { BFormInput, BButton } from 'bootstrap-vue';
-import { graphql } from '../graphql-client';
+import { graphql, loginQuery } from '../graphql-client';
 
-const exampleQuery = `
-{
-  users {
-    id
-    email
-  }
-}
-`;
+// const exampleQuery = `
+// {
+//   users {
+//     id
+//     email
+//   }
+// }
+// `;
 
 export default {
   name: 'Login',
@@ -35,7 +35,8 @@ export default {
   },
   methods: {
     async login() {
-      const result = await graphql(exampleQuery, {});
+      const { email, pwd } = this;
+      const result = await graphql(loginQuery, { email, pwd });
       this.text = result;
     },
     // login() {
@@ -48,13 +49,13 @@ export default {
     //     console.log(error);
     //   });
     // },
-    greet(event) {
+    greet() {
       // 메소드 안에서 사용하는 `this` 는 Vue 인스턴스를 가리킵니다
       console.log(`Hello ${this.name}!`);
       // `event` 는 네이티브 DOM 이벤트입니다
-      if (event) {
-        alert(event.target.tagName);
-      }
+      // if (event) {
+      //   alert(event.target.tagName);
+      // }
     },
   },
 };

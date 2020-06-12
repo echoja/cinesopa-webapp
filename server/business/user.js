@@ -1,6 +1,26 @@
 import model from '../mongoose/model.js';
+import { withAuth } from './util.js';
 
 export const user = {
+  login: async ({provider:{email, pwd}, redirectLink}, context) => {
+    const { user } = await context.authenticate("graphql-local", {
+      email,
+      password: pwd,
+    });
+    await context.login(user);
+    return { user };
+  },
+
+  logout: async(args, context) => {
+    const { email } = args;
+    const userFound = await user.getUser(email);
+    if (userFound) {
+      await context.logout(userFound);
+    }
+    return { user: userFound }  ;
+
+  },
+
   // https://mongoosejs.com/docs/guide.html#id
   getUser: async (email) => {
     return await model.User.findOne({email}); // 없을땐 null
@@ -19,7 +39,7 @@ export const user = {
     return await model.User.find();
   },
 
-  joinUser: async () => {
+  joinUser: async ({ email, name, pwd, role }) => {
     if(await getUser(email)) throw "email is existed";
 
     const newUser = new model.User({email, name});
@@ -28,7 +48,22 @@ export const user = {
     await newLogin.save();
     
     return result;
-  }
+  },
+
+  updateUser: withAuth(["ADMIN"], async ({email, userinfo}) => {
+    console.log(email);
+    console.log(userinfo);
+    const user = await model.User.findOne({email});
+    if(!user) throw new Error("user not found");
+    // console.log(user);
+    for( let k in userinfo) {
+      if (userinfo[k] !== null ) {
+        user[k] = userinfo[k]
+      }
+    }
+    await user.save();
+    return user;
+  })
 
 }
 

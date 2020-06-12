@@ -9,26 +9,30 @@ const url = '/graphql';
 
 export const graphql = async (query, variables) => {
   try {
-    return await axios.post(url, JSON.stringify({
+    const { data } = await axios.post(url, JSON.stringify({
       query,
       variables,
     }), {
       headers,
     });
+    return data;
   } catch (error) {
     return error;
   }
 };
-export const no = 'no';
+export const checkAuthQuery = `
+query CheckAuth($redirectLink: String!) {
+  checkAuth(redirectLink:$redirectLink) 
+}
+`;
 
-
-// fetch('/graphql', {
-//   method: 'POST',
-//   headers: {
-//     'Content-Type': 'application/json',
-//     'Accept': 'application/json',
-//   },
-//   body: JSON.stringify({query: "{ hello }"})
-// })
-//   .then(r => r.json())
-//   .then(data => console.log('data returned:', data));
+export const loginQuery = `
+mutation Login ($email: String!, $pwd: String!) {
+  login(provider: {email:$email, pwd: $pwd}) {
+    user {
+      name
+      email
+    }
+  }
+}
+`;
