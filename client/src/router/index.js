@@ -4,6 +4,8 @@ import Home from '../views/Home.vue';
 import Login from '../views/Login.vue';
 import Me from '../views/Me.vue';
 import Logout from '../views/Logout.vue';
+import Admin from '../views/Admin.vue';
+import PageEdit from '../views/PageEdit.vue';
 import { graphql, checkAuthQuery, logoutMeQuery } from '../graphql-client';
 
 Vue.use(VueRouter);
@@ -53,6 +55,18 @@ const routes = [
     name: 'Me',
     component: Me,
     beforeEnter: requireAuth,
+  },
+  {
+    path: '/admin',
+    name: 'Admin',
+    component: Admin,
+    children: [
+      {
+        path: '/admin/page',
+        component: PageEdit,
+        name: 'PageEdit',
+      },
+    ],
   },
 ];
 
