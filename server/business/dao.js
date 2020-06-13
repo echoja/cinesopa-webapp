@@ -1,3 +1,7 @@
-export { user } from './user.js'
-export { page } from './page.js'
-export { auth } from './auth.js'
+const user = require('./user');
+const page = require('./page');
+const auth = require('./auth');
+
+module.exports = {
+  user, page, auth
+};

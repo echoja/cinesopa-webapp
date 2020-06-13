@@ -1,4 +1,4 @@
-export default function(mongoose){
+module.exports = function(mongoose){
   let userSchema = new mongoose.Schema({
     email: String,
     name: String,

@@ -1,6 +1,5 @@
-import model from '../mongoose/model.js';
 
-export const auth = {
+module.exports = {
 
   check: async({redirectLink}, {isUnauthenticated, req}) => {
     

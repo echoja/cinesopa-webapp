@@ -1,4 +1,4 @@
-export default function(mongoose){
+module.exports = function(mongoose){
   return new mongoose.Schema({
     title: String,
     content: String,

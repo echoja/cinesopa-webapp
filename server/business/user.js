@@ -1,7 +1,7 @@
-import model from "../mongoose/model.js";
-import { withAuth } from "./util.js";
+const model = require("../mongoose/model.js");
+const withAuth = require("./util.js").withAuth;
 
-export const user = {
+module.exports = {
   login: async ({ provider: { email, pwd } }, context) => {
     // 사용자 인증
     const { user } = await context.authenticate("graphql-local", {

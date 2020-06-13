@@ -1,0 +1,87 @@
+scalar Upload
+
+type Query {
+  uploads: [File]
+  users: [User]
+  user(email: String!): User
+  pages: [Page]
+  checkAuth(redirectLink: String): CheckAuthResponse
+}
+
+  type Mutation {
+  singleUpload(file: Upload!):File!
+    # 1. Create new user
+    createUser(authProvider: EmailAuthProvider!): User
+    # createUser(email: String!, pwd: String!, name: String!): User
+    createPage(title: String!, content: String!, author: String!): Page
+    signinUserByEmail(provider: EmailAuthProvider! ): SignInUserPayload
+    login(provider: EmailAuthProvider!, redirectLink: String ): AuthPayload
+    logout(email: String!): AuthPayload
+    logoutMe : AuthPayload
+    updateUser(email: String!, userinfo: UserUpdateInfo): User
+  }
+
+  type AuthPayload {
+    user: User
+    redirectLink: String
+  }
+
+  input EmailAuthProvider {
+    email: String
+    pwd: String
+  }
+
+  input UserUpdateInfo {
+    pwd: String
+    name: String
+    role: UserRole
+  }
+  
+  type File {
+    filename: String!
+    mimetype: String!
+    encoding: String!
+  }
+
+  # SignInUserPayload bundles information about the user and token
+  type SignInUserPayload {
+    user: User
+    token: String
+  }
+
+
+  # Enums
+
+  enum UserRole {
+    ADMIN
+    GUEST
+  }
+
+  enum CheckAuthResponse {
+    OK
+    LOGIN_REQUIRED
+  }
+
+  # Types
+
+  type User{
+    id: String
+    email: String
+    name: String
+    c_date: String
+    role: UserRole
+  }
+  type Login{
+    id: String
+    email: String
+    pwd: String
+  }
+
+  type Page{
+    id: String
+    title: String,
+    content: String,
+    author: User
+    c_date: String
+  }
+

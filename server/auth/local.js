@@ -1,10 +1,9 @@
-import passport from "passport";
-import passportLocal from "passport-local";
-const LocalStrategy = passportLocal.Strategy;
-import { user } from "../business/dao.js";
-import gp from "graphql-passport";
+const passport = require("passport");
+const passportLocal = require("passport-local");
+const { user } = require("../business/dao.js");
+const gp = require("graphql-passport");
 
-export const localAuthConfig = () => {
+module.exports.localAuthConfig = () => {
 
   passport.serializeUser((user, done) => {
     done(null, user.email);

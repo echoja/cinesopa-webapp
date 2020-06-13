@@ -1,10 +1,10 @@
-import mongoose from 'mongoose';
-import pageBuilder from './schema/page.js';
-import userBuilder from './schema/user.js';
-import loginBuilder from './schema/login.js';
+const mongoose = require('mongoose');
+const pageBuilder = require('./schema/page.js');
+const userBuilder = require('./schema/user.js');
+const loginBuilder = require('./schema/login.js');
 
 
-export default (function(){
+module.exports = (function(){
   const URI = process.env.MONGO_URI || "localhost"; // your mongodb uri
   const DB = process.env.MONGO_DB || "cinesopa"; // your db
 

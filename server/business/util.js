@@ -4,7 +4,7 @@
  * @param {} roleList 
  * @param {Func[args]} func 
  */
-export const withAuth = (roleList, func) => {
+module.exports.withAuth = (roleList, func) => {
   return async (args, context) => {
     if (context.isUnauthenticated()) throw Error("Not Authenticated");
     const user = await context.getUser();

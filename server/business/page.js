@@ -1,6 +1,6 @@
-import model from '../mongoose/model.js'
+const model = require('../mongoose/model.js');
 
-export const page = (function(){
+module.exports = (function(){
 
   async function createPage({title, content, author}){
     const newPage = new model.Page({title: title, content: content, author: author});

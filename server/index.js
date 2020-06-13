@@ -1,21 +1,18 @@
-import express from "express";
-import http from "http";
-import https from "https";
-import graphqlHTTP from "express-graphql";
-import { schema, root } from "./graphql/schema.js";
-import { privateKey, certificate, passphrase } from "./cert/ssl-config.js";
-import logger from "morgan";
+const express = require("express");
+const http = require("http");
+const https = require("https");
+const graphqlHTTP = require("express-graphql");
+const schema = require("./graphql/schema.js");
+const { privateKey, certificate, passphrase } = require("./cert/ssl-config.js");
+const logger = require("morgan");
 //var { buildSchema } = require('graphql');
-import redirect_https from "redirect-https";
-import session from "express-session";
-import passport from "passport";
-import { localAuthConfig } from "./auth/local.js";
-// import { GraphQLLocalStrategy, buildContext } from 'graphql-passport';
-import gp from "graphql-passport";
-const { GraphQLLocalStrategy, buildContext } = gp;
-import { v4 as uuidv4 } from "uuid";
-import connectMongo from "connect-mongo";
-const MongoStore = connectMongo(session);
+const redirect_https = require("redirect-https");
+const session = require("express-session");
+const passport = require("passport");
+const localAuthConfig = require("./auth/local.js").localAuthConfig;
+const { GraphQLLocalStrategy, buildContext } = require("graphql-passport");
+const uuidv4 = require("uuid").v4;
+const MongoStore = require("connect-mongo")(session);
 
 var app = express();
 app.use(
@@ -47,7 +44,7 @@ app.get("/", (req, res) => {
 app.use("/graphql", (req, res, next) => {
   graphqlHTTP({
     schema: schema,
-    rootValue: root,
+    // rootValue: root,
     graphiql: true,
     context: buildContext({req, res}),
     // context: ({ req, res }) => buildContext({ req, res }),
