@@ -4,23 +4,13 @@
     <editor
       api-key="gt5higoqzglgrwcu9r7cdbmj408cva4csd4aj2y6qvcr5i5r"
       v-model="val"
-      :init="{
-        height: 500,
-        menubar: false,
-        plugins: [
-          'advlist autolink lists link image charmap print preview anchor',
-          'searchreplace visualblocks code fullscreen',
-          'insertdatetime media table paste code help wordcount'
-        ],
-        toolbar:
-          'undo redo | formatselect | bold italic backcolor | \
-           alignleft aligncenter alignright alignjustify | \
-           bullist numlist outdent indent | removeformat | help'
-      }"
+      :init="editorInit"
     />
   <b-button @click="confirm">적용</b-button>
   <p>{{ val }}</p>
-  <b-form-file v-model="file2" @input="fileUpload" ref="file-input" class="mt-3" plain></b-form-file>
+  <b-form-file v-model="file2" @input="fileUpload" ref="file-input" class="mt-3" plain>
+
+  </b-form-file>
   <p>{{ file2 }}</p>
   </div>
 
@@ -29,6 +19,10 @@
 <script>
 import Editor from '@tinymce/tinymce-vue';
 import upload from '../upload-client';
+import tinymceInit from '../tinymce-configure';
+
+// tinymceConfigure();
+
 // import { singleUploadQuery } from '../graphql-client';
 
 // import { BFormFile } from 'bootstrap-vue';
@@ -52,6 +46,10 @@ export default {
       val: '',
     };
   },
+  computed: {
+    editorInit: () => tinymceInit,
+  },
+
   methods: {
     confirm() {
 
