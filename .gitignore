@@ -5,6 +5,7 @@
 .env.*.local
 
 /server/cert/*
+/server/uploads/*
 
 # Editor directories and files
 .idea
