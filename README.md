@@ -1,24 +1,31 @@
-# cinesopa-webapp
+# 씨네소파 웹앱
 
-## Project setup
-```
-npm install
-```
+## 소개
 
-### Compiles and hot-reloads for development
-```
-npm run serve
-```
+씨네소파 웹사이트 및 관리툴 개발과 관련된 소스 코드 관리입니다. 소스는 공개되어 있으나 라이센스는 (추가 예정)입니다.
 
-### Compiles and minifies for production
-```
-npm run build
-```
+## 프로젝트 실행
 
-### Lints and fixes files
-```
-npm run lint
-```
+1. 필수 환경변수 설정. (추가 예정)
+    1. ssl 설정 ( 경로 추가 예정 )
+    1. DB 설정 ( 경로 추가 예정 )
+    1. 암호 생성에 필요한 key 설정 ( 경로 추가 예정 )
 
-### Customize configuration
-See [Configuration Reference](https://cli.vuejs.org/config/).
+    - 예제: ~~~
+
+1. 패키지 세팅
+
+    ```bash
+    npm install
+    ```
+
+1. 실행
+
+    ```bash
+    npm run start-server
+    npm run start-client
+    ```
+
+## 배포
+
+추가 예정
