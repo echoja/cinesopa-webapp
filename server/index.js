@@ -1,8 +1,8 @@
 const express = require("express");
 const http = require("http");
 const https = require("https");
-const graphqlHTTP = require("express-graphql");
-const schema = require("./graphql/schema.js");
+
+
 const { privateKey, certificate, passphrase } = require("./cert/ssl-config.js");
 const logger = require("morgan");
 //var { buildSchema } = require('graphql');
@@ -10,18 +10,20 @@ const redirect_https = require("redirect-https");
 const session = require("express-session");
 const passport = require("passport");
 const { localAuthConfig } = require("./auth/local.js");
-const { GraphQLLocalStrategy, buildContext } = require("graphql-passport");
-const createError = require('http-errors');
-const upload = require('multer')({dest:'uploads/'}).single('bin');
+
+
+const router = require('./router.js');
 
 const uuidv4 = require("uuid").v4;
 const MongoStore = require("connect-mongo")(session);
 
 var app = express();
+
+// session settings
 app.use(
   session({
     genid: (req) => uuidv4(),
-    secret: "thisissecretman",
+    secret: "thisissecretman", // env secret required
     resave: false,
     saveUninitialized: false,
     // cookie: {secure: true}, // send cookies over https
@@ -38,33 +40,8 @@ app.use(passport.session());
 // configuring logger
 app.use(logger("dev"));
 
-// default responding
-app.get("/", (req, res) => {
-  res.send("abcd");
-});
-
-// req.user로 유저 데이터 접근 가능
-// req.isAuthenticated() 로 지금 인증된 상태인지 확인 가능
-app.post("/upload", upload, (req, res, next) => {
-  if (req.isAuthenticated() && req.user.role === "ADMIN" ) {
-    console.log(req.body);
-    console.log(req.file);
-    res.status(204).send();
-  } else {
-    res.send("not authenticated!");
-  }
-});
-
-// graphiql settings
-app.use("/graphql", (req, res, next) => {
-  graphqlHTTP({
-    schema: schema,
-    // rootValue: root,
-    graphiql: true,
-    context: buildContext({ req, res }),
-    // context: ({ req, res }) => buildContext({ req, res }),
-  })(req, res, next);
-});
+// router
+app.use('/', router);
 
 // configuring http to https
 const redirector = redirect_https({
