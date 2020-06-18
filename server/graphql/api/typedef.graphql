@@ -6,6 +6,7 @@ type Query {
   user(email: String!): User
   pages: [Page]
   checkAuth(redirectLink: String): CheckAuthResponse
+  page(permalink: String!): Page
 }
 
   type Mutation {
@@ -13,7 +14,8 @@ type Query {
     # 1. Create new user
     createUser(authProvider: EmailAuthProvider!): User
     # createUser(email: String!, pwd: String!, name: String!): User
-    createPage(title: String!, content: String!, author: String!): Page
+    # createPage(title: String!, content: String!, author: String!, permalink: String!): Page
+    createPage(title: String!, content: String!, permalink: String!): Page
     signinUserByEmail(provider: EmailAuthProvider! ): SignInUserPayload
     login(provider: EmailAuthProvider!, redirectLink: String ): AuthPayload
     logout(email: String!): AuthPayload
@@ -79,9 +81,10 @@ type Query {
 
   type Page{
     id: String
+    permalink: String,
     title: String,
     content: String,
-    author: User
+    # author: User
     c_date: String
   }
 

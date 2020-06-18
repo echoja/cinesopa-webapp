@@ -6,6 +6,7 @@ import Me from '../views/Me.vue';
 import Logout from '../views/Logout.vue';
 import Admin from '../views/Admin.vue';
 import PageEdit from '../views/PageEdit.vue';
+import Page from '../views/Page.vue';
 import { graphql, checkAuthQuery, logoutMeQuery } from '../graphql-client';
 
 Vue.use(VueRouter);
@@ -67,6 +68,11 @@ const routes = [
         name: 'PageEdit',
       },
     ],
+  },
+  {
+    path: '/:permalink',
+    name: 'Page',
+    component: Page,
   },
 ];
 

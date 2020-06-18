@@ -39,6 +39,10 @@ module.exports = {
       const { email } = args;
       return await user.getUser(email);
     },
+
+    page: async (obj, args, context, info) => {
+      return await page.getPageByPermalink(args, context);
+    },
     pages: async (obj, args, context, info) => {
       return await page.getAllPages();
     },

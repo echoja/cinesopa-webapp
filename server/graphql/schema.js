@@ -8,8 +8,6 @@ const {fileLoader, mergeResolvers, mergeTypes} = require('merge-graphql-schemas'
 const allTypes = fileLoader(path.join(path.resolve(), "./graphql/api/**/*.graphql"));
 const allResolvers = fileLoader(path.join(path.resolve(), "./graphql/api/**/*.js"));
 
-// console.log(allTypes);
-console.log(allResolvers);
 const schema = makeExecutableSchema({
   typeDefs: mergeTypes(allTypes),
   resolvers: mergeResolvers(allResolvers),

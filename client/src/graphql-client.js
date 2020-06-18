@@ -20,6 +20,17 @@ export const graphql = async (query, variables) => {
     return error;
   }
 };
+
+export const getPageQuery = `
+query getPage($permalink: String!) {
+  page(permalink: $permalink) {
+    title
+    content
+    permalink
+  }
+}
+`;
+
 export const checkAuthQuery = `
 query CheckAuth($redirectLink: String!) {
   checkAuth(redirectLink:$redirectLink) 

@@ -1,21 +1,26 @@
-const model = require('../mongoose/model.js');
+const model = require("../mongoose/model.js");
 
-module.exports = (function(){
-
-  async function createPage({title, content, author}){
-    const newPage = new model.Page({title: title, content: content, author: author});
+module.exports = {
+  /**
+   * createPage description
+   * @public
+   */
+  createPage: async (args, context) => {
+    const newPage = new model.Page(args);
 
     const result = await newPage.save();
-    return await result.populate('author').execPopulate();
-  }
+    return result;
+    // return await result.populate("author").execPopulate();
+  },
 
-  async function getAllPages(){
-    return await model.Page.find().populate('author');
-  }
+  getAllPages: async () => {
+    return await model.Page.find();
+    // return await model.Page.find().populate("author");
+  },
 
-  return {
-    createPage: createPage,
-    getAllPages: getAllPages,
-  };
+  getPageById: async ({ id }, context) => {},
 
-})();
+  getPageByPermalink: async ({ permalink }, context) => {
+    return await model.Page.findOne({ permalink });
+  },
+};
