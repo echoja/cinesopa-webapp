@@ -1,3 +1,4 @@
+
 <template>
   <div>
     <b-form-input type="email" v-model="email" placeholder="이메일"></b-form-input>
@@ -9,7 +10,10 @@
 
 <script>
 import { BFormInput, BButton } from 'bootstrap-vue';
+import url from 'url';
 import { graphql, loginQuery } from '../../graphql-client';
+import router from '../../router';
+
 
 // const exampleQuery = `
 // {
@@ -42,7 +46,11 @@ export default {
       // 데이터로부터 redirectLink가 오면 해당 리다이렉트 페이지로 이동
       const redirectLink = result?.data?.login?.redirectLink;
       if (redirectLink) {
-        document.location = redirectLink;
+        const parsed = url.parse(redirectLink);
+        router.push(parsed.pathname);
+        // document.location = redirectLink;
+      } else {
+        router.push('/');
       }
     },
     // login() {
