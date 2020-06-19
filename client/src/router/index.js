@@ -3,11 +3,11 @@ import VueRouter from 'vue-router';
 import Home from '../views/client/Home.vue';
 import Login from '../views/client/Login.vue';
 import Me from '../views/client/Me.vue';
-import Logout from '../views/client/Logout.vue';
+// import Logout from '../views/client/Logout.vue';
 
 import Page from '../views/client/Page.vue';
 import Admin from '../views/admin/Admin.vue';
-import Pages from '../views/admin/Pages';
+import Pages from '../views/admin/Pages.vue';
 import PageEdit from '../views/admin/PageEdit.vue';
 
 
@@ -42,12 +42,12 @@ const routes = [
     // route level code-splitting
     // this generates a separate chunk (about.[hash].js) for this route
     // which is lazy-loaded when the route is visited.
-    component: () => import(/* webpackChunkName: "about" */ '../views/About.vue'),
+    component: () => import(/* webpackChunkName: "about" */ '../views/client/About.vue'),
   },
   {
     path: '/logout',
     name: 'Logout',
-    component: Logout,
+    component: () => import('../views/client/Logout.vue'),
     beforeEnter: logoutBeforeEnter,
   },
   {
@@ -67,7 +67,12 @@ const routes = [
     component: Admin,
     children: [
       {
-        path: '/admin/page',
+        path: '/admin/pages',
+        component: Pages,
+        name: 'Pages',
+      },
+      {
+        path: '/admin/page/:id',
         component: PageEdit,
         name: 'PageEdit',
       },

@@ -7,6 +7,7 @@ const headers = {
 
 const url = '/graphql';
 
+
 export const graphql = async (query, variables) => {
   try {
     const { data } = await axios.post(url, JSON.stringify({
@@ -21,12 +22,31 @@ export const graphql = async (query, variables) => {
   }
 };
 
+export const dataGraphql = async (...args) => {
+  const res = await graphql(...args);
+  return res?.data;
+};
+
+
+export const getPagesQuery = `
+query getPages {
+  pages {
+    id
+    permalink
+    title
+    c_date
+  }
+}
+`;
+
 export const getPageQuery = `
 query getPage($permalink: String!) {
   page(permalink: $permalink) {
+    id
     title
     content
     permalink
+    c_date
   }
 }
 `;

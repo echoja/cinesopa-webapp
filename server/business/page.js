@@ -18,9 +18,11 @@ module.exports = {
     // return await model.Page.find().populate("author");
   },
 
-  getPageById: async ({ id }, context) => {},
+  getPageById: async ({ id }) => {
+    return await model.Page.findById(id);
+  },
 
-  getPageByPermalink: async ({ permalink }, context) => {
+  getPageByPermalink: async ({ permalink }) => {
     return await model.Page.findOne({ permalink });
   },
 };

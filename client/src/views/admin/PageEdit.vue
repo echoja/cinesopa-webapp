@@ -20,7 +20,19 @@
 import Editor from '@tinymce/tinymce-vue';
 import upload from '../../upload-client';
 import tinymceInit from '../../tinymce-configure';
+import { dataGraphql } from '../../graphql-client';
 
+const getPageByIdQuery = `
+query getPageById($id: String!) {
+  pageById(id: $id) {
+    id
+    title
+    content
+    permalink
+    c_date
+  }
+}
+`;
 // tinymceConfigure();
 
 // import { singleUploadQuery } from '../graphql-client';
@@ -43,11 +55,20 @@ export default {
   data() {
     return {
       file2: null,
+      content: '',
       val: '',
     };
   },
+
+  async created() {
+    const { id } = this.$route.params;
+    const { pageById } = await dataGraphql(getPageByIdQuery, { id });
+    this.content = pageById.content;
+  },
   computed: {
-    editorInit: () => tinymceInit,
+    editorInit() {
+      return tinymceInit(this.content);
+    },
   },
 
   methods: {

@@ -7,6 +7,7 @@ type Query {
   pages: [Page]
   checkAuth(redirectLink: String): CheckAuthResponse
   page(permalink: String!): Page
+  pageById(id: String!): Page
 }
 
   type Mutation {
