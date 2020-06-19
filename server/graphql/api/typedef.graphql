@@ -40,17 +40,8 @@ type Query {
     role: UserRole
   }
   
-  type File {
-    filename: String!
-    mimetype: String!
-    encoding: String!
-  }
+  
 
-  # SignInUserPayload bundles information about the user and token
-  type SignInUserPayload {
-    user: User
-    token: String
-  }
 
 
   # Enums
@@ -60,11 +51,12 @@ type Query {
     GUEST
   }
 
-  enum CheckAuthResponse {
+  enum IsAllow {
     OK
     LOGIN_REQUIRED
   }
 
+  
   # Types
 
   type User{
@@ -87,5 +79,21 @@ type Query {
     content: String,
     # author: User
     c_date: String
+  }
+  type File {
+    filename: String
+    mimetype: String
+    encoding: String
+  }
+
+  # SignInUserPayload bundles information about the user and token
+  type SignInUserPayload {
+    user: User
+    token: String
+  }
+
+  type CheckAuthResponse {
+    isAllow: IsAllow
+    user: User
   }
 

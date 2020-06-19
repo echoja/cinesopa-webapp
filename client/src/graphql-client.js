@@ -53,7 +53,15 @@ query getPage($permalink: String!) {
 
 export const checkAuthQuery = `
 query CheckAuth($redirectLink: String!) {
-  checkAuth(redirectLink:$redirectLink) 
+  checkAuth(redirectLink:$redirectLink) {
+    isAllow
+    user {
+      name
+      email
+      c_date
+      role
+    }
+  }
 }
 `;
 

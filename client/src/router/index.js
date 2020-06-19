@@ -1,25 +1,22 @@
 import Vue from 'vue';
-import VueRouter from 'vue-router';
-import Home from '../views/client/Home.vue';
-import Login from '../views/client/Login.vue';
-import Me from '../views/client/Me.vue';
-// import Logout from '../views/client/Logout.vue';
 
-import Page from '../views/client/Page.vue';
-import Admin from '../views/admin/Admin.vue';
-import Pages from '../views/admin/Pages.vue';
-import PageEdit from '../views/admin/PageEdit.vue';
+import VueRouter from 'vue-router';
+import store from '../store';
 
 
 import { graphql, checkAuthQuery, logoutMeQuery } from '../graphql-client';
+
 
 Vue.use(VueRouter);
 
 const requireAuth = async (from, to, next) => {
   const result = await graphql(checkAuthQuery, { redirectLink: document.location.href });
-  if (result?.data?.checkAuth === 'LOGIN_REQUIRED') {
+  if (result?.data?.checkAuth?.isAllow === 'LOGIN_REQUIRED') {
     next({ name: 'Login' });
   } else {
+    store.commit('setUser', {
+      user: result?.data?.checkAuth?.user,
+    });
     next();
   }
 };
@@ -34,7 +31,7 @@ const routes = [
   {
     path: '/',
     name: 'Home',
-    component: Home,
+    component: () => import('../views/client/Home.vue'),
   },
   {
     path: '/about',
@@ -53,27 +50,27 @@ const routes = [
   {
     path: '/login',
     name: 'Login',
-    component: Login,
+    component: () => import('../views/client/Login.vue'),
   },
   {
     path: '/me',
     name: 'Me',
-    component: Me,
+    component: () => import('../views/client/Me.vue'),
     beforeEnter: requireAuth,
   },
   {
     path: '/admin',
     name: 'Admin',
-    component: Admin,
+    component: () => import('../views/admin/Admin.vue'),
     children: [
       {
         path: '/admin/pages',
-        component: Pages,
+        component: () => import('../views/admin/Pages.vue'),
         name: 'Pages',
       },
       {
         path: '/admin/page/:id',
-        component: PageEdit,
+        component: () => import('../views/admin/PageEdit.vue'),
         name: 'PageEdit',
       },
     ],
@@ -81,7 +78,7 @@ const routes = [
   {
     path: '/:permalink',
     name: 'Page',
-    component: Page,
+    component: () => import('../views/client/Page.vue'),
   },
 ];
 

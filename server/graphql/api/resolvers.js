@@ -50,7 +50,7 @@ module.exports = {
       return await page.getPageById(args);
     },
     async checkAuth (obj, args, context, info){
-      return await auth.check(args);
+      return await auth.check(args, context);
     },
   },
 };
