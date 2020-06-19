@@ -18,8 +18,8 @@
 
 <script>
 import Editor from '@tinymce/tinymce-vue';
-import upload from '../upload-client';
-import tinymceInit from '../tinymce-configure';
+import upload from '../../upload-client';
+import tinymceInit from '../../tinymce-configure';
 
 // tinymceConfigure();
 

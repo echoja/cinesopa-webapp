@@ -1,12 +1,16 @@
 import Vue from 'vue';
 import VueRouter from 'vue-router';
-import Home from '../views/Home.vue';
-import Login from '../views/Login.vue';
-import Me from '../views/Me.vue';
-import Logout from '../views/Logout.vue';
-import Admin from '../views/Admin.vue';
-import PageEdit from '../views/PageEdit.vue';
-import Page from '../views/Page.vue';
+import Home from '../views/client/Home.vue';
+import Login from '../views/client/Login.vue';
+import Me from '../views/client/Me.vue';
+import Logout from '../views/client/Logout.vue';
+
+import Page from '../views/client/Page.vue';
+import Admin from '../views/admin/Admin.vue';
+import Pages from '../views/admin/Pages';
+import PageEdit from '../views/admin/PageEdit.vue';
+
+
 import { graphql, checkAuthQuery, logoutMeQuery } from '../graphql-client';
 
 Vue.use(VueRouter);

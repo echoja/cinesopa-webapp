@@ -9,7 +9,7 @@
 
 <script>
 import { BFormInput, BButton } from 'bootstrap-vue';
-import { graphql, loginQuery } from '../graphql-client';
+import { graphql, loginQuery } from '../../graphql-client';
 
 // const exampleQuery = `
 // {

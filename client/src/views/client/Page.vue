@@ -12,9 +12,10 @@
 
 <script>
 
-import { graphql, getPageQuery } from '../graphql-client';
+import { graphql, getPageQuery } from '../../graphql-client';
 
 export default {
+  name: 'Page',
   computed: {
     permalink() {
       return this.$route.params.permalink;
