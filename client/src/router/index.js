@@ -3,16 +3,19 @@ import Vue from 'vue';
 import VueRouter from 'vue-router';
 import store from '../store';
 
-
 import { graphql, checkAuthQuery, logoutMeQuery } from '../graphql-client';
-
 
 Vue.use(VueRouter);
 
-const requireAuth = async (from, to, next) => {
-  const result = await graphql(checkAuthQuery, { redirectLink: document.location.href });
-  if (result?.data?.checkAuth?.isAllow === 'LOGIN_REQUIRED') {
+const requireAuth = (role) => async (from, to, next) => {
+  const redirectLink = document.location.href;
+  const result = await graphql(checkAuthQuery, { redirectLink, role });
+  const permissionStatus = result?.data?.checkAuth?.permissionStatus;
+  console.log(permissionStatus);
+  if (permissionStatus === 'LOGIN_REQUIRED') {
     next({ name: 'Login' });
+  } else if (permissionStatus === 'NO_PERMISSION') {
+    next({ name: 'NoPermission' }); // make view required
   } else {
     store.commit('setUser', {
       user: result?.data?.checkAuth?.user,
@@ -25,7 +28,6 @@ const logoutBeforeEnter = async (from, to, next) => {
   await graphql(logoutMeQuery, {});
   next('/');
 };
-
 
 const routes = [
   {
@@ -56,12 +58,13 @@ const routes = [
     path: '/me',
     name: 'Me',
     component: () => import('../views/client/Me.vue'),
-    beforeEnter: requireAuth,
+    beforeEnter: requireAuth('GUEST'),
   },
   {
     path: '/admin',
     name: 'Admin',
     component: () => import('../views/admin/Admin.vue'),
+    beforeEnter: requireAuth('ADMIN'),
     children: [
       {
         path: '/admin/pages',
@@ -81,7 +84,6 @@ const routes = [
     component: () => import('../views/client/Page.vue'),
   },
 ];
-
 
 const router = new VueRouter({
   mode: 'history',

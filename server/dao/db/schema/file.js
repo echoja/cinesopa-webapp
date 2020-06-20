@@ -1,3 +1,4 @@
+const authmap = require('./authmap');
 module.exports = function(mongoose){
   return new mongoose.Schema({
     encoding: String,
@@ -7,5 +8,9 @@ module.exports = function(mongoose){
     alt: String,
     path: String,
     size: Number,
+    auth: {
+      type: String,
+      enum: ['ADMIN', 'GUEST', 'ANYONE']
+    },
   });
 };

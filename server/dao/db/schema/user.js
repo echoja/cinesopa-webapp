@@ -1,3 +1,6 @@
+const authmap = require('./authmap');
+const role = authmap.slice(0, -1);
+
 module.exports = function(mongoose){
   let userSchema = new mongoose.Schema({
     email: String,
@@ -5,7 +8,7 @@ module.exports = function(mongoose){
     c_date: { type: Date, default: Date.now },
     role: {
       type:String,
-      enum: ['ADMIN', 'GUEST'],
+      enum: role,
     }
   });
 

@@ -1,30 +1,30 @@
 
-/**
- * 
- * @param {} roleList 
- * @param {Func[args]} func 
- */
-module.exports.withAuth = (roleList, func) => {
-  return async (args, context) => {
-    if (context.isUnauthenticated()) throw Error("Not Authenticated");
-    const user = await context.getUser();
-    if (!roleList.includes(user.role))
-      throw Error(
-        `UserRole not matched. required:${roleList}, given:${user.role}`
-      );
-    return await func(args, context);
-  };
-};
+// /**
+//  * 
+//  * @param {} roleList 
+//  * @param {Func[args]} func 
+//  */
+// module.exports.withAuth = (roleList, func) => {
+//   return async (args, context) => {
+//     if (context.isUnauthenticated()) throw Error("Not Authenticated");
+//     const user = await context.getUser();
+//     if (!roleList.includes(user.role))
+//       throw Error(
+//         `UserRole not matched. required:${roleList}, given:${user.role}`
+//       );
+//     return await func(args, context);
+//   };
+// };
 
-// export const withAuthPiece = (roleList) => {
-//   return 
-// }
+// // export const withAuthPiece = (roleList) => {
+// //   return 
+// // }
 
-// // resolverBuilder(withAuthPicece(["ADMIN"]))(async (args, context) => { ... })
-// export const resolverBuilder = (...args) => {
-//   return (func) => {
-//     return async (args, context) => {
-//       return await func(args)
-//     }
-//   }
-// }
+// // // resolverBuilder(withAuthPicece(["ADMIN"]))(async (args, context) => { ... })
+// // export const resolverBuilder = (...args) => {
+// //   return (func) => {
+// //     return async (args, context) => {
+// //       return await func(args)
+// //     }
+// //   }
+// // }

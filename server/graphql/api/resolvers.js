@@ -5,15 +5,22 @@ module.exports = {
     async login (obj, args, context, info){
       return await user.login(args, context);
     },
+    
     async logout (obj, args, context, info){
       return await user.logoutMe(args, context);
     },
     async logoutMe (obj, args, context, info){
       return await user.logoutMe(args, context);
     },
-    async createUser (obj, args, context, info){
-      const { email, name, pwd, role } = args;
-      return await user.joinUser(args);
+    // async createUser (obj, args, context, info){
+    //   const { email, name, pwd, role } = args;
+    //   return await user.joinUser(args);
+    // },
+    async createAdmin (obj, args, context, info){
+      return await user.createAdmin(args, context);
+    },
+    async createGuest (obj, args, context, info){
+      return await user.createGuest(args, context);
     },
     async updateUser (obj, args, context, info){
       return await user.updateUser(args, context);
