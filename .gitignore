@@ -6,6 +6,8 @@
 
 /server/cert/*
 /server/uploads/*
+/server/config/*
+!/server/config/index-example.js
 
 # Editor directories and files
 .idea

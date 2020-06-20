@@ -1,6 +1,6 @@
 const passport = require("passport");
 const passportLocal = require("passport-local");
-const { user } = require("../business/dao.js");
+const { user } = require("../dao");
 const gp = require("graphql-passport");
 
 module.exports.localAuthConfig = () => {

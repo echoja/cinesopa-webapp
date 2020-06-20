@@ -1,4 +1,4 @@
-const { user, page, auth } = require("../../business/dao.js");
+const { user, page, auth } = require("../../dao");
 
 module.exports = {
   Mutation: {

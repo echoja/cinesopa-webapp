@@ -2,6 +2,7 @@ const mongoose = require('mongoose');
 const pageBuilder = require('./schema/page.js');
 const userBuilder = require('./schema/user.js');
 const loginBuilder = require('./schema/login.js');
+const fileBuilder = require('./schema/file.js');
 
 
 module.exports = (function(){
@@ -23,6 +24,7 @@ module.exports = (function(){
   schema.Page = pageBuilder(mongoose);
   schema.User = userBuilder(mongoose);
   schema.Login = loginBuilder(mongoose);
+  schema.File = fileBuilder(mongoose);
 
   // console.log(schema)
   for(let k in schema){

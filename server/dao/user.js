@@ -1,4 +1,4 @@
-const model = require("../mongoose/model.js");
+const model = require("./db/model.js");
 const withAuth = require("./util.js").withAuth;
 
 module.exports = {
@@ -70,8 +70,8 @@ module.exports = {
   },
 
   updateUser: withAuth(["ADMIN"], async ({ email, userinfo }, context) => {
-    console.log(email);
-    console.log(userinfo);
+    // console.log(email);
+    // console.log(userinfo);
     const user = await model.User.findOne({ email });
     if (!user) throw new Error("user not found");
     // console.log(user);

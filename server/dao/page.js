@@ -1,4 +1,4 @@
-const model = require("../mongoose/model.js");
+const model = require("./db/model.js");
 
 module.exports = {
   /**
