@@ -6,17 +6,17 @@ const fileBuilder = require('./schema/file.js');
 
 
 module.exports = (function(){
-  const URI = process.env.MONGO_URI || "localhost"; // your mongodb uri
-  const DB = process.env.MONGO_DB || "cinesopa"; // your db
+  // const URI = process.env.MONGO_URI || "localhost"; // your mongodb uri
+  // const DB = process.env.MONGO_DB || "cinesopa"; // your db
 
-  const db = mongoose.connection;
-  db.on('error', console.error);
-  db.once('open', function(){
-      // CONNECTED TO MONGODB SERVER
-      console.log("Connected to mongod server");
-  });
+  // const db = mongoose.connection;
+  // db.on('error', console.error);
+  // db.once('open', function(){
+  //     // CONNECTED TO MONGODB SERVER
+  //     console.log("Connected to mongod server");
+  // });
 
-  mongoose.connect(`mongodb://${URI}/${DB}`, { useNewUrlParser: true });
+  // mongoose.connect(`mongodb://${URI}/${DB}`, { useNewUrlParser: true });
 
   const schema = {};
   const model = {};

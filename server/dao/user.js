@@ -8,7 +8,7 @@ const getUser = makeResolverWithUserRole("ADMIN", async ({ email }, context) => 
 
 
 const joinUser = async ({ email, name, pwd, role }, context) => {
-  if (await getUser({email}, context)) throw "email is existed";
+  if (await model.User.findOne({ email })) throw "email is existed";
 
     const newUser = new model.User({ email, name, role });
     const newLogin = new model.Login({ email, pwd });

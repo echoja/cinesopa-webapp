@@ -40,21 +40,21 @@ module.exports = {
   },
   Query: {
     async users (obj, args, context, info){
-      return await user.getAllUsers();
+      return await user.getAllUsers(args, context);
     },
     async user (obj, args, context, info){
       const { email } = args;
-      return await user.getUser(email);
+      return await user.getUser(email, context);
     },
 
     async page (obj, args, context, info){
       return await page.getPageByPermalink(args, context);
     },
     async pages (obj, args, context, info) {
-      return await page.getAllPages();
+      return await page.getAllPages(args, context);
     },
     async pageById(obj, args, context, info) {
-      return await page.getPageById(args);
+      return await page.getPageById(args, context);
     },
     async checkAuth (obj, args, context, info){
       return await auth.check(args, context);

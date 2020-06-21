@@ -5,14 +5,18 @@ const logger = require("morgan");
 const redirect_https = require("redirect-https");
 const session = require("express-session");
 const passport = require("passport");
-const { localAuthConfig } = require("./auth/local.js");
-const config = require('./config');
-const router = require('./router.js');
+const { localAuthConfig } = require("./auth/local");
+const { dbServerInit } = require("./dao/db/db-server");
+const config = require("./config");
+const router = require("./router");
 const uuidv4 = require("uuid").v4;
 const MongoStore = require("connect-mongo")(session);
 
-
+// create express app
 var app = express();
+
+// initial mongoose
+dbServerInit();
 
 // session settings
 app.use(
@@ -36,7 +40,7 @@ app.use(passport.session());
 app.use(logger("dev"));
 
 // router
-app.use('/', router);
+app.use("/", router);
 
 // configuring http to https
 const redirector = redirect_https({
