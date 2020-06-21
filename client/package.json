@@ -1,5 +1,7 @@
 {
-  "name": "cinesopa-webapp",
+  "name": "cinesopa-webapp-client",
+  "description": "Cinesopa Vue Client",
+  "authors": "EzKorry",
   "version": "0.1.0",
   "private": true,
   "scripts": {

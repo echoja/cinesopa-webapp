@@ -8,7 +8,7 @@ const passport = require("passport");
 const { localAuthConfig } = require("./auth/local");
 const { dbServerInit } = require("./dao/db/db-server");
 const config = require("./config");
-const router = require("./router");
+const { getRouter } = require("./router");
 const uuidv4 = require("uuid").v4;
 const MongoStore = require("connect-mongo")(session);
 
@@ -37,10 +37,10 @@ app.use(passport.initialize()); // passport 구동
 app.use(passport.session());
 
 // configuring logger
-app.use(logger("dev"));
+app.use(logger("combined"));
 
 // router
-app.use("/", router);
+app.use("/", getRouter(app));
 
 // configuring http to https
 const redirector = redirect_https({

@@ -1,5 +1,5 @@
 {
-  "name": "cinesopa-webapp-wrapper",
+  "name": "cinesopa-webapp",
   "description": "client and server",
   "authors": "EzKorry",
   "version": "0.1.0",
@@ -8,7 +8,10 @@
   "type": "module",
   "scripts": {
     "start-server": "cd server && npm run start",
-    "start-client": "cd client && npm run serve",
-    "install": "cd server && npm install && cd ../client && npm install"
+    "dev-client": "cd client && npm run serve",
+    "install": "npm install -g copyfiles pm2 && cd server && npm install && cd ../client && npm install",
+    "build-client": "cd client && npm run build",
+    "copy": "copyfiles -u 2 \"client/dist/**/*\" \"server/dist\"",
+    "start": "npm run install && npm run build-client && npm run copy && npm run start-server"
   }
 }
