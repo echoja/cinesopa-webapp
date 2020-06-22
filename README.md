@@ -6,6 +6,8 @@
 
 ## 프로젝트 실행
 
+### 로컬 환경
+
 1. 필수 환경변수 설정. (추가 예정)
     1. ssl 설정 ( 경로 추가 예정 )
     1. DB 설정 ( 경로 추가 예정 )
@@ -13,18 +15,13 @@
 
     - 예제: ~~~
 
-1. 패키지 세팅
+1. 도커 이미지 빌드 및 컨테이너 실행
 
     ```bash
-    npm install
+    docker build -t app:0.1 .
+    docker run -it -p 4000:4000 --rm --name vue app:0.1
     ```
 
-1. 실행
-
-    ```bash
-    npm run start-server
-    npm run start-client
-    ```
 
 ## 배포
 

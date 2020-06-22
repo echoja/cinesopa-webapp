@@ -12,6 +12,9 @@ const { getRouter } = require("./router");
 const uuidv4 = require("uuid").v4;
 const MongoStore = require("connect-mongo")(session);
 
+// running mode check
+console.log(`This server is running in ${process.env.NODE_ENV} mode. `);
+
 // create express app
 var app = express();
 
