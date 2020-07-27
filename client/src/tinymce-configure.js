@@ -61,13 +61,14 @@ const examplePlugin = (editor) => {
 export default (content) => ({
   height: 500,
   menubar: false,
+  a11y_advanced_options: true,
   plugins: [
-    'ExamplePlugin',
+    'ExamplePlugin a11ychecker',
     'advlist autolink lists link image charmap print preview anchor',
     'searchreplace visualblocks code fullscreen',
     'insertdatetime media table paste code help wordcount',
   ],
-  toolbar: `example | undo redo | formatselect | bold italic backcolor | 
+  toolbar: `example insertdatetime image | undo redo | formatselect | bold italic backcolor | 
      alignleft aligncenter alignright alignjustify | 
      bullist numlist outdent indent | removeformat | help`,
   setup(editor) {
@@ -75,5 +76,9 @@ export default (content) => ({
     editor.on('init', () => {
       editor.setContent(content);
     });
+  },
+  images_upload_handler(blobInfo, success, failure) {
+    console.log(blobInfo);
+    failure('no implementation');
   },
 });

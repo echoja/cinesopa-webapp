@@ -14,6 +14,7 @@ const MongoStore = require("connect-mongo")(session);
 
 // running mode check
 console.log(`This server is running in ${process.env.NODE_ENV} mode. `);
+console.log(`This server locates in ${__dirname}`);
 
 // create express app
 var app = express();
@@ -62,6 +63,13 @@ const options = {
   cert: config.certificate,
   // passphrase
 };
+
+// greenlock.init({
+//   packageRoot: __dirname,
+//   configDir: './greenlock.d',
+//   maintainerEmail: "eszqsc112@naver.com", // env required 
+//   cluster: false,
+// }).serve(app);
 
 // MUST connect with https : https://localhost:4000/graphql
 https

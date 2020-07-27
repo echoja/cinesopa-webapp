@@ -6,22 +6,22 @@
 
 ## 프로젝트 실행
 
-### 로컬 환경
+### 환경 세팅 
 
-1. 필수 환경변수 설정. (추가 예정)
-    1. ssl 설정 ( 경로 추가 예정 )
-    1. DB 설정 ( 경로 추가 예정 )
-    1. 암호 생성에 필요한 key 설정 ( 경로 추가 예정 )
+1. `server/config/index.js` 파일 생성 (`server/config/index-example.js` 파일 참고)
+1. SSL 인증서 설치. (Let's Encrypt 사용시 `crontab` 등을 이용해 자동 갱신 필요)
 
-    - 예제: ~~~
+### 
+
 
 1. 도커 이미지 빌드 및 컨테이너 실행
 
+   - ssl 인증서 정보를 위하여 볼륨 설정 필요.
+
     ```bash
     docker build -t app:0.1 .
-    docker run -it -p 4000:4000 --rm --name vue app:0.1
+    sudo docker run -it -p 4000:4000 -v /etc/letsencrypt:/app/server/config/letsencrypt  --rm --name vue app:0.1
     ```
-
 
 ## 배포
 
