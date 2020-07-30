@@ -17,13 +17,13 @@ console.log(`This server is running in ${process.env.NODE_ENV} mode. `);
 console.log(`This server locates in ${__dirname}`);
 
 // create express app
-const sopaseom = express();
+const webapp = express();
 
 // initial mongoose
 dbServerInit();
 
 // session settings
-sopaseom.use(
+webapp.use(
   session({
     genid: (req) => uuidv4(),
     secret: config.sessionSecret, // env secret required
@@ -37,25 +37,25 @@ sopaseom.use(
   })
 );
 localAuthConfig();
-sopaseom.use(passport.initialize()); // passport 구동
-sopaseom.use(passport.session());
+webapp.use(passport.initialize()); // passport 구동
+webapp.use(passport.session());
 
 // configuring logger
-sopaseom.use(logger("combined"));
+webapp.use(logger("combined"));
 
 // router
-sopaseom.use("/", getRouter(sopaseom));
+webapp.use("/", getRouter(webapp));
 
 // configuring http to https
 /*const redirector = redirect_https({
   body: "<!-- Hello Developer! Please use HTTPS instead: {{ URL }} -->",
 });*/
-// const unsecure_sopaseom = express();
-// unsecure_sopaseom.use("/", redirector);
+// const unsecure_webapp = express();
+// unsecure_webapp.use("/", redirector);
 
-// http.createServer(unsecure_sopaseom).listen(80);
-/*sopaseom.use("/", redirector);*/
-// sopaseom.use(authenticateLocal);
+// http.createServer(unsecure_webapp).listen(80);
+/*webapp.use("/", redirector);*/
+// webapp.use(authenticateLocal);
 
 // configuring https connection
 // const options = {
@@ -67,18 +67,21 @@ sopaseom.use("/", getRouter(sopaseom));
 // greenlock.init({
 //   packageRoot: __dirname,
 //   configDir: './greenlock.d',
-//   maintainerEmail: "eszqsc112@naver.com", // env required 
+//   maintainerEmail: "eszqsc112@naver.com", // env required
 //   cluster: false,
-// }).serve(sopaseom);
+// }).serve(webapp);
 
 // MUST connect with https : https://localhost:4000/graphql
 // https
-//   .createServer(options, sopaseom)
+//   .createServer(options, webapp)
 //   .listen(4000, () => console.log("Now browse to localhost:4000/graphql"));
 
-sopaseom.listen(4000, () => console.log("soapseom server started!"));
-// http.createServer(sopaseom).listen();
+webapp.use("/cinesopa", express.static("dist/cinesopa"));
+webapp.use("/sopaseom", express.static("dist/sopaseom"));
+// webapp.use(express.static('dist'));
+webapp.listen(4000, () => console.log("soapseom and cinesopa server started!"));
+// http.createServer(webapp).listen();
 
-const cinesopa = express();
-cinesopa.use(express.static('dist/cinesopa'));
-cinesopa.listen(5000, () => console.log("cinesopa started!"));
+// const cinesopa = express();
+
+// cinesopa.listen(5000, () => console.log("cinesopa started!"));

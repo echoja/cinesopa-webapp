@@ -1,12 +1,13 @@
 
 ## config 폴더 내에 있어야 하는 파일들
 
-- `dhparams.pem`
+- `dhparams.pem` : `openssl dhparam -out dhparam.pem 4096`로 생성한 것.
 - `cinesopa-ssl.conf`
 - `cinesopa-wildcard-ssl.conf`
 - `sopaseom-ssl.conf`
 - `sopaseom-wildcard-ssl.conf`
 
+## ssl 관련 conf 파일 에제.
 
 ```conf
 ssl_protocols               TLSv1 TLSv1.1 TLSv1.2;

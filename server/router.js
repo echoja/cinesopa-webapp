@@ -24,15 +24,23 @@ router.post("/upload", upload, file.uploadMiddleware);
 // graphiql
 router.use("/graphql", graphQLServerMiddleware);
 
+
 module.exports.getRouter = (app) => {
-  app.use(history({
-    rewrites: [
-      { from: /\/graphql/, to: '/graphql'}
-    ],
-    // index: '/dist/index.html',
+  // app.use("/cinesopa", history({
+  //   // rewrites: [
+  //   //   { from: /\/graphql/, to: '/graphql'}
+  //   // ],
+  //   // index: '/cinesopa/index.html',
+  //   verbose: true, // production settings required
+  // }));
+  app.use("/sopaseom", history({
+    // rewrites: [
+    //   { from: /\/graphql/, to: '/graphql'}
+    // ],
+    // index: '/sopaseom/index.html',
     verbose: true, // production settings required
   }));
-  app.use(express.static('dist'));
+  // app.use(express.static('dist'));
   return router;
 }
 
