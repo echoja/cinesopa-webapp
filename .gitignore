@@ -7,6 +7,7 @@
 /server/cert/*
 /server/uploads/*
 /server/config/*
+/proxy/config/*
 !/server/config/index-example.js
 
 # Editor directories and files

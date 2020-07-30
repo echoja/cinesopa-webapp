@@ -1,8 +1,8 @@
 const express = require("express");
-const http = require("http");
-const https = require("https");
+// const http = require("http");
+// const https = require("https");
 const logger = require("morgan");
-const redirect_https = require("redirect-https");
+// const redirect_https = require("redirect-https");
 const session = require("express-session");
 const passport = require("passport");
 const { localAuthConfig } = require("./auth/local");
@@ -17,13 +17,13 @@ console.log(`This server is running in ${process.env.NODE_ENV} mode. `);
 console.log(`This server locates in ${__dirname}`);
 
 // create express app
-var app = express();
+const sopaseom = express();
 
 // initial mongoose
 dbServerInit();
 
 // session settings
-app.use(
+sopaseom.use(
   session({
     genid: (req) => uuidv4(),
     secret: config.sessionSecret, // env secret required
@@ -37,41 +37,48 @@ app.use(
   })
 );
 localAuthConfig();
-app.use(passport.initialize()); // passport 구동
-app.use(passport.session());
+sopaseom.use(passport.initialize()); // passport 구동
+sopaseom.use(passport.session());
 
 // configuring logger
-app.use(logger("combined"));
+sopaseom.use(logger("combined"));
 
 // router
-app.use("/", getRouter(app));
+sopaseom.use("/", getRouter(sopaseom));
 
 // configuring http to https
-const redirector = redirect_https({
+/*const redirector = redirect_https({
   body: "<!-- Hello Developer! Please use HTTPS instead: {{ URL }} -->",
-});
-// const unsecure_app = express();
-// unsecure_app.use("/", redirector);
+});*/
+// const unsecure_sopaseom = express();
+// unsecure_sopaseom.use("/", redirector);
 
-// http.createServer(unsecure_app).listen(80);
-app.use("/", redirector);
-// app.use(authenticateLocal);
+// http.createServer(unsecure_sopaseom).listen(80);
+/*sopaseom.use("/", redirector);*/
+// sopaseom.use(authenticateLocal);
 
 // configuring https connection
-const options = {
-  key: config.privateKey,
-  cert: config.certificate,
-  // passphrase
-};
+// const options = {
+//   key: config.privateKey,
+//   cert: config.certificate,
+//   // passphrase
+// };
 
 // greenlock.init({
 //   packageRoot: __dirname,
 //   configDir: './greenlock.d',
 //   maintainerEmail: "eszqsc112@naver.com", // env required 
 //   cluster: false,
-// }).serve(app);
+// }).serve(sopaseom);
 
 // MUST connect with https : https://localhost:4000/graphql
-https
-  .createServer(options, app)
-  .listen(4000, () => console.log("Now browse to localhost:4000/graphql"));
+// https
+//   .createServer(options, sopaseom)
+//   .listen(4000, () => console.log("Now browse to localhost:4000/graphql"));
+
+sopaseom.listen(4000, () => console.log("soapseom server started!"));
+// http.createServer(sopaseom).listen();
+
+const cinesopa = express();
+cinesopa.use(express.static('dist/cinesopa'));
+cinesopa.listen(5000, () => console.log("cinesopa started!"));
