@@ -1,41 +1,52 @@
 const model = require("./db/model");
 const { makeResolverWithUserRole } = require("./auth");
 
-const getUser = makeResolverWithUserRole("ADMIN", async ({ email }, context) => {
-  return await model.User.findOne({ email }); // 없을땐 null
-});
+const getUser = makeResolverWithUserRole(
+  "ADMIN",
+  async ({ email }, context) => {
+    return await model.User.findOne({ email }); // 없을땐 null
+  }
+);
 
-
+const initAdmin = async (args, context) => {
+  await joinUser({
+    email: "admin@admin.com",
+    name: "SUPERMAN",
+    role: "ADMIN",
+    pwd: "13241324",
+  });
+};
 
 const joinUser = async ({ email, name, pwd, role }, context) => {
   if (await model.User.findOne({ email })) throw "email is existed";
 
-    const newUser = new model.User({ email, name, role });
-    const newLogin = new model.Login({ email, pwd });
-    const result = await newUser.save();
-    await newLogin.save();
+  const newUser = new model.User({ email, name, role });
+  const newLogin = new model.Login({ email, pwd });
+  const result = await newUser.save();
+  await newLogin.save();
 
-    return result;
+  return result;
 };
 
 module.exports = {
-
   getUser,
+  joinUser,
+  initAdmin,
   createAdmin: makeResolverWithUserRole("ADMIN", async (args, context) => {
     const pushArgs = args;
-    pushArgs.role = "ADMIN"
+    pushArgs.role = "ADMIN";
     const result = await joinUser(pushArgs, context);
     return result;
   }),
 
-  async createGuest (args, context)  {
+  async createGuest(args, context) {
     const pushArgs = args;
-    pushArgs.role = "GUEST"
+    pushArgs.role = "GUEST";
     const result = await joinUser(pushArgs, context);
     return result;
   },
 
-  async login  ({ provider: { email, pwd } }, context) {
+  async login({ provider: { email, pwd } }, context) {
     // 사용자 인증
     const { user } = await context.authenticate("graphql-local", {
       email,
@@ -62,17 +73,14 @@ module.exports = {
 
   logoutMe: makeResolverWithUserRole("GUEST", async (args, context) => {
     const user = context.getUser();
-    context.logout()
-    return {user, redirectLink:""};
-
+    context.logout();
+    return { user, redirectLink: "" };
   }),
 
-  
-  getUserByEmail: async(email) => {
+  getUserByEmail: async (email) => {
     return await model.User.findOne({ email }); // 없을땐 null
   },
   // https://mongoosejs.com/docs/guide.html#id
-
 
   getMe: async (args, context) => {},
 
@@ -89,21 +97,23 @@ module.exports = {
     return await model.User.find();
   }),
 
-
-  updateUser: makeResolverWithUserRole("ADMIN", async ({ email, userinfo }, context) => {
-    // console.log(email);
-    // console.log(userinfo);
-    const user = await model.User.findOne({ email });
-    if (!user) throw new Error("user not found");
-    // console.log(user);
-    for (let k in userinfo) {
-      if (userinfo[k] !== null) {
-        user[k] = userinfo[k];
+  updateUser: makeResolverWithUserRole(
+    "ADMIN",
+    async ({ email, userinfo }, context) => {
+      // console.log(email);
+      // console.log(userinfo);
+      const user = await model.User.findOne({ email });
+      if (!user) throw new Error("user not found");
+      // console.log(user);
+      for (let k in userinfo) {
+        if (userinfo[k] !== null) {
+          user[k] = userinfo[k];
+        }
       }
+      await user.save();
+      return user;
     }
-    await user.save();
-    return user;
-  }),
+  ),
 };
 
 // (function(){

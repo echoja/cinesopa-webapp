@@ -21,7 +21,7 @@ const isOk = (given, condition) => {
 // 로그인이 필요하거나 권한이 없다고 알려주는 역할임.
 const check = async ({ redirectLink, role }, context) => {
   const { isUnauthenticated, req, getUser } = context;
-  console.log(process.env.EXAMPLE);
+  // console.log(process.env.EXAMPLE);
 
   if (isUnauthenticated()) {
     req.session.redirectLink = redirectLink;

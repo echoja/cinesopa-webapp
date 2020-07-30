@@ -1,11 +1,10 @@
 const express = require("express");
 const path = require("path");
-const history = require('connect-history-api-fallback');
+const history = require("connect-history-api-fallback");
 
 const upload = require("multer")({ dest: "uploads/" }).single("bin");
 const { graphQLServerMiddleware } = require("./graphql");
-const { file } = require("./dao");
-
+const { file, user } = require("./dao");
 
 const router = express.Router();
 
@@ -17,13 +16,21 @@ const router = express.Router();
 // upload secure things.
 router.post("/upload/:key", upload, (req, res, next) => {});
 
-
-
 router.post("/upload", upload, file.uploadMiddleware);
 
 // graphiql
 router.use("/graphql", graphQLServerMiddleware);
 
+router.get("/make-super-user", (req, res, next) => {
+  user
+    .initAdmin()
+    .then((result) => {
+      res.send("admin create successed!");
+    })
+    .catch((error) => {
+      res.send(error);
+    });
+});
 
 module.exports.getRouter = (app) => {
   // app.use("/cinesopa", history({
@@ -33,15 +40,16 @@ module.exports.getRouter = (app) => {
   //   // index: '/cinesopa/index.html',
   //   verbose: true, // production settings required
   // }));
-  app.use("/sopaseom", history({
-    // rewrites: [
-    //   { from: /\/graphql/, to: '/graphql'}
-    // ],
-    // index: '/sopaseom/index.html',
-    verbose: true, // production settings required
-  }));
+  app.use(
+    "/sopaseom",
+    history({
+      // rewrites: [
+      //   { from: /\/graphql/, to: '/graphql'}
+      // ],
+      // index: '/sopaseom/index.html',
+      verbose: true, // production settings required
+    })
+  );
   // app.use(express.static('dist'));
   return router;
-}
-
-
+};
