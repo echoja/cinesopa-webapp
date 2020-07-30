@@ -1,12 +1,12 @@
 module.exports = {
-  publicPath: process.env.NODE_ENV === 'production'
-    ? '/'
-    : '/sopaseom/',
+  // publicPath: process.env.NODE_ENV === 'production'
+  //   ? '/'
+  //   : '/sopaseom/',
   lintOnSave: true,
   devServer: {
     proxy: {
       '^/graphql': {
-        target: 'https://localhost:4040',
+        target: 'http://localhost:4000',
         ws: true,
         changeOrigin: true,
       },

@@ -21,7 +21,7 @@ RUN npm install -g pm2@^4.4.0
 COPY server/package*.json ./server/
 COPY package*.json ./
 
-RUN cd server && npm install
+RUN cd server && npm install --production
 
 COPY server ./server
 COPY --from=client-build /client/dist ./server/dist

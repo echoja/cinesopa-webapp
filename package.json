@@ -7,14 +7,13 @@
   "dependencies": {},
   "type": "module",
   "scripts": {
-    "start-prod-server": "cd server && pm2 start ecosystem.config.js --env production",
     "start-prod-docker-server": "cd server && pm2-runtime start ecosystem.config.js --env production",
-    "start-dev-server": "cd server && npm run start-dev",
+    "dev-server": "cd server && npm run start-dev",
     "dev-client": "cd client && npm run serve",
+    "dev-proxy": "docker-compose up proxy",
     "install": "cd server && npm install && cd ../client && npm install",
     "install-prod": "cd server && npm install --production && cd ../client && npm install --production",
     "build-client": "cd client && npm run build",
-    "copy": "copyfiles -u 2 \"client/dist/**/*\" \"server/dist\"",
     "start": "npm run install && npm run build-client && npm run copy && npm run start-prod-server",
     "start-docker": "npm run install-prod && npm run build-client && npm run copy && npm run start-prod-docker-server"
   }
