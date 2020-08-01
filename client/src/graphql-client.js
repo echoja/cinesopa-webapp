@@ -1,11 +1,14 @@
 import axios from 'axios';
 
+
 const headers = {
   'Content-Type': 'application/json',
   Accept: 'application/json',
 };
 
-const url = '/graphql';
+const url = process.env.NODE_ENV === 'production'
+  ? 'https://graphql.sopaseom.com/graphql'
+  : '/graphql';
 
 
 export const graphql = async (query, variables) => {
