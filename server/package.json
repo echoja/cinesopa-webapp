@@ -12,7 +12,7 @@
     "express-session": "^1.17.1",
     "graphql": "^15.1.0",
     "graphql-passport": "^0.6.3",
-    "graphql-tools": "^6.0.9",
+    "graphql-tools": "^6.0.15",
     "graphql-upload": "^11.0.0",
     "greenlock-express": "^4.0.3",
     "http": "0.0.1-security",
@@ -20,6 +20,7 @@
     "isemail": "^3.2.0",
     "merge-graphql-schemas": "^1.7.8",
     "mongoose": "^5.9.18",
+    "morgan": "^1.10.0",
     "multer": "^1.4.2",
     "nodemon": "^2.0.4",
     "passport": "^0.4.1",
@@ -36,7 +37,6 @@
     "test": "jest"
   },
   "devDependencies": {
-    "@types/graphql-upload": "^8.0.3",
-    "morgan": "^1.10.0"
+    "@types/graphql-upload": "^8.0.3"
   }
 }
