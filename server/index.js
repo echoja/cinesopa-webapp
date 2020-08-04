@@ -29,7 +29,7 @@ webapp.use(
     secret: config.sessionSecret, // env secret required
     resave: false,
     saveUninitialized: false,
-    // cookie: {secure: true}, // send cookies over https
+    //cookie: {secure: true, domain: 'sopaseom.com'}, // send cookies over https
     store: new MongoStore({
       url: config.mongodbUrl, // env required
       collection: "sessions",
@@ -75,7 +75,10 @@ webapp.use("/", getRouter(webapp));
 // https
 //   .createServer(options, webapp)
 //   .listen(4000, () => console.log("Now browse to localhost:4000/graphql"));
-
+webapp.use("/", (req, res, next) => {
+   console.log(req.session);
+   next();
+});
 webapp.use("/cinesopa", express.static("dist/cinesopa"));
 webapp.use("/sopaseom", express.static("dist/sopaseom"));
 // webapp.use(express.static('dist'));

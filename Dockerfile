@@ -1,13 +1,13 @@
-# client build
-FROM node:14 AS client-build
+# sopaseom build
+FROM node:14 AS sopaseom-build
 
-WORKDIR /client
+WORKDIR /sopaseom
 
-COPY client/package*.json ./
+COPY sopaseom/package*.json ./
 
 RUN npm install 
 
-COPY client .
+COPY sopaseom .
 
 RUN npm run build
 
@@ -24,7 +24,7 @@ COPY package*.json ./
 RUN cd server && npm install --production
 
 COPY server ./server
-COPY --from=client-build /client/dist ./server/dist
+COPY --from=sopaseom-build /sopaseom/dist ./server/dist/sopaseom
 
 CMD [ "npm", "run", "start-prod-docker-server" ]
 

@@ -7,7 +7,7 @@ const headers = {
 };
 
 const url = process.env.NODE_ENV === 'production'
-  ? 'https://graphql.sopaseom.com/graphql'
+  ? 'https://sopaseom.com/graphql/'
   : '/graphql';
 
 
@@ -18,6 +18,7 @@ export const graphql = async (query, variables) => {
       variables,
     }), {
       headers,
+      credentials: true,
     });
     return data;
   } catch (error) {

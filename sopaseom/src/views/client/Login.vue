@@ -50,7 +50,7 @@ export default {
         router.push(parsed.pathname);
         // document.location = redirectLink;
       } else {
-        router.push('/');
+        console.log(result);
       }
     },
     // login() {
