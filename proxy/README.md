@@ -1,3 +1,4 @@
+# 프록시 서버 (nginx) 설정
 
 ## config 폴더 내에 있어야 하는 파일들
 
@@ -7,7 +8,7 @@
 - `sopaseom-ssl.conf`
 - `sopaseom-wildcard-ssl.conf`
 
-## ssl 관련 conf 파일 에제.
+## ssl 관련 conf 파일 에제
 
 ```conf
 ssl_protocols               TLSv1 TLSv1.1 TLSv1.2;
