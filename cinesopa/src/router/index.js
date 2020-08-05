@@ -11,7 +11,7 @@ const requireAuth = (role) => async (from, to, next) => {
   const redirectLink = document.location.href;
   const result = await graphql(checkAuthQuery, { redirectLink, role });
   const permissionStatus = result?.data?.checkAuth?.permissionStatus;
-  console.log(permissionStatus);
+  // console.log(permissionStatus);
   if (permissionStatus === 'LOGIN_REQUIRED') {
     next({ name: 'Login' });
   } else if (permissionStatus === 'NO_PERMISSION') {

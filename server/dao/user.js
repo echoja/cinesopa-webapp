@@ -1,5 +1,27 @@
 const model = require("./db/model");
 const { makeResolverWithUserRole } = require("./auth");
+const crypto = require("crypto");
+const mail = require("./mail");
+const createEmailVerificationToken = async (email) => {
+  const user = await model.User.findOne({ email }).exec();
+  if (!user) throw "createEmailVerificationToken : no user";
+
+  const token = crypto.randomBytes(20).toString("hex");
+  const tokenDoc = new model.Token({
+    token,
+    email,
+    ttl: 1800,
+    purpose: "email_verification",
+  });
+  await tokenDoc.save();
+  await mail.sendGoogleMail({
+    to: email,
+    html: `
+  <div>
+    <p>회원가입을 완료하려면 <a href="https://sopaseom.com/email_verify/${token}">링크를 클릭</a>하세요.
+  </div>`,
+  });
+};
 
 const getUser = makeResolverWithUserRole(
   "ADMIN",
@@ -14,13 +36,14 @@ const initAdmin = async (args, context) => {
     name: "SUPERMAN",
     role: "ADMIN",
     pwd: "13241324",
+    verified: true,
   });
 };
 
-const joinUser = async ({ email, name, pwd, role }, context) => {
-  if (await model.User.findOne({ email })) throw "email is existed";
+const joinUser = async ({ email, name, pwd, role, verified }) => {
+  if (await model.User.findOne({ email })) throw "joinUser: email is existed";
 
-  const newUser = new model.User({ email, name, role });
+  const newUser = new model.User({ email, name, role, verified });
   const newLogin = new model.Login({ email, pwd });
   const result = await newUser.save();
   await newLogin.save();
@@ -28,22 +51,80 @@ const joinUser = async ({ email, name, pwd, role }, context) => {
   return result;
 };
 
+const removeUserByEmail = async ({ email }) => {
+  const user = await model.User.findOne({ email }).exec();
+  if (!user) throw "removeUserByEmail: email not found";
+  await model.Login.deleteMany({ email });
+  await model.User.deleteMany({ email });
+  await model.Token.deleteMany({ email });
+  return user;
+};
+
 module.exports = {
   getUser,
   joinUser,
   initAdmin,
+  removeUserByEmail,
   createAdmin: makeResolverWithUserRole("ADMIN", async (args, context) => {
     const pushArgs = args;
     pushArgs.role = "ADMIN";
+    pushArgs.verified = true;
     const result = await joinUser(pushArgs, context);
     return result;
   }),
 
   async createGuest(args, context) {
-    const pushArgs = args;
-    pushArgs.role = "GUEST";
-    const result = await joinUser(pushArgs, context);
+    const args_newuser = args;
+    args_newuser.role = "GUEST";
+    args_newuser.verified = false;
+    const result = await joinUser(args_newuser, context);
+
+    // const token = crypto.randomBytes(20).toString("hex");
+    const { email } = args;
+    await createEmailVerificationToken(email);
+    // const tokenDoc = new model.Token({
+    //   token,
+    //   email,
+    //   ttl: 1800,
+    //   purpose: "email_verification",
+    // });
+    // await tokenDoc.save();
+
+    // await mail.sendGoogleMail({
+    //   to: email,
+    //   html: `
+    // <div>
+    //   <p>회원가입을 완료하려면 <a href="https://sopaseom.com/email_verify/${token}">링크를 클릭</a>하세요.
+    // </div>`,
+    // });
+
     return result;
+  },
+
+  
+
+  /**
+   * 토큰을 입력받아서 ok 시키는 것.
+   * @param {*} param0
+   * @param {*} context
+   */
+  async verifyEmail({ token }, context) {
+    const tokenDoc = await model.Token.findOne({
+      token,
+      purpose: "email_verification",
+    }).exec();
+    if (!tokenDoc) throw "no token";
+    const email = tokenDoc.email;
+    const user = await model.User.findOne({ email });
+    // 유효시간 초과
+    if (Date.now() - tokenDoc.c_date > tokenDoc.ttl * 1000) {
+      throw "verifyEmail: token expired";
+    }
+    // 유효시간 올바름.
+    user.verified = true;
+    await user.save();
+    await model.Token.deleteOne({ _id: tokenDoc._id });
+    return user;
   },
 
   async login({ provider: { email, pwd } }, context) {

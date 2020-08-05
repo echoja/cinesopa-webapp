@@ -7,6 +7,7 @@
   "dependencies": {
     "connect-history-api-fallback": "^1.6.0",
     "connect-mongo": "^3.2.0",
+    "crypto": "^1.0.1",
     "express": "^4.17.1",
     "express-graphql": "^0.9.0",
     "express-session": "^1.17.1",
@@ -35,7 +36,7 @@
     "uuid": "^8.1.0"
   },
   "scripts": {
-    "start-dev": "nodemon index.js",
+    "start-dev": "nodemon --trace-warnings index.js",
     "start:ci": "node index.js",
     "test": "jest"
   },

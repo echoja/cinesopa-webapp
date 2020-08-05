@@ -10,6 +10,7 @@ module.exports = function (mongoose) {
       type: String,
       enum: role,
     },
+    verified: Boolean,
   });
 
   userSchema.methods.isCorrectPassword = async (pwd) => {

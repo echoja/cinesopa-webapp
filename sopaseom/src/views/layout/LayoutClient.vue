@@ -16,7 +16,7 @@
     <b-row>
       <b-col>
         <main>
-        <slot></slot>
+          <slot></slot>
         </main>
       </b-col>
     </b-row>
@@ -29,6 +29,7 @@
     </b-row>
   </b-container>
 </template>
+
 <script>
 import {
   // BFormInput, BButton, BFormSelect, BFormCheckboxGroup, BFormCheckbox, BCard,
@@ -48,24 +49,5 @@ export default {
 </script>
 
 <style>
-#app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-}
 
-#nav {
-  padding: 30px;
-}
-
-#nav a {
-  font-weight: bold;
-  color: #2c3e50;
-}
-
-#nav a.router-link-exact-active {
-  color: #42b983;
-}
 </style>

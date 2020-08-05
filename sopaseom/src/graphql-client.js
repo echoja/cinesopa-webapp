@@ -13,16 +13,19 @@ const url = process.env.NODE_ENV === 'production'
 
 export const graphql = async (query, variables) => {
   try {
-    const { data } = await axios.post(url, JSON.stringify({
+    const received = await axios.post(url, JSON.stringify({
       query,
       variables,
     }), {
       headers,
       credentials: true,
     });
-    return data;
+
+    const { data } = received;
+    if (data) return data;
+    return received;
   } catch (error) {
-    return error;
+    return error.response.data;
   }
 };
 
@@ -80,6 +83,34 @@ mutation Login ($email: String!, $pwd: String!) {
   }
 }
 `;
+
+const createGuestMutation = `
+mutation createGuest($email: String!, $pwd: String!) {
+  createGuest (email: $email, pwd: $pwd) {
+    id
+    email
+    name
+    role
+    c_date
+    verified
+  }
+}
+`;
+export const createGuest = (variables) => graphql(createGuestMutation, variables);
+
+
+export const emailVerifyMutation = `
+mutation emailVerify($token: String!)
+{
+  verifyUserEmail(token: $token)
+  {
+    id
+    email
+    name
+    c_date
+    role
+  }
+}`;
 
 export const logoutQuery = `
 `;

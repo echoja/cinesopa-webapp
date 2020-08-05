@@ -2,36 +2,39 @@ const { user, page, auth } = require("../../dao");
 
 module.exports = {
   Mutation: {
-    async login (obj, args, context, info){
+    async login(obj, args, context, info) {
       return await user.login(args, context);
     },
-    
-    async logout (obj, args, context, info){
+
+    async logout(obj, args, context, info) {
       return await user.logoutMe(args, context);
     },
-    async logoutMe (obj, args, context, info){
+    async logoutMe(obj, args, context, info) {
       return await user.logoutMe(args, context);
     },
     // async createUser (obj, args, context, info){
     //   const { email, name, pwd, role } = args;
     //   return await user.joinUser(args);
     // },
-    async createAdmin (obj, args, context, info){
+    async createAdmin(obj, args, context, info) {
       return await user.createAdmin(args, context);
     },
-    async createGuest (obj, args, context, info){
+    async createGuest(obj, args, context, info) {
       return await user.createGuest(args, context);
     },
-    async updateUser (obj, args, context, info){
+    async verifyUserEmail(obj, args, context, info) {
+      return await user.verifyEmail(args, context);
+    },
+    async updateUser(obj, args, context, info) {
       return await user.updateUser(args, context);
     },
-    async createPage (obj, args, context, info){
+    async createPage(obj, args, context, info) {
       return await page.createPage(args);
     },
-    async signinUserByEmail (obj, args, context, info){
+    async signinUserByEmail(obj, args, context, info) {
       return await user.getUserByAuth(args.provider.email, args.provider.pwd);
     },
-    async singleUpload (obj, args, context, info){
+    async singleUpload(obj, args, context, info) {
       const file = { args };
       const { filename, mimetype, encoding } = await file;
       const returnFile = { filename, mimetype, encoding };
@@ -39,24 +42,28 @@ module.exports = {
     },
   },
   Query: {
-    async users (obj, args, context, info){
+    async users(obj, args, context, info) {
       return await user.getAllUsers(args, context);
     },
-    async user (obj, args, context, info){
+    // *** this is secure version!!***
+    async user(obj, args, context, info) {
       const { email } = args;
       return await user.getUser(email, context);
     },
-
-    async page (obj, args, context, info){
+    async getUserByEmailNoAuth(obj, args, context, info) {
+      const { email } = args;
+      return await user.getUserByEmail(email, context);
+    },
+    async page(obj, args, context, info) {
       return await page.getPageByPermalink(args, context);
     },
-    async pages (obj, args, context, info) {
+    async pages(obj, args, context, info) {
       return await page.getAllPages(args, context);
     },
     async pageById(obj, args, context, info) {
       return await page.getPageById(args, context);
     },
-    async checkAuth (obj, args, context, info){
+    async checkAuth(obj, args, context, info) {
       return await auth.check(args, context);
     },
   },

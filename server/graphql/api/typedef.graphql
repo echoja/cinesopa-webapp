@@ -1,103 +1,116 @@
 scalar Upload
 
+# ###########################
+#         QUARY
+#############################
+
 type Query {
   uploads: [File]
   users: [User]
   user(email: String!): User
+  getUserByEmailNoAuth(email: String!): User # MUST DELETE WHEN DEPLOY!
   pages: [Page]
   checkAuth(redirectLink: String!, role: Permission!): CheckAuthResponse
   page(permalink: String!): Page
   pageById(id: String!): Page
 }
 
-  type Mutation {
-  singleUpload(file: Upload!):File!
-    # 1. Create new user
-    # createUser(authProvider: EmailAuthProvider!): User
-    createAdmin(email: String!, pwd: String!, role: UserRole!): User
-    createGuest(email: String!, pwd: String!): User
-    # createPage(title: String!, content: String!, author: String!, permalink: String!): Page
-    createPage(title: String!, content: String!, permalink: String!): Page
-    signinUserByEmail(provider: EmailAuthProvider! ): SignInUserPayload
-    login(provider: EmailAuthProvider!, redirectLink: String ): AuthPayload
-    logout(email: String!): AuthPayload
-    logoutMe : AuthPayload
-    updateUser(email: String!, userinfo: UserUpdateInfo): User
-  }
+# ###########################
+#         MUTATION
+#############################
 
-  type AuthPayload {
-    user: User
-    redirectLink: String
-  }
+type Mutation {
+  singleUpload(file: Upload!): File!
+  # 1. Create new user
+  # createUser(authProvider: EmailAuthProvider!): User
+  createAdmin(email: String!, pwd: String!, role: UserRole!): User
+  createGuest(email: String!, pwd: String!): User
+  verifyUserEmail(token: String!): User
+  # createPage(title: String!, content: String!, author: String!, permalink: String!): Page
+  createPage(title: String!, content: String!, permalink: String!): Page
+  signinUserByEmail(provider: EmailAuthProvider!): SignInUserPayload
+  login(provider: EmailAuthProvider!, redirectLink: String): AuthPayload
+  logout(email: String!): AuthPayload
+  logoutMe: AuthPayload
+  updateUser(email: String!, userinfo: UserUpdateInfo): User
+}
 
-  input EmailAuthProvider {
-    email: String
-    pwd: String
-  }
+type AuthPayload {
+  user: User
+  redirectLink: String
+}
 
-  input UserUpdateInfo {
-    pwd: String
-    name: String
-    role: UserRole
-  }
-  
-  # Enums
+input EmailAuthProvider {
+  email: String
+  pwd: String
+}
 
-  enum UserRole {
-    ADMIN
-    GUEST
-  }
+input UserUpdateInfo {
+  pwd: String
+  name: String
+  role: UserRole
+}
 
-  enum PermissionStatus {
-    OK
-    LOGIN_REQUIRED
-    NO_PERMISSION
-  }
+# ###########################
+#           ENUMS
+#############################
 
-  enum Permission {
-    ADMIN
-    GUEST
-    ANYONE
-  }
+enum UserRole {
+  ADMIN
+  GUEST
+}
 
-  
-  # Types
+enum PermissionStatus {
+  OK
+  LOGIN_REQUIRED
+  NO_PERMISSION
+}
 
-  type User{
-    id: String
-    email: String
-    name: String
-    c_date: String
-    role: UserRole
-  }
-  type Login{
-    id: String
-    email: String
-    pwd: String
-  }
+enum Permission {
+  ADMIN
+  GUEST
+  ANYONE
+}
 
-  type Page{
-    id: String
-    permalink: String,
-    title: String,
-    content: String,
-    # author: User
-    c_date: String
-  }
-  type File {
-    filename: String
-    mimetype: String
-    encoding: String
-  }
+# ###########################
+#           Types
+#############################
 
-  # SignInUserPayload bundles information about the user and token
-  type SignInUserPayload {
-    user: User
-    token: String
-  }
+type User {
+  id: String
+  email: String
+  name: String
+  c_date: String
+  role: UserRole
+  verified: Boolean
+}
+type Login {
+  id: String
+  email: String
+  pwd: String
+}
 
-  type CheckAuthResponse {
-    permissionStatus: PermissionStatus
-    user: User
-  }
+type Page {
+  id: String
+  permalink: String
+  title: String
+  content: String
+  # author: User
+  c_date: String
+}
+type File {
+  filename: String
+  mimetype: String
+  encoding: String
+}
 
+# SignInUserPayload bundles information about the user and token
+type SignInUserPayload {
+  user: User
+  token: String
+}
+
+type CheckAuthResponse {
+  permissionStatus: PermissionStatus
+  user: User
+}

@@ -21,12 +21,28 @@ router.post("/upload", upload, file.uploadMiddleware);
 // graphiql
 router.use("/graphql", graphQLServerMiddleware);
 
-router.get("/test",(req, res, next) => {
-  console.dir(require('mongoose').model('Film').schema);
+router.get("/test", (req, res, next) => {
+  console.dir(require("mongoose").model("Film").schema);
   next();
 });
 
-router.get("/make-super-user", (req, res, next) => {
+// router.get("/email_verify/:id", (req, res, next) => {
+//   const { id } = req.params;
+//   user.verifyEmail(id);
+// });
+
+router.get("/test/remove-user/:email", (req, res, next) => {
+  user
+    .removeUserByEmail({email: req.params.email})
+    .then((user) => {
+      res.send(user);
+    })
+    .catch((error) => {
+      res.send(error);
+    });
+});
+
+router.get("/test/make-super-user", (req, res, next) => {
   user
     .initAdmin()
     .then((result) => {
