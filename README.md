@@ -17,6 +17,39 @@
 - 서버는 express 입니다.
 - 클라이언트는 vue 입니다.
 
+## 로컬 개발환경 세팅
+
+### eslint
+
+vscode 에서 `Preferences : Open Workspace Settings (JSON)` 에 들어간다.
+
+다음 항목을 추가한다.
+
+```json
+{
+  "editor.formatOnSave": false,
+  "editor.codeActionsOnSave": { "source.fixAll.eslint": true },
+  "eslint.alwaysShowStatus": true,
+  "eslint.validate": [
+    "javascript",
+    "javascriptreact",
+    "vue"
+  ],
+  "eslint.workingDirectories": [
+    "./cinesopa/",
+    "./sopaseom/"
+  ] ,
+
+  "files.exclude": {
+    "**/.git": true,
+    "**/.vscode": true,
+    "**/node_modules": true
+  },
+  "prettier.endOfLine": "lf",
+  "files.eol": "\n"
+}
+```
+
 ## 서버 세팅
 
 ### 서버 사전 세팅
