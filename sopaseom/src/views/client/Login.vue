@@ -51,8 +51,10 @@ export default {
         // document.location = redirectLink;
       } else {
         console.log(result);
+        router.push({ name: 'Home' });
       }
     },
+
     // login() {
     //   const self = this;
     //   graphql(exampleQuery, {}).then(

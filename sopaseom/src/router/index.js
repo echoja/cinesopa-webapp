@@ -4,6 +4,7 @@ import VueRouter from 'vue-router';
 import store from '../store';
 
 import { graphql, checkAuthQuery, logoutMeQuery } from '../graphql-client';
+// import LayoutClient from '@/views/layout/LayoutClient.vue';
 
 Vue.use(VueRouter);
 
@@ -29,6 +30,16 @@ const logoutBeforeEnter = async (from, to, next) => {
   next('/');
 };
 
+const onlyNoLoginBeforeEnter = async (from, to, next) => {
+  const result = await graphql(checkAuthQuery, { redirectLink: '', role: 'GUEST' });
+  const permissionStatus = result?.data?.checkAuth?.permissionStatus;
+  if (permissionStatus === 'OK' || permissionStatus === undefined) {
+    next('/');
+  } else {
+    next();
+  }
+};
+
 const routes = [
   {
     path: '/',
@@ -42,6 +53,9 @@ const routes = [
     // this generates a separate chunk (about.[hash].js) for this route
     // which is lazy-loaded when the route is visited.
     component: () => import(/* webpackChunkName: "about" */ '../views/client/About.vue'),
+    meta: {
+      layout: () => import('@/views/layout/LayoutAdmin.vue'),
+    },
   },
   {
     path: '/logout',
@@ -53,6 +67,13 @@ const routes = [
     path: '/login',
     name: 'Login',
     component: () => import('../views/client/Login.vue'),
+    beforeEnter: onlyNoLoginBeforeEnter,
+  },
+  {
+    path: '/join',
+    name: 'CreateAccount',
+    component: () => import('../views/client/CreateAccount.vue'),
+    beforeEnter: onlyNoLoginBeforeEnter,
   },
   {
     path: '/me',

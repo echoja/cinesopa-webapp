@@ -1,12 +1,31 @@
 <template>
   <div id="app">
-    <div id="nav">
-      <router-link to="/">Home</router-link> |
-      <router-link to="/about">About</router-link>
-    </div>
+    <component :is="layout">
     <router-view/>
+    </component>
   </div>
 </template>
+<script>
+
+import {
+// BFormInput, BButton, BFormSelect, BFormCheckboxGroup, BFormCheckbox, BCard,
+} from 'bootstrap-vue';
+import LayoutClient from '@/views/layout/LayoutClient.vue';
+import LayoutAdmin from '@/views/layout/LayoutAdmin.vue';
+
+export default {
+  name: 'LayoutWrapper',
+  components: {
+    LayoutClient,
+    LayoutAdmin,
+  },
+  computed: {
+    layout() {
+      return this.$route.meta.layout || LayoutClient;
+    },
+  },
+};
+</script>
 
 <style>
 #app {
