@@ -21,6 +21,11 @@ router.post("/upload", upload, file.uploadMiddleware);
 // graphiql
 router.use("/graphql", graphQLServerMiddleware);
 
+router.get("/test",(req, res, next) => {
+  console.dir(require('mongoose').model('Film').schema);
+  next();
+});
+
 router.get("/make-super-user", (req, res, next) => {
   user
     .initAdmin()

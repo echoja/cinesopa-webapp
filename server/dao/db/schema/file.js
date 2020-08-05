@@ -9,9 +9,11 @@ module.exports = function(mongoose){
     alt: String,
     path: String,
     size: Number,
-    auth: {
-      type: String,
-      enum: authmap
-    },
+    owner: {type: mongoose.Schema.Types.ObjectId, ref: 'User'},
+    public: Boolean,
+    // auth: {
+    //   type: String,
+    //   enum: authmap
+    // },
   });
 };

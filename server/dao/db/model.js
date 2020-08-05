@@ -1,8 +1,16 @@
 const mongoose = require('mongoose');
-const pageBuilder = require('./schema/page.js');
-const userBuilder = require('./schema/user.js');
-const loginBuilder = require('./schema/login.js');
-const fileBuilder = require('./schema/file.js');
+const schemaBuilder = {};
+schemaBuilder.Page = require('./schema/page.js');
+schemaBuilder.User = require('./schema/user.js');
+schemaBuilder.Login = require('./schema/login.js');
+schemaBuilder.File = require('./schema/file.js');
+schemaBuilder.Board = require('./schema/board.js');
+schemaBuilder.Film = require('./schema/film.js');
+schemaBuilder.Menu = require('./schema/menu.js');
+schemaBuilder.Order = require('./schema/order.js');
+schemaBuilder.Post = require('./schema/post.js');
+schemaBuilder.Product = require('./schema/product.js');
+
 
 
 module.exports = (function(){
@@ -20,16 +28,20 @@ module.exports = (function(){
 
   const schema = {};
   const model = {};
-
-  schema.Page = pageBuilder(mongoose);
-  schema.User = userBuilder(mongoose);
-  schema.Login = loginBuilder(mongoose);
-  schema.File = fileBuilder(mongoose);
-
-  // console.log(schema)
-  for(let k in schema){
-    model[k] = mongoose.model(k, schema[k]);
+  for (let key in schemaBuilder) {
+    schema[key] = schemaBuilder[key](mongoose);
+    model[key] = mongoose.model(key, schema[key]);
   }
+
+  // schema.Page = pageBuilder(mongoose);
+  // schema.User = userBuilder(mongoose);
+  // schema.Login = loginBuilder(mongoose);
+  // schema.File = fileBuilder(mongoose);
+
+  // // console.log(schema)
+  // for(let k in schema){
+  //   model[k] = mongoose.model(k, schema[k]);
+  // }
 
   return model;
 })();

@@ -9,7 +9,8 @@
   "scripts": {
     "start-prod-docker-server": "cd server && pm2-runtime start ecosystem.config.js --env production",
     "dev-server": "cd server && npm run start-dev",
-    "dev-client": "cd client && npm run serve",
+    "dev-sopaseom": "cd sopaseom && npm run serve",
+    "dev-cinesopa": "cd cinesopa && npm run serve",
     "dev-proxy": "docker-compose up proxy",
     "install": "cd server && npm install && cd ../client && npm install",
     "install-prod": "cd server && npm install --production && cd ../client && npm install --production",
