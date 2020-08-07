@@ -1,8 +1,7 @@
-
 // /**
-//  * 
-//  * @param {} roleList 
-//  * @param {Func[args]} func 
+//  *
+//  * @param {} roleList
+//  * @param {Func[args]} func
 //  */
 // module.exports.withAuth = (roleList, func) => {
 //   return async (args, context) => {
@@ -17,7 +16,7 @@
 // };
 
 // // export const withAuthPiece = (roleList) => {
-// //   return 
+// //   return
 // // }
 
 // // // resolverBuilder(withAuthPicece(["ADMIN"]))(async (args, context) => { ... })
@@ -28,3 +27,31 @@
 // //     }
 // //   }
 // // }
+
+
+
+/********************* */
+/* LODASH MAKE ENUM!!! */
+/********************* */
+
+// const _ = require("lodash");
+// const t = ["a", "b", "c", "d"];
+// const arr = _.chain(t).keyBy( (o) => {
+//   return o;
+// }).mapValues((o) => {
+//   return Symbol(o);
+// }).value();
+// console.log(arr);
+
+const makeEnum = (str_list) => {
+  const result = {};
+  for (let key in str_list) {
+    const val = str_list[key];
+    result[val] = Symbol(val);
+  }
+  result["raw_str_list"] = str_list;
+  return Object.freeze(result);
+};
+module.exports = {
+  makeEnum,
+};
