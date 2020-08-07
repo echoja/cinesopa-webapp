@@ -1,5 +1,6 @@
-const autoIncrement = require("mongoose-auto-increment");
-const enumProductType = ["sopakit"];
+
+const {enumProductType} = require("./enum");
+
 
 module.exports = function (mongoose) {
   const Option = new mongoose.Schema({
@@ -9,7 +10,7 @@ module.exports = function (mongoose) {
   });
 
   const result = new mongoose.Schema({
-    product_type: { type: String, enum: enumProductType },
+    product_type: { type: String, enum: enumProductType.raw_str_list },
     id: Number,
     content: String,
     notice: String,
@@ -19,11 +20,5 @@ module.exports = function (mongoose) {
     related_films: [{ type: mongoose.Schema.Types.ObjectId, ref: "Film" }],
     meta: mongoose.Schema.Types.Mixed,
   });
-  // result.plugin(autoIncrement.plugin, {
-  //   model: "Product",
-  //   field: "id", // auto-increment할 field
-  //   startAt: 0, // 0에서 부터
-  //   increment: 1, // 1씩 증가
-  // });
   return result;
 };

@@ -1,4 +1,5 @@
 const model = require("./db/model");
+const { enumAuthmap } = require("./db/schema/enum");
 const { makeResolverWithUserRole } = require("./auth");
 const crypto = require("crypto");
 const mail = require("./mail");
@@ -24,8 +25,9 @@ const createEmailVerificationToken = async (email) => {
 };
 
 const getUser = makeResolverWithUserRole(
-  "ADMIN",
+  enumAuthmap.ADMIN,
   async ({ email }, context) => {
+    console.log("hiho");
     return await model.User.findOne({ email }); // 없을땐 null
   }
 );
@@ -65,7 +67,7 @@ module.exports = {
   joinUser,
   initAdmin,
   removeUserByEmail,
-  createAdmin: makeResolverWithUserRole("ADMIN", async (args, context) => {
+  createAdmin: makeResolverWithUserRole(enumAuthmap.ADMIN, async (args, context) => {
     const pushArgs = args;
     pushArgs.role = "ADMIN";
     pushArgs.verified = true;
@@ -144,7 +146,7 @@ module.exports = {
     return { user, redirectLink };
   },
 
-  logout: makeResolverWithUserRole("ADMIN", async ({ email }, context) => {
+  logout: makeResolverWithUserRole(enumAuthmap.ADMIN, async ({ email }, context) => {
     const userFound = await user.getUser(email);
     if (userFound) {
       await context.logout(userFound);
@@ -152,7 +154,7 @@ module.exports = {
     return { user: userFound };
   }),
 
-  logoutMe: makeResolverWithUserRole("GUEST", async (args, context) => {
+  logoutMe: makeResolverWithUserRole(enumAuthmap.GUEST, async (args, context) => {
     const user = context.getUser();
     context.logout();
     return { user, redirectLink: "" };
@@ -174,18 +176,15 @@ module.exports = {
     }
   },
 
-  getAllUsers: makeResolverWithUserRole("ADMIN", async (args, context) => {
+  getAllUsers: makeResolverWithUserRole(enumAuthmap.ADMIN, async (args, context) => {
     return await model.User.find();
   }),
 
   updateUser: makeResolverWithUserRole(
-    "ADMIN",
+    enumAuthmap.ADMIN,
     async ({ email, userinfo }, context) => {
-      // console.log(email);
-      // console.log(userinfo);
       const user = await model.User.findOne({ email });
       if (!user) throw new Error("user not found");
-      // console.log(user);
       for (let k in userinfo) {
         if (userinfo[k] !== null) {
           user[k] = userinfo[k];

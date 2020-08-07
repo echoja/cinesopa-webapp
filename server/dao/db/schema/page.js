@@ -1,5 +1,4 @@
-const page_role = ["cinesopa", "sopaseom", "sopakit"];
-const page_belongs_to = ["cinesopa", "sopaseom"];
+const { enumPageBelongsTo, enumPageRole } = require("./enum");
 
 module.exports = function (mongoose) {
   return new mongoose.Schema({
@@ -11,11 +10,11 @@ module.exports = function (mongoose) {
     m_date: { type: Date, default: Date.now },
     role: {
       type: String,
-      enum: page_role,
+      enum: enumPageRole.raw_str_list,
     },
     belongs_to: {
       type: String,
-      enum: page_belongs_to,
+      enum: enumPageBelongsTo.raw_str_list,
     },
     meta: mongoose.Schema.Types.Mixed,
   });

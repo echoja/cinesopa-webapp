@@ -1,5 +1,5 @@
-const authmap = require("./authmap");
-const role = authmap.slice(0, -1);
+const { enumAuthmap } = require("./enum");
+const role = enumAuthmap.raw_str_list.slice(0, -1);
 
 module.exports = function (mongoose) {
   let userSchema = new mongoose.Schema({

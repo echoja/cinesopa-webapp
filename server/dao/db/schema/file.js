@@ -1,5 +1,5 @@
-const authmap = require('./authmap');
-module.exports = function(mongoose){
+
+module.exports = function (mongoose) {
   return new mongoose.Schema({
     encoding: String,
     mimetype: String,
@@ -9,11 +9,7 @@ module.exports = function(mongoose){
     alt: String,
     path: String,
     size: Number,
-    owner: {type: mongoose.Schema.Types.ObjectId, ref: 'User'},
+    owner: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
     public: Boolean,
-    // auth: {
-    //   type: String,
-    //   enum: authmap
-    // },
   });
 };

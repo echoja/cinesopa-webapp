@@ -1,26 +1,6 @@
 const autoIncrement = require("mongoose-auto-increment");
-const enumOrderStatus = [
-  "주문접수",
-  "결제확인중",
-  "결제완료",
-  "상품준비중",
-  "배송준비중",
-  "배송중",
-  "배송완료",
-  "거래완료",
-  "반송중",
-  "주문취소중",
-  "주문취소",
-];
-const enumOrderMethod = [
-  "card",
-  "phone",
-  "bank",
-  "vbank",
-  "auth",
-  "card_rebill",
-  "easy",
-];
+
+const { enumOrderMethod, enumOrderStatus } = require("./enum");
 
 module.exports = function (mongoose) {
   const result = new mongoose.Schema({
@@ -31,8 +11,8 @@ module.exports = function (mongoose) {
     name: String,
     content: String,
     price: Number,
-    status: { type: String, enum: enumOrderStatus },
-    method: { type: String, enum: enumOrderMethod },
+    status: { type: String, enum: enumOrderStatus.raw_str_list },
+    method: { type: String, enum: enumOrderMethod.raw_str_list },
     c_date: { type: Date, default: Date.now },
     address: String,
     cash_receipt: String,
