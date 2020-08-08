@@ -6,16 +6,16 @@ const validator = require("../graphql/validator").init({
 const { expect } = require("chai");
 
 describe("isOK 테스트", () => {
-  it("권한 가능", () => {
-    const result = validator.isOk("HIGH", "MID");
+  it("권한 가능", async () => {
+    const result = await validator.isOk("HIGH", "MID");
     expect(result).equals(true);
   });
-  it("권한 일치", () => {
-    const result = validator.isOk("HIGH", "HIGH");
+  it("권한 일치", async () => {
+    const result = await validator.isOk("HIGH", "HIGH");
     expect(result).equals(true);
   });
-  it("권한 안됨", () => {
-    const result = validator.isOk("MID", "HIGH");
+  it("권한 안됨", async () => {
+    const result = await validator.isOk("MID", "HIGH");
     expect(result).equals(false);
   });
 });
@@ -23,7 +23,6 @@ describe("isOK 테스트", () => {
 describe("accessCheck 테스트", () => {
   const onlyLow = ["LOW", "MID"];
   const onlyHigh = ["HIGH"];
-  const emptyRedirectLink = "";
   const someRedirectLink = "https://naver.com";
   const testAdminContext = {
     isUnauthenticated: () => false,
@@ -64,45 +63,50 @@ describe("accessCheck 테스트", () => {
       },
     },
   };
-  it("어드민은 어드민 페이지에 잘 들어가야 함", () => {
-    const result = validator.accessCheck(
+  it("어드민은 어드민 페이지에 잘 들어가야 함", async () => {
+    const result = await validator.accessCheck(
       someRedirectLink,
       onlyHigh,
       testAdminContext
     );
     expect(result.permissionStatus).equals("OK");
   });
-  it("로그인 안하면 권한이 필요함", () => {
-    const result = validator.accessCheck(
+  it("로그인 안하면 권한이 필요함", async () => {
+    const result = await validator.accessCheck(
       someRedirectLink,
       onlyLow,
       testGuestContext
     );
     expect(result.permissionStatus).equals("LOGIN_REQUIRED");
   });
-  it("권한이 낮은 사람도 들어갈 수 있는 페이지가 있음", () => {
-    const result = validator.accessCheck(
+  it("권한이 낮은 사람도 들어갈 수 있는 페이지가 있음", async () => {
+    const result = await validator.accessCheck(
       someRedirectLink,
       onlyLow,
-      testUserContext,
+      testUserContext
     );
     expect(result.permissionStatus).equals("OK");
   });
-  it("로그인 해도 권한이 필요함", () => {
-    const result = validator.accessCheck(
+  it("로그인 해도 권한이 필요함", async () => {
+    const result = await validator.accessCheck(
       someRedirectLink,
       onlyHigh,
       testUserContext
     );
     expect(result.permissionStatus).equals("NO_PERMISSION");
   });
-  it("리다이렉트 링크를 빈 칸으로 두면 변경되지 않음", () => {
+  it("리다이렉트 링크를 빈 칸으로 두면 변경되지 않음", async () => {
     testUserContext.req.session.redirectLink = "https://naver.com";
-    const result = validator.accessCheck(
-      "",
-      onlyHigh,
-      testUserContext
+    const result = await validator.accessCheck("", onlyHigh, testUserContext);
+    expect(testUserContext.req.session.redirectLink).equals(
+      "https://naver.com"
     );
-    expect(testUserContext.req.session.redirectLink).equals("https://naver.com");
+  });
+  it("존재하지 않는 available은 에러가 나야함.", (done) => {
+    validator.accessCheck("", ["WTF"], testUserContext).then((value) => {
+      done("성공하면 안됨.");
+    }).catch((err)=>{
+      done();
+    });
   });
 });
