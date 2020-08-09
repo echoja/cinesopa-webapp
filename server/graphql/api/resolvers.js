@@ -1,13 +1,44 @@
+const _ = require("lodash");
+
+const { enumAuthmap } = require("../../dao/db/schema/enum");
 const { user, page, auth } = require("../../dao");
+const validatorInitializer = require("../validator");
+const alist = enumAuthmap.raw_str_list;
+const ACCESS_ALL = alist;
+const ACCESS_AUTH = alist.slice(0, -1);
+const ACCESS_UNAUTH = alist.slice(-1);
+const ACCESS_ADMIN = alist.slice(0, 1);
+const makeResolver = require("../make-resolver").init(ACCESS_UNAUTH[0]);
+const validator = validatorInitializer.init(auth.authmapLevel);
+
+// const checkAuth = async (obj, args, context, info) => {
+//   const { redirectLink, role } = args;
+//   return await validator.accessCheck(redirectLink, role, context);
+// };
+
+
+const login = makeResolver(async (obj, args, context, info) => {
+  const {email, pwd} = args;
+  return await auth.login(email, pwd, context);
+}).only(ACCESS_UNAUTH);
+
+const checkAuth = makeResolver(async (obj, args, context, info) => {
+  const { redirectLink, role } = args;
+  return await validator.accessCheck(redirectLink, role, context);
+}).only(ACCESS_ALL);
+
+
 
 module.exports = {
   Mutation: {
+
     async login(obj, args, context, info) {
       return await user.login(args, context);
     },
 
     async logout(obj, args, context, info) {
-      return await user.logoutMe(args, context);
+      const user = await user.logoutMe(args, context);
+      return { user };
     },
     async logoutMe(obj, args, context, info) {
       return await user.logoutMe(args, context);
@@ -64,7 +95,8 @@ module.exports = {
       return await page.getPageById(args, context);
     },
     async checkAuth(obj, args, context, info) {
-      return await auth.check(args, context);
+      const { redirectLink, role } = args;
+      return await auth.check(redirectLink, role, context);
     },
   },
 };

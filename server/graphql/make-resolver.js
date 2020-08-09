@@ -1,21 +1,13 @@
-/**
- * resolver의 기본 형태
- *
- * @typedef {function} Resolver
- * @callback Resolver
- * @param {object} obj
- * @param {object} args
- * @param {object} context
- * @param {object} info
- */
+const typedef = require('../typedef')
+
+
+
+let _default_access;
 
 /**
  * 권한을 가진 resolver 를 만듭니다.
  * @param {Resolver} func
  */
-
-let _default_access;
-
 const makeResolver = (func) => {
   return {
     /**

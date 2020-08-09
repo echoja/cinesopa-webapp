@@ -1,0 +1,24 @@
+const { ManagerCreater } = require("../dao/manager-loader");
+const { expect } = require("chai");
+
+describe("ManagerCreater 테스트", () => {
+  it("객체 생성 및 파라미터 전달", () => {
+    class ABCManagerCreater extends ManagerCreater {
+      constructor(creater_func) {
+        super();
+        this.creater_func = creater_func;
+      }
+    }
+    const mc = new ABCManagerCreater((a, b) => {
+      return {
+        test() {
+          return `manager created!! man. passed arg: ${a} and ${b}`;
+        },
+      };
+    });
+    const manager = mc.getManager("passed hi", "no hi");
+
+    const result  = manager.test();
+    expect(result).equal("manager created!! man. passed arg: passed hi and no hi");
+  });
+});
