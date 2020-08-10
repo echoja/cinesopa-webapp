@@ -1,4 +1,4 @@
-const validator = require("../graphql/validator").init({
+const validator = require("../graphql/validator").make({
   HIGH: 22,
   LOW: 4,
   MID: 18,

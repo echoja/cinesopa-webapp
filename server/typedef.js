@@ -6,6 +6,7 @@
  * 유저 정보를 담는 객체
  * @typedef {Object} Userinfo
  * @property {string} email - 이메일
+ * @property {string} pwd - 비밀번호
  * @property {string} name - 이름
  * @property {Date} c_date - 생성일
  * @property {string} role - 역할
@@ -37,7 +38,7 @@
  * 암호화된 비밀번호 객체
  *
  * @typedef {Object} Encrypted
- * @property {String} result
+ * @property {String} pwd
  * @property {String} salt
  */
 
@@ -48,7 +49,6 @@ api
 /**
  * resolver의 기본 형태
  *
- * @typedef {function} Resolver
  * @callback Resolver
  * @param {object} obj
  * @param {object} args
@@ -57,11 +57,34 @@ api
  */
 
 /**
+ * passport 에서 deserializeUser에 쓰이는 함수
+ *
+ * @callback UserFinder
+ * @param {string} email
+ * @return {Promise<Userinfo>} 유저 정보
+ */
+
+/**
+ * passport 에서 GraphQLLocalStrategy 에 쓰이는 함수
+ * @callback UserGetterByAuth
+ * @param {string} email
+ * @param {string} pwd
+ * @return {Promise<Userinfo>} 유저 정보
+ */
+
+// /** 
+//  * @typedef {UserGetterByAuth} UserGetterByAuth
+//  */
+
+/**
  * @typedef {import("./graphql/validator").AuthValidator} AuthValidator
  */
 
 /**
- * @typedef {import("./dao/db-manager").DBManager} DBManager
+ * @typedef {import("./manager/db").DBManager} DBManager
  */
+// /**
+//  * @typedef {Express.Re}
+//  */
 
- /** @typedef {import("graphql-passport/lib/types").PassportContext} PassportContext */
+/** @typedef {import("graphql-passport/lib/types").PassportContext<Userinfo,{},{},Express.Request>} PassportContext */

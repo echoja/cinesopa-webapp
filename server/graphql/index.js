@@ -8,7 +8,6 @@ const {
 const graphqlHTTP = require("express-graphql");
 const { buildContext } = require("graphql-passport");
 
-
 const allTypes = fileLoader(
   path.join(path.resolve(), "./graphql/api/**/*.graphql")
 );
@@ -30,15 +29,14 @@ const graphQLServerMiddleware = (req, res, next) => {
     customFormatErrorFn: (error) => ({
       message: error.message,
       locations: error.locations,
-      stack: error.stack ? error.stack.split('\n') : [],
+      stack: error.stack ? error.stack.split("\n") : [],
       path: error.path,
     }),
     // context: ({ req, res }) => buildContext({ req, res }),
   })(req, res, next);
-}
+};
 
 module.exports = {
   graphQLServerMiddleware,
   schema,
-}
-
+};

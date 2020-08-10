@@ -24,7 +24,7 @@ class AuthValidator {
       let result = false;
       try {
         result = this.authmapLevel[given] >= this.authmapLevel[condition];
-        resolve(result);
+        return resolve(result);
       } catch {
         return reject(`given(${given}) or condition(${condition}) should be in [
           ${_.keys(this.authmapLevel).join(", ")}]`);
@@ -41,7 +41,7 @@ class AuthValidator {
    * @param {string} redirectLink
    * @param {string[]} roleAvailable 조건 권한. 유저는 roleAvailable 안에 있어야 가능함.
    * @param {object} context Resolver 로부터 받는 context 객체
-   * @returns {{permissionStatus: string, ?user: object}} 권한 상태와 유저 객체
+   * @returns {Promise<{permissionStatus: string, user?: object}>} 권한 상태와 유저 객체
    */
   async accessCheck(redirectLink, roleAvailable, context) {
     return new Promise((resolve, reject) => {
