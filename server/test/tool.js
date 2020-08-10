@@ -1,9 +1,48 @@
 const fs = require("fs");
+const FormData = require("form-data");
 const path = require("path");
 const foldername = "generated-html";
 const sanitizeFilename = require("sanitize-filename");
 
+/**
+ * @typedef {object} MockFile
+ * @property {string} name
+ * @property {string} body
+ * @property {string} mimeType
+ */
+
 module.exports = {
+  /**
+   * HTML File 객체를 만듭니다.
+   * @param {MockFile} file
+   * @returns {File}
+   */
+  createFileFromMockFile(file) {
+    const blob = new Blob([file.body], { type: file.mimeType });
+    blob["lastModifiedDate"] = new Date();
+    blob["name"] = file.name;
+    return blob;
+  },
+
+  /**
+   * HTML FileList 객체를 만듭니다.
+   * @param {MockFile[]} files
+   * @returns {FileList}
+   */
+  createMockFileList(files) {
+    const fileList = {
+      length: files.length,
+      item(index) {
+        return fileList[index];
+      },
+    };
+    files.forEach(
+      (file, index) => (fileList[index] = createFileFromMockFile(file))
+    );
+
+    return fileList;
+  },
+  
   /**
    * 테스트용 html를 만듭니다. 경로는 test 이름 기반입니다. Mocha 전용입니다.
    * 만들어진 html 파일은 직접 삭제하세요. 삭제 코드는 위험하여 넣지 않았습니다.
@@ -22,6 +61,22 @@ module.exports = {
         }
         return resolve();
       });
+    });
+  },
+  /**
+   *
+   * @param {*} url
+   * @param {File} fileObj
+   * @param {*} name
+   */
+  async upload(url, fileObj, name) {
+    const fd = new FormData();
+    fd.append("name", name);
+    fd.append("bin", fileObj);
+    return axios.post(url, fd, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
     });
   },
 };
