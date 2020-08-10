@@ -1,5 +1,11 @@
 .DS_Store
 
+# 테스트용 html 생성 폴더
+/server/test/generated-html/
+
+# mochawesome가 생성한 테스트용 html 폴더
+/server/mochawesome-report/
+
 # local env files
 .env.local
 .env.*.local

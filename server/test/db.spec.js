@@ -1,6 +1,12 @@
+
+
+const tool = require("./tool");
+const fs = require("fs");
+const path = require("path");
 const { expect } = require("chai");
 
 const { pwd_verify, pwd_encrypt, make: makeDB } = require("../manager/db");
+const addContext = require("mochawesome/addContext");
 
 describe("암호화 테스트", function () {
   const testpwd = "13241324";
@@ -70,6 +76,7 @@ describe("실제 모델 테스트", (self) => {
   let manager;
 
   before("DB 초기화", async function () {
+    this.timeout(10000);
     manager = makeDB(model);
 
     const { MongoMemoryServer } = require("mongodb-memory-server");
@@ -173,22 +180,42 @@ describe("실제 모델 테스트", (self) => {
   });
 
   describe("패스워드 테스트", function () {
-    it("유저 생성 후 비번이 같아야 함 - isCorrectPassword", async function() {
+    it("유저 생성 후 비번이 같아야 함 - isCorrectPassword", async function () {
       await manager.createUser({
         email: "eszqsc112@naver.com",
         name: "김태훈",
         pwd: "13241324",
       });
-      const result = await manager.isCorrectPassword("eszqsc112@naver.com", "13241324");
+      const result = await manager.isCorrectPassword(
+        "eszqsc112@naver.com",
+        "13241324"
+      );
       expect(result).equal(true);
+      await tool.makeHtmlReport(
+        this,
+        `<!DOCTYPE html>
+      <html lang="en">
+      <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Document</title>
+      </head>
+      <body>
+        <p>hahaha</p>
+      </body>
+      </html>`
+      );
     });
-    it("유저 생성 후 비번이 틀려야 함 - isCorrectPassword", async function() {
+    it("유저 생성 후 비번이 틀려야 함 - isCorrectPassword", async function () {
       await manager.createUser({
         email: "eszqsc112@naver.com",
         name: "김태훈",
         pwd: "13241324",
       });
-      const result = await manager.isCorrectPassword("eszqsc112@naver.com", "12345678");
+      const result = await manager.isCorrectPassword(
+        "eszqsc112@naver.com",
+        "12345678"
+      );
       expect(result).equal(false);
     });
   });
