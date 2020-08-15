@@ -69,7 +69,8 @@ describe("findMany 테스트", function () {
 
 describe("실제 모델 테스트", (self) => {
   const mongoose = require("mongoose");
-  const model = require("../dao/db/model").make(mongoose);
+  mongoose.deleteModel(/.+/);
+  const model = require("../db/model").make(mongoose);
   /** @type {MongoMemoryServer} */
   let mongod;
   /** @type {DBManager} */

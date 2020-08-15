@@ -1,6 +1,5 @@
-
 const a = 10;
-const auth = require("../dao/auth");
+const auth = require("../service/auth");
 const request = require("supertest");
 const makeAgent = request.agent;
 const session = require("express-session");
@@ -14,8 +13,8 @@ const passport = require("passport");
 // const { noConflict } = require("lodash");
 const { make: makeDB } = require("../manager/db");
 const { make: makeAuthMiddleware } = require("../auth/auth-middleware");
-const { enumAuthmap } = require("../dao/db/schema/enum");
-const {graphqlSuper} = require('./tool');
+const { enumAuthmap } = require("../db/schema/enum");
+const { graphqlSuper } = require("./tool");
 
 const loginQuery = `
 mutation Login ($email: String!, $pwd: String!) {
@@ -44,6 +43,8 @@ query checkAuth($redirectLink: String!, $role: Permission!) {
 }
 `;
 
+
+
 /**
  * - graphql typedef 및 resolver 필요.
  * - db 세팅. db는 본래 환경과 동일한 db 생성. 즉 모델 및 스키마가 완료되어야 함.
@@ -51,7 +52,7 @@ query checkAuth($redirectLink: String!, $role: Permission!) {
  */
 describe("REAL API", function () {
   const mongoose = require("mongoose");
-  const model = require("../dao/db/model").make(mongoose);
+  const model = require("../db/model").make(mongoose);
   /** @type {MongoMemoryServer} */
   let mongod;
   /** @type {DBManager} */
@@ -61,6 +62,7 @@ describe("REAL API", function () {
   const webapp = express();
 
   before("서버 및 db 세팅", async function () {
+    delete require.cache[require.resolve("passport")];
     this.timeout(10000);
 
     /** DB 세팅 */
@@ -176,38 +178,16 @@ describe("REAL API", function () {
       });
     });
     it("권한이 성공해야 함", async function () {
-      // let userResult = await agent.get("/user");
-      // console.log("userResult.body");
-      // console.dir(userResult.body);
-
-      // const user = await manager.createUser({
-      //   email: "testAdmin",
-      //   pwd: "abc",
-      //   role: "ADMIN",
-      // });
-      // console.dir(user);
-
-      // console.log("--login START~--");
-      const loginResult = await graphqlSuper(agent, loginQuery, {
-        email: "testAdmin",
-        pwd: "abc",
-      });
-      // console.log("--login result");
-      // console.dir(loginResult.body.data.login.user);
-
-      // console.log("--session START~--");
-      // const sessionResult = await agent.get("/session");
-      // console.log("sessionResult.body");
-      // console.dir(sessionResult.body);
-
-      // userResult = await agent.get("/user");
-      // console.log("userResult.body");
-      // console.dir(userResult.body);
-
-      const result = await agent.get("/auth-test-admin");
-      if (result.status === 500) throw result.error;
-      expect(result.status).to.equal(200);
-      expect(result.body?.message).to.equal("success");
+      
+        const loginResult = await graphqlSuper(agent, loginQuery, {
+          email: "testAdmin",
+          pwd: "abc",
+        });
+      
+        const result = await agent.get("/auth-test-admin");
+        if (result.status === 500) throw result.error;
+        expect(result.status).to.equal(200);
+        expect(result.body?.message).to.equal("success");
     });
     it("권한이 실패해야 함", async function () {
       const loginResult = await graphqlSuper(agent, loginQuery, {
@@ -223,18 +203,23 @@ describe("REAL API", function () {
       graphqlSuper(agent, loginQuery, {
         email: "testGuest",
         pwd: "abc",
-      }).then(() => {
-        agent.get("/auth-test-error").expect(200).end((err, res) => {
-          if(err) done();
-          else done("에러가 나야 합니다.");
+      })
+        .then(() => {
+          agent
+            .get("/auth-test-error")
+            .expect(200)
+            .end((err, res) => {
+              if (err) done();
+              else done("에러가 나야 합니다.");
+            });
         })
-      }).catch((err) => {
-        done(err);
-      });
+        .catch((err) => {
+          done(err);
+        });
     });
   });
 
   it("회원가입 및 로그인", async function () {
-    graphqlSuper(agent, )
+    // graphqlSuper(agent);
   });
 });

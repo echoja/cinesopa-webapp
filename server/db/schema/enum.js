@@ -1,4 +1,4 @@
-const { makeEnum } = require("../../../util");
+const { makeEnum } = require("../../util");
 
 const enumAuthmap = makeEnum(["ADMIN", "GUEST", "ANYONE"]);
 const enumPeopleRoleType = makeEnum(["director", "actor", "staff"]);

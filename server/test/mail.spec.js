@@ -2,7 +2,7 @@ const nodemailer = require("nodemailer");
 const { expect } = require("chai");
 const { gmailEmail, gmailPassword } = require("../config");
 
-const mail = require("../dao/mail");
+const mail = require("../manager/mail");
 
 describe("초기화 테스트", () => {
   it("transporter이 잘 만들어져야 함", () => {
@@ -61,7 +61,7 @@ describe("올바르지 않은 동작 테스트", () => {
     manager
       .sendMail("제목", "내용")
       .then((value) => {
-        console.log(value);
+        // console.log(value);
         done("에러가 나야 함");
       })
       .catch((error) => {

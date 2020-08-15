@@ -4,7 +4,7 @@ const history = require("connect-history-api-fallback");
 
 const upload = require("multer")({ dest: "uploads/" }).single("bin");
 const { graphQLServerMiddleware } = require("./graphql");
-const { file, user } = require("./dao");
+const { file, user } = require("./service");
 
 const router = express.Router();
 

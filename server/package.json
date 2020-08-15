@@ -42,7 +42,7 @@
   "scripts": {
     "start-dev": "nodemon --trace-warnings index.js",
     "start:ci": "node index.js",
-    "test": "mocha --reporter mochawesome",
+    "test": "mocha --reporter mochawesome --trace-warnings",
     "test-server:multer": "nodemon test/multer-test-server.js"
   },
   "devDependencies": {
@@ -55,6 +55,7 @@
     "mocha": "^8.1.1",
     "mochawesome": "^6.1.1",
     "mongodb-memory-server": "^6.6.3",
+    "sinon": "^9.0.3",
     "supertest": "^4.0.2"
   }
 }

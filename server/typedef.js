@@ -45,16 +45,27 @@
 /**
  * 파일 정보를 담는 객체
  * @typedef {object} Fileinfo
+ * @property {string} filename 실제 저장되는 파일 이름 (multer에 의해 생성)
  * @property {string} encoding
- * @property {string} mimetype
- * @property {string} description
- * @property {string} label
+ * @property {string} mimetype 
+ * @property {string} description 설명
+ * @property {string} label 보여지는 이름
  * @property {string} alt
  * @property {string} path
  * @property {string} size
  * @property {import("mongoose/lib/types/objectid")} owner
  * @property {boolean} public 외부 링크로 접근할 수 있는가의 여부.
  * @property {boolean} managed 파일이 파일 매니저에서 관리되는지 아닌지의 여부.
+ */
+
+ /**
+ * 토큰 정보를 담는 객체
+ * @typedef {object} Tokeninfo
+ * @property {string} email 
+ * @property {string} token
+ * @property {number} ttl 유효 시간 (초)
+ * @property {Date} c_date 
+ * @property {string} purpose 
  */
 
 /*=====================================

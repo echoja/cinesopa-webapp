@@ -1,6 +1,6 @@
 require("../typedef");
 
-const { enumAuthmap } = require("./db/schema/enum");
+const { enumAuthmap } = require("../db/schema/enum");
 
 const authmapLevel = {
   [enumAuthmap.ADMIN]: 2,

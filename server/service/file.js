@@ -1,19 +1,30 @@
 /** @type {DBManager} */
 let db;
 
-/**
- * 파일을 새로 만듭니다.
- * @param {Express.Multer.File} fileinfo
- */
-const newFile = async (fileinfo) => {};
+const file = require('../manager/file')
+// /**
+//  * 파일을 새로 만듭니다.
+//  * @param {Express.Multer.File} fileinfo
+//  */
+// const newFile = async (fileinfo) => {};
 
-const removeFileById = async () => {};
+/**
+ * 
+ * @param {string} filename 실제 저장되는 파일 이름
+ */
+const removeFileByFilename = async (filename) => {
+  const toRemove = await db.getFile(filename);
+  const fullpath = toRemove.path;
+  await db.removeFile(filename);
+  await file.removeFile(fullpath);
+};
 
 module.exports = {
   make(dbManager) {
+    db = dbManager;
     return {
       newFile,
-      removeFileById,
+      removeFileByFilename,
     };
   },
 

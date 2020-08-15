@@ -10,11 +10,11 @@ const mailTransporter = mailToolkit.makeWeakTransporter(
   gmailPassword
 );
 const mail = mailToolkit.make({}, mailTransporter);
-const model = require("../../dao/db/model");
+const model = require("../../db/model");
 const db = require("../../manager/db").make(model);
-const user = require("../../dao/user").make(db, mail);
-const { enumAuthmap } = require("../../dao/db/schema/enum");
-const { page, auth } = require("../../dao");
+const user = require("../../service/user").make(db, mail);
+const { enumAuthmap } = require("../../db/schema/enum");
+const { page, auth } = require("../../service");
 const validatorInitializer = require("../validator");
 const alist = enumAuthmap.raw_str_list;
 const ACCESS_ALL = alist;

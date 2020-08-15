@@ -1,4 +1,4 @@
-const { enumAuthmap, enumTokenPurpose } = require("./db/schema/enum");
+const { enumAuthmap, enumTokenPurpose } = require("../db/schema/enum");
 const crypto = require("crypto");
 
 // const mail = require("./mail");
@@ -84,11 +84,11 @@ const initAdmin = async () => {
  * @param {string} pwd 비밀번호
  * @param {context} context
  */
-const createGuest = async (email, pwd, context) => {
+const createGuest = async (email, pwd) => {
   const args = { email, pwd };
   args.role = "GUEST";
   args.verified = false;
-  const result = await db.createUser(args, context);
+  const result = await db.createUser(args);
 
   await startEmailVerifying(email);
   return result;
@@ -96,25 +96,26 @@ const createGuest = async (email, pwd, context) => {
 
 /**
  * 토큰을 입력받아서 ok 시키는 것. 토큰이 유효하지 않는 등 에러가 발생할 시 에러를 thorw 함.
- * @param {*} param0
- * @param {*} context
+ * @param {string} token
+ * @returns {Promise<Userinfo>}
  */
 const verifyEmail = async (token) => {
-  const tokenDoc = await model.Token.findOne({
-    token,
-    purpose: "email_verification",
-  }).exec();
-  if (!tokenDoc) throw "no token";
+  const tokenDoc = await db.getEmailVerificationToken(token); // 토큰을 찾지 못하면 에러.
   const email = tokenDoc.email;
-  const user = await model.User.findOne({ email });
+  const user = await db.getUserByEmail(email);
   // 유효시간 초과
+  // console.dir({
+  //   now: Date.now(),
+  //   c_date: tokenDoc.c_date,
+  //   ttl: tokenDoc.ttl,
+  // })
   if (Date.now() - tokenDoc.c_date > tokenDoc.ttl * 1000) {
     throw "verifyEmail: token expired";
   }
   // 유효시간 올바름.
   user.verified = true;
-  await user.save();
-  await model.Token.deleteOne({ _id: tokenDoc._id });
+  await db.updateUser(email, {verified:true});
+  await db.removeToken(token);
   return user;
 };
 

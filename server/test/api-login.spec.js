@@ -16,7 +16,7 @@
  */
 const a = 10;
 const {graphqlSuper} = require('./tool');
-const auth = require("../dao/auth");
+const auth = require("../service/auth");
 const request = require("supertest");
 const makeAgent = request.agent;
 const { inspect } = require("util");
@@ -36,7 +36,7 @@ const headers = {
   Accept: "application/json",
 };
 const { make: makeAuthMiddleware } = require("../auth/auth-middleware");
-const { enumAuthmap } = require("../dao/db/schema/enum");
+const { enumAuthmap } = require("../db/schema/enum");
 
 const loginQuery = `
 mutation Login ($email: String!, $pwd: String!) {
@@ -89,15 +89,18 @@ const graphqlRequest = async (url, query, variables) => {
   });
 };
 
+
+
 describe("로그인 및 로그아웃 (권한)", function () {
   this.timeout(10000);
-
+  
   /** @type {import("supertest").SuperAgentTest} */
   let agent;
 
   const webapp = express();
 
   before("웹앱 세팅", async function () {
+    delete require.cache[require.resolve('passport')];
     // session settings
     webapp.use(
       session({

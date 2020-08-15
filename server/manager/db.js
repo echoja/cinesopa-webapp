@@ -1,3 +1,5 @@
+const path = require("path");
+const fs = require("fs");
 require("../typedef");
 const {
   MongooseDocument,
@@ -7,6 +9,7 @@ const {
 } = require("mongoose");
 // const { ManagerCreater } = require("./manager-loader");
 const crypto = require("crypto");
+const { fstat } = require("fs");
 
 /** @typedef {Object.<string, Model<MongooseDocument, {}>>} ModelWrapper */
 /** @typedef {DBManager} DBManager */
@@ -125,12 +128,12 @@ class DBManager {
   /**
    * 이메일을 기준으로 유저를 얻습니다.
    * @param {string} email 이메일
-   * @returns {Userinfo}
+   * @returns {Promise<Userinfo>}
    */
   async getUserByEmail(email) {
     // console.log("--getUserByEmail--");
     // console.dir(await model.User.find().lean());
-    return await model.User.findOne({ email }).lean();
+    return await model.User.findOne({ email }).lean().exec();
   }
 
   //@returns {?MongooseDocument[]} 유저 Mongoose Document
@@ -214,7 +217,30 @@ class DBManager {
     const { pwd: originPwd, salt } = login;
     return await pwd_verify(pwd, { pwd: originPwd, salt });
   }
+  /*=====================================
+  토큰
+  =====================================*/
+  // async createEmailVerificationToken(token)
 
+  /**
+   *
+   * @param {string} token
+   * @returns {Tokeninfo}
+   */
+  async getEmailVerificationToken(token) {
+    const result = await model.Token.findOne({
+      token,
+      purpose: "email_verification",
+    })
+      .lean()
+      .exec();
+    if (!result) throw `토큰 ${token}이 존재하지 않습니다.`;
+    return result;
+  }
+
+  async removeToken(token) {
+    await model.Token.findOneAndDelete({ token });
+  }
   /*=====================================
   페이지
   =====================================*/
@@ -254,7 +280,7 @@ class DBManager {
    */
   async createFile(fileinfo, owner) {
     const user = await _getUserByEmailOrThrow("createFile", owner);
-    fileinfo["owner"] = (await user)._id;
+    fileinfo["owner"] = user._id;
     const newFile = new model.File(fileinfo);
     await newFile.save();
   }
@@ -271,9 +297,32 @@ class DBManager {
       .lean();
   }
 
-  async updateFile() {}
+  /**
+   * 파일을 구합니다.
+   * @param {string} filename 파일이름
+   * @returns {Promise<Fileinfo>}
+   */
+  async getFile(filename) {
+    return model.File.findOne({ filename }).lean();
+  }
 
-  async removeFileByFilename(filename) {}
+  /**
+   *
+   * @param {string} filename
+   * @param {Fileinfo} fileinfo
+   */
+  async updateFile(filename, fileinfo) {
+    return model.File.findOneAndUpdate({ filename }, fileinfo).lean().exec();
+  }
+
+  /**
+   * 파일을 찾아 삭제합니다.
+   * @param {string} filename
+   * @throws 파일을 찾을 수 없을 때
+   */
+  async removeFile(filename) {
+    return model.File.findOneAndDelete({ filename }).lean().exec();
+  }
 
   /*=====================================
   영화
@@ -305,6 +354,7 @@ const make = (modelInput) => {
   initialized = true;
   model = modelInput;
   const manager = new DBManager();
+  manager.uploadFolder = "uploads";
   return manager;
 };
 

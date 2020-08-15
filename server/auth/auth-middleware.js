@@ -1,6 +1,6 @@
 const typedef = require("../typedef");
 
-const { enumAuthmap } = require("../dao/db/schema/enum");
+const { enumAuthmap } = require("../db/schema/enum");
 
 module.exports = {
   /**
