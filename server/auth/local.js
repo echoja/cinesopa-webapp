@@ -15,14 +15,17 @@ module.exports = {
        * 유저의 email 을 세션 구분용 id로 사용한다
        */
       passport.serializeUser((user, done) => {
+        // console.log(`serializing: ${user.email}`);
         done(null, user.email);
       });
 
       /** 세션 구분용 id인 email을 받아와서 userFinder 에게 넘긴다. */
       passport.deserializeUser(async (email, done) => {
         // const userFound = await user.getUserByEmail(email);
-        
+        // console.log(`deserializing: ${email}`);
+        // console.dir(userFinder);
         const userFound = await userFinder(email);
+        // console.dir(userFound);
         done(null, userFound);
       });
 
@@ -35,4 +38,12 @@ module.exports = {
       );
     };
   },
+  /**
+   * UserFinder 와 UserGetterByAuth 를 이용해 passport 인증 방법을 초기화하는 함수.
+   * @param {UserFinder} userFinder
+   * @param {UserGetterByAuth} getUserByAuth
+   */
+  init(userFinder, getUserByAuth) {
+    this.make(userFinder, getUserByAuth)();
+  }
 };

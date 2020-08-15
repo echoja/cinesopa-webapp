@@ -1,8 +1,40 @@
 const fs = require("fs");
+const axios = require("axios");
 const FormData = require("form-data");
 const path = require("path");
 const foldername = "generated-html";
 const sanitizeFilename = require("sanitize-filename");
+
+
+class Blob {
+  constructor(a, b) {
+    
+  }
+}
+
+
+/**
+ * supertest 의 agent 기반으로 graphql 요청을 보냅니다.
+ * 요청주소는 /graphql 로 고정입니다.
+ * @param {import("supertest").SuperAgentTest} agent
+ * @param {string} query
+ * @param {string} variables
+ */
+const graphqlSuper = async (agent, query, variables) => {
+  return agent
+    .post(`/graphql`)
+    .set("Content-Type", "application/json")
+    .set("Accept", "application/json")
+    .withCredentials()
+    .send(
+      JSON.stringify({
+        query,
+        variables,
+      })
+    )
+    .expect(200);
+};
+
 
 /**
  * @typedef {object} MockFile
@@ -12,6 +44,8 @@ const sanitizeFilename = require("sanitize-filename");
  */
 
 module.exports = {
+  graphqlSuper,
+  
   /**
    * HTML File 객체를 만듭니다.
    * @param {MockFile} file
@@ -63,16 +97,13 @@ module.exports = {
       });
     });
   },
-  /**
-   *
-   * @param {*} url
-   * @param {File} fileObj
-   * @param {*} name
-   */
-  async upload(url, fileObj, name) {
-    const fd = new FormData();
-    fd.append("name", name);
-    fd.append("bin", fileObj);
+/**
+ * 
+ * @param {string} url 
+ * @param {FormData} fd 
+ */
+  async upload(url, fd) {
+    fd.append("bin", fd);
     return axios.post(url, fd, {
       headers: {
         "Content-Type": "multipart/form-data",

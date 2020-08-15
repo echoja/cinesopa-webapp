@@ -68,8 +68,12 @@ const login = async (email, pwd, context) => {
     password: pwd,
   });
   // 로그인
+  // console.log("calling context.login");
   await context.login(user);
   const redirectLink = context.req?.session?.redirectLink;
+  // console.log("-- session in login --");
+  // console.dir(context.req.session);
+  // console.log(context.req.sessionID);
 
   // 본래 있던 redirectLink 삭제
   if (redirectLink) {
@@ -77,8 +81,17 @@ const login = async (email, pwd, context) => {
   }
   return { user, redirectLink };
 };
+
+/**
+ * 
+ */
+const isOwnerToFile = async (req, rawFilename) => {
+
+}
+
 module.exports = {
   login,
   logoutMe,
+  isOwnerToFile,
   authmapLevel,
 };

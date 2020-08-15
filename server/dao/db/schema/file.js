@@ -1,4 +1,9 @@
 
+const {enumFileUsage} = require("./enum");
+
+/**
+ * @param {Mongoose} mongoose 
+ */
 module.exports = function (mongoose) {
   return new mongoose.Schema({
     encoding: String,
@@ -11,5 +16,6 @@ module.exports = function (mongoose) {
     size: Number,
     owner: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
     public: Boolean,
+    managed: Boolean, 
   });
 };

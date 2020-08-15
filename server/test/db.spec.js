@@ -6,7 +6,6 @@ const path = require("path");
 const { expect } = require("chai");
 
 const { pwd_verify, pwd_encrypt, make: makeDB } = require("../manager/db");
-const addContext = require("mochawesome/addContext");
 
 describe("암호화 테스트", function () {
   const testpwd = "13241324";
@@ -71,6 +70,7 @@ describe("findMany 테스트", function () {
 describe("실제 모델 테스트", (self) => {
   const mongoose = require("mongoose");
   const model = require("../dao/db/model").make(mongoose);
+  /** @type {MongoMemoryServer} */
   let mongod;
   /** @type {DBManager} */
   let manager;

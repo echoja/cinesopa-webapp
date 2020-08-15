@@ -1,5 +1,10 @@
 require("../typedef");
-const { MongooseDocument, DocumentQuery, Model } = require("mongoose");
+const {
+  MongooseDocument,
+  DocumentQuery,
+  Model,
+  SchemaTypes: { ObjectId },
+} = require("mongoose");
 // const { ManagerCreater } = require("./manager-loader");
 const crypto = require("crypto");
 
@@ -40,6 +45,7 @@ const pwd_encrypt = async (plain) => {
  * @param {Encrypted} encrypted
  * @returns {Promise<boolean>} 맞으면 true, 틀리면 false
  */
+
 const pwd_verify = async (given, encrypted) => {
   return new Promise((resolve, reject) => {
     let result = "";
@@ -49,6 +55,18 @@ const pwd_verify = async (given, encrypted) => {
       resolve(result === encrypted.pwd);
     });
   });
+};
+
+/**
+ * 유저를 구하려고 시도합니다.
+ * @param {string} caller 호출하는 함수의 이름
+ * @param {string} email 유저의 이메일
+ * @throws 유저 찾기 실패시
+ */
+const _getUserByEmailOrThrow = async (caller, email) => {
+  const user = await model.User.findOne({ email }).exec();
+  if (!user) throw `${caller}: 이메일에 해당하는 유저를 찾을 수 없습니다.`;
+  return user;
 };
 
 /**
@@ -110,6 +128,8 @@ class DBManager {
    * @returns {Userinfo}
    */
   async getUserByEmail(email) {
+    // console.log("--getUserByEmail--");
+    // console.dir(await model.User.find().lean());
     return await model.User.findOne({ email }).lean();
   }
 
@@ -185,7 +205,7 @@ class DBManager {
    * 이메일과 비밀번호가 맞는지 체크합니다
    * @param {string} email 이메일
    * @param {string} pwd 비밀번호
-   * @returns {boolean} 맞으면 true, 틀리면 false
+   * @returns {Promise<boolean>} 맞으면 true, 틀리면 false
    */
   async isCorrectPassword(email, pwd) {
     const login = await model.Login.findOne({ email });
@@ -198,10 +218,13 @@ class DBManager {
   /*=====================================
   페이지
   =====================================*/
-
+  /**
+   *
+   * @param {*} pageinfo
+   */
   async createPage(pageinfo) {
     const newPage = new model.Page(pageinfo);
-    await newPage.save();
+    return newPage.save();
   }
 
   async getPageByPermalink(permalink) {
@@ -222,6 +245,35 @@ class DBManager {
   /*=====================================
   파일
   =====================================*/
+
+  /**
+   *
+   * @param {Fileinfo} fileinfo
+   * @param {string} owner 파일을 소유한 사람의 이메일
+   * @throws 유저를 찾을수 없을 때
+   */
+  async createFile(fileinfo, owner) {
+    const user = await _getUserByEmailOrThrow("createFile", owner);
+    fileinfo["owner"] = (await user)._id;
+    const newFile = new model.File(fileinfo);
+    await newFile.save();
+  }
+
+  /**
+   * 파일관리자 창에서 관리할 수 있는 파일들을 가져옵니다.
+   * @param {number} page 페이지
+   * @param {number} perpage 한 페이지당 파일의 개수
+   */
+  async getFileManaged(page, perpage) {
+    return model.File.find({ managed: true })
+      .limit(perPage)
+      .skip(perpage * page)
+      .lean();
+  }
+
+  async updateFile() {}
+
+  async removeFileByFilename(filename) {}
 
   /*=====================================
   영화

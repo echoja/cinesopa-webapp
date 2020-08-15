@@ -17,5 +17,6 @@
     "build-client": "cd client && npm run build",
     "start": "npm run install && npm run build-client && npm run copy && npm run start-prod-server",
     "start-docker": "npm run install-prod && npm run build-client && npm run copy && npm run start-prod-docker-server"
-  }
+  },
+  "devDependencies": {}
 }
