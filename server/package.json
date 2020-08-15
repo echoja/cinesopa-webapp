@@ -43,7 +43,8 @@
     "start-dev": "nodemon --trace-warnings index.js",
     "start:ci": "node index.js",
     "test": "mocha --reporter mochawesome --trace-warnings",
-    "test-server:multer": "nodemon test/multer-test-server.js"
+    "test-server:multer": "nodemon test/multer-test-server.js",
+    "test:mkdir": "npm test ./test/file.spec.js"
   },
   "devDependencies": {
     "@types/graphql-upload": "^8.0.3",

@@ -109,6 +109,10 @@ api
 /**
  * @typedef {import("./manager/db").DBManager} DBManager
  */
+
+ /**
+  * @typedef {import("./manager/file")} FileManager
+  */
 // /**
 //  * @typedef {Express.Re}
 //  */

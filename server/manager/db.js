@@ -303,13 +303,21 @@ class DBManager {
    * @returns {Promise<Fileinfo>}
    */
   async getFile(filename) {
-    return model.File.findOne({ filename }).lean();
+    return model.File.findOne({ filename }).lean().exec();
   }
 
   /**
-   *
+   * 모든 파일을 구합니다.
+   */
+  async getFiles() {
+    return model.File.find().lean().exec();
+  }
+
+  /**
+   * 파일의 정보를 갱신합니다.
    * @param {string} filename
    * @param {Fileinfo} fileinfo
+   * @returns {Promise<Fileinfo>}
    */
   async updateFile(filename, fileinfo) {
     return model.File.findOneAndUpdate({ filename }, fileinfo).lean().exec();
@@ -318,7 +326,6 @@ class DBManager {
   /**
    * 파일을 찾아 삭제합니다.
    * @param {string} filename
-   * @throws 파일을 찾을 수 없을 때
    */
   async removeFile(filename) {
     return model.File.findOneAndDelete({ filename }).lean().exec();
