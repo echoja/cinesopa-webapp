@@ -58,6 +58,12 @@ const makeEnum = (str_list) => {
   return Object.freeze(result);
 };
 
+const getDateFromObj = (datetime) => {
+  const {year, month, day, hour, minute, second} = datetime;
+  return new Date(year, month, day, hour, minute, second);
+}
+
 module.exports = {
   makeEnum,
+  getDateFromObj
 };

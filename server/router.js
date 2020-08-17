@@ -1,44 +1,36 @@
 const express = require("express");
+const { enumAuthmap } = require("./db/schema/enum");
 const path = require("path");
 const history = require("connect-history-api-fallback");
 
-const upload = require("multer")({ dest: "uploads/" }).single("bin");
+// const upload = require("multer")({ dest: "uploads/" }).single("bin");
 const { graphQLServerMiddleware } = require("./graphql");
-const { file, user } = require("./service");
+const {
+  file: { uploadMiddleware },
+  makeAuthMiddleware,
+  validator,
+  user,
+  db,
+} = require("./loader");
 
 const router = express.Router();
 
-// default responding
-// router.get("/index.html", (req, res) => {
-//   res.sendFile(path.join(__dirname, './dist', 'index.html'));
-// });
-
-// upload secure things.
-router.post("/upload/:key", upload, (req, res, next) => {});
-
-router.post("/upload", upload, file.uploadMiddleware);
+// upload
+router.post("/upload", makeAuthMiddleware(validator, [enumAuthmap.ADMIN]), uploadMiddleware);
 
 // graphiql
 router.use("/graphql", graphQLServerMiddleware);
 
-router.get("/test", (req, res, next) => {
-  console.dir(require("mongoose").model("Film").schema);
-  next();
-});
-
-// router.get("/email_verify/:id", (req, res, next) => {
-//   const { id } = req.params;
-//   user.verifyEmail(id);
-// });
 
 router.get("/test/remove-user/:email", (req, res, next) => {
-  user
-    .removeUserByEmail({email: req.params.email})
+  db
+    .removeUserByEmail(req.params.email)
     .then((user) => {
       res.send(user);
     })
     .catch((error) => {
-      res.send(error);
+      // console.error(error);
+      res.status(500).send(error);
     });
 });
 
@@ -53,14 +45,18 @@ router.get("/test/make-super-user", (req, res, next) => {
     });
 });
 
+/**
+ * 
+ * @param {import("express").Express} app 
+ */
 module.exports.getRouter = (app) => {
-  // app.use("/cinesopa", history({
+  app.use("/cinesopa", history({
   //   // rewrites: [
   //   //   { from: /\/graphql/, to: '/graphql'}
   //   // ],
   //   // index: '/cinesopa/index.html',
-  //   verbose: true, // production settings required
-  // }));
+    verbose: true, // production settings required
+  }));
   app.use(
     "/sopaseom",
     history({

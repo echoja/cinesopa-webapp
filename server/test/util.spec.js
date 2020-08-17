@@ -1,6 +1,6 @@
-const { makeEnum } = require("../util");
+const { makeEnum, getDateFromObj } = require("../util");
 const util = require("util");
-const expect = require('chai').expect
+const expect = require("chai").expect;
 
 describe("makeEnum test", function () {
   const ABC = makeEnum(["a", "b", "c"]);
@@ -20,5 +20,23 @@ describe("makeEnum test", function () {
     const b = ABC.b;
     expect(ABC.a).not.to.equal(b, "ABC.a 와 b 는 달라야 합니다.");
   });
-  
+});
+
+describe("getDateFromObj", function () {
+  it("제대로 동작해야 함", function () {
+    const date = getDateFromObj({
+      year: 1923,
+      month: 2,
+      day: 23,
+      hour: 13,
+      minute: 1,
+      second: 22,
+    });
+    expect(date.getFullYear()).to.equal(1923);
+    expect(date.getMonth()).to.equal(2);
+    expect(date.getDate()).to.equal(23);
+    expect(date.getHours()).to.equal(13);
+    expect(date.getMinutes()).to.equal(1);
+    expect(date.getSeconds()).to.equal(22);
+  });
 });

@@ -4,14 +4,11 @@ const FormData = require("form-data");
 const path = require("path");
 const foldername = "generated-html";
 const sanitizeFilename = require("sanitize-filename");
-
+const { promises } = require("dns");
 
 class Blob {
-  constructor(a, b) {
-    
-  }
+  constructor(a, b) {}
 }
-
 
 /**
  * supertest 의 agent 기반으로 graphql 요청을 보냅니다.
@@ -21,20 +18,25 @@ class Blob {
  * @param {string} variables
  */
 const graphqlSuper = async (agent, query, variables) => {
-  return agent
-    .post(`/graphql`)
-    .set("Content-Type", "application/json")
-    .set("Accept", "application/json")
-    .withCredentials()
-    .send(
-      JSON.stringify({
-        query,
-        variables,
-      })
-    )
-    .expect(200);
+  return new Promise((resolve, reject) => {
+    agent
+      .post(`/graphql`)
+      .set("Content-Type", "application/json")
+      .set("Accept", "application/json")
+      .withCredentials()
+      .send(
+        JSON.stringify({
+          query,
+          variables,
+        })
+      )
+      .expect(200)
+      .end((err, res) => {
+        if (err) return reject(res.body.errors[0]);
+        return resolve(res);
+      });
+  });
 };
-
 
 /**
  * @typedef {object} MockFile
@@ -45,7 +47,7 @@ const graphqlSuper = async (agent, query, variables) => {
 
 module.exports = {
   graphqlSuper,
-  
+
   /**
    * HTML File 객체를 만듭니다.
    * @param {MockFile} file
@@ -76,7 +78,7 @@ module.exports = {
 
     return fileList;
   },
-  
+
   /**
    * 테스트용 html를 만듭니다. 경로는 test 이름 기반입니다. Mocha 전용입니다.
    * 만들어진 html 파일은 직접 삭제하세요. 삭제 코드는 위험하여 넣지 않았습니다.
@@ -97,11 +99,11 @@ module.exports = {
       });
     });
   },
-/**
- * 
- * @param {string} url 
- * @param {FormData} fd 
- */
+  /**
+   *
+   * @param {string} url
+   * @param {FormData} fd
+   */
   async upload(url, fd) {
     fd.append("bin", fd);
     return axios.post(url, fd, {

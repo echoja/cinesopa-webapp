@@ -1,4 +1,6 @@
 require("../../typedef");
+
+const { getDateFromObj } = require("../../util");
 const nodemailer = require("nodemailer");
 const { gmailEmail, gmailPassword } = require("../../config");
 const _ = require("lodash");
@@ -13,9 +15,10 @@ const mail = mailToolkit.make({}, mailTransporter);
 const model = require("../../db/model");
 const db = require("../../manager/db").make(model);
 const user = require("../../service/user").make(db, mail);
+const page = require("../../service/page").make(db);
 const { enumAuthmap } = require("../../db/schema/enum");
-const { page, auth } = require("../../service");
-const validatorInitializer = require("../validator");
+const { auth } = require("../../service");
+const validatorInitializer = require("../../auth/validator");
 const alist = enumAuthmap.raw_str_list;
 const ACCESS_ALL = alist;
 const ACCESS_AUTH = alist.slice(0, -1);
@@ -28,8 +31,6 @@ const validator = validatorInitializer.make(auth.authmapLevel);
 //   const { redirectLink, role } = args;
 //   return await validator.accessCheck(redirectLink, role, context);
 // };
-
-
 
 /**
  *
@@ -45,9 +46,9 @@ const login = makeResolver(async (obj, args, context, info) => {
   return await auth.login(email, pwd, context);
 }).only(ACCESS_UNAUTH);
 
-
+// 수정 필요
 const logoutMe = makeResolver(async (obj, args, context, info) => {
-  const user = await user.logoutMe(args, context);
+  const user = await auth.logoutMe(args, context);
   return { user };
 }).only(ACCESS_AUTH);
 
@@ -58,11 +59,13 @@ const checkAuth = makeResolver(async (obj, args, context, info) => {
 
 const createGuest = makeResolver(async (obj, args, context, info) => {
   const { email, pwd } = args;
-  return await user.createGuest(email, pwd, context);
+  return await user.createGuest(email, pwd);
 }).only(ACCESS_ALL);
 
 const verifyUserEmail = makeResolver(async (obj, args, context, info) => {
-  return await user.verifyEmail(args, context);
+  const { token } = args;
+  console.log(`resolver-verifyUserEmail-token: ${token}`);
+  return await user.verifyEmail(token);
 }).only(ACCESS_ALL);
 
 const updateUser = makeResolver(async (obj, args, context, info) => {
@@ -71,19 +74,49 @@ const updateUser = makeResolver(async (obj, args, context, info) => {
 }).only(ACCESS_ADMIN);
 
 const createPage = makeResolver(async (obj, args, context, info) => {
-  return await page.createPage(args);
+  const { permalink, belongs_to, pageinfo } = args;
+  const { c_date, m_date } = pageinfo;
+
+  if (c_date) pageinfo["c_date"] = getDateFromObj(c_date);
+  if (m_date) pageinfo["m_date"] = getDateFromObj(m_date);
+  pageinfo["permalink"] = permalink;
+  pageinfo["belongs_to"] = belongs_to;
+
+  await db.createPage(pageinfo);
+  return await db.getPageView(permalink, belongs_to);
 }).only(ACCESS_ADMIN);
 
-const signinUserByEmail = makeResolver(async (obj, args, context, info) => {
-  return await user.getUserByAuth(args.provider.email, args.provider.pwd);
-}).only(ACCESS_ALL);
+const updatePage = makeResolver(async (obj, args, context, info) => {
+  const { permalink, belongs_to, pageinfo } = args;
+  const { c_date, m_date } = pageinfo;
+  // console.log("--args--");
+  // console.log(args);
+  if (c_date) pageinfo["c_date"] = getDateFromObj(c_date);
+  if (m_date) pageinfo["m_date"] = getDateFromObj(m_date);
+  const page = await db.getPageView(permalink, belongs_to);
+  // console.log("--page--");
+  // console.log(page);
+  await db.updatePage(page.id, pageinfo);
+  return db.getPage(page.id);
+}).only(ACCESS_ADMIN);
 
-const singleUpload = makeResolver(async (obj, args, context, info) => {
-  const file = { args };
-  const { filename, mimetype, encoding } = await file;
-  const returnFile = { filename, mimetype, encoding };
-  return returnFile;
-}).only(ACCESS_AUTH);
+const removePage = makeResolver(async (obj, args, context, info) => {
+  const { permalink, belongs_to } = args;
+  const page = await db.getPageView(permalink, belongs_to);
+  await db.removePage(page.id);
+  return page;
+}).only(ACCESS_ADMIN);
+
+// const signinUserByEmail = makeResolver(async (obj, args, context, info) => {
+//   return await user.getUserByAuth(args.provider.email, args.provider.pwd);
+// }).only(ACCESS_ALL);
+
+// const singleUpload = makeResolver(async (obj, args, context, info) => {
+//   const file = { args };
+//   const { filename, mimetype, encoding } = await file;
+//   const returnFile = { filename, mimetype, encoding };
+//   return returnFile;
+// }).only(ACCESS_AUTH);
 
 /** QUERY */
 
@@ -121,8 +154,10 @@ module.exports = {
     verifyUserEmail,
     updateUser,
     createPage,
-    signinUserByEmail,
-    singleUpload,
+    updatePage,
+    removePage,
+    // signinUserByEmail,
+    // singleUpload,
 
     // async login(obj, args, context, info) {
     //   return await user.login(args, context);

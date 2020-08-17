@@ -5,6 +5,7 @@ module.exports = function (mongoose) {
     title: String,
     content: String,
     permalink: String,
+    id: Number,
     // author: {type: mongoose.Schema.Types.ObjectId, ref: 'User'},
     c_date: { type: Date, default: Date.now },
     m_date: { type: Date, default: Date.now },

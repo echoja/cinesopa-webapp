@@ -16,10 +16,10 @@ describe("암호화 테스트", function () {
       encrypted = encryptObj.result;
     });
 
-    it("pwd_encrypt 같은 값 두번 실행", async () => {
+    it("pwd_encrypt 같은 값 두번 실행시 다른 암호화 값이 나와야 함", async () => {
       const p1 = (await pwd_encrypt(testpwd)).pwd;
       const p2 = (await pwd_encrypt("13241324")).pwd;
-      expect(p1).not.equals(p2, "같은 입력에 다른 암호화 값이 나와야 함");
+      expect(p1).not.equals(p2);
     });
 
     it("pwd_verify OK", async () => {

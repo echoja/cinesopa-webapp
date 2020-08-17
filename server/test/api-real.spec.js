@@ -1,3 +1,4 @@
+const addContext = require("mochawesome/addContext");
 const a = 10;
 const auth = require("../service/auth");
 const request = require("supertest");
@@ -15,6 +16,7 @@ const { make: makeDB } = require("../manager/db");
 const { make: makeAuthMiddleware } = require("../auth/auth-middleware");
 const { enumAuthmap } = require("../db/schema/enum");
 const { graphqlSuper } = require("./tool");
+const db = require("../manager/db");
 
 const loginQuery = `
 mutation Login ($email: String!, $pwd: String!) {
@@ -43,7 +45,102 @@ query checkAuth($redirectLink: String!, $role: Permission!) {
 }
 `;
 
+// createPage(pageinfo: Pageinfo!): Page
+// modifyPage(permalink: String!, belongs_to: String!,  pageinfo: Pageinfo!): Page
+// removePage(permalink: String!, belongs_to: String!): Page
+const createPageMutation = `
+mutation createPage($permalink: String!, $belongs_to: String!, $pageinfo: PageInput!) {
+  createPage(permalink: $permalink, belongs_to: $belongs_to, pageinfo: $pageinfo) {
+    title
+    content
+    permalink
+    c_date {
+      year
+      month
+      day
+      hour
+      minute
+      second
+    }
+    m_date {
+      year
+      month
+      day
+      hour
+      minute
+      second
+    }
+    role
+    belongs_to
+    meta_json
+  }
+}
+`;
 
+const updatePageMutation = `
+mutation updatePage($permalink: String!, $belongs_to: String!, $pageinfo: PageInput!) {
+  updatePage(permalink: $permalink, belongs_to: $belongs_to, pageinfo: $pageinfo) {
+    title
+    content
+    permalink
+    c_date {
+      year
+      month
+      day
+      hour
+      minute
+      second
+    }
+    m_date {
+      year
+      month
+      day
+      hour
+      minute
+      second
+    }
+    role
+    belongs_to
+    meta_json
+  }
+}
+`;
+
+const removePageMutation = `
+mutation removePage($permalink: String!, $belongs_to: String!) {
+  removePage(permalink: $permalink, belongs_to: $belongs_to) {
+    title
+    content
+    permalink
+    c_date {
+      year
+      month
+      day
+      hour
+      minute
+      second
+    }
+    m_date {
+      year
+      month
+      day
+      hour
+      minute
+      second
+    }
+    role
+    belongs_to
+    meta_json
+  }
+}
+`;
+
+const doLogin = async (agent, email, pwd) => {
+  return graphqlSuper(agent, loginQuery, {
+    email,
+    pwd,
+  });
+};
 
 /**
  * - graphql typedef 및 resolver 필요.
@@ -124,9 +221,7 @@ describe("REAL API", function () {
     webapp.get("/user", (req, res, next) => {
       res.send({ user: req.user, isAuthenticated: req.isAuthenticated() });
     });
-    const authValidator = require("../graphql/validator").make(
-      auth.authmapLevel
-    );
+    const authValidator = require("../auth/validator").make(auth.authmapLevel);
     // console.log("--auth.authmapLevel--");
     // console.dir(auth.authmapLevel);
     webapp.get(
@@ -178,16 +273,15 @@ describe("REAL API", function () {
       });
     });
     it("권한이 성공해야 함", async function () {
-      
-        const loginResult = await graphqlSuper(agent, loginQuery, {
-          email: "testAdmin",
-          pwd: "abc",
-        });
-      
-        const result = await agent.get("/auth-test-admin");
-        if (result.status === 500) throw result.error;
-        expect(result.status).to.equal(200);
-        expect(result.body?.message).to.equal("success");
+      const loginResult = await graphqlSuper(agent, loginQuery, {
+        email: "testAdmin",
+        pwd: "abc",
+      });
+
+      const result = await agent.get("/auth-test-admin");
+      if (result.status === 500) throw result.error;
+      expect(result.status).to.equal(200);
+      expect(result.body?.message).to.equal("success");
     });
     it("권한이 실패해야 함", async function () {
       const loginResult = await graphqlSuper(agent, loginQuery, {
@@ -216,6 +310,148 @@ describe("REAL API", function () {
         .catch((err) => {
           done(err);
         });
+    });
+  });
+
+  describe("page", function () {
+    beforeEach("유저 세팅", async function () {
+      await manager.createUser({
+        email: "testAdmin",
+        pwd: "abc",
+        role: "ADMIN",
+      });
+      await manager.createUser({
+        email: "testGuest",
+        pwd: "abc",
+        role: "GUEST",
+      });
+    });
+    describe("createPage", function () {
+      it("제대로 동작해야 함", function (done) {
+        doLogin(agent, "testAdmin", "abc")
+          .then((result) => {
+            // console.log(result);
+            graphqlSuper(agent, createPageMutation, {
+              permalink: "hi",
+              belongs_to: "sopaseom",
+              pageinfo: {
+                title: "hello",
+                content: "<p>hello</p>",
+                belongs_to: "sopaseom.kr",
+              },
+            })
+              .then((result) => {
+                addContext(this, {
+                  title: "result",
+                  value: result.body.data.createPage,
+                });
+                expect(result.body.data.createPage.title).to.equal("hello");
+                expect(result.body.data.createPage.content).to.equal(
+                  "<p>hello</p>"
+                );
+                return done();
+              })
+              .catch((err) => {
+                console.error(err);
+                return done(err);
+              });
+          })
+          .catch((err) => {
+            console.error(err);
+            return done(err);
+          });
+      });
+      it("권한이 없을 때 아무런 결과도 나오지 않아야 함", async function () {
+        const result = await graphqlSuper(agent, createPageMutation, {
+          permalink: "hi",
+          belongs_to: "sopaseom",
+          pageinfo: {
+            title: "hello",
+            content: "<p>hello</p>",
+            belongs_to: "sopaseom.kr",
+          },
+        });
+        addContext(this, { title: "결과", value: result });
+        expect(result.body.data.createPage).to.equal(null);
+      });
+    });
+    describe("updatePage", function () {
+      it("제대로 동작해야 함", async function () {
+        try {
+          const loginres = await doLogin(agent, "testAdmin", "abc");
+          addContext(this, { title: "loginres", value: loginres });
+          const managerres = await manager.createPage({
+            permalink: "hello",
+            belongs_to: "sopaseom",
+            title: "hoho",
+            id: 100,
+          });
+          addContext(this, { title: "managerres", value: managerres });
+          const result = await graphqlSuper(agent, updatePageMutation, {
+            permalink: "hello",
+            belongs_to: "sopaseom",
+            pageinfo: {
+              title: "mass",
+            },
+          });
+          addContext(this, { title: "결과", value: result });
+          expect(result.body.data.updatePage.title).to.equal("mass");
+        } catch (error) {
+          console.error(error);
+          throw error;
+        }
+      });
+      it("권한이 없을 때 아무런 결과도 나오지 않아야 함", async function () {
+        const result = await graphqlSuper(agent, updatePageMutation, {
+          permalink: "hi",
+          belongs_to: "sopaseom",
+          pageinfo: {
+            title: "hello",
+            content: "<p>hello</p>",
+            belongs_to: "sopaseom.kr",
+          },
+        });
+        addContext(this, { title: "결과", value: result });
+        expect(result.body.data.updatePage).to.equal(null);
+      });
+    });
+    describe("removePage", function () {
+      it("제대로 동작해야 함", async function () {
+        try {
+          const loginres = await doLogin(agent, "testAdmin", "abc");
+          addContext(this, { title: "loginres", value: loginres });
+          const managerres = await manager.createPage({
+            permalink: "hello",
+            belongs_to: "sopaseom",
+            title: "hoho",
+            id: 100,
+          });
+          addContext(this, { title: "managerres", value: managerres });
+          const result = await graphqlSuper(agent, removePageMutation, {
+            permalink: "hello",
+            belongs_to: "sopaseom"
+          });
+          addContext(this, { title: "결과", value: result });
+          let found = false;
+          manager.getPage(100).then((result) => {
+            found = true;
+          }).catch((err) => {
+            found = false;
+          });
+          expect(found).to.be.false;
+        } catch (error) {
+          console.error(error);
+          throw error;
+        }
+      });
+      it("권한이 없을 때 아무런 결과도 나오지 않아야 함", async function () {
+        const result = await graphqlSuper(agent, removePageMutation, {
+          permalink: "hi",
+          belongs_to: "sopaseom",
+        });
+        addContext(this, { title: "결과", value: result });
+        expect(result.body.data.removePage).to.equal(null);
+      });
     });
   });
 

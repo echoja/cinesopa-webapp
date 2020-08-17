@@ -43,10 +43,12 @@ class MailManager {
 
   /**
    * 사전 설정된 세팅을 바탕으로 메일을 보내는 함수
+   * @param {MailGate} gate
    * @param {string} subject 제목
    * @param {string} html 내용
    */
-  async sendMail(subject, html) {
+  async sendMail(gate, subject, html) {
+    this.gate = gate;
     return new Promise((resolve, reject) => {
       const from = `"${this.gate.senderName}" <${this.gate.senderEmail}>`;
       const to = `"${this.gate.recipientName}" <${this.gate.recipientEmail}>`;

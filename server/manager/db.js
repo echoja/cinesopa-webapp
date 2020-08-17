@@ -1,4 +1,6 @@
 const path = require("path");
+
+const { enumTokenPurpose } = require("../db/schema/enum");
 const fs = require("fs");
 require("../typedef");
 const {
@@ -84,6 +86,7 @@ const _getUserByEmailOrThrow = async (caller, email) => {
  * model로 DB매니저를 초기화하는 식으로 이용해야 함.
  * 데이터를 얻는 것들은 모두 lean() 처리를 해서 plain java object로 리턴하도록 함.
  * 모든 함수는 async 임.
+ * 이 매니저에서는 symbol 관련된 처리를 하지 않음.
  */
 class DBManager {
   /*=====================================
@@ -179,6 +182,7 @@ class DBManager {
    * @throws 이메일을 찾을 수 없을 때
    */
   async removeUserByEmail(email) {
+    // console.dir(model.User);
     const user = await model.User.findOne({ email }).exec();
     if (!user) throw `removeUserByEmail: ${email} 을 찾을 수 없습니다.`;
     await model.Login.deleteMany({ email });
@@ -220,14 +224,29 @@ class DBManager {
   /*=====================================
   토큰
   =====================================*/
-  // async createEmailVerificationToken(token)
 
   /**
-   *
+   * 새로운 이메일 생성용 토큰을 만듭니다.
+   * @param {string} email
+   * @param {Tokeninfo} token
+   */
+  async createEmailVerificationToken(email, token) {
+    const tokenDoc = new model.Token({
+      token,
+      purpose: "email_verification",
+      email,
+      ttl: 1800,
+    });
+    await tokenDoc.save();
+  }
+
+  /**
+   * 토큰을 얻습니다. ttl에 대한 계산을 하지는 않습니다.
    * @param {string} token
    * @returns {Tokeninfo}
    */
   async getEmailVerificationToken(token) {
+    console.log(`db-getEmailVefificationToken-token: ${token}`);
     const result = await model.Token.findOne({
       token,
       purpose: "email_verification",
@@ -245,27 +264,53 @@ class DBManager {
   페이지
   =====================================*/
   /**
-   *
-   * @param {*} pageinfo
+   * 새로운 페이지를 생성합니다.
+   * @param {Pageinfo} pageinfo
    */
   async createPage(pageinfo) {
     const newPage = new model.Page(pageinfo);
-    return newPage.save();
+    await newPage.save();
   }
 
-  async getPageByPermalink(permalink) {
-    return await model.Page.findOne({ permalink }).exec();
+  /**
+   * Permalink와 belongs_to를 기준으로 페이지를 가져옵니다.
+   * @param {string} permalink
+   * @param {string} belongs_to
+   * @returns {Promise<Pageinfo>}
+   */
+  async getPageView(permalink, belongs_to) {
+    return model.Page.findOne({ permalink, belongs_to }).lean().exec();
   }
 
-  async updatePageByPermalink(permalink) {
-    const page = await model.Page.findOne({ permalink }).exec();
-    if (!page)
-      throw `getPageByPermalink: ${permalink}에 해당하는 페이지가 존재하지 않습니다`;
-    await page.updateOne(userinfo).exec();
+  /**
+   * number를 기준으로 페이지를 가져옵니다.
+   * @param {number} id
+   * @returns {Promise<Pageinfo>}
+   */
+  async getPage(id) {
+    return model.Page.findOne({ id }).lean().exec();
   }
 
-  async removePageByPermalink(permalink) {
-    await model.Page.deleteMany({ permalink });
+  /**
+   * 페이지를 갱신합니다.
+   * @param {number} id
+   * @param {Pageinfo} pageinfo
+   * @throws 페이지를 찾을 수 없을 때
+   */
+  async updatePage(id, pageinfo) {
+    const page = await model.Page.findOne({ id }).exec();
+    if (!page) throw `updatePage: ${id}에 해당하는 페이지가 존재하지 않습니다`;
+    await page.updateOne(pageinfo).exec();
+  }
+
+  /**
+   * 페이지를 삭제합니다.
+   * @param {number} id
+   * @throws 페이지를 찾을 수 없을 때
+   */
+  async removePage(id) {
+    const page = await model.Page.deleteOne({ id });
+    if (!page) throw `removePage: ${id}에 해당하는 페이지가 존재하지 않습니다`;
   }
 
   /*=====================================

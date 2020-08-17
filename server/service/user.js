@@ -1,15 +1,18 @@
+require("../typedef");
+
 const { enumAuthmap, enumTokenPurpose } = require("../db/schema/enum");
 const crypto = require("crypto");
+const { composeResolvers } = require("graphql-tools");
 
 // const mail = require("./mail");
 // const db = require("./db-manager").init(model);
 
 let _initialized = false;
 
-/**
- * @type {DBManager}
- */
+/** @type {DBManager} */
 let db;
+
+/** @type {MailManager} */
 let mail;
 
 // const ifNoUserWithEmail = async (email) => {
@@ -26,13 +29,16 @@ const startEmailVerifying = async (email) => {
     throw `startEmailVerifying: ${email} 을 찾을 수 없습니다.`;
   const token = crypto.randomBytes(20).toString("hex");
   await db.createEmailVerificationToken(email, token);
-  await mail.sendGoogleMail({
-    to: email,
-    html: `
+  const mailGate = {
+    recipientEmail: email,
+    recipientName: "",
+    senderEmail: "coop.cinesopa@gmail.com",
+    senderName: "영화배급협동조합 씨네소파",
+  }
+  await mail.sendMail(mailGate, "[소파섬] 회원가입 - 이메일 인증", `
   <div>
     <p>회원가입을 완료하려면 <a href="https://sopaseom.com/email_verify/${token}">링크를 클릭</a>하세요.
-  </div>`,
-  });
+  </div>`);
 
   //---------------
 
@@ -103,6 +109,8 @@ const verifyEmail = async (token) => {
   const tokenDoc = await db.getEmailVerificationToken(token); // 토큰을 찾지 못하면 에러.
   const email = tokenDoc.email;
   const user = await db.getUserByEmail(email);
+  console.log("--verifyEmail - user--");
+  console.log(user);
   // 유효시간 초과
   // console.dir({
   //   now: Date.now(),
@@ -113,9 +121,9 @@ const verifyEmail = async (token) => {
     throw "verifyEmail: token expired";
   }
   // 유효시간 올바름.
-  user.verified = true;
-  await db.updateUser(email, {verified:true});
+  await db.updateUser(email, { verified: true });
   await db.removeToken(token);
+  await db.updateUser(email, {verified: true});
   return user;
 };
 
@@ -149,6 +157,11 @@ const getUserByAuth = async (email, pwd) => {
 module.exports = {
   // getUser,
   // joinUser,
+  /**
+   * 
+   * @param {DBManager} dbManager 
+   * @param {MailManager} mailManager 
+   */
   make(dbManager, mailManager) {
     db = dbManager;
     mail = mailManager;

@@ -5,7 +5,7 @@ const {
   mergeResolvers,
   mergeTypes,
 } = require("merge-graphql-schemas");
-const graphqlHTTP = require("express-graphql");
+const { graphqlHTTP } = require("express-graphql");
 const { buildContext } = require("graphql-passport");
 
 const allTypes = fileLoader(

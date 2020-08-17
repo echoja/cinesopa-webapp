@@ -23,6 +23,7 @@
  * @property {Date} m_date - 수정일
  * @property {string} role - 페이지의 역할
  * @property {string} belongs_to - cinesopa.kr, sopaseom.com 중 어느 곳에 속하는지
+ * @property {number} id - 자동 증가 id
  * @property {Object} meta - 기타 정보
  */
 
@@ -46,26 +47,27 @@
  * 파일 정보를 담는 객체
  * @typedef {object} Fileinfo
  * @property {string} filename 실제 저장되는 파일 이름 (multer에 의해 생성)
+ * @property {string} origin 본래 파일 이름
  * @property {string} encoding
- * @property {string} mimetype 
+ * @property {string} mimetype
  * @property {string} description 설명
- * @property {string} label 보여지는 이름
- * @property {string} alt
- * @property {string} path
- * @property {string} size
+ * @property {string} label 외부로 보여지는 이름
+ * @property {string} alt 외부로 보여지는 설명
+ * @property {string} path 전체 경로
+ * @property {number} size 사이즈(바이트)
  * @property {import("mongoose/lib/types/objectid")} owner
  * @property {boolean} public 외부 링크로 접근할 수 있는가의 여부.
  * @property {boolean} managed 파일이 파일 매니저에서 관리되는지 아닌지의 여부.
  */
 
- /**
+/**
  * 토큰 정보를 담는 객체
  * @typedef {object} Tokeninfo
- * @property {string} email 
+ * @property {string} email
  * @property {string} token
  * @property {number} ttl 유효 시간 (초)
- * @property {Date} c_date 
- * @property {string} purpose 
+ * @property {Date} c_date
+ * @property {string} purpose
  */
 
 /*=====================================
@@ -102,17 +104,13 @@ api
 //  * @typedef {UserGetterByAuth} UserGetterByAuth
 //  */
 
-/**
- * @typedef {import("./graphql/validator").AuthValidator} AuthValidator
- */
+/** @typedef {import("./auth/validator").AuthValidator} AuthValidator */
 
-/**
- * @typedef {import("./manager/db").DBManager} DBManager
- */
+/** @typedef {import("./manager/db").DBManager} DBManager */
 
- /**
-  * @typedef {import("./manager/file")} FileManager
-  */
+/** @typedef {import("./manager/file")} FileManager */
+
+/** @typedef {import('./manager/mail').MailManager} MailManager */
 // /**
 //  * @typedef {Express.Re}
 //  */

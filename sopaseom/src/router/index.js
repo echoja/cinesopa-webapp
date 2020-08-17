@@ -40,10 +40,10 @@ const emailVerifyBeforeEnter = async (to, from, next) => {
     return;
   }
   console.log(token);
-  const { data } = await graphql(emailVerifyMutation, { token });
+  const result = await graphql(emailVerifyMutation, { token });
   // const user = data.verifyUserEmail;
 
-  console.log(data);
+  console.log(result);
   next('/');
 };
 

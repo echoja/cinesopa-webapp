@@ -9,6 +9,7 @@ module.exports = function (mongoose) {
     encoding: String,
     mimetype: String,
     filename: String,
+    origin: String,
     description: String,
     label: String,
     alt: String,

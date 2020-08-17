@@ -38,7 +38,7 @@ describe("path and fs", function () {
   // console.log(fs.mkdir(path))
 });
 
-removeFilesInDir = (dest, done) => {
+const removeFilesInDir = (dest, done) => {
   fs.readdir(dest, (err, files) => {
     if (err) return done(err);
     for (const file of files) {
@@ -173,7 +173,7 @@ describe("file Service", function () {
     });
   });
   describe(".getUntrackedFiles", function () {
-    it("파일이 있을 시 올바르게 삭제", function (done) {
+    it("올바르게 동작", function (done) {
       const db = {
         getFiles: sinon.fake.returns([
           { filename: "a" },
@@ -199,16 +199,18 @@ describe("file Service", function () {
     });
   });
   describe(".getDangledFiles", function () {
-    it("파일이 있을 시 올바르게 삭제", function () {});
+    it("올바르게 동작", function () {
+      // todo!
+    });
   });
 });
 
 describe("file Manager", function () {
-  afterEach("업로드된 파일 삭제", function (done) {
+  afterEach("폴더에 있는 파일들 초기화(삭제)", function (done) {
     removeFilesInDir(dest, done);
   });
 
-  describe(".removeFile", function (done) {
+  describe(".removeFile", function () {
     it("존재하는 파일을 삭제해야 함", function (done) {
       const fullpath = path.join(dest, "testoo");
       fs.writeFileSync(fullpath, "abcde");
@@ -237,7 +239,19 @@ describe("file Manager", function () {
     });
   });
 
-  describe(".getFiles", function (done) {
-    //todo!
+  describe(".getFiles", function () {
+    it("올바르게 동작", function (done) {
+      fs.writeFileSync(path.join(dest, "abc1"), "abc");
+      fs.writeFileSync(path.join(dest, "abc2"), "abc");
+      fileManager
+        .getFiles(dest)
+        .then((ls) => {
+          expect(ls).to.have.all.members(["abc1", "abc2"]);
+          done();
+        })
+        .catch((err) => {
+          done(err);
+        });
+    });
   });
 });

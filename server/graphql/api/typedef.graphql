@@ -1,54 +1,63 @@
 scalar Upload
 
 # ###########################
-#         QUARY
+#           TYPE
 #############################
 
-type Query {
-  # uploads: [File]
-  users: [User]
-  user(email: String!): User
-  getUserByEmailNoAuth(email: String!): User # MUST DELETE WHEN DEPLOY!
-  page(permalink: String!): Page
-  pages: [Page]
-  pageById(id: String!): Page
-  checkAuth(redirectLink: String!, role: Permission!): CheckAuthResponse
+type Datetime {
+  day: Int
+  month: Int
+  year: Int
+  hour: Int
+  minute: Int
+  second: Int
 }
 
-# ###########################
-#         MUTATION
-#############################
+type User {
+  id: String
+  email: String
+  name: String
+  c_date: String
+  role: UserRole
+  verified: Boolean
+}
+type Login {
+  id: String
+  email: String
+  pwd: String
+}
 
-type Mutation {
-  login(provider: EmailAuthProvider!, redirectLink: String): AuthPayload
-  # logout(email: String!): AuthPayload
-  logoutMe: AuthPayload
-  # createAdmin(email: String!, pwd: String!, role: UserRole!): User
-  createGuest(email: String!, pwd: String!): User
-  verifyUserEmail(token: String!): User
-  updateUser(email: String!, userinfo: UserUpdateInfo): User
-  createPage(title: String!, content: String!, permalink: String!): Page
-  signinUserByEmail(provider: EmailAuthProvider!): SignInUserPayload
-  singleUpload(file: Upload!): File!
-  # 1. Create new user
-  # createUser(authProvider: EmailAuthProvider!): User
-  # createPage(title: String!, content: String!, author: String!, permalink: String!): Page
+type Page {
+  id: String
+  permalink: String
+  title: String
+  content: String
+  c_date: Datetime
+  m_date: Datetime
+  role: String
+  belongs_to: String
+  meta_json: String
+}
+type File {
+  filename: String
+  mimetype: String
+  encoding: String
+}
+
+# SignInUserPayload bundles information about the user and token
+type SignInUserPayload {
+  user: User
+  token: String
+}
+
+type CheckAuthResponse {
+  permissionStatus: PermissionStatus
+  user: User
 }
 
 type AuthPayload {
   user: User
   redirectLink: String
-}
-
-input EmailAuthProvider {
-  email: String
-  pwd: String
-}
-
-input UserUpdateInfo {
-  pwd: String
-  name: String
-  role: UserRole
 }
 
 # ###########################
@@ -73,44 +82,88 @@ enum Permission {
 }
 
 # ###########################
-#           Types
+#           INPUT
 #############################
 
-type User {
-  id: String
-  email: String
-  name: String
-  c_date: String
-  role: UserRole
-  verified: Boolean
-}
-type Login {
-  id: String
+input EmailAuthProvider {
   email: String
   pwd: String
 }
 
-type Page {
-  id: String
-  permalink: String
+input UserUpdateInfo {
+  pwd: String
+  name: String
+  role: UserRole
+}
+
+input FileModInput {
+  description: String
+  label: String # 보여지는 이름
+  alt: String
+  public: Boolean
+  managed: Boolean
+}
+
+input DatetimeInput {
+  day: Int!
+  month: Int!
+  year: Int!
+  hour: Int!
+  minute: Int!
+  second: Int!
+}
+
+input PageInput {
   title: String
   content: String
-  # author: User
-  c_date: String
-}
-type File {
-  filename: String
-  mimetype: String
-  encoding: String
-}
-
-# SignInUserPayload bundles information about the user and token
-type SignInUserPayload {
-  user: User
-  token: String
+  permalink: String
+  c_date: DatetimeInput
+  m_date: DatetimeInput
+  role: String
+  belongs_to: String
+  meta_json: String
 }
 
-type CheckAuthResponse {
-  permissionStatus: PermissionStatus
-  user: User
+# ###########################
+#         QUARY
+#############################
+
+type Query {
+  # uploads: [File]
+  users: [User]
+  user(email: String!): User
+  getUserByEmailNoAuth(email: String!): User # MUST DELETE WHEN DEPLOY!
+  page(permalink: String!, belongs_to: String!): Page
+  pages: [Page]
+  pageById(id: String!): Page
+  checkAuth(redirectLink: String!, role: Permission!): CheckAuthResponse
+  getFilesManaged: [File]
+  getFileByFilename(filename: String!): File
+}
+
+# ###########################
+#         MUTATION
+#############################
+
+type Mutation {
+  login(provider: EmailAuthProvider!, redirectLink: String): AuthPayload
+  # logout(email: String!): AuthPayload
+  logoutMe: AuthPayload
+  # createAdmin(email: String!, pwd: String!, role: UserRole!): User
+  createGuest(email: String!, pwd: String!): User
+  verifyUserEmail(token: String!): User
+  updateUser(email: String!, userinfo: UserUpdateInfo): User
+  
+  # pages
+  createPage(permalink: String!, belongs_to: String!, pageinfo: PageInput!): Page
+  updatePage(permalink: String!, belongs_to: String!, pageinfo: PageInput!): Page
+  removePage(permalink: String!, belongs_to: String!): Page
+
+  # signin
+  # signinUserByEmail(provider: EmailAuthProvider!): SignInUserPayload
+  # singleUpload(file: Upload!): File!
+
+  # 1. Create new user
+  # createUser(authProvider: EmailAuthProvider!): User
+  # createPage(title: String!, content: String!, author: String!, permalink: String!): Page
 }

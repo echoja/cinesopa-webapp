@@ -2,7 +2,7 @@ const high_symbol = Symbol("HIGH");
 const low_symbol = Symbol("LOW");
 const mid_symbol = Symbol("MID");
 
-const validator = require("../graphql/validator").make({
+const validator = require("../auth/validator").make({
   [high_symbol]: 22,
   [low_symbol]: 4,
   [mid_symbol]: 18,

@@ -6,7 +6,7 @@ module.exports = {
   /**
    * 권한을 검사하는 express middleware를 생성합니다.
    * @param {AuthValidator} authvalidator
-   * @param {string[]} condition 가능한 AUTH 목록
+   * @param {symbol[]} condition 가능한 AUTH 목록. enumAuthmap 중 하나여야 함.
    */
   make(authvalidator, condition) {
     /**

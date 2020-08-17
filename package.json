@@ -7,6 +7,7 @@
   "dependencies": {},
   "type": "module",
   "scripts": {
+    "cloc": "cloc --vcs=git --not-match-f=\"(yarn\\.lock|package\\.json|package\\-lock\\.json)\" .",
     "start-prod-docker-server": "cd server && pm2-runtime start ecosystem.config.js --env production",
     "dev-server": "cd server && npm run start-dev",
     "dev-sopaseom": "cd sopaseom && npm run serve",

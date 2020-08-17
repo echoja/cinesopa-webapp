@@ -129,11 +129,11 @@ mutation LogoutMe {
 }
 `;
 
-export const singleUploadQuery = `
-  mutation singleUpload($file: Upload!) {
-    singleUpload(file: $file) {
-      filename
-    }
-  }
+// export const singleUploadQuery = `
+//   mutation singleUpload($file: Upload!) {
+//     singleUpload(file: $file) {
+//       filename
+//     }
+//   }
 
-`;
+// `;

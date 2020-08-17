@@ -61,8 +61,9 @@ const getUntrackedFiles = async () => {
   return untracked;
 };
 
+const makeMulter = () => multer({ dest }).single(uploadField);
 /**
- * db 상 존재하지만 실제 파일이 없는 파일을 얻습니다.
+ * db 상 존재하지만 실제 파일이 없는 파일을 얻습니다. (아직 구현 안함)
  * @returns {Promise<string[]>} filename 의 배열
  */
 const getDangledFiles = async () => {};
@@ -79,7 +80,7 @@ module.exports = {
       replaceFile,
       getUntrackedFiles,
       getDangledFiles,
-      uploadMiddleware: multer({ dest }).single(uploadField),
+      uploadMiddleware: makeMulter(),
     };
   },
 
