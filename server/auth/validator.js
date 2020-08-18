@@ -4,6 +4,7 @@
 
 const _ = require("lodash");
 const { objectIdSymbol } = require("mongoose/lib/helpers/symbols");
+const { enumAuthmap } = require("../db/schema/enum");
 
 /** 권한 등을 검증하는 객체 */
 class AuthValidator {
@@ -14,6 +15,7 @@ class AuthValidator {
   constructor(authmapLevel) {
     /** @type {Object.<number, number>} */
     this.authmapLevel = authmapLevel;
+    this.symbolArray = Object.getOwnPropertySymbols(authmapLevel);
   }
   /**
    * 권한이 올바른지 체크하는 함수. 주어진 권한이 조건 권한보다 더 상위의 권한인지 체크.
@@ -33,6 +35,17 @@ class AuthValidator {
       }
     });
   }
+  /**
+   * this.contains 와 동일하나,
+   * `authmap` 기반으로 `given`에서 해당하는 심볼을 찾아 `condition`을 검사합니다.
+   * @param {string} given
+   * @param {symbol[]} condition
+   * @param {Object.<string, symbol>} authmap
+   */
+  async containsRaw(given, condition, authmap) {
+    const givenSymbol = authmap[given];
+    return this.contains(givenSymbol, condition);
+  }
 
   /**
    * 주어진 권한이 조건에 포함되는지 체크하는 함수.
@@ -41,6 +54,10 @@ class AuthValidator {
    * @returns {Promise<boolean>} 포함되면 true, 포함되지 않으면 false.
    */
   async contains(given, condition) {
+    // console.log(given);
+    // console.log(condition);
+    // console.log(`${Array.isArray(condition)}`);
+    // console.log(condition);
     return new Promise((resolve, reject) => {
       const symbolKeys = Object.getOwnPropertySymbols(this.authmapLevel);
       // console.log(symbolKeys);
@@ -56,8 +73,9 @@ class AuthValidator {
       condition.forEach((value) => {
         if (!symbolKeys.includes(value))
           return reject(
-            `condition에 있는 모든 요소(${value})는 [${_.map(symbolKeys, (value) =>
-              value.toString()
+            `condition에 있는 모든 요소(${value})는 [${_.map(
+              symbolKeys,
+              (value) => value.toString()
             )}]에 포함되어야 합니다.`
           );
       });
@@ -77,11 +95,13 @@ class AuthValidator {
    * 나중에 로그인이 성공했을 시 redirectLink 로 즉시 이동할 수 있도록 함.
    *
    * @param {string} redirectLink
-   * @param {number[]} roleAvailable 조건 권한. 유저는 roleAvailable 안에 있어야 가능함.
+   * @param {symbol[]} roleAvailable 조건 권한. 유저는 roleAvailable 안에 있어야 가능함.
    * @param {PassportContext} context Resolver 로부터 받는 context 객체
    * @returns {Promise<{permissionStatus: string, user?: object}>} 권한 상태와 유저 객체
    */
   async accessCheck(redirectLink, roleAvailable, context) {
+    console.log(roleAvailable);
+    console.log;
     return new Promise((resolve, reject) => {
       const {
         isUnauthenticated,
@@ -100,7 +120,15 @@ class AuthValidator {
         });
       }
       const user = getUser();
-      this.contains(user.role, roleAvailable)
+      
+      /**
+       *  만약 user.role 이 string이라면, 해당하는 symbol 로 변환하도록 함.
+       */
+      const role =
+        typeof user.role === "string"
+          ? this.symbolArray.find((value) => value.description === user.role)
+          : user.role;
+      this.contains(role, roleAvailable)
         .then((value) => {
           if (value) {
             return resolve({
