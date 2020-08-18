@@ -10,6 +10,8 @@ module.exports = {
    * @param {UserGetterByAuth} getUserByAuth
    */
   make(userFinder, getUserByAuth) {
+    if (typeof userFinder !== "function" || typeof getUserByAuth !== "function")
+      throw `auth-lcoal: wrong userFinder or getUserByauth`;
     return () => {
       /**
        * 유저의 email 을 세션 구분용 id로 사용한다
@@ -23,16 +25,22 @@ module.exports = {
       passport.deserializeUser(async (email, done) => {
         // const userFound = await user.getUserByEmail(email);
         // console.log(`deserializing: ${email}`);
-        // console.dir(userFinder);
         const userFound = await userFinder(email);
         // console.dir(userFound);
-        done(null, userFound);
+        if (userFound) {
+          done(null, userFound);
+        } else {
+          // throw "passport-deserializeUser-해당 유저를 찾을 수 없습니다.";
+          done(new Error(`passport-deserializeUser: ${email} 유저를 찾을 수 없습니다.`));
+        }
       });
 
       passport.use(
         new gp.GraphQLLocalStrategy(async (email, pwd, done) => {
           const userFound = await getUserByAuth(email, pwd);
-          const error = userFound ? null : new Error(`GraphQLLocalStrategy: 비밀번호가 틀립니다: ${email}`);
+          const error = userFound
+            ? null
+            : new Error(`GraphQLLocalStrategy: 비밀번호가 틀립니다: ${email}`);
           done(error, userFound);
         })
       );
@@ -45,5 +53,5 @@ module.exports = {
    */
   init(userFinder, getUserByAuth) {
     this.make(userFinder, getUserByAuth)();
-  }
+  },
 };

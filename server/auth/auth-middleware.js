@@ -9,6 +9,8 @@ module.exports = {
    * @param {symbol[]} condition 가능한 AUTH 목록. enumAuthmap 중 하나여야 함.
    */
   make(authvalidator, condition) {
+    // console.log(authvalidator);
+    // console.log(condition);
     /**
      *
      * @param {Express.Request} req

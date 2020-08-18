@@ -34,6 +34,16 @@ const graphQLServerMiddleware = (req, res, next) => {
     }),
     // context: ({ req, res }) => buildContext({ req, res }),
   })(req, res, next);
+  // .then((result) => {
+  //   console.log("RESULT!");
+  //   console.log(result);
+  //   next();
+  // })
+  // .catch((err) => {
+  //   console.log("error!");
+  //   console.error(err);
+  //   res.status(404).send(err);
+  // });
 };
 
 module.exports = {

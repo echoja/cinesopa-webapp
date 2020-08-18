@@ -1,31 +1,16 @@
 require("../../typedef");
 
 const { getDateFromObj } = require("../../util");
-const nodemailer = require("nodemailer");
-const { gmailEmail, gmailPassword } = require("../../config");
 const _ = require("lodash");
-const mailToolkit = require("../../manager/mail");
-const mailTransporter = mailToolkit.makeWeakTransporter(
-  nodemailer.createTransport,
-  "gmail",
-  gmailEmail,
-  gmailPassword
-);
-const mail = mailToolkit.make({}, mailTransporter);
-const model = require("../../db/model");
-const db = require("../../manager/db").make(model);
-const user = require("../../service/user").make(db, mail);
-const page = require("../../service/page").make(db);
+const {db, user, page, validator} = require("../../loader");
 const { enumAuthmap } = require("../../db/schema/enum");
 const { auth } = require("../../service");
-const validatorInitializer = require("../../auth/validator");
 const alist = enumAuthmap.raw_str_list;
 const ACCESS_ALL = alist;
 const ACCESS_AUTH = alist.slice(0, -1);
 const ACCESS_UNAUTH = alist.slice(-1);
 const ACCESS_ADMIN = alist.slice(0, 1);
 const makeResolver = require("../make-resolver").init(ACCESS_UNAUTH[0]);
-const validator = validatorInitializer.make(auth.authmapLevel);
 
 // const checkAuth = async (obj, args, context, info) => {
 //   const { redirectLink, role } = args;
@@ -54,7 +39,7 @@ const logoutMe = makeResolver(async (obj, args, context, info) => {
 
 const checkAuth = makeResolver(async (obj, args, context, info) => {
   const { redirectLink, role } = args;
-  return await validator.accessCheck(redirectLink, role, context);
+  return await validator.accessCheck(redirectLink, [enumAuthmap[role]], context);
 }).only(ACCESS_ALL);
 
 const createGuest = makeResolver(async (obj, args, context, info) => {

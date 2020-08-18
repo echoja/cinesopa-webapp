@@ -15,6 +15,7 @@ const requireAuth = (role) => async (to, from, next) => {
   const result = await graphql(checkAuthQuery, { redirectLink, role });
   const permissionStatus = result?.data?.checkAuth?.permissionStatus;
   console.log(permissionStatus);
+  console.log(result);
   if (permissionStatus === 'LOGIN_REQUIRED') {
     next({ name: 'Login' });
   } else if (permissionStatus === 'NO_PERMISSION') {
@@ -57,6 +58,21 @@ const onlyNoLoginBeforeEnter = async (to, from, next) => {
   }
 };
 
+/**
+ * 어드민 전용 라우트 객체를 생성합니다.
+ * @param {string} path 라우팅할 경로
+ * @param {string} name 라우트 이름
+ * @param {string} componentPath 실제 컴포넌트 이름
+ */
+const adminRoute = (path, name) => ({
+  path,
+  name,
+  beforeEnter: requireAuth('ADMIN'),
+  meta: {
+    layout: () => import('@/views/layout/LayoutAdmin.vue'),
+  },
+});
+
 const routes = [
   {
     path: '/',
@@ -70,9 +86,6 @@ const routes = [
     // this generates a separate chunk (about.[hash].js) for this route
     // which is lazy-loaded when the route is visited.
     component: () => import(/* webpackChunkName: "about" */ '@/views/client/About.vue'),
-    meta: {
-      layout: () => import('@/views/layout/LayoutAdmin.vue'),
-    },
   },
   {
     path: '/logout',
@@ -111,23 +124,37 @@ const routes = [
     beforeEnter: requireAuth('GUEST'),
   },
   {
-    path: '/admin',
-    name: 'Admin',
+    ...adminRoute('/admin', 'Admin'),
     component: () => import('@/views/admin/Admin.vue'),
-    beforeEnter: requireAuth('ADMIN'),
-    children: [
-      {
-        path: '/admin/pages',
-        component: () => import('@/views/admin/Pages.vue'),
-        name: 'Pages',
-      },
-      {
-        path: '/admin/page/:id',
-        component: () => import('@/views/admin/PageEdit.vue'),
-        name: 'PageEdit',
-      },
-    ],
   },
+  adminRoute('/admin', 'Admin', '@/views/admin/Admin.vue'),
+  // adminRoute('/admin/page', 'AdminPage', '@/views/admin/Pages.vue'),
+  adminRoute('/admin/Page/new', 'AdminPageNew', '@/views/admin/PageNew.vue'),
+  adminRoute('/admin/Page/:id', 'AdminPageEdit', '@/views/admin/PageEdit.vue'),
+  {
+    path: '/admin/page',
+    component: () => import('@/views/admin/Pages.vue'),
+    name: 'Page',
+    meta: {
+      layout: () => import('@/views/layout/LayoutAdmin.vue'),
+    },
+  },
+  // {
+  //   path: '/admin/page/new',
+  //   component: () => import('@/views/admin/PageNew.vue'),
+  //   name: 'PageNew',
+  //   meta: {
+  //     layout: () => import('@/views/layout/LayoutAdmin.vue'),
+  //   },
+  // },
+  // {
+  //   path: '/admin/page/:id',
+  //   component: () => import('@/views/admin/PageEdit.vue'),
+  //   name: 'PageEdit',
+  //   meta: {
+  //     layout: () => import('@/views/layout/LayoutAdmin.vue'),
+  //   },
+  // },
   {
     path: '/:permalink',
     name: 'Page',

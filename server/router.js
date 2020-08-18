@@ -19,7 +19,11 @@ const router = express.Router();
 router.post("/upload", makeAuthMiddleware(validator, [enumAuthmap.ADMIN]), uploadMiddleware);
 
 // graphiql
-router.use("/graphql", graphQLServerMiddleware);
+router.use("/graphql", graphQLServerMiddleware, (err, req, res, next) => {
+  console.log("graphql!");
+  console.error(err);
+  res.send(err);
+});
 
 
 router.get("/test/remove-user/:email", (req, res, next) => {

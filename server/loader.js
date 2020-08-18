@@ -1,4 +1,5 @@
 /* 다른 모듈들 */
+
 const mongoose = require("mongoose");
 const nodemailer = require("nodemailer");
 
@@ -34,7 +35,22 @@ const validatorInitializer = require("./auth/validator");
 const validator = validatorInitializer.make(auth.authmapLevel);
 
 /* authMiddleware */
-const makeAuthMiddleware = require("./auth/auth-middleware").make
+const makeAuthMiddleware = require("./auth/auth-middleware").make;
+
+/* passport graphql lodal strategy*/
+const local = require("./auth/local");
+const localAuthConfig = local.make(
+  db.getUserByEmail,
+  async (email, pwd) => {
+    if (await db.isCorrectPassword(email, pwd)) {
+      console.log(`getUserByAuth successed: email: ${email}, pwd: ${pwd}`);
+      return db.getUserByEmail(email);
+    } else {
+      console.error("getUserByAuth failed");
+      return null;
+    }
+  }
+);
 
 module.exports = {
   mail,
@@ -45,5 +61,6 @@ module.exports = {
   fileManager,
   validator,
   file,
+  localAuthConfig,
   makeAuthMiddleware,
 };

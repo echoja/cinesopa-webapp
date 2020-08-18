@@ -30,7 +30,7 @@
     "uuid": "^8.3.0"
   },
   "scripts": {
-    "start-dev": "nodemon --trace-warnings index.js",
+    "start-dev": "nodemon --trace-warnings --trace-uncaught index.js",
     "start:ci": "node index.js",
     "test": "mocha --reporter mochawesome --trace-warnings",
     "test-server:multer": "nodemon test/multer-test-server.js",

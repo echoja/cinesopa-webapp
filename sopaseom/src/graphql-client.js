@@ -1,31 +1,32 @@
 import axios from 'axios';
 
-
 const headers = {
   'Content-Type': 'application/json',
   Accept: 'application/json',
 };
 
-const url = process.env.NODE_ENV === 'production'
-  ? 'https://sopaseom.com/graphql/'
-  : '/graphql';
-
+const url = process.env.NODE_ENV === 'production' ? 'https://sopaseom.com/graphql/' : '/graphql';
 
 export const graphql = async (query, variables) => {
   try {
-    const received = await axios.post(url, JSON.stringify({
-      query,
-      variables,
-    }), {
-      headers,
-      credentials: true,
-    });
+    const received = await axios.post(
+      url,
+      JSON.stringify({
+        query,
+        variables,
+      }),
+      {
+        headers,
+        credentials: true,
+      },
+    );
 
     const { data } = received;
     if (data) return data;
     return received;
   } catch (error) {
-    return error.response.data;
+    console.dir(error);
+    throw error.response.data;
   }
 };
 
@@ -33,7 +34,6 @@ export const dataGraphql = async (...args) => {
   const res = await graphql(...args);
   return res?.data;
 };
-
 
 export const getPagesQuery = `
 query getPages {
@@ -97,7 +97,6 @@ mutation createGuest($email: String!, $pwd: String!) {
 }
 `;
 export const createGuest = (variables) => graphql(createGuestMutation, variables);
-
 
 export const emailVerifyMutation = `
 mutation emailVerify($token: String!)
