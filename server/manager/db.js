@@ -215,14 +215,14 @@ class DBManager {
    * @returns {Promise<boolean>} 맞으면 true, 틀리면 false
    */
   async isCorrectPassword(email, pwd) {
-    console.log("--model keys--");
-    console.log(Object.keys(model));
+    // console.log("--model keys--");
+    // console.log(Object.keys(model));
     const login = await model.Login.findOne({ email });
 
     if (!login) return false;
     const { pwd: originPwd, salt } = login;
-    console.log(salt);
-    console.log(originPwd);
+    // console.log(salt);
+    // console.log(originPwd);
     return await pwd_verify(pwd, { pwd: originPwd, salt });
   }
   /*=====================================
@@ -407,7 +407,7 @@ class DBManager {
  * @returns {DBManager}
  */
 const make = (modelInput) => {
-  console.log(Object.keys(modelInput));
+  console.log(`db making: ${Object.keys(modelInput).join(", ")}`);
   if(modelInput["make"]) throw `dbManager: model not initialized!`;
   initialized = true;
   model = modelInput;

@@ -1,6 +1,7 @@
 <template>
   <div>
     <!-- field settings required -->
+    페이지요
     <b-table hover :items="pages" @row-clicked="rowClicked"></b-table>
 
 

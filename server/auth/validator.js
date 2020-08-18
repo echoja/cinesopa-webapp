@@ -100,8 +100,8 @@ class AuthValidator {
    * @returns {Promise<{permissionStatus: string, user?: object}>} 권한 상태와 유저 객체
    */
   async accessCheck(redirectLink, roleAvailable, context) {
-    console.log(roleAvailable);
-    console.log;
+    // console.log(roleAvailable);
+    // console.log;
     return new Promise((resolve, reject) => {
       const {
         isUnauthenticated,
