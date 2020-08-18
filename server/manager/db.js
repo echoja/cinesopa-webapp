@@ -134,8 +134,8 @@ class DBManager {
    * @returns {Promise<Userinfo>}
    */
   async getUserByEmail(email) {
-    console.log("--getUserByEmail--");
-    console.dir(await model.User.find().lean());
+    console.log(`db.getUserByEmail start: ${email}`);
+    // console.dir(await model.User.find().lean());
     return await model.User.findOne({ email }).lean().exec();
   }
 
@@ -270,8 +270,14 @@ class DBManager {
   /**
    * 새로운 페이지를 생성합니다.
    * @param {Pageinfo} pageinfo
+   * @throws 같은 permalink의 페이지가 있을 때.
    */
   async createPage(pageinfo) {
+    const { permalink, belongs_to } = pageinfo;
+    console.log(`db.createPage-${permalink}, ${belongs_to}`);
+    if (await model.Page.findOne({ permalink, belongs_to })) {
+      throw `${belongs_to}의 ${permalink} 페이지가 이미 존재합니다.`;
+    }
     const newPage = new model.Page(pageinfo);
     await newPage.save();
   }
@@ -293,6 +299,20 @@ class DBManager {
    */
   async getPage(id) {
     return model.Page.findOne({ id }).lean().exec();
+  }
+
+  /**
+   * 페이지 리스트를 얻습니다.
+   * @param {string} belongs_to
+   * @param {number} page 페이지. 0이 1페이지임.
+   * @param {number} perpage 한 페이지당 파일의 개수
+   */
+  async getPages(belongs_to, page, perpage) {
+    return model.Page.find({ belongs_to })
+      .limit(perPage)
+      .skip(perpage * page)
+      .lean()
+      .exec();
   }
 
   /**
@@ -408,7 +428,7 @@ class DBManager {
  */
 const make = (modelInput) => {
   console.log(`db making: ${Object.keys(modelInput).join(", ")}`);
-  if(modelInput["make"]) throw `dbManager: model not initialized!`;
+  if (modelInput["make"]) throw `dbManager: model not initialized!`;
   initialized = true;
   model = modelInput;
   const manager = new DBManager();

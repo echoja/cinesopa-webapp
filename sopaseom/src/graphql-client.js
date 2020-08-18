@@ -25,7 +25,18 @@ export const graphql = async (query, variables) => {
     if (data) return data;
     return received;
   } catch (error) {
-    console.dir(error);
+    error.response.data.errors.forEach((value) => {
+      console.log(value);
+    });
+
+    // for (const key in err.response.data.errors) {
+    //   if (err.response.data.errors.hasOwnProperty(key)) {
+    //     const value = err.response.data.errors[key];
+    //     console.log(value);
+    //   }
+    // }
+    // error.response.data.errors(console.log);
+    // console.dir(error);
     throw error.response.data;
   }
 };
@@ -47,13 +58,17 @@ query getPages {
 `;
 
 export const getPageQuery = `
-query getPage($permalink: String!) {
+query getPage($permalink: String!, $belongs_to: String!) {
   page(permalink: $permalink) {
-    id
-    title
-    content
-    permalink
+    id 
+    permalink 
+    title 
+    content 
     c_date
+    m_date
+    role 
+    belongs_to 
+    meta_json 
   }
 }
 `;

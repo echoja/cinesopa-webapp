@@ -16,19 +16,23 @@ const {
 const router = express.Router();
 
 // upload
-router.post("/upload", makeAuthMiddleware(validator, [enumAuthmap.ADMIN]), uploadMiddleware);
+router.post(
+  "/upload",
+  makeAuthMiddleware(validator, [enumAuthmap.ADMIN]),
+  uploadMiddleware
+);
 
 // graphiql
-router.use("/graphql", graphQLServerMiddleware, (err, req, res, next) => {
-  console.log("graphql!");
-  console.error(err);
-  res.send(err);
-});
-
+router.use("/graphql", graphQLServerMiddleware, 
+  // (err, req, res, next) => {
+  //   console.log("graphql!");
+  //   console.error(err);
+  //   res.send(err);
+  // }
+);
 
 router.get("/test/remove-user/:email", (req, res, next) => {
-  db
-    .removeUserByEmail(req.params.email)
+  db.removeUserByEmail(req.params.email)
     .then((user) => {
       res.send(user);
     })
@@ -50,17 +54,20 @@ router.get("/test/make-super-user", (req, res, next) => {
 });
 
 /**
- * 
- * @param {import("express").Express} app 
+ *
+ * @param {import("express").Express} app
  */
 module.exports.getRouter = (app) => {
-  app.use("/cinesopa", history({
-  //   // rewrites: [
-  //   //   { from: /\/graphql/, to: '/graphql'}
-  //   // ],
-  //   // index: '/cinesopa/index.html',
-    verbose: true, // production settings required
-  }));
+  app.use(
+    "/cinesopa",
+    history({
+      //   // rewrites: [
+      //   //   { from: /\/graphql/, to: '/graphql'}
+      //   // ],
+      //   // index: '/cinesopa/index.html',
+      verbose: true, // production settings required
+    })
+  );
   app.use(
     "/sopaseom",
     history({

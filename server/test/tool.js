@@ -32,8 +32,11 @@ const graphqlSuper = async (agent, query, variables) => {
       )
       .expect(200)
       .end((err, res) => {
-        if (err) return reject(res.body.errors[0]);
-        return resolve(res);
+        // console.log(`status: ${res.status}`);
+        const errors = res?.body?.errors
+        if(errors === null || errors === undefined) return resolve(res);
+        return reject(errors);
+        
       });
   });
 };
