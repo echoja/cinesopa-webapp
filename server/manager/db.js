@@ -1,17 +1,16 @@
-const path = require("path");
-
-const { enumTokenPurpose } = require("../db/schema/enum");
-const fs = require("fs");
-require("../typedef");
+const path = require('path');
+const fs = require('fs');
+const { enumTokenPurpose } = require('../db/schema/enum');
+require('../typedef');
 const {
   MongooseDocument,
   DocumentQuery,
   Model,
   SchemaTypes: { ObjectId },
-} = require("mongoose");
+} = require('mongoose');
 // const { ManagerCreater } = require("./manager-loader");
-const crypto = require("crypto");
-const { fstat } = require("fs");
+const crypto = require('crypto');
+const { fstat } = require('fs');
 
 /** @typedef {Object.<string, Model<MongooseDocument, {}>>} ModelWrapper */
 /** @typedef {DBManager} DBManager */
@@ -22,9 +21,9 @@ let model;
 /** @type {boolean} */
 let initialized;
 
-/*=====================================
+/*= ====================================
 내부 편의 함수
-=====================================*/
+===================================== */
 
 /**
  * 비밀번호 암호화 함수. 평문을 암호화하여 저장함.
@@ -32,17 +31,15 @@ let initialized;
  * @param {string} plain 평문
  * @returns {Promise<Encrypted>} 암호화된 base64 기반 암호.
  */
-const pwd_encrypt = async (plain) => {
-  return new Promise((resolve, reject) => {
-    const salt = crypto.randomBytes(64).toString("base64");
-    let result = "";
-    crypto.scrypt(plain, salt, 64, (err, derivedKey) => {
-      if (err) return reject(err);
-      result = derivedKey.toString("base64");
-      resolve({ pwd: result, salt });
-    });
+const pwd_encrypt = async (plain) => new Promise((resolve, reject) => {
+  const salt = crypto.randomBytes(64).toString('base64');
+  let result = '';
+  crypto.scrypt(plain, salt, 64, (err, derivedKey) => {
+    if (err) return reject(err);
+    result = derivedKey.toString('base64');
+    return resolve({ pwd: result, salt });
   });
-};
+});
 
 /**
  * 비밀번호가 맞는지 체크합니다.
@@ -51,16 +48,14 @@ const pwd_encrypt = async (plain) => {
  * @returns {Promise<boolean>} 맞으면 true, 틀리면 false
  */
 
-const pwd_verify = async (given, encrypted) => {
-  return new Promise((resolve, reject) => {
-    let result = "";
-    crypto.scrypt(given, encrypted.salt, 64, (err, derivedKey) => {
-      if (err) return reject(err);
-      result = derivedKey.toString("base64");
-      resolve(result === encrypted.pwd);
-    });
+const pwd_verify = async (given, encrypted) => new Promise((resolve, reject) => {
+  let result = '';
+  crypto.scrypt(given, encrypted.salt, 64, (err, derivedKey) => {
+    if (err) return reject(err);
+    result = derivedKey.toString('base64');
+    return resolve(result === encrypted.pwd);
   });
-};
+});
 
 /**
  * 유저를 구하려고 시도합니다.
@@ -70,7 +65,7 @@ const pwd_verify = async (given, encrypted) => {
  */
 const _getUserByEmailOrThrow = async (caller, email) => {
   const user = await model.User.findOne({ email }).exec();
-  if (!user) throw `${caller}: 이메일에 해당하는 유저를 찾을 수 없습니다.`;
+  if (!user) throw Error(`${caller}: 이메일에 해당하는 유저를 찾을 수 없습니다.`);
   return user;
 };
 
@@ -89,9 +84,9 @@ const _getUserByEmailOrThrow = async (caller, email) => {
  * 이 매니저에서는 symbol 관련된 처리를 하지 않음.
  */
 class DBManager {
-  /*=====================================
+  /*= ====================================
   일반
-  =====================================*/
+  ===================================== */
 
   /**
    * 어떤 모델에 대하여 조건을 걸어 doc 여러 개를 찾는 다용도 함수
@@ -100,7 +95,7 @@ class DBManager {
    * @returns {Object[]} 검색 결과 (다수)
    */
   async findMany(modelName, condition) {
-    return await model[modelName].find(condition).lean();
+    return model[modelName].find(condition).lean().exec();
   }
 
   /**
@@ -110,12 +105,12 @@ class DBManager {
    * @returns {Object} 검색 결과 (하나)
    */
   async findOne(modelName, condition) {
-    return await model[modelName].findOne(condition).lean();
+    return model[modelName].findOne(condition).lean().exec();
   }
 
-  /*=====================================
+  /*= ====================================
   유저
-  =====================================*/
+  ===================================== */
 
   /**
    * 이메일이 존재하는지 여부를 검사합니다.
@@ -127,7 +122,7 @@ class DBManager {
     return false;
   }
 
-  //@returns {?MongooseDocument} 유저 Mongoose Document
+  // @returns {?MongooseDocument} 유저 Mongoose Document
   /**
    * 이메일을 기준으로 유저를 얻습니다.
    * @param {string} email 이메일
@@ -136,15 +131,15 @@ class DBManager {
   async getUserByEmail(email) {
     console.log(`db.getUserByEmail start: ${email}`);
     // console.dir(await model.User.find().lean());
-    return await model.User.findOne({ email }).lean().exec();
+    return model.User.findOne({ email }).lean().exec();
   }
 
-  //@returns {?MongooseDocument[]} 유저 Mongoose Document
+  // @returns {?MongooseDocument[]} 유저 Mongoose Document
   /**
    * 모든 유저를 구합니다.
    */
   async getAllUesrs() {
-    return await model.User.find().lean();
+    return model.User.find().lean().exec();
   }
 
   /**
@@ -153,11 +148,14 @@ class DBManager {
    * @throws 이메일이 이미 존재할 때
    */
   async createUser(userinfo) {
-    const { email, name, role, verified } = userinfo;
-    if (await model.User.findOne({ email }))
-      throw `createUser: 이미 ${email}이 존재합니다.`;
+    const {
+      email, name, role, verified,
+    } = userinfo;
+    if (await model.User.findOne({ email })) { throw Error(`createUser: 이미 ${email}이 존재합니다.`); }
     const { pwd, salt } = await pwd_encrypt(userinfo.pwd);
-    const newUser = new model.User({ email, name, role, verified });
+    const newUser = new model.User({
+      email, name, role, verified,
+    });
     const newLogin = new model.Login({ email, pwd, salt });
     await newUser.save();
     await newLogin.save();
@@ -171,7 +169,7 @@ class DBManager {
    */
   async updateUser(email, userinfo) {
     const user = await model.User.findOne({ email }).exec();
-    if (!user) throw `updateUser: ${email}이 존재하지 않습니다`;
+    if (!user) throw Error(`updateUser: ${email}이 존재하지 않습니다`);
     return user.updateOne(userinfo).lean();
   }
 
@@ -184,15 +182,15 @@ class DBManager {
   async removeUserByEmail(email) {
     // console.dir(model.User);
     const user = await model.User.findOne({ email }).exec();
-    if (!user) throw `removeUserByEmail: ${email} 을 찾을 수 없습니다.`;
+    if (!user) throw Error(`removeUserByEmail: ${email} 을 찾을 수 없습니다.`);
     await model.Login.deleteMany({ email });
     await model.User.deleteMany({ email });
     await model.Token.deleteMany({ email });
   }
 
-  /*=====================================
+  /*= ====================================
   비밀번호
-  =====================================*/
+  ===================================== */
 
   /**
    * 이메일 기준으로 비밀번호를 찾습니다.
@@ -202,7 +200,7 @@ class DBManager {
    */
   async getPassword(email) {
     const login = await model.Login.findOne({ email });
-    if (!login) throw `getPassword: ${email} 의 계정 정보를 찾을 수 없습니다.`;
+    if (!login) throw Error(`getPassword: ${email} 의 계정 정보를 찾을 수 없습니다.`);
     const { pwd, salt } = login;
     if (pwd && salt) return { pwd, salt };
     return null;
@@ -223,11 +221,11 @@ class DBManager {
     const { pwd: originPwd, salt } = login;
     // console.log(salt);
     // console.log(originPwd);
-    return await pwd_verify(pwd, { pwd: originPwd, salt });
+    return pwd_verify(pwd, { pwd: originPwd, salt });
   }
-  /*=====================================
+  /*= ====================================
   토큰
-  =====================================*/
+  ===================================== */
 
   /**
    * 새로운 이메일 생성용 토큰을 만듭니다.
@@ -237,7 +235,7 @@ class DBManager {
   async createEmailVerificationToken(email, token) {
     const tokenDoc = new model.Token({
       token,
-      purpose: "email_verification",
+      purpose: 'email_verification',
       email,
       ttl: 1800,
     });
@@ -253,20 +251,21 @@ class DBManager {
     console.log(`db-getEmailVefificationToken-token: ${token}`);
     const result = await model.Token.findOne({
       token,
-      purpose: "email_verification",
+      purpose: 'email_verification',
     })
       .lean()
       .exec();
-    if (!result) throw `토큰 ${token}이 존재하지 않습니다.`;
+    if (!result) throw Error(`토큰 ${token}이 존재하지 않습니다.`);
     return result;
   }
 
   async removeToken(token) {
     await model.Token.findOneAndDelete({ token });
   }
-  /*=====================================
+
+  /*= ====================================
   페이지
-  =====================================*/
+  ===================================== */
   /**
    * 새로운 페이지를 생성합니다.
    * @param {Pageinfo} pageinfo
@@ -276,7 +275,7 @@ class DBManager {
     const { permalink, belongs_to } = pageinfo;
     console.log(`db.createPage-${permalink}, ${belongs_to}`);
     if (await model.Page.findOne({ permalink, belongs_to })) {
-      throw `${belongs_to}의 ${permalink} 페이지가 이미 존재합니다.`;
+      throw Error(`${belongs_to}의 ${permalink} 페이지가 이미 존재합니다.`);
     }
     const newPage = new model.Page(pageinfo);
     await newPage.save();
@@ -309,7 +308,7 @@ class DBManager {
    */
   async getPages(belongs_to, page, perpage) {
     return model.Page.find({ belongs_to })
-      .limit(perPage)
+      .limit(perpage)
       .skip(perpage * page)
       .lean()
       .exec();
@@ -323,7 +322,7 @@ class DBManager {
    */
   async updatePage(id, pageinfo) {
     const page = await model.Page.findOne({ id }).exec();
-    if (!page) throw `updatePage: ${id}에 해당하는 페이지가 존재하지 않습니다`;
+    if (!page) throw Error(`updatePage: ${id}에 해당하는 페이지가 존재하지 않습니다`);
     await page.updateOne(pageinfo).exec();
   }
 
@@ -333,13 +332,14 @@ class DBManager {
    * @throws 페이지를 찾을 수 없을 때
    */
   async removePage(id) {
-    const page = await model.Page.deleteOne({ id });
-    if (!page) throw `removePage: ${id}에 해당하는 페이지가 존재하지 않습니다`;
+    const deletionResult = await model.Page.deleteOne({ id }).exec();
+    // console.log();
+    if (deletionResult.n === 0) throw Error(`removePage: ${id}에 해당하는 페이지가 존재하지 않습니다`);
   }
 
-  /*=====================================
+  /*= ====================================
   파일
-  =====================================*/
+  ===================================== */
 
   /**
    *
@@ -348,9 +348,10 @@ class DBManager {
    * @throws 유저를 찾을수 없을 때
    */
   async createFile(fileinfo, owner) {
-    const user = await _getUserByEmailOrThrow("createFile", owner);
-    fileinfo["owner"] = user._id;
-    const newFile = new model.File(fileinfo);
+    const user = await _getUserByEmailOrThrow('createFile', owner);
+    const file = fileinfo;
+    file.owner = user._id;
+    const newFile = new model.File(file);
     await newFile.save();
   }
 
@@ -361,7 +362,7 @@ class DBManager {
    */
   async getFileManaged(page, perpage) {
     return model.File.find({ managed: true })
-      .limit(perPage)
+      .limit(perpage)
       .skip(perpage * page)
       .lean();
   }
@@ -400,25 +401,25 @@ class DBManager {
     return model.File.findOneAndDelete({ filename }).lean().exec();
   }
 
-  /*=====================================
+  /*= ====================================
   영화
-  =====================================*/
+  ===================================== */
 
-  /*=====================================
+  /*= ====================================
   메뉴
-  =====================================*/
+  ===================================== */
 
-  /*=====================================
+  /*= ====================================
   주문
-  =====================================*/
+  ===================================== */
 
-  /*=====================================
+  /*= ====================================
   게시글(포스트)
-  =====================================*/
+  ===================================== */
 
-  /*=====================================
+  /*= ====================================
   제품
-  =====================================*/
+  ===================================== */
 }
 
 /**
@@ -427,12 +428,12 @@ class DBManager {
  * @returns {DBManager}
  */
 const make = (modelInput) => {
-  console.log(`db making: ${Object.keys(modelInput).join(", ")}`);
-  if (modelInput["make"]) throw `dbManager: model not initialized!`;
+  console.log(`db making: ${Object.keys(modelInput).join(', ')}`);
+  if (modelInput.make) throw Error('dbManager: model not initialized!');
   initialized = true;
   model = modelInput;
   const manager = new DBManager();
-  manager.uploadFolder = "uploads";
+  manager.uploadFolder = 'uploads';
   return manager;
 };
 

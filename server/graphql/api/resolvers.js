@@ -1,16 +1,19 @@
-require("../../typedef");
+require('../../typedef');
 
-const { getDateFromObj } = require("../../util");
-const _ = require("lodash");
-const {db, user, page, validator} = require("../../loader");
-const { enumAuthmap } = require("../../db/schema/enum");
-const { auth } = require("../../service");
+const _ = require('lodash');
+const { getDateFromObj } = require('../../util');
+const {
+  db, user, page, validator,
+} = require('../../loader');
+const { enumAuthmap } = require('../../db/schema/enum');
+const { auth } = require('../../service');
+
 const alist = enumAuthmap.raw_str_list;
 const ACCESS_ALL = alist;
 const ACCESS_AUTH = alist.slice(0, -1);
 const ACCESS_UNAUTH = alist.slice(-1);
 const ACCESS_ADMIN = alist.slice(0, 1);
-const makeResolver = require("../make-resolver").init(ACCESS_UNAUTH[0]);
+const makeResolver = require('../make-resolver').init(ACCESS_UNAUTH[0]);
 
 // const checkAuth = async (obj, args, context, info) => {
 //   const { redirectLink, role } = args;
@@ -33,13 +36,17 @@ const login = makeResolver(async (obj, args, context, info) => {
 
 // 수정 필요
 const logoutMe = makeResolver(async (obj, args, context, info) => {
-  const user = await auth.logoutMe(args, context);
-  return { user };
+  const Logedout = await auth.logoutMe(args, context);
+  return { user: Logedout };
 }).only(ACCESS_AUTH);
 
 const checkAuth = makeResolver(async (obj, args, context, info) => {
   const { redirectLink, role } = args;
-  return await validator.accessCheck(redirectLink, [enumAuthmap[role]], context);
+  return await validator.accessCheck(
+    redirectLink,
+    [enumAuthmap[role]],
+    context,
+  );
 }).only(ACCESS_ALL);
 
 const createGuest = makeResolver(async (obj, args, context, info) => {
@@ -62,10 +69,10 @@ const createPage = makeResolver(async (obj, args, context, info) => {
   const { permalink, belongs_to, pageinfo } = args;
   const { c_date, m_date } = pageinfo;
 
-  if (c_date) pageinfo["c_date"] = getDateFromObj(c_date);
-  if (m_date) pageinfo["m_date"] = getDateFromObj(m_date);
-  pageinfo["permalink"] = permalink;
-  pageinfo["belongs_to"] = belongs_to;
+  if (c_date) pageinfo.c_date = getDateFromObj(c_date);
+  if (m_date) pageinfo.m_date = getDateFromObj(m_date);
+  pageinfo.permalink = permalink;
+  pageinfo.belongs_to = belongs_to;
 
   await db.createPage(pageinfo);
   return await db.getPageView(permalink, belongs_to);
@@ -76,20 +83,20 @@ const updatePage = makeResolver(async (obj, args, context, info) => {
   const { c_date, m_date } = pageinfo;
   // console.log("--args--");
   // console.log(args);
-  if (c_date) pageinfo["c_date"] = getDateFromObj(c_date);
-  if (m_date) pageinfo["m_date"] = getDateFromObj(m_date);
-  const page = await db.getPageView(permalink, belongs_to);
+  if (c_date) pageinfo.c_date = getDateFromObj(c_date);
+  if (m_date) pageinfo.m_date = getDateFromObj(m_date);
+  const p = await db.getPageView(permalink, belongs_to);
   // console.log("--page--");
   // console.log(page);
-  await db.updatePage(page.id, pageinfo);
-  return db.getPage(page.id);
+  await db.updatePage(p.id, pageinfo);
+  return db.getPage(p.id);
 }).only(ACCESS_ADMIN);
 
 const removePage = makeResolver(async (obj, args, context, info) => {
   const { permalink, belongs_to } = args;
-  const page = await db.getPageView(permalink, belongs_to);
+  const p = await db.getPageView(permalink, belongs_to);
   await db.removePage(page.id);
-  return page;
+  return p;
 }).only(ACCESS_ADMIN);
 
 // const signinUserByEmail = makeResolver(async (obj, args, context, info) => {
@@ -105,27 +112,45 @@ const removePage = makeResolver(async (obj, args, context, info) => {
 
 /** QUERY */
 
-const users = makeResolver(async (obj, args, context, info) => {
-  return await user.getAllUsers(args, context);
-}).only(ACCESS_ADMIN);
+const users = makeResolver(
+  async (obj, args, context, info) => await user.getAllUsers(args, context),
+).only(ACCESS_ADMIN);
+
 // *** this is secure version!!***
 const userResolver = makeResolver(async (obj, args, context, info) => {
   const { email } = args;
   return await user.getUser(email, context);
 }).only(ACCESS_ADMIN);
+
 const getUserByEmailNoAuth = makeResolver(async (obj, args, context, info) => {
   const { email } = args;
   return await user.getUserByEmail(email, context);
 }).only(ACCESS_ALL);
+
 const pageResolver = makeResolver(async (obj, args, context, info) => {
-  return await page.getPageByPermalink(args, context);
+  const { permalink, belongs_to } = args;
+  console.log(
+    `pageResolver: permalink: ${permalink}, belongs_to: ${belongs_to}`,
+  );
+  return await db.getPageView(permalink, belongs_to);
+  // return await page.getPageByPermalink(args, context);
 }).only(ACCESS_ALL);
+
+// pages(belongs_to: String!, page: Int, perPage: Int): [Page]
 const pages = makeResolver(async (obj, args, context, info) => {
-  return await page.getAllPages(args, context);
-}).only(ACCESS_ALL);
-const pageById = makeResolver(async (obj, args, context, info) => {
-  return await page.getPageById(args, context);
-}).only(ACCESS_ALL);
+  const { belongs_to, page: pageNum = 0, perpage = 10 } = args;
+  console.log('--pages-resolver--');
+  console.log(args);
+  const result = await db.getPages(belongs_to, pageNum, perpage);
+  console.log(result);
+
+  return result;
+  // return await page.getAllPages(args, context);
+}).only(ACCESS_ADMIN);
+
+const pageById = makeResolver(
+  async (obj, args, context, info) => await page.getPageById(args, context),
+).only(ACCESS_ALL);
 // const checkAuth = makeResolver(async (obj, args, context, info) => {
 //   const { redirectLink, role } = args;
 //   return await auth.check(redirectLink, role, context);

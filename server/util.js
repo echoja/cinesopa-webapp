@@ -1,4 +1,4 @@
-require("./typedef");
+require('./typedef');
 
 // /**
 //  *
@@ -30,9 +30,9 @@ require("./typedef");
 // //   }
 // // }
 
-/********************* */
+/** ******************* */
 /* LODASH MAKE ENUM!!! */
-/********************* */
+/** ******************* */
 
 // const _ = require("lodash");
 // const t = ["a", "b", "c", "d"];
@@ -50,20 +50,49 @@ require("./typedef");
  */
 const makeEnum = (str_list) => {
   const result = {};
-  for (let key in str_list) {
+  Object.keys(str_list).forEach((key) => {
     const val = str_list[key];
     result[val] = Symbol(val);
-  }
-  result["raw_str_list"] = str_list;
+  });
+  // for (const key in str_list) {
+  // const val = str_list[key];
+  // result[val] = Symbol(val);
+  // }
+  result.raw_str_list = str_list;
   return Object.freeze(result);
 };
 
 const getDateFromObj = (datetime) => {
-  const {year, month, day, hour, minute, second} = datetime;
+  const {
+    year, month, day, hour, minute, second,
+  } = datetime;
   return new Date(year, month, day, hour, minute, second);
-}
+};
+/**
+ *
+ * @param {Date} date
+ */
+const getObjFromDate = (date) => ({
+  year: date.getFullYear(),
+  month: date.getMonth(),
+  day: date.getDate(),
+  hour: date.getHours(),
+  minute: date.getMinutes(),
+  second: date.getSeconds(),
+});
+
+/**
+ * 오브젝트의 해당하는 키에 대하여 func의 return 값으로 대채 적용 후, obj를 리턴합니다.
+ * @param {object} obj 대상 오브제트
+ * @param {*} keyArray 해당하는 키
+ * @param {*} func
+ */
+const graphqlOutput = (obj, func, keyArray) => {
+  Object.keys();
+};
 
 module.exports = {
   makeEnum,
-  getDateFromObj
+  getDateFromObj,
+  getObjFromDate,
 };

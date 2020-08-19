@@ -28,6 +28,7 @@ module.exports = {
     'no-underscore-dangle': 0,
     'no-unused-vars': 1,
     'no-plusplus': 0,
+    'no-return-await': 1,
     camelcase: 0,
     // 'prefer-template': 0,
     // 'no-nested-ternary': 0,

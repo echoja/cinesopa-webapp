@@ -1,86 +1,26 @@
+const { expect } = require('chai');
+const { MongoMemoryServer } = require('mongodb-memory-server');
+const mongoose = require('mongoose');
+const modelMaker = require('../db/model');
 
+const { make: makeDB } = require('../manager/db');
+const tool = require('./tool');
 
-const tool = require("./tool");
-const fs = require("fs");
-const path = require("path");
-const { expect } = require("chai");
-
-const { pwd_verify, pwd_encrypt, make: makeDB } = require("../manager/db");
-
-describe("암호화 테스트", function () {
-  const testpwd = "13241324";
-  describe(`암호화가 제대로 동작하는지 체크 : ${testpwd}`, () => {
-    let encrypted = "";
-    it("pwd_encrypt 실행", async () => {
-      const encryptObj = await pwd_encrypt(testpwd);
-      encrypted = encryptObj.result;
-    });
-
-    it("pwd_encrypt 같은 값 두번 실행시 다른 암호화 값이 나와야 함", async () => {
-      const p1 = (await pwd_encrypt(testpwd)).pwd;
-      const p2 = (await pwd_encrypt("13241324")).pwd;
-      expect(p1).not.equals(p2);
-    });
-
-    it("pwd_verify OK", async () => {
-      const { pwd, salt } = await pwd_encrypt(testpwd);
-      const b = await pwd_verify(testpwd, { pwd, salt });
-      expect(b).equals(true);
-    });
-
-    it("pwd_verify FAIL", async () => {
-      const { pwd, salt } = await pwd_encrypt(testpwd);
-      const b = await pwd_verify("13241323", { pwd, salt });
-      expect(b).equals(false);
-    });
-    after(() => {
-      console.log(`암호화 후 패스워드 : ${encrypted}`);
-    });
-  });
-});
-
-describe("findMany 테스트", function () {
-  let db;
-  before("db 초기화", () => {
-    db = makeDB({
-      User: {
-        find(c) {
-          return {
-            lean() {
-              return `condition is ${c}`;
-            },
-          };
-        },
-      },
-    });
-  });
-
-  it("제대로 작동해야 함", function (done) {
-    db.findMany("User", "hi")
-      .then((value) => {
-        expect(value).to.equal("condition is hi");
-        done();
-      })
-      .catch((error) => {
-        done("에러가 나지 않아야 함");
-      });
-  });
-});
-
-describe("실제 모델 테스트", (self) => {
-  const mongoose = require("mongoose");
-  mongoose.deleteModel(/.+/);
-  const model = require("../db/model").make(mongoose);
+describe('실제 모델기반 DB 테스트', function () {
   /** @type {MongoMemoryServer} */
   let mongod;
   /** @type {DBManager} */
   let manager;
+  /** @type {Object.<string, Model<MongooseDocument, {}>>} */
+  let model;
 
-  before("DB 초기화", async function () {
+  before('DB 초기화', async function () {
+    // mongoose.deleteModel(/.+/);
     this.timeout(10000);
+    model = modelMaker.make(mongoose);
+    console.log(model);
     manager = makeDB(model);
 
-    const { MongoMemoryServer } = require("mongodb-memory-server");
     mongod = new MongoMemoryServer();
     const uri = await mongod.getConnectionString();
     const mongooseOpts = {
@@ -93,8 +33,8 @@ describe("실제 모델 테스트", (self) => {
     await mongoose.connect(uri, mongooseOpts);
   });
 
-  afterEach("DB 내용 제거", async () => {
-    const collections = mongoose.connection.collections;
+  afterEach('DB 내용 제거', async function () {
+    const { collections } = mongoose.connection;
 
     for (const key in collections) {
       const collection = collections[key];
@@ -102,94 +42,118 @@ describe("실제 모델 테스트", (self) => {
     }
   });
 
-  after("DB 종료", async () => {
+  after('DB 종료', async function () {
     await mongoose.connection.dropDatabase();
     await mongoose.connection.close();
     await mongod.stop();
   });
 
-  describe("User 테스트", function () {
-    it("createUser 테스트", async function () {
+  describe('findMany 테스트', function () {
+    it('제대로 작동해야 함', function (done) {
+      const newPost = async (title) => {
+        const p = model.Post({ title });
+        return p.save();
+      };
+      Promise.allSettled([newPost('1'), newPost('1'), newPost('2')])
+        .then((resultho) => {
+          manager
+            .findMany('Post', { title: '1' })
+            .then((result) => {
+              expect(result.length).to.equal(2);
+              done();
+            })
+            .catch((err) => {
+              done(err);
+            });
+        })
+        .catch((err) => {
+          done(err);
+        });
+    });
+  });
+
+  describe('User', function () {
+    it('createUser 테스트', async function () {
       await manager.createUser({
-        email: "eszqsc112@naver.com",
-        name: "김태훈",
-        pwd: "13241324",
+        email: 'eszqsc112@naver.com',
+        name: '김태훈',
+        pwd: '13241324',
       });
       const found = await model.User.find().lean();
       const login = await model.Login.findOne().lean();
       const user = found[0];
-      expect(found).to.not.be.a("null");
-      expect(user.email).to.equal("eszqsc112@naver.com");
+      expect(found).to.not.be.a('null');
+      expect(user.email).to.equal('eszqsc112@naver.com');
       expect(user.verified).to.equal(false);
-      expect(login.pwd).to.be.a("string");
-      expect(login.salt).to.be.a("string");
-      expect(login.email).to.be.a("string");
+      expect(login.pwd).to.be.a('string');
+      expect(login.salt).to.be.a('string');
+      expect(login.email).to.be.a('string');
     });
 
-    it("createUser - getUserByEmail 테스트", async function () {
+    it('createUser - getUserByEmail 테스트', async function () {
       await manager.createUser({
-        email: "eszqsc112@naver.com",
-        name: "김태훈",
-        pwd: "13241324",
+        email: 'eszqsc112@naver.com',
+        name: '김태훈',
+        pwd: '13241324',
       });
       expect(
-        await manager.getUserByEmail("eszqsc112@naver.com"),
-        "email 키가 존재해야 함"
-      ).to.have.any.keys(["email"]);
+        await manager.getUserByEmail('eszqsc112@naver.com'),
+        'email 키가 존재해야 함',
+      ).to.have.any.keys(['email']);
       expect(
-        await manager.getUserByEmail("wierd@naver.com"),
-        "email 키가 없어야 함"
-      ).to.be.a("null");
+        await manager.getUserByEmail('wierd@naver.com'),
+        'email 키가 없어야 함',
+      ).to.be.a('null');
     });
 
-    it("isUserExist : False", async function () {
-      const result = await manager.isUserExist("eszqsc112@naver.com");
+    it('isUserExist : False', async function () {
+      const result = await manager.isUserExist('eszqsc112@naver.com');
       expect(result).equal(false);
     });
 
-    it("isUserExist : True", async function () {
+    it('isUserExist : True', async function () {
       await manager.createUser({
-        email: "eszqsc112@naver.com",
-        name: "김태훈",
-        pwd: "13241324",
+        email: 'eszqsc112@naver.com',
+        name: '김태훈',
+        pwd: '13241324',
       });
-      const result = await manager.isUserExist("eszqsc112@naver.com");
+      const result = await manager.isUserExist('eszqsc112@naver.com');
       expect(result).equal(true);
     });
 
-    it("createUser후 removeUserByEmail", async function () {
+    it('createUser후 removeUserByEmail', async function () {
       await manager.createUser({
-        email: "eszqsc112@naver.com",
-        name: "김태훈",
-        pwd: "13241324",
+        email: 'eszqsc112@naver.com',
+        name: '김태훈',
+        pwd: '13241324',
       });
-      await manager.removeUserByEmail("eszqsc112@naver.com");
+      await manager.removeUserByEmail('eszqsc112@naver.com');
       const found = await model.User.find().lean();
       expect(found.length).to.equal(0);
     });
 
-    it("updateUser", async function () {
+    it('updateUser', async function () {
       await manager.createUser({
-        email: "eszqsc112@naver.com",
-        name: "김태훈",
-        pwd: "13241324",
+        email: 'eszqsc112@naver.com',
+        name: '김태훈',
+        pwd: '13241324',
       });
-      await manager.updateUser("eszqsc112@naver.com", { name: "안녕" });
-      const user = await manager.getUserByEmail("eszqsc112@naver.com");
-      expect(user.name).equal("안녕");
+      await manager.updateUser('eszqsc112@naver.com', { name: '안녕' });
+      const user = await manager.getUserByEmail('eszqsc112@naver.com');
+      expect(user.name).equal('안녕');
     });
   });
 
-  describe("패스워드 테스트", function () {
-    it("유저 생성 후 비번이 같아야 함 - isCorrectPassword", async function () {
+  describe('Password', function () {
+    it('유저 생성 후 비번이 같아야 함 - isCorrectPassword', async function () {
       await manager.createUser({
-        email: "eszqsc112@naver.com",
-        name: "김태훈",
-        pwd: "13241324",
+        email: 'eszqsc112@naver.com',
+        name: '김태훈',
+        pwd: '13241324',
       });
       const result = await manager.isCorrectPassword(
-        "eszqsc112@naver.com",
-        "13241324"
+        'eszqsc112@naver.com',
+        '13241324',
       );
       expect(result).equal(true);
       await tool.makeHtmlReport(
@@ -204,20 +168,167 @@ describe("실제 모델 테스트", (self) => {
       <body>
         <p>hahaha</p>
       </body>
-      </html>`
+      </html>`,
       );
     });
-    it("유저 생성 후 비번이 틀려야 함 - isCorrectPassword", async function () {
+    it('유저 생성 후 비번이 틀려야 함 - isCorrectPassword', async function () {
       await manager.createUser({
-        email: "eszqsc112@naver.com",
-        name: "김태훈",
-        pwd: "13241324",
+        email: 'eszqsc112@naver.com',
+        name: '김태훈',
+        pwd: '13241324',
       });
       const result = await manager.isCorrectPassword(
-        "eszqsc112@naver.com",
-        "12345678"
+        'eszqsc112@naver.com',
+        '12345678',
       );
       expect(result).equal(false);
+    });
+  });
+
+  describe('Page', function () {
+    it('.createPage', function (done) {
+      manager
+        .createPage({
+          belongs_to: 'cinesopa',
+          content: 'ho',
+          permalink: 'ha',
+        })
+        .then(() => {
+          model.Page.findOne({ content: 'ho' })
+            .then((result) => {
+              expect(result.belongs_to).to.equal('cinesopa');
+              expect(result.permalink).to.equal('ha');
+              done();
+            })
+            .catch((err) => {
+              done(err);
+            });
+        })
+        .catch((err) => {
+          done(err);
+        });
+    });
+    it('.getPage', function (done) {
+      const p = new model.Page({ title: 'ho', id: 100 });
+      p.save()
+        .then((result) => {
+          manager
+            .getPage(100)
+            .then((result) => {
+              expect(result.title).to.equal('ho');
+              done();
+            })
+            .catch((err) => {
+              done(err);
+            });
+        })
+        .catch((err) => {
+          done(err);
+        });
+      // manager.page
+    });
+    it('.getPages', function (done) {
+      const promises = [];
+      for (let index = 0; index < 30; index++) {
+        const p = new model.Page({
+          id: index,
+          title: `제목${index}`,
+          belongs_to: 'sopaseom',
+        });
+        promises.push(p.save());
+      }
+      Promise.allSettled(promises)
+        .then((result) => {
+          manager
+            .getPages('sopaseom', 3, 6)
+            .then((result) => {
+              // console.log(result);
+              expect(result.length).to.equal(6);
+              expect(result[0].id).to.equal(18);
+              expect(result[3].id).to.equal(21);
+              expect(result[5].id).to.equal(23);
+              done();
+            })
+            .catch((err) => {
+              done(err);
+            });
+        })
+        .catch((err) => {
+          done(err);
+        });
+    });
+    it('.getPageView', async function () {
+      const p = new model.Page({
+        permalink: 'ho',
+        belongs_to: 'sopaseom',
+      });
+      await p.save();
+      const found = await manager.getPageView('ho', 'sopaseom');
+      expect(found).to.be.not.null;
+    });
+    it('.removePage', async function () {
+      const p = new model.Page({
+        permalink: 'ho',
+        belongs_to: 'sopaseom',
+        id: 100,
+      });
+      await p.save();
+      await manager.removePage(100);
+      const result = await model.Page.find();
+      expect(result.length).to.equal(0);
+    });
+    it('.removePage - 존재하지 않을 때 에러', async function () {
+      let err = null;
+      try {
+        const p = new model.Page({
+          permalink: 'ho',
+          belongs_to: 'sopaseom',
+          id: 100,
+        });
+        await p.save();
+        await manager.removePage(101);
+      } catch (error) {
+        // console.error(error);
+        err = error;
+      }
+      if (err) console.log(err);
+      expect(err).to.be.not.null;
+    });
+    it('.updatePage', async function () {
+      const p = new model.Page({
+        permalink: 'ho',
+        belongs_to: 'sopaseom',
+        id: 100,
+      });
+      await p.save();
+      await manager.updatePage(100, {
+        permalink: 'hi',
+      });
+      const found = await model.Page.findOne({ id: 100 });
+      expect(found.permalink).to.equal('hi');
+    });
+    it('.updatePage 존재하지 않을 때 에러', function (done) {
+      const p = new model.Page({
+        permalink: 'ho',
+        belongs_to: 'sopaseom',
+        id: 100,
+      });
+      p.save()
+        .then(() => {
+          manager
+            .updatePage(101, {
+              permalink: 'hi',
+            })
+            .then(() => {
+              done(new Error('에러가 나야 합니다.'));
+            })
+            .catch(() => {
+              done();
+            });
+        })
+        .catch((err) => {
+          done(err);
+        });
     });
   });
 });

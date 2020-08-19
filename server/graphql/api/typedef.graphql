@@ -28,7 +28,7 @@ type Login {
 }
 
 type Page {
-  id: String
+  id: Int
   permalink: String
   title: String
   content: String
@@ -134,7 +134,7 @@ type Query {
   user(email: String!): User
   getUserByEmailNoAuth(email: String!): User # MUST DELETE WHEN DEPLOY!
   page(permalink: String!, belongs_to: String!): Page
-  pages: [Page]
+  pages(belongs_to: String!, page: Int, perpage: Int): [Page]
   pageById(id: String!): Page
   checkAuth(redirectLink: String!, role: Permission!): CheckAuthResponse
   getFilesManaged: [File]
@@ -153,10 +153,18 @@ type Mutation {
   createGuest(email: String!, pwd: String!): User
   verifyUserEmail(token: String!): User
   updateUser(email: String!, userinfo: UserUpdateInfo): User
-  
+
   # pages
-  createPage(permalink: String!, belongs_to: String!, pageinfo: PageInput!): Page
-  updatePage(permalink: String!, belongs_to: String!, pageinfo: PageInput!): Page
+  createPage(
+    permalink: String!
+    belongs_to: String!
+    pageinfo: PageInput!
+  ): Page
+  updatePage(
+    permalink: String!
+    belongs_to: String!
+    pageinfo: PageInput!
+  ): Page
   removePage(permalink: String!, belongs_to: String!): Page
 
   # signin
