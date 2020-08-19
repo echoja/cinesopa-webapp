@@ -95,7 +95,7 @@ const updatePage = makeResolver(async (obj, args, context, info) => {
 const removePage = makeResolver(async (obj, args, context, info) => {
   const { permalink, belongs_to } = args;
   const p = await db.getPageView(permalink, belongs_to);
-  await db.removePage(page.id);
+  await db.removePage(p.id);
   return p;
 }).only(ACCESS_ADMIN);
 
@@ -139,10 +139,10 @@ const pageResolver = makeResolver(async (obj, args, context, info) => {
 // pages(belongs_to: String!, page: Int, perPage: Int): [Page]
 const pages = makeResolver(async (obj, args, context, info) => {
   const { belongs_to, page: pageNum = 0, perpage = 10 } = args;
-  console.log('--pages-resolver--');
-  console.log(args);
+  // console.log('--pages-resolver--');
+  // console.log(args);
   const result = await db.getPages(belongs_to, pageNum, perpage);
-  console.log(result);
+  // console.log(result);
 
   return result;
   // return await page.getAllPages(args, context);

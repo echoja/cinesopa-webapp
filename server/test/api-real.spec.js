@@ -1,6 +1,5 @@
 const addContext = require('mochawesome/addContext');
 
-const a = 10;
 const request = require('supertest');
 const uuidv4 = require('uuid').v4;
 const passport = require('passport');
@@ -8,17 +7,19 @@ const { expect } = require('chai');
 const express = require('express');
 const session = require('express-session');
 const MemoryStore = require('memorystore')(session);
+const mongoose = require('mongoose');
+const { MongoMemoryServer } = require('mongodb-memory-server');
 const auth = require('../service/auth');
+const authValidatorMaker = require('../auth/validator');
+const { db: manager, model } = require('../loader');
 
 const makeAgent = request.agent;
 const { graphQLServerMiddleware } = require('../graphql');
 const local = require('../auth/local');
 // const { noConflict } = require("lodash");
-const { make: makeDB } = require('../manager/db');
 const { make: makeAuthMiddleware } = require('../auth/auth-middleware');
 const { enumAuthmap } = require('../db/schema/enum');
 const { graphqlSuper } = require('./tool');
-const db = require('../manager/db');
 
 const loginQuery = `
 mutation Login ($email: String!, $pwd: String!) {
@@ -81,6 +82,7 @@ query getPage($permalink: String!, $belongs_to: String!) {
 
 const getPagesQuery = `query getPages($belongs_to: String!, $page: Int, $perpage: Int) {
   pages(belongs_to: $belongs_to, page: $page, perpage: $perpage) {
+    id
     title
     content
     permalink
@@ -140,6 +142,7 @@ mutation createPage($permalink: String!, $belongs_to: String!, $pageinfo: PageIn
 const updatePageMutation = `
 mutation updatePage($permalink: String!, $belongs_to: String!, $pageinfo: PageInput!) {
   updatePage(permalink: $permalink, belongs_to: $belongs_to, pageinfo: $pageinfo) {
+    id
     title
     content
     permalink
@@ -169,6 +172,7 @@ mutation updatePage($permalink: String!, $belongs_to: String!, $pageinfo: PageIn
 const removePageMutation = `
 mutation removePage($permalink: String!, $belongs_to: String!) {
   removePage(permalink: $permalink, belongs_to: $belongs_to) {
+    id
     title
     content
     permalink
@@ -206,24 +210,23 @@ const doLogin = async (agent, email, pwd) => graphqlSuper(agent, loginQuery, {
  * - db 세팅법은 `./db.spec.js` 에서 가져옴.
  */
 describe('REAL API', function () {
-  const mongoose = require('mongoose');
-  const { db: manager, model } = require('../loader');
   // const model = require("../db/model").make(mongoose);
   /** @type {MongoMemoryServer} */
   let mongod;
   /** @type {import("supertest").SuperAgentTest} */
   let agent;
-  const webapp = express();
 
-  before('서버 및 db 세팅', async function () {
+  /** @type {import("express").Express} */
+  let webapp = before('서버 및 db 세팅', async function () {
     delete require.cache[require.resolve('passport')];
     this.timeout(10000);
+
+    webapp = express();
 
     /** DB 세팅 */
 
     // manager = makeDB(model);
 
-    const { MongoMemoryServer } = require('mongodb-memory-server');
     mongod = new MongoMemoryServer();
     const uri = await mongod.getConnectionString();
     const mongooseOpts = {
@@ -277,7 +280,7 @@ describe('REAL API', function () {
     webapp.get('/user', (req, res, next) => {
       res.send({ user: req.user, isAuthenticated: req.isAuthenticated() });
     });
-    const authValidator = require('../auth/validator').make(auth.authmapLevel);
+    const authValidator = authValidatorMaker.make(auth.authmapLevel);
     // console.log("--auth.authmapLevel--");
     // console.dir(auth.authmapLevel);
     webapp.get(
@@ -362,7 +365,7 @@ describe('REAL API', function () {
       // expect(result.status).to.equal(401);
       // expect(result.body?.message).to.equal("success");
     });
-    it.only('권한이 에러나야 함', function (done) {
+    it('권한이 에러나야 함', function (done) {
       graphqlSuper(agent, loginQuery, {
         email: 'testGuest',
         pwd: 'abc',
@@ -399,8 +402,8 @@ describe('REAL API', function () {
     describe('createPage', function () {
       it('제대로 동작해야 함', function (done) {
         doLogin(agent, 'testAdmin', 'abc')
-          .then((result) => {
-            // console.log(result);
+          .then(() => {
+            // console.log(login);
             graphqlSuper(agent, createPageMutation, {
               permalink: 'hi',
               belongs_to: 'sopaseom',
@@ -602,7 +605,7 @@ describe('REAL API', function () {
       });
     });
     describe('pages', function () {
-      it.only('제대로 동작해야 함', async function () {
+      it('제대로 동작해야 함', async function () {
         await doLogin(agent, 'testAdmin', 'abc');
         const promises = [];
         for (let i = 0; i < 30; i++) {
@@ -621,7 +624,7 @@ describe('REAL API', function () {
         });
         const ls = result.body.data.pages;
         expect(ls.length).to.equal(5);
-        console.log(ls);
+        // console.log(ls);
         expect(ls[0].id).to.equal(10);
         expect(ls[1].id).to.equal(11);
         expect(ls[2].id).to.equal(12);
