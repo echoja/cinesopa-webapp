@@ -2,12 +2,12 @@ const express = require('express');
 const logger = require('morgan');
 const session = require('express-session');
 const passport = require('passport');
+const uuidv4 = require('uuid').v4;
 const { localAuthConfig } = require('./loader');
 const { dbServerInit } = require('./db/db-server');
 const config = require('./config');
 const { getRouter } = require('./router');
-const uuidv4 = require('uuid').v4;
-const MongoStore = require('connect-mongo')(session);
+const sessionStore = require('./service/session-store');
 
 // running mode check
 console.log(`This server is running in ${process.env.NODE_ENV} mode. `);
@@ -27,10 +27,7 @@ webapp.use(
     resave: false,
     saveUninitialized: false,
     cookie: { maxAge: 1000 * 60 * 60 * 24 * 14 },
-    store: new MongoStore({
-      url: config.mongodbUrl, // env required
-      collection: 'sessions',
-    }), // store
+    store: sessionStore, // store
   }),
 );
 localAuthConfig();

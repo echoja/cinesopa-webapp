@@ -117,9 +117,14 @@ input PageInput {
 
 type Query {
   # uploads: [File]
+
+  ## USER
   users: [User]
   user(email: String!): User
+  currentUser: User
   getUserByEmailNoAuth(email: String!): User # MUST DELETE WHEN DEPLOY!
+
+  ## PAGE
   page(permalink: String!, belongs_to: String!): Page
   pages(belongs_to: String!, page: Int, perpage: Int): [Page]
   pageById(id: Int!): Page
@@ -133,9 +138,11 @@ type Query {
 #############################
 
 type Mutation {
+  ## login and logout
   login(provider: EmailAuthProvider!, redirectLink: String): AuthPayload
   # logout(email: String!): AuthPayload
-  logoutMe: AuthPayload
+  logoutMe: User
+
   # createAdmin(email: String!, pwd: String!, role: UserRole!): User
   createGuest(email: String!, pwd: String!): User
   verifyUserEmail(token: String!): User

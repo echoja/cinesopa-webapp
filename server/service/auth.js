@@ -1,6 +1,8 @@
-require("../typedef");
+require('../typedef');
 
-const { enumAuthmap } = require("../db/schema/enum");
+// const connectMongo = require('connect-mongo'); 테스트에서 DANGLING 유발!!!
+const { enumAuthmap } = require('../db/schema/enum');
+// const sessionStore = require('./session-store'); 테스트에서 DANGLING 유발!!!
 
 const authmapLevel = {
   [enumAuthmap.ADMIN]: 2,
@@ -50,7 +52,7 @@ const authmapLevel = {
 const logoutMe = async (context) => {
   const user = context.getUser();
   context.logout();
-  return { user, redirectLink: "" };
+  return user;
 };
 
 /**
@@ -63,7 +65,7 @@ const logoutMe = async (context) => {
  */
 const login = async (email, pwd, context) => {
   // 사용자 인증
-  const { user } = await context.authenticate("graphql-local", {
+  const { user } = await context.authenticate('graphql-local', {
     email,
     password: pwd,
   });
@@ -81,13 +83,21 @@ const login = async (email, pwd, context) => {
   }
   return { user, redirectLink };
 };
+// /**
+//  *
+//  * @param {string} email
+//  * @param {connectMongo.MongoStore} sessionStore
+//  */
+// const removeAllSession = async (email, sessionStore) => {
+//   sessionStore.
+// }
 
 /**
- * 
+ *
  */
 const isOwnerToFile = async (req, rawFilename) => {
 
-}
+};
 
 module.exports = {
   login,

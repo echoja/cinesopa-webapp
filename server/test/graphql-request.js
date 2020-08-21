@@ -6,11 +6,23 @@ mutation Login ($email: String!, $pwd: String!) {
       name
       email
       role
+      verified
     }
     redirectLink
   }
 }
 `,
+
+  logoutMeMutation: `
+mutation logoutMeMutation { 
+  logoutMe { 
+    name
+    email
+    role
+    c_date
+    verified
+  }
+}`,
 
   checkAuthQuery: `
 query checkAuth($redirectLink: String!, $role: Permission!) {
@@ -21,6 +33,7 @@ query checkAuth($redirectLink: String!, $role: Permission!) {
       email
       c_date
       role
+      verified
     }
   }
 }

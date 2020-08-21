@@ -27,6 +27,7 @@ const {
   loginQuery,
   removePageMutation,
   updatePageMutation,
+  logoutMeMutation,
 } = require('./graphql-request');
 const auth = require('../service/auth');
 const authValidatorMaker = require('../auth/validator');
@@ -58,7 +59,9 @@ describe('REAL API', function () {
   let agent;
 
   /** @type {import("express").Express} */
-  let webapp = before('서버 및 db 세팅', async function () {
+  let webapp;
+
+  before('서버 및 db 세팅', async function () {
     delete require.cache[require.resolve('passport')];
     this.timeout(10000);
 
@@ -92,7 +95,9 @@ describe('REAL API', function () {
         resave: false,
         saveUninitialized: false,
         store: new MemoryStore(),
-        expires: new Date(Date.now() + 30 * 86400 * 1000),
+        cookie: {
+          maxAge: 1000 * 60 * 60 * 24,
+        },
       }),
     );
     webapp.use(passport.initialize()); // passport 구동
@@ -497,6 +502,44 @@ describe('REAL API', function () {
     });
   });
 
+  describe('user', function () {
+    describe('users', function () {
+      it('제대로 동작해야 함', async function () {
+        this.skip();
+        await doLogin(agent, 'testAdmin', 'abc');
+      });
+    });
+    describe('user', function () {
+
+    });
+    describe('currentUser', function () {
+
+    });
+  });
+
+  describe('login and logout', function () {
+    describe('login', function () {
+      it('제대로 동작해야 함', async function () {
+        await doLogin(agent, 'testAdmin', 'abc');
+        const result = await agent.get('/session');
+        expect(result.body.session.cookie).to.be.not.null;
+        expect(result.body.session.passport).to.be.not.null;
+        expect(result.body.session.passport).to.haveOwnProperty('user');
+      });
+    });
+    describe('logoutMe', function () {
+      it('제대로 동작해야 함', async function () {
+        await doLogin(agent, 'testAdmin', 'abc');
+        await graphqlSuper(agent, logoutMeMutation);
+
+        const result = await agent.get('/session');
+        expect(result.body.session.cookie).to.be.not.null;
+        expect(result.body.session.passport).to.be.not.null;
+        expect(result.body.session.passport).to.not.haveOwnProperty('user');
+      });
+    });
+  });
+
   describe('checkAuth', function () {
     it('로그인이 되어있지 않으면 LOGIN_REQUIRED 가 나와야 함.', async function () {
       const check = await graphqlSuper(agent, checkAuthQuery, {
@@ -534,9 +577,5 @@ describe('REAL API', function () {
       });
       expect(check.body.data.checkAuth.permissionStatus).to.equal('OK');
     });
-  });
-
-  it('회원가입 및 로그인', async function () {
-    // graphqlSuper(agent);
   });
 });

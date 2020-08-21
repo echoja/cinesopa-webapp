@@ -16,30 +16,25 @@
  * 4. local.make(...)에서 에서 만든 getUserByAuth 함수
  */
 const a = 10;
-const { graphqlSuper } = require('./tool');
 const request = require('supertest');
 
 const makeAgent = request.agent;
-const { inspect } = require('util');
 const session = require('express-session');
 const MemoryStore = require('memorystore')(session);
 const axios = require('axios');
 const express = require('express');
 const { expect } = require('chai');
-const { graphQLServerMiddleware } = require('../graphql');
 const uuidv4 = require('uuid').v4;
 const passport = require('passport');
+
+const { graphqlSuper } = require('./tool');
+const { graphQLServerMiddleware } = require('../graphql');
 const local = require('../auth/local');
-const auth = require('../service/auth');
-// const { noConflict } = require("lodash");
-const { make: makeDB } = require('../manager/db');
 
 const headers = {
   'Content-Type': 'application/json',
   Accept: 'application/json',
 };
-const { make: makeAuthMiddleware } = require('../auth/auth-middleware');
-const { enumAuthmap } = require('../db/schema/enum');
 
 const loginQuery = `
 mutation Login ($email: String!, $pwd: String!) {
@@ -83,7 +78,7 @@ const graphqlRequest = async (url, query, variables) => new Promise((resolve, re
     .then((value) => {
       const { data } = value;
       if (data) return resolve(data);
-      return resolve(received);
+      return resolve(data);
     })
     .catch((error) => reject(error));
 });
