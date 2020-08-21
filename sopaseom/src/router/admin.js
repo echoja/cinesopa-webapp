@@ -22,7 +22,7 @@ export default [
     component: () => import('@/views/admin/Post.vue'),
   },
   {
-    ...adminRoute('/admin/cinesopa/post/new', 'PostEdit'),
+    ...adminRoute('/admin/cinesopa/post/new', 'PostNew'),
     component: () => import('@/views/admin/PostEdit.vue'),
     props: { mode: 'new', belongs_to: 'cinesopa' },
   },

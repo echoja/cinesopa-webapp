@@ -127,22 +127,8 @@ query getPage($permalink: String!, $belongs_to: String!) {
     title
     content
     permalink
-    c_date {
-      year
-      month
-      day
-      hour
-      minute
-      second
-    }
-    m_date {
-      year
-      month
-      day
-      hour
-      minute
-      second
-    }
+    c_date 
+    m_date 
     role
     belongs_to
     meta_json

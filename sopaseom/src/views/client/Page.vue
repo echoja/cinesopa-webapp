@@ -1,11 +1,8 @@
 <template>
   <div>
     <h2>이것은 페이지입니다.</h2>
-    <div>
-      <div class="content-wrapper" v-html="content"></div>
-      내용: {{ content }}
-      {{ permalink }}
-    </div>
+
+      <article class="content" v-html="content"></article>
 
   </div>
 </template>
@@ -23,11 +20,15 @@ export default {
   },
   data() {
     return {
+      title: '',
+      m_date: '',
       content: '',
+      loaded: 'false',
+
     };
   },
   async created() {
-    const res = await graphql(getPageQuery, { permalink: this.permalink });
+    const res = await graphql(getPageQuery, { permalink: this.permalink, belongs_to: 'sopaseom' });
     this.content = res?.data?.page?.content;
   },
 
