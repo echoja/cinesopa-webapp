@@ -1,38 +1,40 @@
-
 <template>
   <div>
+    <b-form-input v-model="permalink" placeholder="url 이름"></b-form-input>
+    <b-form-input v-model="title" placeholder="페이지 제목"></b-form-input>
+    <p v-if="!editorLoaded">에디터 로딩중</p>
     <editor
       api-key="gt5higoqzglgrwcu9r7cdbmj408cva4csd4aj2y6qvcr5i5r"
-      v-model="val"
+      v-model="content"
       :init="editorInit"
+      @onInit="onEditorInit"
     />
-  <b-button @click="confirm">적용</b-button>
-  <p>{{ val }}</p>
-  <b-form-file v-model="file2" @input="fileUpload" ref="file-input" class="mt-3" plain>
-
-  </b-form-file>
-  <p>{{ file2 }}</p>
+    <b-button @click="confirm">적용</b-button>
+    <p>{{ content }}</p>
+    <b-form-file v-model="file2" @input="fileUpload" ref="file-input" class="mt-3" plain>
+    </b-form-file>
+    <p>{{ file2 }}</p>
+    <p>belongs_to : {{ belongs_to }}, {{ mode }}</p>
   </div>
-
 </template>
 
 <script>
 import Editor from '@tinymce/tinymce-vue';
 import upload from '../../upload-client';
 import tinymceInit from '../../tinymce-configure';
-import { dataGraphql } from '../../graphql-client';
+import { dataGraphql, createPageMutation, updatePageMutation } from '../../graphql-client';
 
-const getPageByIdQuery = `
-query getPageById($id: String!) {
-  pageById(id: $id) {
-    id
-    title
-    content
-    permalink
-    c_date
-  }
-}
-`;
+// const getPageByIdQuery = `
+// query getPageById($id: String!) {
+//   pageById(id: $id) {
+//     id
+//     title
+//     content
+//     permalink
+//     c_date
+//   }
+// }
+// `;
 // tinymceConfigure();
 
 // import { singleUploadQuery } from '../graphql-client';
@@ -55,15 +57,20 @@ export default {
   data() {
     return {
       file2: null,
+      title: '',
       content: '',
       val: '',
+      permalink: '',
+      meta_json: {},
+      editorLoaded: false,
     };
   },
+  props: ['belongs_to', 'mode'],
 
   async created() {
-    const { id } = this.$route.params;
-    const { pageById } = await dataGraphql(getPageByIdQuery, { id });
-    this.content = pageById.content;
+    // const { id } = this.$route.params;
+    // const { pageById } = await dataGraphql(getPageByIdQuery, { id });
+    // this.content = pageById.content;
   },
   computed: {
     editorInit() {
@@ -72,8 +79,42 @@ export default {
   },
 
   methods: {
+    onEditorInit() {
+      this.editorLoaded = true;
+    },
     confirm() {
-
+      if (this.mode === 'new') return this.confirmNew();
+      return this.confirmEdit();
+    },
+    confirmNew() {
+      console.log('confirmNew');
+      dataGraphql(createPageMutation, {
+        permalink: this.permalink,
+        belongs_to: this.belongs_to,
+        pageinfo: {
+          title: this.title,
+          content: this.content,
+          belongs_to: this.belongs_to,
+          meta_json: JSON.stringify(this.meta_json),
+        },
+      })
+        .then((result) => {
+          console.log('pageWirteSuccessed!');
+          console.log(result);
+        })
+        .catch((err) => {
+          console.error(err);
+        });
+    },
+    confirmEdit() {
+      dataGraphql(updatePageMutation, {})
+        .then((result) => {
+          console.log(result);
+        })
+        .catch((err) => {
+          console.error(err);
+        });
+      console.log('confirmEdit');
     },
     async fileUpload() {
       console.log(this.file2);

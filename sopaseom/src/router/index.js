@@ -34,6 +34,7 @@ const emailVerifyBeforeEnter = async (to, from, next) => {
 const onlyNoLoginBeforeEnter = async (to, from, next) => {
   const result = await graphql(checkAuthQuery, { redirectLink: '', role: 'GUEST' });
   const permissionStatus = result?.data?.checkAuth?.permissionStatus;
+  console.log(`permissionStatus : ${permissionStatus}`);
   if (permissionStatus === 'OK' || permissionStatus === undefined) {
     next('/');
   } else {

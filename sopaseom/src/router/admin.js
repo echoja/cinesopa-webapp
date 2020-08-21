@@ -92,22 +92,22 @@ export default [
 
   /** page */
   {
-    ...adminRoute('/admin/cinesopa/page', 'AdminPage'),
+    ...adminRoute('/admin/cinesopa/page', 'CinesopaPages'),
     component: () => import('@/views/admin/Page.vue'),
     props: { belongs_to: 'cinesopa' },
   },
   {
-    ...adminRoute('/admin/cinesopa/page/new', 'PageEdit'),
+    ...adminRoute('/admin/cinesopa/page/new', 'CinesopaNewPage'),
     component: () => import('@/views/admin/PageEdit.vue'),
     props: { mode: 'new', belongs_to: 'cinesopa' },
   },
   {
-    ...adminRoute('/admin/sopaseom/page', 'AdminPage'),
+    ...adminRoute('/admin/sopaseom/page', 'SopaseomPages'),
     component: () => import('@/views/admin/Page.vue'),
     props: { belongs_to: 'sopaseom' },
   },
   {
-    ...adminRoute('/admin/sopaseom/page/new', 'PageEdit'),
+    ...adminRoute('/admin/sopaseom/page/new', 'SopaseomNewPage'),
     component: () => import('@/views/admin/PageEdit.vue'),
     props: { mode: 'new', belongs_to: 'sopaseom' },
   },

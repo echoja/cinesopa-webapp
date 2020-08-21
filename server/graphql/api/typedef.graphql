@@ -4,14 +4,6 @@ scalar Upload
 #           TYPE
 #############################
 
-type Datetime {
-  day: Int
-  month: Int
-  year: Int
-  hour: Int
-  minute: Int
-  second: Int
-}
 
 type User {
   id: String
@@ -32,8 +24,8 @@ type Page {
   permalink: String
   title: String
   content: String
-  c_date: Datetime
-  m_date: Datetime
+  c_date: String
+  m_date: String
   role: String
   belongs_to: String
   meta_json: String

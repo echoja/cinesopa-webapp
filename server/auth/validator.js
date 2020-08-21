@@ -2,39 +2,68 @@
  * @typedef {AuthValidator} AuthValidator
  */
 
-const _ = require("lodash");
-const { objectIdSymbol } = require("mongoose/lib/helpers/symbols");
-const { enumAuthmap } = require("../db/schema/enum");
+const _ = require('lodash');
+const { objectIdSymbol } = require('mongoose/lib/helpers/symbols');
 
 /** 권한 등을 검증하는 객체 */
 class AuthValidator {
   /**
    * AuthValidator 를 생성합니다.
-   * @param {Object.<number, number>} authmapLevel
+   * @param {Object.<symbol, number>} authmapLevel
    */
   constructor(authmapLevel) {
-    /** @type {Object.<number, number>} */
+    /** @type {Object.<symbol, number>} */
     this.authmapLevel = authmapLevel;
     this.symbolArray = Object.getOwnPropertySymbols(authmapLevel);
   }
+
+  /**
+   * 현재 콘텍스트(graphql로 들어온 요청)가 조건에 부합하는지 체크.
+   * context 의 role이 condition 이상이기만 하면 됨.
+   * @param {PassportContext} context 콘텍스트 객체
+   * @param {string} condition 조건
+   * @param {Object.<string, symbol>} enumAuthmap 문자를 symbol로 바꾸는 수단
+   * @returns {Promise<boolean>} 올바르면 true, 틀리면 false.
+   */
+  async isOkContext(context, condition, enumAuthmap) {
+    return new Promise((resolve, reject) => {
+      try {
+        const { isUnauthenticated, getUser } = context;
+        const role = isUnauthenticated() ? enumAuthmap.ANYONE : enumAuthmap[getUser().role];
+        const conditionSymbol = enumAuthmap[condition];
+        this.isOk(role, conditionSymbol)
+          .then((result) => resolve(result))
+          .catch((err) => reject(err));
+      } catch (e) {
+        return reject(e);
+      }
+    });
+  }
+
   /**
    * 권한이 올바른지 체크하는 함수. 주어진 권한이 조건 권한보다 더 상위의 권한인지 체크.
-   * @param {number} given 주어진 권한
-   * @param {number} condition 조건 권한
-   * @returns {boolean} 올바르면 true, 틀리면 false.
+   * @param {symbol} given 주어진 권한
+   * @param {symbol} condition 조건 권한
+   * @returns {Promise<boolean>} 올바르면 true, 틀리면 false.
    */
   async isOk(given, condition) {
     return new Promise((resolve, reject) => {
       let result = false;
       try {
+        console.log(this.authmapLevel);
+        console.log(`given: ${given.toString()}, condition: ${condition.toString()}`);
         result = this.authmapLevel[given] >= this.authmapLevel[condition];
         return resolve(result);
-      } catch {
-        return reject(`given(${given}) or condition(${condition}) should be in [
-          ${_.keys(this.authmapLevel).join(", ")}]`);
+      } catch (err) {
+        console.log(err);
+        return reject(
+          Error(`given(${given.toString()}) or condition(${condition.toString()}) should be in [
+          ${Object.getOwnPropertySymbols(this.authmapLevel).map((value) => value.toString()).join(', ')}]`),
+        );
       }
     });
   }
+
   /**
    * this.contains 와 동일하나,
    * `authmap` 기반으로 `given`에서 해당하는 심볼을 찾아 `condition`을 검사합니다.
@@ -71,19 +100,21 @@ class AuthValidator {
       // console.log(symbolKeys);
       // console.log(condition);
       condition.forEach((value) => {
-        if (!symbolKeys.includes(value))
+        if (!symbolKeys.includes(value)) {
           return reject(
-            `condition에 있는 모든 요소(${value})는 [${_.map(
-              symbolKeys,
-              (value) => value.toString()
-            )}]에 포함되어야 합니다.`
+            Error(
+              `condition에 있는 모든 요소(${value})는 [${_.map(
+                symbolKeys,
+                (item) => item.toString(),
+              )}]에 포함되어야 합니다.`,
+            ),
           );
+        }
       });
       if (condition.includes(given)) {
         return resolve(true);
-      } else {
-        return resolve(false);
       }
+      return resolve(false);
     });
   }
 
@@ -112,38 +143,34 @@ class AuthValidator {
       // console.dir(session);
       if (isUnauthenticated()) {
         // 리다이렉트 링크 설정
-        if (redirectLink !== "") {
+        if (redirectLink !== '') {
           session.redirectLink = redirectLink;
         }
         return resolve({
-          permissionStatus: "LOGIN_REQUIRED",
+          permissionStatus: 'LOGIN_REQUIRED',
         });
       }
       const user = getUser();
-      
+
       /**
        *  만약 user.role 이 string이라면, 해당하는 symbol 로 변환하도록 함.
        */
-      const role =
-        typeof user.role === "string"
-          ? this.symbolArray.find((value) => value.description === user.role)
-          : user.role;
+      const role = typeof user.role === 'string'
+        ? this.symbolArray.find((value) => value.description === user.role)
+        : user.role;
       this.contains(role, roleAvailable)
         .then((value) => {
           if (value) {
             return resolve({
-              permissionStatus: "OK",
+              permissionStatus: 'OK',
               user,
             });
-          } else {
-            return resolve({
-              permissionStatus: "NO_PERMISSION",
-            });
           }
+          return resolve({
+            permissionStatus: 'NO_PERMISSION',
+          });
         })
-        .catch((error) => {
-          return reject(error);
-        });
+        .catch((error) => reject(error));
     });
   }
 }

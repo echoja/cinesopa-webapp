@@ -25,6 +25,7 @@ export const graphql = async (query, variables) => {
     if (data) return data;
     return received;
   } catch (error) {
+    console.dir(error);
     error.response.data.errors.forEach((value) => {
       console.log(value);
     });
@@ -41,37 +42,10 @@ export const graphql = async (query, variables) => {
   }
 };
 
-export const dataGraphql = async (...args) => {
-  const res = await graphql(...args);
+export const dataGraphql = async (query, variables) => {
+  const res = await graphql(query, variables);
   return res?.data;
 };
-
-export const getPagesQuery = `
-query getPages {
-  pages {
-    id
-    permalink
-    title
-    c_date
-  }
-}
-`;
-
-export const getPageQuery = `
-query getPage($permalink: String!, $belongs_to: String!) {
-  page(permalink: $permalink) {
-    id 
-    permalink 
-    title 
-    content 
-    c_date
-    m_date
-    role 
-    belongs_to 
-    meta_json 
-  }
-}
-`;
 
 export const checkAuthQuery = `
 query CheckAuth($redirectLink: String!, $role: Permission!) {
@@ -91,8 +65,12 @@ export const loginQuery = `
 mutation Login ($email: String!, $pwd: String!) {
   login(provider: {email:$email, pwd: $pwd}) {
     user {
-      name
+      id
       email
+      name
+      role
+      c_date
+      verified
     }
     redirectLink
   }
@@ -142,6 +120,100 @@ mutation LogoutMe {
   }
 }
 `;
+
+export const getPageQuery = `
+query getPage($permalink: String!, $belongs_to: String!) {
+  page(permalink: $permalink, belongs_to: $belongs_to) {
+    title
+    content
+    permalink
+    c_date {
+      year
+      month
+      day
+      hour
+      minute
+      second
+    }
+    m_date {
+      year
+      month
+      day
+      hour
+      minute
+      second
+    }
+    role
+    belongs_to
+    meta_json
+  }
+}
+`;
+
+export const getPagesQuery = `
+query getPages($belongs_to: String!, $page: Int, $perpage: Int) {
+  pages(belongs_to: $belongs_to, page: $page, perpage: $perpage) {
+    id
+    title
+    content
+    permalink
+    c_date 
+    m_date 
+    role
+    belongs_to
+    meta_json
+  }
+}
+`;
+
+export const createPageMutation = `
+mutation createPage($permalink: String!, $belongs_to: String!, $pageinfo: PageInput!) {
+  createPage(permalink: $permalink, belongs_to: $belongs_to, pageinfo: $pageinfo) {
+    id
+    title
+    content
+    permalink
+    c_date 
+    m_date 
+    role
+    belongs_to
+    meta_json
+  }
+}
+`;
+
+export const updatePageMutation = `
+mutation updatePage($permalink: String!, $belongs_to: String!, $pageinfo: PageInput!) {
+  updatePage(permalink: $permalink, belongs_to: $belongs_to, pageinfo: $pageinfo) {
+    id
+    title
+    content
+    permalink
+    c_date 
+    m_date 
+    role
+    belongs_to
+    meta_json
+  }
+}
+`;
+
+export const removePageMutation = `
+mutation removePage($permalink: String!, $belongs_to: String!) {
+  removePage(permalink: $permalink, belongs_to: $belongs_to) {
+    id
+    title
+    content
+    permalink
+    c_date 
+    m_date 
+    role
+    belongs_to
+    meta_json
+  }
+}
+`;
+
 
 // export const singleUploadQuery = `
 //   mutation singleUpload($file: Upload!) {

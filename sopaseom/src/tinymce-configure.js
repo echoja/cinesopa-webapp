@@ -58,10 +58,15 @@ const examplePlugin = (editor) => {
   };
 };
 
+/**
+ * Tinymce 초기화 객체를 생성합니다.
+ * @param {string} content 초기 내용
+ * @returns {object} Tinymce 초기화 객체
+ */
 export default (content) => ({
   height: 500,
   menubar: false,
-  a11y_advanced_options: true,
+  // a11y_advanced_options: true,
   plugins: [
     'ExamplePlugin a11ychecker',
     'advlist autolink lists link image charmap print preview anchor',

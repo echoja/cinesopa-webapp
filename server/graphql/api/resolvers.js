@@ -40,13 +40,35 @@ const logoutMe = makeResolver(async (obj, args, context, info) => {
   return { user: Logedout };
 }).only(ACCESS_AUTH);
 
+/**
+ *
+ * @param {PassportContext} context
+ * @param {string} redirectLink
+ */
+const setRedirectLink = (context, redirectLink) => {
+  if (redirectLink !== undefined && redirectLink !== '') {
+    context.req.session.redirectLink = redirectLink;
+  }
+};
+
 const checkAuth = makeResolver(async (obj, args, context, info) => {
   const { redirectLink, role } = args;
-  return await validator.accessCheck(
-    redirectLink,
-    [enumAuthmap[role]],
-    context,
-  );
+  const contextUser = context.getUser();
+  // const roleSymbol = enumAuthmap[role];
+  const isOk = await validator.isOkContext(context, role, enumAuthmap);
+
+  if (isOk) return { permissionStatus: 'OK', user: contextUser };
+
+  setRedirectLink(context, redirectLink);
+  if (contextUser) return { permissionStatus: 'NO_PERMISSION', user: contextUser };
+  return { permissionStatus: 'LOGIN_REQUIRED' };
+
+  // return await validator.isOk(context, role);
+  // return await validator.accessCheck(
+  //   redirectLink,
+  //   [enumAuthmap[role]],
+  //   context,
+  // );
 }).only(ACCESS_ALL);
 
 const createGuest = makeResolver(async (obj, args, context, info) => {

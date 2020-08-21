@@ -1,14 +1,10 @@
-const fs = require("fs");
-const axios = require("axios");
-const FormData = require("form-data");
-const path = require("path");
-const foldername = "generated-html";
-const sanitizeFilename = require("sanitize-filename");
-const { promises } = require("dns");
+const fs = require('fs');
+const axios = require('axios');
+const FormData = require('form-data');
+const path = require('path');
 
-class Blob {
-  constructor(a, b) {}
-}
+const foldername = 'generated-html';
+const sanitizeFilename = require('sanitize-filename');
 
 /**
  * supertest 의 agent 기반으로 graphql 요청을 보냅니다.
@@ -17,29 +13,26 @@ class Blob {
  * @param {string} query
  * @param {string} variables
  */
-const graphqlSuper = async (agent, query, variables) => {
-  return new Promise((resolve, reject) => {
-    agent
-      .post(`/graphql`)
-      .set("Content-Type", "application/json")
-      .set("Accept", "application/json")
-      .withCredentials()
-      .send(
-        JSON.stringify({
-          query,
-          variables,
-        })
-      )
-      .expect(200)
-      .end((err, res) => {
-        // console.log(`status: ${res.status}`);
-        const errors = res?.body?.errors
-        if(errors === null || errors === undefined) return resolve(res);
-        return reject(errors);
-        
-      });
-  });
-};
+const graphqlSuper = async (agent, query, variables) => new Promise((resolve, reject) => {
+  agent
+    .post('/graphql')
+    .set('Content-Type', 'application/json')
+    .set('Accept', 'application/json')
+    .withCredentials()
+    .send(
+      JSON.stringify({
+        query,
+        variables,
+      }),
+    )
+    .expect(200)
+    .end((err, res) => {
+      // console.log(`status: ${res.status}`);
+      const errors = res?.body?.errors;
+      if (errors === null || errors === undefined) return resolve(res);
+      return reject(errors);
+    });
+});
 
 /**
  * @typedef {object} MockFile
@@ -58,8 +51,8 @@ module.exports = {
    */
   createFileFromMockFile(file) {
     const blob = new Blob([file.body], { type: file.mimeType });
-    blob["lastModifiedDate"] = new Date();
-    blob["name"] = file.name;
+    blob.lastModifiedDate = new Date();
+    blob.name = file.name;
     return blob;
   },
 
@@ -76,7 +69,7 @@ module.exports = {
       },
     };
     files.forEach(
-      (file, index) => (fileList[index] = createFileFromMockFile(file))
+      (file, index) => (fileList[index] = createFileFromMockFile(file)),
     );
 
     return fileList;
@@ -92,7 +85,7 @@ module.exports = {
    */
   async makeHtmlReport(self, html) {
     return new Promise((resolve, reject) => {
-      const filename = sanitizeFilename(self.test.fullTitle()) + ".html";
+      const filename = `${sanitizeFilename(self.test.fullTitle())}.html`;
       const fullpath = path.join(__dirname, foldername, filename);
       fs.writeFile(fullpath, html, function (err) {
         if (err) {
@@ -108,10 +101,10 @@ module.exports = {
    * @param {FormData} fd
    */
   async upload(url, fd) {
-    fd.append("bin", fd);
+    fd.append('bin', fd);
     return axios.post(url, fd, {
       headers: {
-        "Content-Type": "multipart/form-data",
+        'Content-Type': 'multipart/form-data',
       },
     });
   },
