@@ -1,8 +1,9 @@
-const { enumPostStatus } = require("./enum");
+const { enumPostStatus } = require('./enum');
+
+const autoIdSetter = require('./auto-id-setter');
 
 module.exports = function (mongoose) {
-  const result = new mongoose.Schema({
-    id: Number,
+  const schema = new mongoose.Schema({
     title: String,
     content: String,
     excerpt: String,
@@ -11,10 +12,11 @@ module.exports = function (mongoose) {
       type: String,
       enum: enumPostStatus.raw_str_list,
     },
-    board: { type: mongoose.Schema.Types.ObjectId, ref: "Board" },
+    board: { type: mongoose.Schema.Types.ObjectId, ref: 'Board' },
     c_date: { type: Date, default: Date.now },
     m_date: { type: Date, default: Date.now },
     meta: mongoose.Schema.Types.Mixed,
   });
-  return result;
+  autoIdSetter(schema, mongoose, 'post', 'id');
+  return schema;
 };

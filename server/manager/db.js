@@ -129,7 +129,7 @@ class DBManager {
    * @returns {Promise<Userinfo>}
    */
   async getUserByEmail(email) {
-    console.log(`db.getUserByEmail start: ${email}`);
+    // console.log(`db.getUserByEmail start: ${email}`);
     // console.dir(await model.User.find().lean());
     return model.User.findOne({ email }).lean().exec();
   }

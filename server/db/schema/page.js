@@ -1,11 +1,12 @@
-const { enumPageBelongsTo, enumPageRole } = require("./enum");
+const { enumPageRole, enumPageBelongsTo } = require('./enum');
+const autoIdSetter = require('./auto-id-setter');
 
 module.exports = function (mongoose) {
-  return new mongoose.Schema({
+  const schema = new mongoose.Schema({
     title: String,
     content: String,
     permalink: String,
-    id: Number,
+    // id: Number,
     // author: {type: mongoose.Schema.Types.ObjectId, ref: 'User'},
     c_date: { type: Date, default: Date.now },
     m_date: { type: Date, default: Date.now },
@@ -19,4 +20,6 @@ module.exports = function (mongoose) {
     },
     meta: mongoose.Schema.Types.Mixed,
   });
+  autoIdSetter(schema, mongoose, 'page', 'id');
+  return schema;
 };

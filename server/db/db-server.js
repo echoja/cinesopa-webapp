@@ -1,40 +1,48 @@
-const { mongodbUrl } = require("../config");
-const mongoose = require("mongoose");
-const autoIncrement = require("mongoose-auto-increment");
+const mongoose = require('mongoose');
+// const AutoIncrementFactory = require('mongoose-sequence');
+const { mongodbUrl } = require('../config');
 
 //
-const setAutoIncrement = (model, field) => {
-  const schema = mongoose.model(model).schema;
-  schema.plugin(autoIncrement.plugin, {
-    model,
-    field, // auto-increment할 field
-    startAt: 0, // 0에서 부터
-    increment: 1, // 1씩 증가
-  });
-};
+
+/**
+ *
+ * @param {*} autoIncrement
+ * @param {*} model
+ * @param {*} field
+ */
+// const setAutoIncrement = (autoIncrement, model, field) => {
+//   // console.log(autoIncrement);
+//   const { schema } = mongoose.model(model);
+//   // console.log(schema.paths);
+//   schema.plugin(autoIncrement, { inc_field: field });
+// };
 
 /**
  * db 서버를 초기화합니다.
  * mongoose.connection 에 실제 몽고db 서버를 연결시킵니다.
  * 그리고 autoIncrement 플러그인 설정을 합니다.
  */
-module.exports.dbServerInit = () => {
-  const db = mongoose.connection;
-  db.on("error", console.error);
-  db.once("open", function () {
+module.exports = {
+  dbServerInit() {
+    const db = mongoose.connection;
+    db.on('error', console.error);
+    db.once('open', function () {
     // CONNECTED TO MONGODB SERVER
-    console.log("Connected to mongo server !!");
-  });
+      console.log('Connected to mongo server !!');
+    });
 
-  mongoose.connect(mongodbUrl, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-    useCreateIndex: true,
-  });
-  autoIncrement.initialize(mongoose.connection);
-  setAutoIncrement("Order", "id");
-  setAutoIncrement("Product", "id");
-  setAutoIncrement("Film", "id");
-  setAutoIncrement("Post", "id");
-  setAutoIncrement("Page", "id");
+    mongoose.connect(mongodbUrl, {
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+      useCreateIndex: true,
+      useFindAndModify: false,
+    });
+    // const autoIncrement = AutoIncrementFactory(mongoose.connection);
+    // setAutoIncrement(autoIncrement, 'Order', 'id');
+    // setAutoIncrement(autoIncrement, 'Product', 'id');
+    // setAutoIncrement(autoIncrement, 'Film', 'id');
+    // setAutoIncrement(autoIncrement, 'Post', 'id');
+    // setAutoIncrement(autoIncrement, 'Page', 'id');
+  },
+  // setAutoIncrement,
 };

@@ -1,5 +1,13 @@
-const addContext = require('mochawesome/addContext');
+/**
+ * @file
+ * 여기서는 실제 api에 대한 테스트를 진행합니다.
+ * db-test와 달리 실제 model을 이용하기 때문에 실제 데이터가 잘 저장되었는지도 테스트 가능합니다.
+ * 단, 본래 데이터를 잘 남겨두게 하기 위해서 mongodb의 서버는 테스트용 메모리 서버로 갑니다.
+ * 실제 요청 graphql query 도 테스트 가능합니다.
+ *
+ */
 
+const addContext = require('mochawesome/addContext');
 const request = require('supertest');
 const uuidv4 = require('uuid').v4;
 const passport = require('passport');
@@ -9,11 +17,10 @@ const session = require('express-session');
 const MemoryStore = require('memorystore')(session);
 const mongoose = require('mongoose');
 const { MongoMemoryServer } = require('mongodb-memory-server');
+
 const auth = require('../service/auth');
 const authValidatorMaker = require('../auth/validator');
 const { db: manager, model } = require('../loader');
-
-const makeAgent = request.agent;
 const { graphQLServerMiddleware } = require('../graphql');
 const local = require('../auth/local');
 // const { noConflict } = require("lodash");
@@ -21,6 +28,7 @@ const { make: makeAuthMiddleware } = require('../auth/auth-middleware');
 const { enumAuthmap } = require('../db/schema/enum');
 const { graphqlSuper } = require('./tool');
 
+const makeAgent = request.agent;
 const loginQuery = `
 mutation Login ($email: String!, $pwd: String!) {
   login(provider: {email:$email, pwd: $pwd}) {
@@ -57,22 +65,8 @@ query getPage($permalink: String!, $belongs_to: String!) {
     title
     content
     permalink
-    c_date {
-      year
-      month
-      day
-      hour
-      minute
-      second
-    }
-    m_date {
-      year
-      month
-      day
-      hour
-      minute
-      second
-    }
+    c_date 
+    m_date 
     role
     belongs_to
     meta_json
@@ -80,28 +74,15 @@ query getPage($permalink: String!, $belongs_to: String!) {
 }
 `;
 
-const getPagesQuery = `query getPages($belongs_to: String!, $page: Int, $perpage: Int) {
+const getPagesQuery = `
+query getPages($belongs_to: String!, $page: Int, $perpage: Int) {
   pages(belongs_to: $belongs_to, page: $page, perpage: $perpage) {
     id
     title
     content
     permalink
-    c_date {
-      year
-      month
-      day
-      hour
-      minute
-      second
-    }
-    m_date {
-      year
-      month
-      day
-      hour
-      minute
-      second
-    }
+    c_date 
+    m_date 
     role
     belongs_to
     meta_json
@@ -116,22 +97,8 @@ mutation createPage($permalink: String!, $belongs_to: String!, $pageinfo: PageIn
     title
     content
     permalink
-    c_date {
-      year
-      month
-      day
-      hour
-      minute
-      second
-    }
-    m_date {
-      year
-      month
-      day
-      hour
-      minute
-      second
-    }
+    c_date 
+    m_date 
     role
     belongs_to
     meta_json
@@ -146,22 +113,8 @@ mutation updatePage($permalink: String!, $belongs_to: String!, $pageinfo: PageIn
     title
     content
     permalink
-    c_date {
-      year
-      month
-      day
-      hour
-      minute
-      second
-    }
-    m_date {
-      year
-      month
-      day
-      hour
-      minute
-      second
-    }
+    c_date 
+    m_date 
     role
     belongs_to
     meta_json
@@ -176,22 +129,8 @@ mutation removePage($permalink: String!, $belongs_to: String!) {
     title
     content
     permalink
-    c_date {
-      year
-      month
-      day
-      hour
-      minute
-      second
-    }
-    m_date {
-      year
-      month
-      day
-      hour
-      minute
-      second
-    }
+    c_date 
+    m_date 
     role
     belongs_to
     meta_json
@@ -228,15 +167,20 @@ describe('REAL API', function () {
     // manager = makeDB(model);
 
     mongod = new MongoMemoryServer();
-    const uri = await mongod.getConnectionString();
+    const uri = await mongod.getUri();
     const mongooseOpts = {
       useNewUrlParser: true,
       // autoReconnect: true,
       // reconnectTries: Number.MAX_VALUE,
       // reconnectInterval: 1000,
       useUnifiedTopology: true,
+      useCreateIndex: true,
+      useFindAndModify: false,
     };
     await mongoose.connect(uri, mongooseOpts);
+    // const autoIncrement = AutoIncrementFactory(mongoose);
+    // autoIncrement.initialize(mongoose.connection);
+    // setAutoIncrement(autoIncrement, 'Page', 'id');
 
     /** 웹앱 세팅 */
     webapp.use(
@@ -301,13 +245,29 @@ describe('REAL API', function () {
     agent = makeAgent(webapp);
   });
 
+  beforeEach('유저 세팅', async function () {
+    await manager.createUser({
+      email: 'testAdmin',
+      pwd: 'abc',
+      role: 'ADMIN',
+    });
+    await manager.createUser({
+      email: 'testGuest',
+      pwd: 'abc',
+      role: 'GUEST',
+    });
+  });
+
   afterEach('세션 초기화 및 DB 내용 초기화', async function () {
     await agent.get('/logout');
     const { collections } = mongoose.connection;
 
-    for (const key in collections) {
+    Object.keys(collections).forEach((value) => {
       const collection = collections[key];
       await collection.deleteMany();
+    })
+    for (const key in collections) {
+
     }
     // console.log("세션 초기화 및 DB 내용 초기ㅗ하!!!!!");
   });
@@ -319,18 +279,6 @@ describe('REAL API', function () {
   });
 
   describe('auth-middleware', function () {
-    beforeEach('유저 세팅', async function () {
-      await manager.createUser({
-        email: 'testAdmin',
-        pwd: 'abc',
-        role: 'ADMIN',
-      });
-      await manager.createUser({
-        email: 'testGuest',
-        pwd: 'abc',
-        role: 'GUEST',
-      });
-    });
     it('권한이 성공해야 함', async function () {
       const loginResult = await graphqlSuper(agent, loginQuery, {
         email: 'testAdmin',
@@ -386,21 +334,14 @@ describe('REAL API', function () {
   });
 
   describe('page', function () {
-    beforeEach('유저 세팅', async function () {
-      await manager.createUser({
-        email: 'testAdmin',
-        pwd: 'abc',
-        role: 'ADMIN',
-      });
-      await manager.createUser({
-        email: 'testGuest',
-        pwd: 'abc',
-        role: 'GUEST',
-      });
-    });
     // describe.skip("createPage");
     describe('createPage', function () {
-      it('제대로 동작해야 함', function (done) {
+      it.only('제대로 동작해야 함', function (done) {
+        model.Page.create({ title: 'hi', content: 'ho' })
+          .then((result) => {
+            console.log(result);
+          })
+          .catch((err) => {});
         doLogin(agent, 'testAdmin', 'abc')
           .then(() => {
             // console.log(login);
@@ -418,6 +359,7 @@ describe('REAL API', function () {
                   title: 'result',
                   value: result.body.data.createPage,
                 });
+                expect(result.body.data.createPage.id).to.not.be.null;
                 expect(result.body.data.createPage.title).to.equal('hello');
                 expect(result.body.data.createPage.content).to.equal(
                   '<p>hello</p>',
@@ -630,6 +572,45 @@ describe('REAL API', function () {
         expect(ls[2].id).to.equal(12);
         expect(ls[4].id).to.equal(14);
       });
+    });
+  });
+
+  describe('checkAuth', function () {
+    it('로그인이 되어있지 않으면 LOGIN_REQUIRED 가 나와야 함.', async function () {
+      const check = await graphqlSuper(agent, checkAuthQuery, {
+        redirectLink: '/',
+        role: 'ADMIN',
+      });
+      expect(check.body.data.checkAuth.permissionStatus).to.equal(
+        'LOGIN_REQUIRED',
+      );
+    });
+    it('로그인이 되어 있으나 권한이 없어 NO_PERMISSION이 나와야 함.', async function () {
+      await doLogin(agent, 'testGuest', 'abc');
+      const check = await graphqlSuper(agent, checkAuthQuery, {
+        redirectLink: '/',
+        role: 'ADMIN',
+      });
+      expect(check.body.data.checkAuth.permissionStatus).to.equal(
+        'NO_PERMISSION',
+      );
+    });
+
+    it('상위의 권한이라도 제대로 되어야 함.', async function () {
+      await doLogin(agent, 'testAdmin', 'abc');
+      const check = await graphqlSuper(agent, checkAuthQuery, {
+        redirectLink: '/',
+        role: 'GUEST',
+      });
+      expect(check.body.data.checkAuth.permissionStatus).to.equal('OK');
+    });
+    it('제대로 되었다면 OK가 나와야 함', async function () {
+      await doLogin(agent, 'testGuest', 'abc');
+      const check = await graphqlSuper(agent, checkAuthQuery, {
+        redirectLink: '/',
+        role: 'GUEST',
+      });
+      expect(check.body.data.checkAuth.permissionStatus).to.equal('OK');
     });
   });
 

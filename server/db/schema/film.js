@@ -1,4 +1,6 @@
-const { enumPeopleRoleType } = require("./enum");
+const { enumPeopleRoleType } = require('./enum');
+
+const autoIdSetter = require('./auto-id-setter');
 
 module.exports = function (mongoose) {
   const Person = new mongoose.Schema({
@@ -26,11 +28,7 @@ module.exports = function (mongoose) {
     title: String,
   });
 
-  // const Photo = new mongoose.Schema({
-
-  // });
-
-  const result = new mongoose.Schema({
+  const schema = new mongoose.Schema({
     title: String,
     title_en: String,
     kobis_code: String,
@@ -46,13 +44,14 @@ module.exports = function (mongoose) {
     star_naver: Number,
     star_daum: Number,
     star_cine21: Number,
-    poster: { type: mongoose.Schema.Types.ObjectId, ref: "File" },
-    photos: [{ type: mongoose.Schema.Types.ObjectId, ref: "File" }],
-    videos: [Video],
+    poster: { type: mongoose.Schema.Types.ObjectId, ref: 'File' },
+    photos: [{ type: mongoose.Schema.Types.ObjectId, ref: 'File' }],
     id: Number,
+    videos: [Video],
     synopsis: String,
     note: String,
     meta: mongoose.Schema.Types.Mixed,
   });
-  return result;
+  autoIdSetter(schema, mongoose, 'film', 'id');
+  return schema;
 };
