@@ -3,6 +3,12 @@ import Vuex from 'vuex';
 
 Vue.use(Vuex);
 
+const testStates = {
+  a: 1,
+  b: 2,
+  c: 3,
+};
+
 /**
  * store는 F5 할때마다 초기화된다.
  */
@@ -14,6 +20,7 @@ export default new Vuex.Store({
   state: {
     user: {},
     testString: '초기테스트 스토어',
+    ...testStates,
   },
   /**
    * 게터.

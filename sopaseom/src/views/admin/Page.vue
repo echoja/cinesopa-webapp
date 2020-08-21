@@ -1,3 +1,4 @@
+
 <template>
   <div>
     <!-- field settings required -->
@@ -11,12 +12,14 @@
 <script>
 import { BButton, BTable } from 'bootstrap-vue';
 import { dataGraphql, getPagesQuery } from '../../graphql-client';
+import router from '../../router';
+
 
 export default {
   name: 'Pages',
   async created() {
     const { pages } = await dataGraphql(getPagesQuery, {
-      belongs_to: 'sopaseom',
+      belongs_to: this.belongs_to,
       page: 0,
       perpage: 10,
     });
@@ -46,7 +49,8 @@ export default {
     rowClicked(item/* , index, event */) {
       console.log('hi');
       console.log(this);
-      this.$router.push({ name: 'PageEdit', params: { id: item.id } });
+      console.log(item);
+      router.push({ name: 'PageEdit', params: { id: item.id } });
     },
   },
 

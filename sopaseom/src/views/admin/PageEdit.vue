@@ -22,7 +22,13 @@
 import Editor from '@tinymce/tinymce-vue';
 import upload from '../../upload-client';
 import tinymceInit from '../../tinymce-configure';
-import { dataGraphql, createPageMutation, updatePageMutation } from '../../graphql-client';
+import {
+  dataGraphql,
+  createPageMutation,
+  updatePageMutation,
+  getPageByIdQuery,
+} from '../../graphql-client';
+import router from '../../router';
 
 // const getPageByIdQuery = `
 // query getPageById($id: String!) {
@@ -63,18 +69,28 @@ export default {
       permalink: '',
       meta_json: {},
       editorLoaded: false,
+      dataLoaded: false,
     };
   },
   props: ['belongs_to', 'mode'],
 
   async created() {
+    if (this.mode !== 'new') {
+      const { id } = router.currentRoute.params;
+      const { pageById } = await dataGraphql(getPageByIdQuery, { id: parseInt(id, 10) });
+      const self = this;
+      ['content', 'title', 'permalink'].forEach((key) => {
+        self[key] = pageById[key];
+      });
+      this.dataLoaded = true;
+    }
     // const { id } = this.$route.params;
     // const { pageById } = await dataGraphql(getPageByIdQuery, { id });
     // this.content = pageById.content;
   },
   computed: {
     editorInit() {
-      return tinymceInit(this.content);
+      return tinymceInit('');
     },
   },
 

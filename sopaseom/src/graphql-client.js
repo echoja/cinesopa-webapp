@@ -152,6 +152,21 @@ query getPages($belongs_to: String!, $page: Int, $perpage: Int) {
 }
 `;
 
+export const getPageByIdQuery = `
+query getPageById($id: Int!) {
+  pageById(id: $id) {
+    id
+    title
+    content
+    permalink
+    c_date 
+    m_date 
+    role
+    belongs_to
+    meta_json
+  }
+}
+`;
 export const createPageMutation = `
 mutation createPage($permalink: String!, $belongs_to: String!, $pageinfo: PageInput!) {
   createPage(permalink: $permalink, belongs_to: $belongs_to, pageinfo: $pageinfo) {
@@ -199,7 +214,6 @@ mutation removePage($permalink: String!, $belongs_to: String!) {
   }
 }
 `;
-
 
 // export const singleUploadQuery = `
 //   mutation singleUpload($file: Upload!) {
