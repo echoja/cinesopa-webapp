@@ -7,6 +7,11 @@ import publicRoutes from './public';
 Vue.use(VueRouter);
 
 let routes = [];
+routes.push({
+  path: '/test',
+  name: 'Test',
+  component: () => import('../views/Test.vue'),
+});
 routes = routes.concat(adminRoutes);
 routes = routes.concat(publicRoutes);
 
