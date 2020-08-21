@@ -60,7 +60,7 @@ const checkAuth = makeResolver(async (obj, args, context, info) => {
   if (isOk) return { permissionStatus: 'OK', user: contextUser };
 
   setRedirectLink(context, redirectLink);
-  if (contextUser) return { permissionStatus: 'NO_PERMISSION', user: contextUser };
+  if (contextUser) { return { permissionStatus: 'NO_PERMISSION', user: contextUser }; }
   return { permissionStatus: 'LOGIN_REQUIRED' };
 
   // return await validator.isOk(context, role);
@@ -170,9 +170,10 @@ const pages = makeResolver(async (obj, args, context, info) => {
   // return await page.getAllPages(args, context);
 }).only(ACCESS_ADMIN);
 
-const pageById = makeResolver(
-  async (obj, args, context, info) => await page.getPageById(args, context),
-).only(ACCESS_ALL);
+const pageById = makeResolver(async (obj, args, context, info) => {
+  const { id } = args;
+  return await db.getPage(id);
+}).only(ACCESS_ALL);
 // const checkAuth = makeResolver(async (obj, args, context, info) => {
 //   const { redirectLink, role } = args;
 //   return await auth.check(redirectLink, role, context);

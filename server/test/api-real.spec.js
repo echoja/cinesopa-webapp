@@ -18,6 +18,16 @@ const MemoryStore = require('memorystore')(session);
 const mongoose = require('mongoose');
 const { MongoMemoryServer } = require('mongodb-memory-server');
 
+const {
+  checkAuthQuery,
+  createPageMutation,
+  getPageByIdQuery,
+  getPageQuery,
+  getPagesQuery,
+  loginQuery,
+  removePageMutation,
+  updatePageMutation,
+} = require('./graphql-request');
 const auth = require('../service/auth');
 const authValidatorMaker = require('../auth/validator');
 const { db: manager, model } = require('../loader');
@@ -29,114 +39,6 @@ const { enumAuthmap } = require('../db/schema/enum');
 const { graphqlSuper } = require('./tool');
 
 const makeAgent = request.agent;
-const loginQuery = `
-mutation Login ($email: String!, $pwd: String!) {
-  login(provider: {email:$email, pwd: $pwd}) {
-    user {
-      name
-      email
-      role
-    }
-    redirectLink
-  }
-}
-`;
-
-const checkAuthQuery = `
-query checkAuth($redirectLink: String!, $role: Permission!) {
-  checkAuth(redirectLink:$redirectLink, role: $role) {
-    permissionStatus
-    user {
-      name
-      email
-      c_date
-      role
-    }
-  }
-}
-`;
-
-// createPage(pageinfo: Pageinfo!): Page
-// modifyPage(permalink: String!, belongs_to: String!,  pageinfo: Pageinfo!): Page
-// removePage(permalink: String!, belongs_to: String!): Page
-const getPageQuery = `
-query getPage($permalink: String!, $belongs_to: String!) {
-  page(permalink: $permalink, belongs_to: $belongs_to) {
-    title
-    content
-    permalink
-    c_date 
-    m_date 
-    role
-    belongs_to
-    meta_json
-  }
-}
-`;
-
-const getPagesQuery = `
-query getPages($belongs_to: String!, $page: Int, $perpage: Int) {
-  pages(belongs_to: $belongs_to, page: $page, perpage: $perpage) {
-    id
-    title
-    content
-    permalink
-    c_date 
-    m_date 
-    role
-    belongs_to
-    meta_json
-  }
-}
-`;
-
-const createPageMutation = `
-mutation createPage($permalink: String!, $belongs_to: String!, $pageinfo: PageInput!) {
-  createPage(permalink: $permalink, belongs_to: $belongs_to, pageinfo: $pageinfo) {
-    id
-    title
-    content
-    permalink
-    c_date 
-    m_date 
-    role
-    belongs_to
-    meta_json
-  }
-}
-`;
-
-const updatePageMutation = `
-mutation updatePage($permalink: String!, $belongs_to: String!, $pageinfo: PageInput!) {
-  updatePage(permalink: $permalink, belongs_to: $belongs_to, pageinfo: $pageinfo) {
-    id
-    title
-    content
-    permalink
-    c_date 
-    m_date 
-    role
-    belongs_to
-    meta_json
-  }
-}
-`;
-
-const removePageMutation = `
-mutation removePage($permalink: String!, $belongs_to: String!) {
-  removePage(permalink: $permalink, belongs_to: $belongs_to) {
-    id
-    title
-    content
-    permalink
-    c_date 
-    m_date 
-    role
-    belongs_to
-    meta_json
-  }
-}
-`;
 
 const doLogin = async (agent, email, pwd) => graphqlSuper(agent, loginQuery, {
   email,
@@ -262,13 +164,12 @@ describe('REAL API', function () {
     await agent.get('/logout');
     const { collections } = mongoose.connection;
 
-    Object.keys(collections).forEach((value) => {
+    const promises = [];
+    Object.keys(collections).forEach((key) => {
       const collection = collections[key];
-      await collection.deleteMany();
-    })
-    for (const key in collections) {
-
-    }
+      promises.push(collection.deleteMany());
+    });
+    await Promise.allSettled(promises);
     // console.log("세션 초기화 및 DB 내용 초기ㅗ하!!!!!");
   });
 
@@ -336,7 +237,7 @@ describe('REAL API', function () {
   describe('page', function () {
     // describe.skip("createPage");
     describe('createPage', function () {
-      it.only('제대로 동작해야 함', function (done) {
+      it('제대로 동작해야 함', function (done) {
         model.Page.create({ title: 'hi', content: 'ho' })
           .then((result) => {
             console.log(result);
@@ -549,16 +450,15 @@ describe('REAL API', function () {
     describe('pages', function () {
       it('제대로 동작해야 함', async function () {
         await doLogin(agent, 'testAdmin', 'abc');
-        const promises = [];
+        // const promises = [];
         for (let i = 0; i < 30; i++) {
           const p = new model.Page({
-            id: i,
+            // id: i, // Auto Increment 때문에 무조건 1부터 시작함.
             title: `제목-${i}`,
             belongs_to: 'sopaseom',
           });
-          promises.push(p.save());
+          await p.save();
         }
-        await Promise.allSettled(promises);
         const result = await graphqlSuper(agent, getPagesQuery, {
           belongs_to: 'sopaseom',
           page: 2,
@@ -567,10 +467,32 @@ describe('REAL API', function () {
         const ls = result.body.data.pages;
         expect(ls.length).to.equal(5);
         // console.log(ls);
-        expect(ls[0].id).to.equal(10);
-        expect(ls[1].id).to.equal(11);
-        expect(ls[2].id).to.equal(12);
-        expect(ls[4].id).to.equal(14);
+        expect(ls[0].id).to.equal(11);
+        expect(ls[1].id).to.equal(12);
+        expect(ls[2].id).to.equal(13);
+        expect(ls[4].id).to.equal(15);
+      });
+    });
+    describe('pageById', function () {
+      it('제대로 동작해야 함', async function () {
+        await doLogin(agent, 'testAdmin', 'abc');
+        const page = await model.Page.create({
+          id: 132413,
+          title: '제목',
+          belongs_to: 'sopaseom',
+        });
+        expect(page.id).to.equal(1); // AutoIncrement 때문에 본래 설정이 무시되고 1부터 설정됨.
+        const result = await graphqlSuper(agent, getPageByIdQuery, {
+          id: 1,
+        });
+        expect(result.body.data.pageById.title).to.equal('제목');
+      });
+      it('페이지가 없으면 결과가 null이어야 함.', async function () {
+        await doLogin(agent, 'testAdmin', 'abc');
+        const result = await graphqlSuper(agent, getPageByIdQuery, {
+          id: 1,
+        });
+        expect(result.body.data.pageById).to.be.null;
       });
     });
   });

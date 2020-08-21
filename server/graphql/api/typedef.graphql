@@ -6,17 +6,12 @@ scalar Upload
 
 
 type User {
-  id: String
+  # id: String
   email: String
   name: String
   c_date: String
   role: UserRole
   verified: Boolean
-}
-type Login {
-  id: String
-  email: String
-  pwd: String
 }
 
 type Page {
@@ -127,7 +122,7 @@ type Query {
   getUserByEmailNoAuth(email: String!): User # MUST DELETE WHEN DEPLOY!
   page(permalink: String!, belongs_to: String!): Page
   pages(belongs_to: String!, page: Int, perpage: Int): [Page]
-  pageById(id: String!): Page
+  pageById(id: Int!): Page
   checkAuth(redirectLink: String!, role: Permission!): CheckAuthResponse
   getFilesManaged: [File]
   getFileByFilename(filename: String!): File
