@@ -63,7 +63,7 @@ const examplePlugin = (editor) => {
  * @param {string} content 초기 내용
  * @returns {object} Tinymce 초기화 객체
  */
-export default (content) => ({
+export default (/* content */) => ({
   height: 500,
   menubar: false,
   // a11y_advanced_options: true,
@@ -76,11 +76,11 @@ export default (content) => ({
   toolbar: `example insertdatetime image | undo redo | formatselect | bold italic backcolor | 
      alignleft aligncenter alignright alignjustify | 
      bullist numlist outdent indent | removeformat | help`,
-  setup(editor) {
+  setup(/* editor */) {
     window.tinymce.PluginManager.add('ExamplePlugin', examplePlugin);
-    editor.on('init', () => {
-      editor.setContent(content);
-    });
+    // editor.on('init', () => {
+    //   editor.setContent(content);
+    // });
   },
   images_upload_handler(blobInfo, success, failure) {
     console.log(blobInfo);

@@ -112,8 +112,9 @@ export default [
     props: { mode: 'new', belongs_to: 'sopaseom' },
   },
   {
-    ...adminRoute('/admin/page/:id', 'PageEdit'),
+    ...adminRoute('/admin/:belongs_to/page/:id', 'PageEdit'),
     component: () => import('@/views/admin/PageEdit.vue'),
+    props: true,
   },
 
 

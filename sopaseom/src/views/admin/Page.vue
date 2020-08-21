@@ -1,11 +1,9 @@
-
 <template>
   <div>
     <!-- field settings required -->
     <b-table hover :items="pages" @row-clicked="rowClicked"></b-table>
     <p>{{ belongs_to }}의 페이지 목록</p>
-    <b-button :to="{name: newPageName}">새 페이지</b-button>
-
+    <b-button :to="{ name: newPageName }">새 페이지</b-button>
   </div>
 </template>
 
@@ -13,7 +11,6 @@
 import { BButton, BTable } from 'bootstrap-vue';
 import { dataGraphql, getPagesQuery } from '../../graphql-client';
 import router from '../../router';
-
 
 export default {
   name: 'Pages',
@@ -27,9 +24,7 @@ export default {
     console.log('ho');
     console.log(pages);
   },
-  props: [
-    'belongs_to',
-  ],
+  props: ['belongs_to'],
   components: {
     'b-table': BTable,
     'b-button': BButton,
@@ -46,17 +41,18 @@ export default {
     };
   },
   methods: {
-    rowClicked(item/* , index, event */) {
+    rowClicked(item /* , index, event */) {
       console.log('hi');
       console.log(this);
       console.log(item);
-      router.push({ name: 'PageEdit', params: { id: item.id } });
+      router.push({
+        name: 'PageEdit',
+        params: { id: item.id, belongs_to: this.belongs_to },
+        // props: {  },
+      });
     },
   },
-
 };
 </script>
 
-<style>
-
-</style>
+<style></style>

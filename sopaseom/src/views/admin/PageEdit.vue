@@ -14,7 +14,8 @@
     <b-form-file v-model="file2" @input="fileUpload" ref="file-input" class="mt-3" plain>
     </b-form-file>
     <p>{{ file2 }}</p>
-    <p>belongs_to : {{ belongs_to }}, {{ mode }}</p>
+    <p>belongs_to : {{ belongs_to }}, mode: {{ mode }}</p>
+    <p>oldPermalink: {{ oldPermalink }}</p>
   </div>
 </template>
 
@@ -67,6 +68,7 @@ export default {
       content: '',
       val: '',
       permalink: '',
+      oldPermalink: '',
       meta_json: {},
       editorLoaded: false,
       dataLoaded: false,
@@ -83,6 +85,7 @@ export default {
         self[key] = pageById[key];
       });
       this.dataLoaded = true;
+      this.oldPermalink = this.permalink;
     }
     // const { id } = this.$route.params;
     // const { pageById } = await dataGraphql(getPageByIdQuery, { id });
@@ -123,8 +126,23 @@ export default {
         });
     },
     confirmEdit() {
-      dataGraphql(updatePageMutation, {})
+      const {
+        // eslint-disable-next-line
+        title, permalink, belongs_to, oldPermalink, content,
+      } = this;
+      dataGraphql(updatePageMutation, {
+        permalink: oldPermalink,
+        belongs_to,
+        pageinfo: {
+          title,
+          permalink,
+          content,
+          belongs_to,
+          meta_json: JSON.stringify(this.meta_json),
+        },
+      })
         .then((result) => {
+          console.log('page Update Successed!');
           console.log(result);
         })
         .catch((err) => {

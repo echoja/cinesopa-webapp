@@ -65,7 +65,6 @@ export const loginQuery = `
 mutation Login ($email: String!, $pwd: String!) {
   login(provider: {email:$email, pwd: $pwd}) {
     user {
-      id
       email
       name
       role
