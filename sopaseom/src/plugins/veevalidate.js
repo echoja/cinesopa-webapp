@@ -16,7 +16,10 @@ localize('ko', ko);
 
 
 // No message specified.
-extend('email', email);
+extend('email', {
+  ...email,
+  message: '올바른 이메일 형식을 입력해주세요.',
+});
 
 extend('password_min', {
   ...min,

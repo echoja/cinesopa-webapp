@@ -109,13 +109,11 @@ export const logoutQuery = `
 export const logoutMeQuery = `
 mutation LogoutMe {
   logoutMe {
-    user {
-      id
-      email
-      name
-      c_date
-      role
-    }
+    email
+    name
+    c_date
+    role
+    verified
   }
 }
 `;
