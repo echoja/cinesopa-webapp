@@ -331,7 +331,7 @@ describe('REAL API', function () {
       });
     });
     describe('updatePage', function () {
-      it('제대로 동작해야 함', async function () {
+      it.only('제대로 동작해야 함', async function () {
         try {
           const loginres = await doLogin(agent, 'testAdmin', 'abc');
           addContext(this, { title: 'loginres', value: loginres });
@@ -350,7 +350,8 @@ describe('REAL API', function () {
             },
           });
           addContext(this, { title: '결과', value: result });
-          expect(result.body.data.updatePage.title).to.equal('mass');
+          const r = await model.Page.find({ id: 1 }).lean().exec();
+          console.log(r);
         } catch (error) {
           console.error(error);
           throw error;
@@ -509,12 +510,8 @@ describe('REAL API', function () {
         await doLogin(agent, 'testAdmin', 'abc');
       });
     });
-    describe('user', function () {
-
-    });
-    describe('currentUser', function () {
-
-    });
+    describe('user', function () {});
+    describe('currentUser', function () {});
   });
 
   describe('login and logout', function () {
