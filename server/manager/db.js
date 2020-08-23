@@ -65,7 +65,9 @@ const pwd_verify = async (given, encrypted) => new Promise((resolve, reject) => 
  */
 const _getUserByEmailOrThrow = async (caller, email) => {
   const user = await model.User.findOne({ email }).exec();
-  if (!user) throw Error(`${caller}: 이메일에 해당하는 유저를 찾을 수 없습니다.`);
+  if (!user) {
+    throw Error(`${caller}: 이메일에 해당하는 유저를 찾을 수 없습니다.`);
+  }
   return user;
 };
 
@@ -151,10 +153,15 @@ class DBManager {
     const {
       email, name, role, verified,
     } = userinfo;
-    if (await model.User.findOne({ email })) { throw Error(`createUser: 이미 ${email}이 존재합니다.`); }
+    if (await model.User.findOne({ email })) {
+      throw Error(`createUser: 이미 ${email}이 존재합니다.`);
+    }
     const { pwd, salt } = await pwd_encrypt(userinfo.pwd);
     const newUser = new model.User({
-      email, name, role, verified,
+      email,
+      name,
+      role,
+      verified,
     });
     const newLogin = new model.Login({ email, pwd, salt });
     await newUser.save();
@@ -200,7 +207,9 @@ class DBManager {
    */
   async getPassword(email) {
     const login = await model.Login.findOne({ email });
-    if (!login) throw Error(`getPassword: ${email} 의 계정 정보를 찾을 수 없습니다.`);
+    if (!login) {
+      throw Error(`getPassword: ${email} 의 계정 정보를 찾을 수 없습니다.`);
+    }
     const { pwd, salt } = login;
     if (pwd && salt) return { pwd, salt };
     return null;
@@ -322,7 +331,9 @@ class DBManager {
    */
   async updatePage(id, pageinfo) {
     const page = await model.Page.findOne({ id }).exec();
-    if (!page) throw Error(`updatePage: ${id}에 해당하는 페이지가 존재하지 않습니다`);
+    if (!page) {
+      throw Error(`updatePage: ${id}에 해당하는 페이지가 존재하지 않습니다`);
+    }
     await page.updateOne(pageinfo).exec();
   }
 
@@ -334,7 +345,9 @@ class DBManager {
   async removePage(id) {
     const deletionResult = await model.Page.deleteOne({ id }).exec();
     // console.log();
-    if (deletionResult.n === 0) throw Error(`removePage: ${id}에 해당하는 페이지가 존재하지 않습니다`);
+    if (deletionResult.n === 0) {
+      throw Error(`removePage: ${id}에 해당하는 페이지가 존재하지 않습니다`);
+    }
   }
 
   /*= ====================================
@@ -390,7 +403,7 @@ class DBManager {
    * @returns {Promise<Fileinfo>}
    */
   async updateFile(filename, fileinfo) {
-    return model.File.findOneAndUpdate({ filename }, fileinfo).lean().exec();
+    return model.File.updateOne({ filename }, fileinfo).lean().exec();
   }
 
   /**
@@ -398,12 +411,89 @@ class DBManager {
    * @param {string} filename
    */
   async removeFile(filename) {
-    return model.File.findOneAndDelete({ filename }).lean().exec();
+    return model.File.deleteOne({ filename }).lean().exec();
   }
 
   /*= ====================================
   영화
   ===================================== */
+
+  /**
+   * 새 영화를 만듭니다.
+   * @param {Filminfo} filminfo
+   */
+  async createFilm(filminfo) {
+    const film = await model.Film.create(filminfo);
+  }
+
+  /**
+   * 영화의 정보를 가져옵니다.
+   * @param {number} id
+   */
+  async getFilm(id) {
+    return model.Film.findOne({ id }).lean().exec();
+  }
+
+  /**
+   * 영화를 조건에 맞게 검색합니다.
+   * @param {number} page 해당하는 페이지 (1페이지가 0임)
+   * @param {number} perpage 한 페이지당 항목 개수
+   * @param {number} prod_gt 제작년도가 ~ 이후인 영화 필터링
+   * @param {number} prod_lt 제작년도가 ~ 이전인 영화 필터링
+   * @param {number} open_gt 개봉년도가 ~ 이후인 영화 필터링
+   * @param {number} open_lt 개봉년도가 ~ 이전인 영화 필터링
+   * @param {[string]} tags 해당하는 태그들
+   * @param {string} search 검색할 문자열
+   */
+  async getFilms(page, perpage, prod_gt, prod_lt, open_gt, open_lt, tags, search) {
+    // TODO
+  }
+
+  /**
+   * 파일관리자 창에서 관리할 수 있는 파일들을 가져옵니다.
+   * @param {number} page 페이지
+   * @param {number} perpage 한 페이지당 파일의 개수
+   */
+  async getFileManaged(page, perpage) {
+    return model.File.find({ managed: true })
+      .limit(perpage)
+      .skip(perpage * page)
+      .lean();
+  }
+
+  /**
+   * 파일을 구합니다.
+   * @param {string} filename 파일이름
+   * @returns {Promise<Fileinfo>}
+   */
+  async getFile(filename) {
+    return model.File.findOne({ filename }).lean().exec();
+  }
+
+  /**
+   * 모든 파일을 구합니다.
+   */
+  async getFiles() {
+    return model.File.find().lean().exec();
+  }
+
+  /**
+   * 파일의 정보를 갱신합니다.
+   * @param {string} filename
+   * @param {Fileinfo} fileinfo
+   * @returns {Promise<Fileinfo>}
+   */
+  async updateFile(filename, fileinfo) {
+    return model.File.updateOne({ filename }, fileinfo).lean().exec();
+  }
+
+  /**
+   * 파일을 찾아 삭제합니다.
+   * @param {string} filename
+   */
+  async removeFile(filename) {
+    return model.File.deleteOne({ filename }).lean().exec();
+  }
 
   /*= ====================================
   메뉴

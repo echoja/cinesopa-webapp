@@ -61,6 +61,67 @@
  */
 
 /**
+ * 영화의 사람 정보를 담는 객체
+ * @typedef {object} Personinfo
+ * @property {string} role_type
+ * @property {string} name
+ * @property {string} name_en
+ * @property {string} role
+ */
+
+/**
+ * 영화의 회사 정보를 담는 객체
+ * @typedef {object} Companyinfo
+ * @property {string} name
+ * @property {string} name_en
+ * @property {string} role
+ */
+
+/**
+ * 영화의 리뷰 정보를 담는 객체
+ * @typedef {object} Reviewinfo
+ * @property {string} title
+ * @property {string} url
+ * @property {string} source
+ * @property {string} author
+ */
+
+/**
+ * 영화의 영상 정보를 담는 객체 (유튜브 연결)
+ * @typedef {object} Videoinfo
+ * @property {string} youtube_id
+ * @property {string} title
+ */
+
+/**
+ * 영화 정보를 담는 객체
+ * @typedef {object} Filminfo
+ * @property {string} title
+ * @property {string} title_en
+ * @property {string} kobis_code
+ * @property {[string]} genres
+ * @property {number} show_time
+ * @property {string} type_name
+ * @property {string} prod_year
+ * @property {string} open_year
+ * @property {[Personinfo]} people
+ * @property {[Companyinfo]} companies
+ * @property {string} watch_grade
+ * @property {string} reviews
+ * @property {number} star_naver
+ * @property {number} star_daum
+ * @property {number} star_cine21
+ * @property {import("mongoose/lib/types/objectid")} poster File
+ * @property {import("mongoose/lib/types/objectid")} photos File
+ * @property {number} id
+ * @property {[Videoinfo]} videos
+ * @property {string} synopsis
+ * @property {string} note
+ * @property {object} meta
+ * @property {string} search
+ */
+
+/**
  * 토큰 정보를 담는 객체
  * @typedef {object} Tokeninfo
  * @property {string} email
