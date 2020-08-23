@@ -4,9 +4,7 @@
   "authors": "EzKorry",
   "version": "0.1.0",
   "main": "pathToMain",
-  "dependencies": {
-    "hangul-js": "^0.2.6"
-  },
+  "dependencies": {},
   "type": "module",
   "scripts": {
     "cloc": "cloc --vcs=git --not-match-f=\"(yarn\\.lock|package\\.json|package\\-lock\\.json)\" .",

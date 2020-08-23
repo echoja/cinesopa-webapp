@@ -54,6 +54,16 @@ const localAuthConfig = local.make(
   },
 );
 
+/** resolver */
+const { enumAuthmap } = require('./db/schema/enum');
+
+const alist = enumAuthmap.raw_str_list;
+const ACCESS_ALL = alist;
+const ACCESS_AUTH = alist.slice(0, -1);
+const ACCESS_UNAUTH = alist.slice(-1);
+const ACCESS_ADMIN = alist.slice(0, 1);
+const makeResolver = require('./graphql/make-resolver').init(ACCESS_UNAUTH[0]);
+
 module.exports = {
   mail,
   model,
@@ -65,4 +75,9 @@ module.exports = {
   file,
   localAuthConfig,
   makeAuthMiddleware,
+  makeResolver,
+  ACCESS_ALL,
+  ACCESS_AUTH,
+  ACCESS_UNAUTH,
+  ACCESS_ADMIN,
 };
