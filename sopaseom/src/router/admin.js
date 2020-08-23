@@ -3,12 +3,16 @@ import { adminRoute } from './tool';
 export default [
   /** common */
   {
+    ...adminRoute('/admin', 'Admin'),
+    component: () => import('@/views/admin/Admin.vue'),
+  },
+  {
     ...adminRoute('/admin/statistics', 'Statistics'),
     component: () => import('@/views/admin/Statistics.vue'),
   },
   {
-    ...adminRoute('/admin', 'Admin'),
-    component: () => import('@/views/admin/Admin.vue'),
+    ...adminRoute('/admin/file', 'File'),
+    component: () => import('@/views/admin/File.vue'),
   },
 
   /** cinesopa - board, post */

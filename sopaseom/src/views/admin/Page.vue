@@ -1,9 +1,11 @@
 <template>
   <div>
     <!-- field settings required -->
+    <h2>{{ belongs_to }}의 페이지 목록</h2>
+    <div class="actions"><b-button :to="{ name: newPageName }">새 페이지</b-button></div>
     <b-table hover :items="pages" @row-clicked="rowClicked"></b-table>
-    <p>{{ belongs_to }}의 페이지 목록</p>
-    <b-button :to="{ name: newPageName }">새 페이지</b-button>
+    <p v-show="!state.dataLoaded"><b-spinner label="Spinning" />데이터를 불러오는 중입니다.</p>
+    <p v-show="hasNoData">해당하는 페이지가 없습니다.</p>
   </div>
 </template>
 
@@ -14,15 +16,23 @@ import router from '../../router';
 
 export default {
   name: 'Pages',
+  // beforeRouteEnter(to, from, next) {
+  //   console.log('Enter!! -');
+  //   next();
+  // },
+  // beforeRouteUpdate(to, from, next) {
+  //   console.log(`Update!! - ${this.belongs_to}`);
+  //   next();
+  // },
+  // beforeRouteLeave(to, from, next) {
+  //   console.log(`Leave!! - ${this.belongs_to}`);
+  //   next();
+  // },
+  // async beforeRouteUpdate() {
+
+  // },
   async created() {
-    const { pages } = await dataGraphql(getPagesQuery, {
-      belongs_to: this.belongs_to,
-      page: 0,
-      perpage: 10,
-    });
-    this.pages = pages;
-    console.log('ho');
-    console.log(pages);
+    await this.getData(this.belongs_to, 0, 10);
   },
   props: ['belongs_to'],
   components: {
@@ -34,13 +44,36 @@ export default {
       if (this.belongs_to === 'cinesopa') return 'CinesopaNewPage';
       return 'SopaseomNewPage';
     },
+    hasNoData() {
+      return this.state.dataLoaded && this.pages.length === 0;
+    },
+  },
+  watch: {
+    async belongs_to(newVal) {
+      this.pages = [];
+      this.state.dataLoaded = false;
+      await this.getData(newVal, 0, 10);
+    },
   },
   data() {
     return {
+      state: {
+        dataLoaded: false,
+      },
       pages: [],
     };
   },
   methods: {
+    async getData(belongsTo, page, perpage) {
+      console.log(`getData - ${belongsTo}`);
+      const { pages } = await dataGraphql(getPagesQuery, {
+        belongs_to: belongsTo,
+        page,
+        perpage,
+      });
+      this.pages = pages;
+      this.state.dataLoaded = true;
+    },
     rowClicked(item /* , index, event */) {
       console.log('hi');
       console.log(this);
