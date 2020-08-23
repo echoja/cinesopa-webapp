@@ -12,7 +12,7 @@
 
 <script>
 
-import { graphql, getPageQuery } from '../../graphql-client';
+import { graphql, getPageQuery } from '../graphql-client';
 
 export default {
   name: 'Page',

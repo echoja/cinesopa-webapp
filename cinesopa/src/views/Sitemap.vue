@@ -1,11 +1,11 @@
 <template>
-  <p>Home</p>
+  <p>sitemap</p>
 
 </template>
 
 <script>
 export default {
-  name: 'Home',
+  name: 'sitemap',
 };
 </script>
 

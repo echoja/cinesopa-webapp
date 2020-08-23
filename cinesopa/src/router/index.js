@@ -1,87 +1,66 @@
 import Vue from 'vue';
 
 import VueRouter from 'vue-router';
-import store from '../store';
 
-import { graphql, checkAuthQuery, logoutMeQuery } from '../graphql-client';
+// import { graphql, logoutMeQuery } from '../graphql-client';
 
 Vue.use(VueRouter);
-
-const requireAuth = (role) => async (from, to, next) => {
-  const redirectLink = document.location.href;
-  const result = await graphql(checkAuthQuery, { redirectLink, role });
-  const permissionStatus = result?.data?.checkAuth?.permissionStatus;
-  // console.log(permissionStatus);
-  if (permissionStatus === 'LOGIN_REQUIRED') {
-    next({ name: 'Login' });
-  } else if (permissionStatus === 'NO_PERMISSION') {
-    next({ name: 'NoPermission' }); // make view required
-  } else {
-    store.commit('setUser', {
-      user: result?.data?.checkAuth?.user,
-    });
-    next();
-  }
-};
-
-const logoutBeforeEnter = async (from, to, next) => {
-  await graphql(logoutMeQuery, {});
-  next('/');
-};
 
 const routes = [
   {
     path: '/',
     name: 'Home',
-    component: () => import('../views/client/Home.vue'),
+    component: () => import('../views/Home.vue'),
   },
   {
     path: '/about',
     name: 'About',
-    // route level code-splitting
-    // this generates a separate chunk (about.[hash].js) for this route
-    // which is lazy-loaded when the route is visited.
-    component: () => import(/* webpackChunkName: "about" */ '../views/client/About.vue'),
+    component: () => import('../views/About.vue'),
   },
   {
-    path: '/logout',
-    name: 'Logout',
-    component: () => import('../views/client/Logout.vue'),
-    beforeEnter: logoutBeforeEnter,
+    path: '/film',
+    name: 'FilmList',
+    component: () => import('../views/FilmList.vue'),
   },
   {
-    path: '/login',
-    name: 'Login',
-    component: () => import('../views/client/Login.vue'),
+    path: '/film/:id',
+    name: 'IndividualFilm',
+    component: () => import('../views/Film.vue'),
   },
   {
-    path: '/me',
-    name: 'Me',
-    component: () => import('../views/client/Me.vue'),
-    beforeEnter: requireAuth('GUEST'),
+    path: '/board/:permalink',
+    name: 'Board',
+    component: () => import('../views/Board.vue'),
   },
   {
-    path: '/admin',
-    name: 'Admin',
-    component: () => import('../views/admin/Admin.vue'),
-    beforeEnter: requireAuth('ADMIN'),
-    children: [
-      {
-        path: '/admin/pages',
-        component: () => import('../views/admin/Pages.vue'),
-        name: 'Pages',
-      },
-      {
-        path: '/admin/page/:id',
-        component: () => import('../views/admin/PageEdit.vue'),
-        name: 'PageEdit',
-      },
-    ],
+    path: '/post/:id',
+    name: 'Post',
+    component: () => import('../views/Post.vue'),
+  },
+  {
+    path: '/request/distribution',
+    name: 'Distribution',
+    component: () => import('../views/Distribution.vue'),
+  },
+  {
+    path: '/request/community',
+    name: 'Community',
+    component: () => import('../views/Community.vue'),
+  },
+  {
+    path: '/sitemap',
+    name: 'Sitemap',
+    component: () => import('../views/Sitemap.vue'),
   },
   {
     path: '/:permalink',
     name: 'Page',
-    component: () => import('../views/client/Page.vue'),
+    component: () => import('../views/Page.vue'),
+  },
+  {
+    path: '/404',
+    name: '404',
+    component: () => import('../views/404.vue'),
   },
 ];
 

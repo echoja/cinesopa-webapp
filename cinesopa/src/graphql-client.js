@@ -1,28 +1,34 @@
 import axios from 'axios';
 
-
 const headers = {
   'Content-Type': 'application/json',
   Accept: 'application/json',
 };
 
-const url = process.env.NODE_ENV === 'production'
-  ? 'https://sopaseom.com/graphql/'
-  : '/graphql';
-
+const url = process.env.NODE_ENV === 'production' ? 'https://sopaseom.com/graphql/' : '/graphql';
 
 export const graphql = async (query, variables) => {
   try {
-    const { data } = await axios.post(url, JSON.stringify({
-      query,
-      variables,
-    }), {
-      headers,
-      credentials: true,
-    });
-    return data;
+    const received = await axios.post(
+      url,
+      JSON.stringify({
+        query,
+        variables,
+      }),
+      {
+        headers,
+        credentials: true,
+      },
+    );
+
+    const { data } = received;
+    if (data) return data;
+    return received;
   } catch (error) {
-    return error;
+    error.response.data.errors.forEach((value) => {
+      console.error(value);
+    });
+    throw error.response.data;
   }
 };
 
@@ -30,7 +36,6 @@ export const dataGraphql = async (...args) => {
   const res = await graphql(...args);
   return res?.data;
 };
-
 
 export const getPagesQuery = `
 query getPages {
