@@ -1,7 +1,12 @@
+const { Mongoose } = require('mongoose');
 const { enumPostStatus } = require('./enum');
 
 const autoIdSetter = require('./auto-id-setter');
 
+/**
+ *
+ * @param {Mongoose} mongoose
+ */
 module.exports = function (mongoose) {
   const schema = new mongoose.Schema({
     title: String,
@@ -18,5 +23,6 @@ module.exports = function (mongoose) {
     meta: mongoose.Schema.Types.Mixed,
   });
   autoIdSetter(schema, mongoose, 'post', 'id');
+
   return schema;
 };

@@ -1,0 +1,123 @@
+type Person {
+  role_type: String
+  name: String
+  name_en: String
+  role: String
+}
+
+type Company {
+  name: String
+  name_en: String
+  role: String
+}
+
+type Review {
+  title: String
+  url: String
+  source: String
+  author: String
+}
+
+type Video {
+  youtube_id: String
+  title: String
+}
+
+type Film {
+  title: String
+  title_en: String
+  kobis_code: String
+  genres: [String]
+  show_time: Int
+  type_name: String
+  prod_year: String
+  open_year: String
+  people: [Person]
+  companies: [Company]
+  watch_grade: String
+  reviews: [Review]
+  star_naver: Int
+  star_daum: Int
+  star_cine21: Int
+  poster: String # File에 대한 ObjectId
+  photos: [String] # File에 대한 ObjectId의 배열
+  id: Int
+  videos: [Video]
+  synopsis: String
+  note: String
+  meta: String # Mixed
+}
+
+# inputs
+
+input PersonInput {
+  role_type: String
+  name: String
+  name_en: String
+  role: String
+}
+
+input CompanyInput {
+  name: String
+  name_en: String
+  role: String
+}
+
+input ReviewInput {
+  title: String
+  url: String
+  source: String
+  author: String
+}
+
+input VideoInput {
+  youtube_id: String
+  title: String
+}
+
+input FilmInput {
+  title: String
+  title_en: String
+  kobis_code: String
+  genres: [String]
+  show_time: Int
+  type_name: String
+  prod_year: String
+  open_year: String
+  people: [PersonInput]
+  companies: [CompanyInput]
+  watch_grade: String
+  reviews: [ReviewInput]
+  star_naver: Int
+  star_daum: Int
+  star_cine21: Int
+  poster: String # File에 대한 ObjectId
+  photos: [String] # File에 대한 ObjectId의 배열
+  videos: [VideoInput]
+  synopsis: String
+  note: String
+  meta: String # Mixed
+}
+
+input FilmSearch {
+  page: Int
+  perpage: Int
+  prod_gt: Int
+  prod_lt: Int
+  open_gt: Int
+  open_lt: Int
+  tags: [String]
+  search: String
+}
+
+extend type Query {
+  film(id: Int!): Film
+  films(condition: FilmSearch): Film
+
+}
+
+extend type Mutation {
+  createFilm(input: FilmInput): Film
+  updateFilm(id: Int!, input: FilmInput): Film
+  removeFilm(id: Int!): Film
+}

@@ -4,7 +4,6 @@ scalar Upload
 #           TYPE
 #############################
 
-
 type User {
   # id: String
   email: String
@@ -25,6 +24,7 @@ type Page {
   belongs_to: String
   meta_json: String
 }
+
 type File {
   filename: String
   mimetype: String
@@ -123,7 +123,6 @@ type Query {
   user(email: String!): User
   currentUser: User
   getUserByEmailNoAuth(email: String!): User # MUST DELETE WHEN DEPLOY!
-
   ## PAGE
   page(permalink: String!, belongs_to: String!): Page
   pages(belongs_to: String!, page: Int, perpage: Int): [Page]
@@ -131,6 +130,13 @@ type Query {
   checkAuth(redirectLink: String!, role: Permission!): CheckAuthResponse
   getFilesManaged: [File]
   getFileByFilename(filename: String!): File
+}
+
+extend type Query {
+  hello: User
+}
+extend type Mutation {
+  hello2: User
 }
 
 # ###########################

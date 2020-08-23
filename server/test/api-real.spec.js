@@ -331,7 +331,7 @@ describe('REAL API', function () {
       });
     });
     describe('updatePage', function () {
-      it.only('제대로 동작해야 함', async function () {
+      it('제대로 동작해야 함', async function () {
         try {
           const loginres = await doLogin(agent, 'testAdmin', 'abc');
           addContext(this, { title: 'loginres', value: loginres });

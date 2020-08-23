@@ -3,17 +3,24 @@ require('../../typedef');
 const _ = require('lodash');
 const { getDateFromObj } = require('../../util');
 const {
-  db, user, page, validator,
+  db,
+  user,
+  validator,
+  ACCESS_ALL,
+  ACCESS_ADMIN,
+  ACCESS_AUTH,
+  ACCESS_UNAUTH,
+  makeResolver,
 } = require('../../loader');
 const { enumAuthmap } = require('../../db/schema/enum');
 const { auth } = require('../../service');
 
-const alist = enumAuthmap.raw_str_list;
-const ACCESS_ALL = alist;
-const ACCESS_AUTH = alist.slice(0, -1);
-const ACCESS_UNAUTH = alist.slice(-1);
-const ACCESS_ADMIN = alist.slice(0, 1);
-const makeResolver = require('../make-resolver').init(ACCESS_UNAUTH[0]);
+// const alist = enumAuthmap.raw_str_list;
+// const ACCESS_ALL = alist;
+// const ACCESS_AUTH = alist.slice(0, -1);
+// const ACCESS_UNAUTH = alist.slice(-1);
+// const ACCESS_ADMIN = alist.slice(0, 1);
+// const makeResolver = require('../make-resolver').init(ACCESS_UNAUTH[0]);
 
 // const checkAuth = async (obj, args, context, info) => {
 //   const { redirectLink, role } = args;
@@ -64,7 +71,9 @@ const checkAuth = makeResolver(async (obj, args, context, info) => {
   if (isOk) return { permissionStatus: 'OK', user: contextUser };
 
   setRedirectLink(context, redirectLink);
-  if (contextUser) { return { permissionStatus: 'NO_PERMISSION', user: contextUser }; }
+  if (contextUser) {
+    return { permissionStatus: 'NO_PERMISSION', user: contextUser };
+  }
   return { permissionStatus: 'LOGIN_REQUIRED' };
 
   // return await validator.isOk(context, role);
@@ -138,9 +147,7 @@ const removePage = makeResolver(async (obj, args, context, info) => {
 
 /** QUERY */
 
-const users = makeResolver(
-  async (obj, args, context, info) => user.getAllUsers(args, context),
-).only(ACCESS_ADMIN);
+const users = makeResolver(async (obj, args, context, info) => user.getAllUsers(args, context)).only(ACCESS_ADMIN);
 
 // *** this is secure version!!***
 const userResolver = makeResolver(async (obj, args, context, info) => {
@@ -208,6 +215,5 @@ module.exports = {
     pages,
     pageById,
     checkAuth,
-
   },
 };
