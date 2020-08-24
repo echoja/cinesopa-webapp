@@ -102,8 +102,8 @@
  * @property {[string]} genres
  * @property {number} show_time
  * @property {string} type_name
- * @property {string} prod_year
- * @property {string} open_year
+ * @property {Date} prod_date
+ * @property {Date} open_date
  * @property {[Personinfo]} people
  * @property {[Companyinfo]} companies
  * @property {string} watch_grade
@@ -117,6 +117,7 @@
  * @property {[Videoinfo]} videos
  * @property {string} synopsis
  * @property {string} note
+ * @property {[string]} tags
  * @property {object} meta
  * @property {string} search
  */
@@ -173,8 +174,9 @@ api
 /** @typedef {import("./manager/file")} FileManager */
 
 /** @typedef {import('./manager/mail').MailManager} MailManager */
-// /**
-//  * @typedef {Express.Re}
-//  */
 
+// eslint-disable-next-line
+/** @typedef {Object.<string, import('mongoose').Model<import('mongoose').MongooseDocument, {}>>} ModelWrapper */
+
+// eslint-disable-next-line
 /** @typedef {import("graphql-passport/lib/types").PassportContext<Userinfo,{},{},Express.Request>} PassportContext */

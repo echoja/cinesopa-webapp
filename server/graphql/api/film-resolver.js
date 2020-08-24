@@ -12,21 +12,12 @@ const filmResolver = makeResolver(async (obj, args, context, info) => {
   const { id } = args;
   return db.getFilm(id);
 }).only(ACCESS_ALL);
-/*
-page: Int
-perpage: Int
-prod_gt: Int
-prod_lt: Int
-open_gt: Int
-open_lt: Int
-tags: [String]
-search: String
-*/
+
 const films = makeResolver(async (obj, args, context, info) => {
   const {
-    page, perpage, prod_gt, prod_lt, open_gt, open_lt, tags, search,
+    page, perpage, prod_gte, prod_lte, open_gte, open_lte, tags, search,
   } = args;
-  return db.getFilms(page, perpage, prod_gt, prod_lt, open_gt, open_lt, tags, search);
+  return db.getFilms(page, perpage, prod_gte, prod_lte, open_gte, open_lte, tags, search);
 }).only(ACCESS_ALL);
 // createFilm(filminfo: Film): Film
 const createFilm = makeResolver(async (obj, args, context, info) => {

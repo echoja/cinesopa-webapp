@@ -1,4 +1,6 @@
+require('../typedef');
 const { expect } = require('chai');
+const { isTypedArray } = require('lodash');
 const { MongoMemoryServer } = require('mongodb-memory-server');
 const mongoose = require('mongoose');
 const modelMaker = require('../db/model');
@@ -11,7 +13,7 @@ describe('실제 모델기반 DB 테스트', function () {
   let mongod;
   /** @type {DBManager} */
   let manager;
-  /** @type {Object.<string, Model<MongooseDocument, {}>>} */
+  /** @type {ModelWrapper} */
   let model;
 
   before('DB 초기화', async function () {
@@ -25,21 +27,22 @@ describe('실제 모델기반 DB 테스트', function () {
     const uri = await mongod.getConnectionString();
     const mongooseOpts = {
       useNewUrlParser: true,
-      // autoReconnect: true,
-      // reconnectTries: Number.MAX_VALUE,
-      // reconnectInterval: 1000,
       useUnifiedTopology: true,
+      useCreateIndex: true,
+      useFindAndModify: false,
+      debug: true,
     };
     await mongoose.connect(uri, mongooseOpts);
   });
 
   afterEach('DB 내용 제거', async function () {
     const { collections } = mongoose.connection;
-
-    for (const key in collections) {
+    const promises = [];
+    Object.keys(collections).forEach((key) => {
       const collection = collections[key];
-      await collection.deleteMany();
-    }
+      promises.push(collection.deleteMany());
+    });
+    await Promise.allSettled(promises);
   });
 
   after('DB 종료', async function () {
@@ -156,20 +159,20 @@ describe('실제 모델기반 DB 테스트', function () {
         '13241324',
       );
       expect(result).equal(true);
-      await tool.makeHtmlReport(
-        this,
-        `<!DOCTYPE html>
-      <html lang="en">
-      <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Document</title>
-      </head>
-      <body>
-        <p>hahaha</p>
-      </body>
-      </html>`,
-      );
+      // await tool.makeHtmlReport(
+      //   this,
+      //   `<!DOCTYPE html>
+      // <html lang="en">
+      // <head>
+      //   <meta charset="UTF-8">
+      //   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      //   <title>Document</title>
+      // </head>
+      // <body>
+      //   <p>hahaha</p>
+      // </body>
+      // </html>`,
+      // );
     });
     it('유저 생성 후 비번이 틀려야 함 - isCorrectPassword', async function () {
       await manager.createUser({
@@ -211,9 +214,9 @@ describe('실제 모델기반 DB 테스트', function () {
     it('.getPage', function (done) {
       const p = new model.Page({ title: 'ho', id: 100 });
       p.save()
-        .then((result) => {
+        .then(() => {
           manager
-            .getPage(100)
+            .getPage(1) // AutoIncrement 때문에 자동으로 1로 됨.
             .then((result) => {
               expect(result.title).to.equal('ho');
               done();
@@ -228,25 +231,25 @@ describe('실제 모델기반 DB 테스트', function () {
       // manager.page
     });
     it('.getPages', function (done) {
-      const promises = [];
-      for (let index = 0; index < 30; index++) {
-        const p = new model.Page({
-          id: index,
-          title: `제목${index}`,
-          belongs_to: 'sopaseom',
-        });
-        promises.push(p.save());
-      }
-      Promise.allSettled(promises)
-        .then((result) => {
+      (async () => {
+        for (let index = 0; index < 30; index++) {
+          const p = new model.Page({
+            id: index,
+            title: `제목${index}`,
+            belongs_to: 'sopaseom',
+          });
+          await p.save();
+        }
+      })()
+        .then(() => {
           manager
             .getPages('sopaseom', 3, 6)
             .then((result) => {
               // console.log(result);
               expect(result.length).to.equal(6);
-              expect(result[0].id).to.equal(18);
-              expect(result[3].id).to.equal(21);
-              expect(result[5].id).to.equal(23);
+              expect(result[0].id).to.equal(19);
+              expect(result[3].id).to.equal(22);
+              expect(result[5].id).to.equal(24);
               done();
             })
             .catch((err) => {
@@ -273,7 +276,7 @@ describe('실제 모델기반 DB 테스트', function () {
         id: 100,
       });
       await p.save();
-      await manager.removePage(100);
+      await manager.removePage(1); // AutoIncrement 때문에 자동으로 1로 됨.
       const result = await model.Page.find();
       expect(result.length).to.equal(0);
     });
@@ -301,10 +304,10 @@ describe('실제 모델기반 DB 테스트', function () {
         id: 100,
       });
       await p.save();
-      await manager.updatePage(100, {
+      await manager.updatePage(1, { // AutoIncrement 때문에 자동으로 1로 됨.
         permalink: 'hi',
       });
-      const found = await model.Page.findOne({ id: 100 });
+      const found = await model.Page.findOne({ id: 1 }); // AutoIncrement 때문에 자동으로 1로 됨.
       expect(found.permalink).to.equal('hi');
     });
     it('.updatePage 존재하지 않을 때 에러', function (done) {
@@ -330,5 +333,214 @@ describe('실제 모델기반 DB 테스트', function () {
           done(err);
         });
     });
+  });
+
+  describe('Film', function () {
+    describe('getFilm', function () {
+      it('제대로 동작하여야 함.', async function () {
+        await model.Film.create({ title: 'ho' });
+        const found = await manager.getFilm(1);
+        expect(found.title).to.equal('ho');
+      });
+    });
+    describe('getFilms', function () {
+      it('페이지가 제대로 동작하여야 함', async function () {
+        for (let i = 0; i < 15; i++) {
+          // eslint-disable-next-line
+          await model.Film.create({ title: `ho${i + 1}` });
+        }
+        const found = await manager.getFilms(2, 4);
+        expect(found.length).to.equal(4);
+        expect(found[0].id).to.equal(9);
+        expect(found[1].id).to.equal(10);
+        expect(found[2].id).to.equal(11);
+        expect(found[3].id).to.equal(12);
+      });
+
+      it('날짜 검색이 잘 되어야 함', async function () {
+        const made = await model.Film.create({
+          title: 'ho',
+          prod_date: new Date('1996-05-22'),
+          open_date: new Date('2020-4-10'),
+        });
+        const expectFound = [];
+        const expectNotFound = [];
+        // console.log(`made.prod_date: ${made.prod_date.toString()}`);
+        expectNotFound.push(
+          await manager.getFilms(null, null, {
+            prod_lte: new Date('1996-05-21'),
+          }),
+        );
+        expectFound.push(
+          await manager.getFilms(null, null, {
+            prod_lte: new Date('1996-05-22'),
+          }),
+        );
+        expectFound.push(
+          await manager.getFilms(null, null, {
+            prod_lte: new Date('1996-05-23'),
+          }),
+        );
+        expectFound.push(
+          await manager.getFilms(null, null, {
+            prod_gte: new Date('1996-05-21'),
+          }),
+        );
+        expectFound.push(
+          await manager.getFilms(null, null, {
+            prod_gte: new Date('1996-05-22'),
+          }),
+        );
+        expectNotFound.push(
+          await manager.getFilms(null, null, {
+            prod_gte: new Date('1996-05-23'),
+          }),
+        );
+        expectNotFound.push(
+          await manager.getFilms(null, null, {
+            open_lte: new Date('2020-4-9'),
+          }),
+        );
+        expectFound.push(
+          await manager.getFilms(null, null, {
+            open_lte: new Date('2020-4-10'),
+          }),
+        );
+        expectFound.push(
+          await manager.getFilms(null, null, {
+            open_lte: new Date('2020-4-11'),
+          }),
+        );
+        expectFound.push(
+          await manager.getFilms(null, null, {
+            open_gte: new Date('2020-4-9'),
+          }),
+        );
+        expectFound.push(
+          await manager.getFilms(null, null, {
+            open_gte: new Date('2020-4-10'),
+          }),
+        );
+        expectNotFound.push(
+          await manager.getFilms(null, null, {
+            open_gte: new Date('2020-4-11'),
+          }),
+        );
+        Object.values(expectFound).forEach((value, index) => {
+          expect(value.length).to.equal(1, `expectFound - ${index}`);
+        });
+        Object.values(expectNotFound).forEach((value, index) => {
+          expect(value.length).to.equal(0, `expectNotFound - ${index}`);
+        });
+      });
+      it('태그 검색이 잘 되어야 함', async function () {
+        const made = await model.Film.create({
+          title: 'ho',
+          prod_date: new Date('1996-05-22'),
+          open_date: new Date('2020-4-10'),
+          tags: ['hi', 'ho', 'hu'],
+        });
+
+        const yes = await manager.getFilms(null, null, {}, ['hi', 'ho']);
+        const no = await manager.getFilms(null, null, {}, ['hi', 'nnnooooo']);
+        expect(yes.length).to.equal(1);
+        expect(no.length).to.equal(0);
+      });
+      describe('검색', function () {
+        /** @type {mongoose.MongooseDocument} */
+        let made;
+        beforeEach('사람 세팅', async function () {
+          made = await model.Film.create({
+            title: '헬로우 마스터의 수퍼 길',
+            title_en: "hello master super's load",
+            people: [{ name: '하위' }],
+            prod_date: new Date('1996-05-22'),
+            open_date: new Date('2020-4-10'),
+            tags: ['hi', 'ho', 'hu'],
+          });
+          console.log(made._doc);
+          model.Film.syncIndexes();
+        });
+        afterEach('인덱스 상태 출력', function () {
+          // model.Film.collection.getIndexes({ full: true }).then((indexes) => {
+          //   console.log('indexes:', indexes);
+          //   // ...
+          // }).catch(console.error);
+        });
+        it('한글 검색이 잘 되어야 함', async function () {
+          // const r0 = await model.Film.find().exec();
+          // console.log(`length: ${r0.length}`);
+          // const r1 = await model.Film.find({ $text: { $search: 'hello' } }).exec();
+          // console.log(`length: ${r1.length}`);
+          const r2 = await model.Film.find({
+            search: new RegExp('hellom'),
+          }).exec();
+          console.log(`length: ${r2.length}`);
+
+          const result = await manager.getFilms(
+            null,
+            null,
+            {},
+            null,
+            'ㅅㅜㅍㅓㄱ',
+          );
+          expect(result.length).to.equal(1);
+        });
+        it('분해되지 않은 한글이라면 실패', async function () {
+          const result = await manager.getFilms(null, null, {}, null, '마스터');
+          expect(result.length).to.equal(0);
+        });
+        it('감독이름 검색이 성공해야 함', async function () {
+          const r2 = await model.Film.find({
+            search: new RegExp('ㅎㅏㅇㅜㅣ'),
+          }).exec();
+          console.log(`length: ${r2.length}`);
+          const result = await manager.getFilms(
+            null,
+            null,
+            {},
+            null,
+            'ㅎㅏㅇㅜㅣ',
+          );
+          expect(result.length).to.equal(1);
+        });
+        it('복합 검색이 잘 되어야 함', async function () {
+          const made = await model.Film.create({
+            title: '간다로맨',
+            prod_date: new Date('1996-05-22'),
+            open_date: new Date('2020-4-10'),
+            tags: ['hi', 'ho', 'hu'],
+          });
+
+          const yes = await manager.getFilms(
+            0,
+            5,
+            {
+              prod_lte: new Date('2000-01-01'),
+              open_gte: new Date('2020-3-10'),
+            },
+            ['hi', 'ho'],
+            'ㄷㅏㄹㅗ',
+          );
+          expect(yes.length).to.equal(1);
+        });
+      });
+
+      // it.only('페이지가 제대로 동작하여야 함', async function () {
+      //   for (let i = 0; i < 20; i++) {
+      //     // eslint-disable-next-line
+      //     await model.Film.create({title: `ho${i+1}`});
+      //   }
+      //   const found = await manager.getFilms(2, 4);
+      //   expect(found.length).to.equal(4);
+      //   expect(found[0].id).to.equal(9);
+      //   expect(found[1].id).to.equal(10);
+      //   expect(found[2].id).to.equal(11);
+      //   expect(found[3].id).to.equal(12);
+      // });
+    });
+    describe('createFilm', function () {});
+    describe('updateFilm', function () {});
+    describe('removeFilm', function () {});
   });
 });

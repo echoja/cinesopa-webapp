@@ -50,8 +50,8 @@ module.exports = function (mongoose) {
       type: String,
       enum: enumFilmTypeName.raw_str_list,
     },
-    prod_year: String,
-    open_year: String,
+    prod_date: Date,
+    open_date: Date,
     people: [Person],
     companies: [Company],
     watch_grade: {
@@ -68,6 +68,7 @@ module.exports = function (mongoose) {
     videos: [Video],
     synopsis: String,
     note: String,
+    tags: [String],
     meta: mongoose.Schema.Types.Mixed,
     search: String,
   });
@@ -83,8 +84,12 @@ module.exports = function (mongoose) {
   //   return Hangul.disassembleToString(strArray.join('').replace(/ /g, ''));
   // };
 
+  schema.index({ search: 'text' });
+
   schema.pre('save', function () {
     console.log('++film save middleware 호출되었슴');
+    // this.prod_date.setHours(0, 0, 0);
+    // this.open_date.setHours(0, 0, 0);
     this.search = getFilmSearchStr(this);
   });
 
@@ -98,6 +103,13 @@ module.exports = function (mongoose) {
     console.log('++film updateOne middleware 호출되었슴');
     const docToUpdate = await this.model.findOne(this.getFilter());
     await docToUpdate.save();
+  });
+  schema.on('index', function (err) {
+    if (err) {
+      console.error('User index error: %s', err);
+    } else {
+      console.info('User indexing complete');
+    }
   });
 
   autoIdSetter(schema, mongoose, 'film', 'id');

@@ -1,6 +1,6 @@
 const path = require('path');
 const fs = require('fs');
-const { enumTokenPurpose } = require('../db/schema/enum');
+const crypto = require('crypto');
 require('../typedef');
 const {
   MongooseDocument,
@@ -8,9 +8,8 @@ const {
   Model,
   SchemaTypes: { ObjectId },
 } = require('mongoose');
+const { enumTokenPurpose } = require('../db/schema/enum');
 // const { ManagerCreater } = require("./manager-loader");
-const crypto = require('crypto');
-const { fstat } = require('fs');
 
 /** @typedef {Object.<string, Model<MongooseDocument, {}>>} ModelWrapper */
 /** @typedef {DBManager} DBManager */
@@ -419,14 +418,6 @@ class DBManager {
   ===================================== */
 
   /**
-   * 새 영화를 만듭니다.
-   * @param {Filminfo} filminfo
-   */
-  async createFilm(filminfo) {
-    const film = await model.Film.create(filminfo);
-  }
-
-  /**
    * 영화의 정보를 가져옵니다.
    * @param {number} id
    */
@@ -435,64 +426,89 @@ class DBManager {
   }
 
   /**
+   * 영화 검색시 날짜 조건에 대한 타입
+   * @typedef {object} DateCondition
+   * @property {Date} prod_gte 제작일이 ~ 이후인 영화 필터링
+   * @property {Date} prod_lte 제작일이 ~ 이전인 영화 필터링
+   * @property {Date} open_gte 개봉일이 ~ 이후인 영화 필터링
+   * @property {Date} open_lte 개봉일이 ~ 이전인 영화 필터링
+   */
+
+  /**
    * 영화를 조건에 맞게 검색합니다.
    * @param {number} page 해당하는 페이지 (1페이지가 0임)
    * @param {number} perpage 한 페이지당 항목 개수
-   * @param {number} prod_gt 제작년도가 ~ 이후인 영화 필터링
-   * @param {number} prod_lt 제작년도가 ~ 이전인 영화 필터링
-   * @param {number} open_gt 개봉년도가 ~ 이후인 영화 필터링
-   * @param {number} open_lt 개봉년도가 ~ 이전인 영화 필터링
+   * @param {DateCondition} param2 날짜 조건
    * @param {[string]} tags 해당하는 태그들
-   * @param {string} search 검색할 문자열
+   * @param {string} search 검색할 문자열. 한글이 분리된 상태, 띄어쓰기가 없는 상태여야 함.
+   * @returns {Promise<MongooseDocument[]>}
    */
-  async getFilms(page, perpage, prod_gt, prod_lt, open_gt, open_lt, tags, search) {
+
+  async getFilms(
+    page,
+    perpage,
+    {
+      prod_gte = null, prod_lte = null, open_gte = null, open_lte = null,
+    } = {},
+    tags,
+    search,
+  ) {
+    let query = model.Film.find();
+    if (prod_lte || prod_gte) {
+      console.log('getFilms: prod!!');
+      const prod_date = {};
+      if (prod_lte) prod_date.$lte = prod_lte;
+      if (prod_gte) prod_date.$gte = prod_gte;
+      query = query.find({ prod_date });
+    }
+    if (open_lte || open_gte) {
+      console.log('getFilms: open!!');
+      const open_date = {};
+      if (open_lte) open_date.$lte = open_lte;
+      if (open_gte) open_date.$gte = open_gte;
+      query = query.find({ open_date });
+    }
+    if (search) {
+      console.log(`getFilms: search: ${search}`);
+      // query = query.find({ $text: { $search: search } }); // 단어 단위로 검색을 할 때 필요함. 검색 엔진 같은 느낌임.
+      query = query.find({ search: new RegExp(`${search}`) });
+    }
+    if (tags) {
+      console.log('getFilms: tags!!');
+      query = query.find({ tags: { $all: tags } });
+    }
+    if (page && perpage) {
+      console.log('getFilms: page, perpage!!');
+      query = query.limit(perpage).skip(perpage * page);
+    }
+    return query.lean().exec();
     // TODO
   }
 
   /**
-   * 파일관리자 창에서 관리할 수 있는 파일들을 가져옵니다.
-   * @param {number} page 페이지
-   * @param {number} perpage 한 페이지당 파일의 개수
+   * 새 영화를 만듭니다.
+   * @param {Filminfo} filminfo
    */
-  async getFileManaged(page, perpage) {
-    return model.File.find({ managed: true })
-      .limit(perpage)
-      .skip(perpage * page)
-      .lean();
+  async createFilm(filminfo) {
+    await model.Film.create(filminfo);
   }
 
   /**
-   * 파일을 구합니다.
-   * @param {string} filename 파일이름
-   * @returns {Promise<Fileinfo>}
+   * 영화의 정보를 갱신합니다.
+   * @param {number} id
+   * @param {Filminfo} filminfo
+   * @returns {Promise<Filminfo>}
    */
-  async getFile(filename) {
-    return model.File.findOne({ filename }).lean().exec();
+  async updateFilm(id, filminfo) {
+    return model.Film.updateOne({ id }, filminfo).lean().exec();
   }
 
   /**
-   * 모든 파일을 구합니다.
+   * 영화을 찾아 삭제합니다.
+   * @param {number} id
    */
-  async getFiles() {
-    return model.File.find().lean().exec();
-  }
-
-  /**
-   * 파일의 정보를 갱신합니다.
-   * @param {string} filename
-   * @param {Fileinfo} fileinfo
-   * @returns {Promise<Fileinfo>}
-   */
-  async updateFile(filename, fileinfo) {
-    return model.File.updateOne({ filename }, fileinfo).lean().exec();
-  }
-
-  /**
-   * 파일을 찾아 삭제합니다.
-   * @param {string} filename
-   */
-  async removeFile(filename) {
-    return model.File.deleteOne({ filename }).lean().exec();
+  async removeFilm(id) {
+    return model.Film.deleteOne({ id }).lean().exec();
   }
 
   /*= ====================================

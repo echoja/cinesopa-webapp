@@ -52,8 +52,8 @@ describe('mongoose schema and model', function () {
       genres: ['genre1', 'genre2'],
       show_time: 1324,
       type_name: '애니메이션',
-      prod_year: '13324',
-      open_year: '1325',
+      prod_date: '13324',
+      open_date: '1325',
       people: [
         {
           role_type: 'director',

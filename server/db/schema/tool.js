@@ -11,7 +11,7 @@ const getFilmSearchStr = (FilmDoc) => {
     });
   }
 
-  const result = Hangul.disassembleToString(strArray.join('').replace(/ /g, ''));
+  const result = Hangul.disassembleToString(strArray.join('#').replace(/ /g, ''));
   console.log(`getFilmSearchStr: ${result}`);
   return result;
 };
