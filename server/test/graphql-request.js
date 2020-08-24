@@ -1,3 +1,47 @@
+const filmResponse = `{
+  title
+  title_en 
+  kobis_code 
+  genres 
+  show_time
+  type_name 
+  prod_date
+  open_date
+  people {
+    role_type
+    name
+    name_en
+    role
+  }
+  companies {
+    name
+    name_en
+    role
+  }
+  watch_grade 
+  reviews {
+    title
+    url
+    source
+    author
+  }
+  star_naver
+  star_daum
+  star_cine21
+  poster
+  photos
+  id
+  videos {
+    youtube_id
+    title
+  }
+  synopsis 
+  note 
+  tags 
+  meta 
+}
+`;
+
 module.exports = {
   loginQuery: `
 mutation Login ($email: String!, $pwd: String!) {
@@ -136,50 +180,28 @@ mutation removePage($permalink: String!, $belongs_to: String!) {
   }
 }
 `,
+  filmQuery: `
+query filmQuery($id: Int!) {
+  film(id: $id) ${filmResponse}
+}`,
+  filmsQuery: `
+query getFilms($condition: FilmSearch!) {
+  films(condition: $condition) ${filmResponse}
+}`,
+
   createFilmMutation: `
 mutation createFilm($input: FilmInput!) {
-  createFilm(input: $input) {
-    title
-    title_en 
-    kobis_code 
-    genres 
-    show_time
-    type_name 
-    prod_date
-    open_date
-    people {
-      role_type
-      name
-      name_en
-      role
-    }
-    companies {
-      name
-      name_en
-      role
-    }
-    watch_grade 
-    reviews {
-      title
-      url
-      source
-      author
-    }
-    star_naver
-    star_daum
-    star_cine21
-    poster
-    photos
-    id
-    videos {
-      youtube_id
-      title
-    }
-    synopsis 
-    note 
-    tags 
-    meta 
-  }
+  createFilm(input: $input) ${filmResponse}
+}
+`,
+  updateFilmMutation: `
+mutation updateFilm($id: Int!, $input: FilmInput!) {
+  updateFilm(id: $id, input: $input) ${filmResponse}
+}
+`,
+  removeFilmMutation: `
+mutation removeFilm($id: Int!) {
+  removeFilm(id: $id) ${filmResponse}
 }
 `,
 };

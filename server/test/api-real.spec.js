@@ -29,6 +29,10 @@ const {
   updatePageMutation,
   logoutMeMutation,
   createFilmMutation,
+  filmQuery,
+  filmsQuery,
+  removeFilmMutation,
+  updateFilmMutation,
 } = require('./graphql-request');
 const auth = require('../service/auth');
 const authValidatorMaker = require('../auth/validator');
@@ -579,31 +583,110 @@ describe('REAL API', function () {
 
   describe('film영화', function () {
     describe('film', function () {
-      it('제대로 동작해야 함', function () {
-
+      it('제대로 동작해야 함', async function () {
+        await model.Film.create({ title: '안녕' });
+        const result = await graphqlSuper(agent, filmQuery, {
+          id: 1,
+        });
+        expect(result.body.data.film).not.be.null;
+      });
+      it('존재하지 않을 때 결과가 없어야 함', async function () {
+        const result = await graphqlSuper(agent, filmQuery, {
+          id: 1,
+        });
+        expect(result.body.data.film).to.be.null;
       });
     });
     describe('films', function () {
-      it('제대로 동작해야 함', function () {
-
+      beforeEach('초기정보 만들기', async function () {
+        await model.Film.create({
+          title: '안녕',
+          prod_date: new Date('2019-12-25'),
+          open_date: new Date('2019-12-28'),
+          title_en: 'hello',
+        });
+        await model.Film.create({
+          title: '안녕2',
+          prod_date: new Date('2020-04-25'),
+          open_date: new Date('2020-05-28'),
+          title_en: 'hello2',
+        });
+      });
+      it('날짜 조건이 제대로 동작해야 함', async function () {
+        const result = await graphqlSuper(agent, filmsQuery, {
+          condition: {
+            prod_lte: new Date('2019-12-31'),
+          },
+        });
+        // console.log(result.body.data.films);
+        expect(result.body.data.films).to.not.be.null;
+        expect(result.body.data.films.length).to.equal(1);
+      });
+      it('검색 조건이 제대로 동작해야 함.1', async function () {
+        const result2 = await graphqlSuper(agent, filmsQuery, {
+          condition: {
+            search: '녕',
+          },
+        });
+        // console.log(result2.body.data.films);
+        expect(result2.body.data.films.length).to.equal(2);
+      });
+      it('검색 조건이 제대로 동작해야 함.2', async function () {
+        const result3 = await graphqlSuper(agent, filmsQuery, {
+          condition: {
+            search: '녕2',
+          },
+        });
+        // console.log(result3.body.data.films);
+        expect(result3.body.data.films.length).to.equal(1);
       });
     });
     describe('createfilm', function () {
-      it.only('제대로 동작해야 함', async function () {
+      it('제대로 동작해야 함', async function () {
         await doLogin(agent, 'testAdmin', 'abc');
         await graphqlSuper(agent, createFilmMutation, {
           input: {
+            title: '하이',
+            companies: [
+              {
+                name: '영화배급협동조합 씨네소파',
+              },
+            ],
             prod_date: new Date('2020-8-1'),
           },
-
         });
+        const found = await model.Film.findOne({ title: '하이' }).lean().exec();
+        // console.log(found);
+
+        expect(found.title).to.equal('하이');
+        expect(found.companies[0].name).to.equal('영화배급협동조합 씨네소파');
       });
     });
     describe('updatefilm', function () {
-
+      it('제대로 동작해야 함', async function () {
+        await doLogin(agent, 'testAdmin', 'abc');
+        await model.Film.create({ title: '바뀌기 전' });
+        await graphqlSuper(agent, updateFilmMutation, {
+          id: 1,
+          input: {
+            title: '바뀐 후',
+          },
+        });
+        const doc = await model.Film.findOne({ id: 1 });
+        expect(doc.title).to.equal('바뀐 후');
+      });
     });
     describe('removefilm', function () {
-
+      it('제대로 동작해야 함', async function () {
+        await doLogin(agent, 'testAdmin', 'abc');
+        await model.Film.create({ title: '바뀌기 전' });
+        const removed = await graphqlSuper(agent, removeFilmMutation, {
+          id: 1,
+        });
+        expect(removed.body.data.removeFilm.id).to.equal(1);
+        const docs = await model.Film.find();
+        expect(docs.length).to.equal(0);
+      });
     });
   });
 });

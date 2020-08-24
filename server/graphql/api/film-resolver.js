@@ -16,21 +16,20 @@ const filmResolver = makeResolver(async (obj, args, context, info) => {
 
 const films = makeResolver(async (obj, args, context, info) => {
   let {
-    page,
-    perpage,
-    prod_gte,
-    prod_lte,
-    open_gte,
-    open_lte,
-    tags,
-    search,
-  } = args;
-  prod_gte = prod_gte ? new Date(prod_gte) : null;
-  prod_lte = prod_lte ? new Date(prod_lte) : null;
-  open_gte = open_gte ? new Date(open_gte) : null;
-  open_lte = open_lte ? new Date(open_lte) : null;
+    page = null,
+    perpage = null,
+    prod_gte = null,
+    prod_lte = null,
+    open_gte = null,
+    open_lte = null,
+    tags = null,
+    search = null,
+  } = args.condition;
+  // prod_gte = prod_gte ? new Date(prod_gte) : null;
+  // prod_lte = prod_lte ? new Date(prod_lte) : null;
+  // open_gte = open_gte ? new Date(open_gte) : null;
+  // open_lte = open_lte ? new Date(open_lte) : null;
   search = search ? Hangul.disassembleToString(search) : null;
-
   return db.getFilms(
     page,
     perpage,
@@ -47,18 +46,20 @@ const films = makeResolver(async (obj, args, context, info) => {
 // createFilm(filminfo: Film): Film
 const createFilm = makeResolver(async (obj, args, context, info) => {
   const { input } = args;
-  console.log(input);
-  return null;
-  const film = await db.createFilm(filminfo);
-  return film;
+  // console.log(input);
+  return db.createFilm(input);
 }).only(ACCESS_ADMIN);
 // updateFilm(id: Int!, filminfo: Film): Film
 const updateFilm = makeResolver(async (obj, args, context, info) => {
-}).only(
-  ACCESS_ADMIN,
-);
+  const { id, input } = args;
+  await db.updateFilm(id, input);
+  return db.getFilm(id);
+}).only(ACCESS_ADMIN);
 // removeFilm(id: Int!): Film
-const removeFilm = makeResolver(async (obj, args, context, info) => {}).only(
+const removeFilm = makeResolver(async (obj, args, context, info) => {
+  const { id } = args;
+  return db.removeFilm(id);
+}).only(
   ACCESS_ADMIN,
 );
 

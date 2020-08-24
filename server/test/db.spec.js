@@ -304,7 +304,8 @@ describe('실제 모델기반 DB 테스트', function () {
         id: 100,
       });
       await p.save();
-      await manager.updatePage(1, { // AutoIncrement 때문에 자동으로 1로 됨.
+      await manager.updatePage(1, {
+        // AutoIncrement 때문에 자동으로 1로 됨.
         permalink: 'hi',
       });
       const found = await model.Page.findOne({ id: 1 }); // AutoIncrement 때문에 자동으로 1로 됨.
@@ -375,62 +376,97 @@ describe('실제 모델기반 DB 테스트', function () {
         // console.log(`made.prod_date: ${made.prod_date.toString()}`);
         expectNotFound.push(
           await manager.getFilms(null, null, {
+            prod_gte: null,
             prod_lte: new Date('1996-05-21'),
+            open_gte: null,
+            open_lte: null,
           }),
         );
         expectFound.push(
           await manager.getFilms(null, null, {
+            prod_gte: null,
             prod_lte: new Date('1996-05-22'),
+            open_gte: null,
+            open_lte: null,
           }),
         );
         expectFound.push(
           await manager.getFilms(null, null, {
             prod_lte: new Date('1996-05-23'),
+            open_gte: null,
+            open_lte: null,
           }),
         );
         expectFound.push(
           await manager.getFilms(null, null, {
             prod_gte: new Date('1996-05-21'),
+            prod_lte: null,
+            open_gte: null,
+            open_lte: null,
           }),
         );
         expectFound.push(
           await manager.getFilms(null, null, {
             prod_gte: new Date('1996-05-22'),
+            prod_lte: null,
+            open_gte: null,
+            open_lte: null,
           }),
         );
         expectNotFound.push(
           await manager.getFilms(null, null, {
             prod_gte: new Date('1996-05-23'),
+            prod_lte: null,
+            open_gte: null,
+            open_lte: null,
           }),
         );
         expectNotFound.push(
           await manager.getFilms(null, null, {
+            prod_gte: null,
+            prod_lte: null,
+            open_gte: null,
             open_lte: new Date('2020-4-9'),
           }),
         );
         expectFound.push(
           await manager.getFilms(null, null, {
+            prod_gte: null,
+            prod_lte: null,
+            open_gte: null,
             open_lte: new Date('2020-4-10'),
           }),
         );
         expectFound.push(
           await manager.getFilms(null, null, {
+            prod_gte: null,
+            prod_lte: null,
+            open_gte: null,
             open_lte: new Date('2020-4-11'),
           }),
         );
         expectFound.push(
           await manager.getFilms(null, null, {
+            prod_gte: null,
+            prod_lte: null,
             open_gte: new Date('2020-4-9'),
+            open_lte: null,
           }),
         );
         expectFound.push(
           await manager.getFilms(null, null, {
+            prod_gte: null,
+            prod_lte: null,
             open_gte: new Date('2020-4-10'),
+            open_lte: null,
           }),
         );
         expectNotFound.push(
           await manager.getFilms(null, null, {
+            prod_gte: null,
+            prod_lte: null,
             open_gte: new Date('2020-4-11'),
+            open_lte: null,
           }),
         );
         Object.values(expectFound).forEach((value, index) => {
@@ -440,9 +476,37 @@ describe('실제 모델기반 DB 테스트', function () {
           expect(value.length).to.equal(0, `expectNotFound - ${index}`);
         });
       });
+
+      it('날짜 두 개 이상이 잘 되어야 함', async function () {
+        await model.Film.create({ prod_date: new Date('2000-02-01') });
+        await model.Film.create({ prod_date: new Date('2000-02-02') });
+        await model.Film.create({ prod_date: new Date('2000-02-03') });
+        await model.Film.create({ prod_date: new Date('2000-02-04') });
+        await model.Film.create({ prod_date: new Date('2000-02-05') });
+        await model.Film.create({ prod_date: new Date('2000-02-06') });
+        await model.Film.create({ prod_date: new Date('2000-02-07') });
+        const result = await manager.getFilms(null, null, {
+          prod_gte: new Date('2000-02-04'),
+
+        });
+        expect(result.length).to.equal(4);
+      });
+
       it('태그 검색이 잘 되어야 함', async function () {
-        const yes = await manager.getFilms(null, null, {}, ['hi', 'ho']);
-        const no = await manager.getFilms(null, null, {}, ['hi', 'nnnooooo']);
+        const nullDateCondition = {
+          open_lte: null,
+          open_gte: null,
+          prod_lte: null,
+          prod_gte: null,
+        };
+        const yes = await manager.getFilms(null, null, nullDateCondition, [
+          'hi',
+          'ho',
+        ]);
+        const no = await manager.getFilms(null, null, nullDateCondition, [
+          'hi',
+          'nnnooooo',
+        ]);
         expect(yes.length).to.equal(1);
         expect(no.length).to.equal(0);
       });

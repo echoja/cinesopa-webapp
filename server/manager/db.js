@@ -488,9 +488,12 @@ class DBManager {
   /**
    * 새 영화를 만듭니다.
    * @param {Filminfo} filminfo
+   * @returns {Promise<>}
    */
   async createFilm(filminfo) {
-    await model.Film.create(filminfo);
+    const film = await model.Film.create(filminfo);
+    if (film) return film.toObject();
+    return null;
   }
 
   /**
@@ -508,7 +511,9 @@ class DBManager {
    * @param {number} id
    */
   async removeFilm(id) {
-    return model.Film.deleteOne({ id }).lean().exec();
+    const doc = await model.Film.findOne({ id }).lean().exec();
+    await model.Film.deleteOne({ id }).exec();
+    return doc;
   }
 
   /*= ====================================

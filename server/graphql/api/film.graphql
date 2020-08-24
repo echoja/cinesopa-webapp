@@ -115,8 +115,7 @@ input FilmSearch {
 
 extend type Query {
   film(id: Int!): Film
-  films(condition: FilmSearch): [Film]
-
+  films(condition: FilmSearch!): [Film]
 }
 
 extend type Mutation {
