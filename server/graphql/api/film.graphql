@@ -47,7 +47,7 @@ type Film {
   synopsis: String
   note: String
   tags: [String]
-  meta: String # Mixed
+  meta: JSON # Mixed
 }
 
 # inputs
@@ -99,7 +99,7 @@ input FilmInput {
   synopsis: String
   note: String
   tags: [String]
-  meta: String # Mixed
+  meta: JSON # Mixed
 }
 
 input FilmSearch {

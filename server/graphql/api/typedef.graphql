@@ -8,7 +8,7 @@ type User {
   # id: String
   email: String
   name: String
-  c_date: String
+  c_date: DateTime
   role: UserRole
   verified: Boolean
 }
@@ -18,11 +18,11 @@ type Page {
   permalink: String
   title: String
   content: String
-  c_date: String
-  m_date: String
+  c_date: DateTime
+  m_date: DateTime
   role: String
   belongs_to: String
-  meta_json: String
+  meta_json: JSON
 }
 
 type File {
@@ -104,11 +104,11 @@ input PageInput {
   title: String
   content: String
   permalink: String
-  c_date: DatetimeInput
-  m_date: DatetimeInput
+  c_date: DateTime
+  m_date: DateTime
   role: String
   belongs_to: String
-  meta_json: String
+  meta_json: JSON
 }
 
 # ###########################
