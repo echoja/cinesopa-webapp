@@ -1,4 +1,5 @@
 import axios from 'axios';
+import store from './store';
 
 const headers = {
   'Content-Type': 'application/json',
@@ -22,22 +23,14 @@ export const graphql = async (query, variables) => {
     );
 
     const { data } = received;
+    store.commit('setErrorMsg', { message: '' });
     if (data) return data;
     return received;
   } catch (error) {
-    console.dir(error);
+    store.commit('setErrorMsg', { message: error.response.data.errors });
     error.response.data.errors.forEach((value) => {
-      console.log(value);
+      console.error(value);
     });
-
-    // for (const key in err.response.data.errors) {
-    //   if (err.response.data.errors.hasOwnProperty(key)) {
-    //     const value = err.response.data.errors[key];
-    //     console.log(value);
-    //   }
-    // }
-    // error.response.data.errors(console.log);
-    // console.dir(error);
     throw error.response.data;
   }
 };
@@ -220,3 +213,72 @@ mutation removePage($permalink: String!, $belongs_to: String!) {
 //   }
 
 // `;
+
+const filmResponse = `{
+  title
+  title_en 
+  kobis_code 
+  genres 
+  show_time
+  type_name 
+  prod_date
+  open_date
+  people {
+    role_type
+    name
+    name_en
+    role
+  }
+  companies {
+    name
+    name_en
+    role
+  }
+  watch_grade 
+  reviews {
+    title
+    url
+    source
+    author
+  }
+  star_naver
+  star_daum
+  star_cine21
+  poster
+  photos
+  id
+  videos {
+    youtube_id
+    title
+  }
+  synopsis 
+  note 
+  tags 
+  meta
+}
+`;
+
+export const filmQuery = `
+query filmQuery($id: Int!) {
+  film(id: $id) ${filmResponse}
+}`;
+export const filmsQuery = `
+query getFilms($condition: FilmSearch!) {
+  films(condition: $condition) ${filmResponse}
+}`;
+
+export const createFilmMutation = `
+mutation createFilm($input: FilmInput!) {
+  createFilm(input: $input) ${filmResponse}
+}
+`;
+export const updateFilmMutation = `
+mutation updateFilm($id: Int!, $input: FilmInput!) {
+  updateFilm(id: $id, input: $input) ${filmResponse}
+}
+`;
+export const removeFilmMutation = `
+mutation removeFilm($id: Int!) {
+  removeFilm(id: $id) ${filmResponse}
+}
+`;

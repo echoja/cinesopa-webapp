@@ -42,8 +42,7 @@ const filmResponse = `{
 }
 `;
 
-module.exports = {
-  loginQuery: `
+const loginQuery = `
 mutation Login ($email: String!, $pwd: String!) {
   login(provider: {email:$email, pwd: $pwd}) {
     user {
@@ -55,9 +54,8 @@ mutation Login ($email: String!, $pwd: String!) {
     redirectLink
   }
 }
-`,
-
-  logoutMeMutation: `
+`;
+const logoutMeMutation = `
 mutation logoutMeMutation { 
   logoutMe { 
     name
@@ -66,9 +64,8 @@ mutation logoutMeMutation {
     c_date
     verified
   }
-}`,
-
-  checkAuthQuery: `
+}`;
+const checkAuthQuery = `
 query checkAuth($redirectLink: String!, $role: Permission!) {
   checkAuth(redirectLink:$redirectLink, role: $role) {
     permissionStatus
@@ -81,12 +78,8 @@ query checkAuth($redirectLink: String!, $role: Permission!) {
     }
   }
 }
-`,
-
-  // createPage(pageinfo: Pageinfo!): Page
-  // modifyPage(permalink: String!, belongs_to: String!,  pageinfo: Pageinfo!): Page
-  // removePage(permalink: String!, belongs_to: String!): Page
-  getPageQuery: `
+`;
+const getPageQuery = `
 query getPage($permalink: String!, $belongs_to: String!) {
   page(permalink: $permalink, belongs_to: $belongs_to) {
     title
@@ -99,9 +92,8 @@ query getPage($permalink: String!, $belongs_to: String!) {
     meta_json
   }
 }
-`,
-
-  getPagesQuery: `
+`;
+const getPagesQuery = `
 query getPages($belongs_to: String!, $page: Int, $perpage: Int) {
   pages(belongs_to: $belongs_to, page: $page, perpage: $perpage) {
     id
@@ -115,9 +107,8 @@ query getPages($belongs_to: String!, $page: Int, $perpage: Int) {
     meta_json
   }
 }
-`,
-
-  getPageByIdQuery: `
+`;
+const getPageByIdQuery = `
 query getPageById($id: Int!) {
   pageById(id: $id) {
     id
@@ -131,9 +122,8 @@ query getPageById($id: Int!) {
     meta_json
   }
 }
-`,
-
-  createPageMutation: `
+`;
+const createPageMutation = `
 mutation createPage($permalink: String!, $belongs_to: String!, $pageinfo: PageInput!) {
   createPage(permalink: $permalink, belongs_to: $belongs_to, pageinfo: $pageinfo) {
     id
@@ -147,9 +137,8 @@ mutation createPage($permalink: String!, $belongs_to: String!, $pageinfo: PageIn
     meta_json
   }
 }
-`,
-
-  updatePageMutation: `
+`;
+const updatePageMutation = `
 mutation updatePage($permalink: String!, $belongs_to: String!, $pageinfo: PageInput!) {
   updatePage(permalink: $permalink, belongs_to: $belongs_to, pageinfo: $pageinfo) {
     id
@@ -163,9 +152,8 @@ mutation updatePage($permalink: String!, $belongs_to: String!, $pageinfo: PageIn
     meta_json
   }
 }
-`,
-
-  removePageMutation: `
+`;
+const removePageMutation = `
 mutation removePage($permalink: String!, $belongs_to: String!) {
   removePage(permalink: $permalink, belongs_to: $belongs_to) {
     id
@@ -179,31 +167,45 @@ mutation removePage($permalink: String!, $belongs_to: String!) {
     meta_json
   }
 }
-`,
-  filmQuery: `
+`;
+const filmQuery = `
 query filmQuery($id: Int!) {
   film(id: $id) ${filmResponse}
-}`,
-  filmsQuery: `
+}`;
+const filmsQuery = `
 query getFilms($condition: FilmSearch!) {
   films(condition: $condition) ${filmResponse}
-}`,
-
-  createFilmMutation: `
+}`;
+const createFilmMutation = `
 mutation createFilm($input: FilmInput!) {
   createFilm(input: $input) ${filmResponse}
 }
-`,
-  updateFilmMutation: `
+`;
+const updateFilmMutation = `
 mutation updateFilm($id: Int!, $input: FilmInput!) {
   updateFilm(id: $id, input: $input) ${filmResponse}
 }
-`,
-  removeFilmMutation: `
+`;
+const removeFilmMutation = `
 mutation removeFilm($id: Int!) {
   removeFilm(id: $id) ${filmResponse}
 }
-`,
-};
+`;
 
+module.exports = {
+  loginQuery,
+  logoutMeMutation,
+  checkAuthQuery,
+  getPageQuery,
+  getPagesQuery,
+  getPageByIdQuery,
+  createPageMutation,
+  updatePageMutation,
+  removePageMutation,
+  filmQuery,
+  filmsQuery,
+  createFilmMutation,
+  updateFilmMutation,
+  removeFilmMutation,
+};
 /** Films */
