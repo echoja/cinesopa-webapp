@@ -1,3 +1,4 @@
+
 type Person {
   role_type: String
   name: String
@@ -30,8 +31,8 @@ type Film {
   genres: [String]
   show_time: Int
   type_name: String
-  prod_date: String
-  open_date: String
+  prod_date: DateTime
+  open_date: DateTime
   people: [Person]
   companies: [Company]
   watch_grade: String
@@ -83,8 +84,8 @@ input FilmInput {
   genres: [String]
   show_time: Int
   type_name: String
-  prod_date: String
-  open_date: String
+  prod_date: DateTime
+  open_date: DateTime
   people: [PersonInput]
   companies: [CompanyInput]
   watch_grade: String
@@ -104,22 +105,22 @@ input FilmInput {
 input FilmSearch {
   page: Int
   perpage: Int
-  prod_gte: Int
-  prod_lte: Int
-  open_gte: Int
-  open_lte: Int
+  prod_gte: DateTime # unix time. or "
+  prod_lte: DateTime # unix time
+  open_gte: DateTime # unix time
+  open_lte: DateTime # unix time
   tags: [String]
   search: String
 }
 
 extend type Query {
   film(id: Int!): Film
-  films(condition: FilmSearch): Film
+  films(condition: FilmSearch): [Film]
 
 }
 
 extend type Mutation {
-  createFilm(input: FilmInput): Film
-  updateFilm(id: Int!, input: FilmInput): Film
+  createFilm(input: FilmInput!): Film
+  updateFilm(id: Int!, input: FilmInput!): Film
   removeFilm(id: Int!): Film
 }

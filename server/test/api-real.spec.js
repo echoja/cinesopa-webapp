@@ -28,6 +28,7 @@ const {
   removePageMutation,
   updatePageMutation,
   logoutMeMutation,
+  createFilmMutation,
 } = require('./graphql-request');
 const auth = require('../service/auth');
 const authValidatorMaker = require('../auth/validator');
@@ -62,7 +63,7 @@ describe('REAL API', function () {
   let webapp;
 
   before('서버 및 db 세팅', async function () {
-    delete require.cache[require.resolve('passport')];
+    // delete require.cache[require.resolve('passport')];
     this.timeout(10000);
 
     webapp = express();
@@ -573,6 +574,36 @@ describe('REAL API', function () {
         role: 'GUEST',
       });
       expect(check.body.data.checkAuth.permissionStatus).to.equal('OK');
+    });
+  });
+
+  describe('film영화', function () {
+    describe('film', function () {
+      it('제대로 동작해야 함', function () {
+
+      });
+    });
+    describe('films', function () {
+      it('제대로 동작해야 함', function () {
+
+      });
+    });
+    describe('createfilm', function () {
+      it.only('제대로 동작해야 함', async function () {
+        await doLogin(agent, 'testAdmin', 'abc');
+        await graphqlSuper(agent, createFilmMutation, {
+          input: {
+            prod_date: new Date('2020-8-1'),
+          },
+
+        });
+      });
+    });
+    describe('updatefilm', function () {
+
+    });
+    describe('removefilm', function () {
+
     });
   });
 });

@@ -136,4 +136,52 @@ mutation removePage($permalink: String!, $belongs_to: String!) {
   }
 }
 `,
+  createFilmMutation: `
+mutation createFilm($input: FilmInput!) {
+  createFilm(input: $input) {
+    title
+    title_en 
+    kobis_code 
+    genres 
+    show_time
+    type_name 
+    prod_date
+    open_date
+    people {
+      role_type
+      name
+      name_en
+      role
+    }
+    companies {
+      name
+      name_en
+      role
+    }
+    watch_grade 
+    reviews {
+      title
+      url
+      source
+      author
+    }
+    star_naver
+    star_daum
+    star_cine21
+    poster
+    photos
+    id
+    videos {
+      youtube_id
+      title
+    }
+    synopsis 
+    note 
+    tags 
+    meta 
+  }
+}
+`,
 };
+
+/** Films */
