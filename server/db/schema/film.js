@@ -102,7 +102,7 @@ module.exports = function (mongoose) {
   schema.post('updateOne', async function () {
     console.log('++film updateOne middleware 호출되었슴');
     const docToUpdate = await this.model.findOne(this.getFilter());
-    await docToUpdate.save();
+    if (docToUpdate) await docToUpdate.save();
   });
   schema.on('index', function (err) {
     if (err) {

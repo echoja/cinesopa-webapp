@@ -336,11 +336,23 @@ describe('실제 모델기반 DB 테스트', function () {
   });
 
   describe('Film', function () {
+    beforeEach('덤프 Film 만들기', async function () {
+      await model.Film.create({
+        title: '헬로우 마스터의 수퍼 길',
+        title_en: "hello master super's load",
+        people: [{ name: '하위' }],
+        prod_date: new Date('1996-05-22'),
+        open_date: new Date('2020-4-10'),
+        tags: ['hi', 'ho', 'hu'],
+      });
+      // console.log(made._doc);
+      // model.Film.syncIndexes();
+    });
+
     describe('getFilm', function () {
       it('제대로 동작하여야 함.', async function () {
-        await model.Film.create({ title: 'ho' });
         const found = await manager.getFilm(1);
-        expect(found.title).to.equal('ho');
+        expect(found.title).to.equal('헬로우 마스터의 수퍼 길');
       });
     });
     describe('getFilms', function () {
@@ -358,11 +370,6 @@ describe('실제 모델기반 DB 테스트', function () {
       });
 
       it('날짜 검색이 잘 되어야 함', async function () {
-        const made = await model.Film.create({
-          title: 'ho',
-          prod_date: new Date('1996-05-22'),
-          open_date: new Date('2020-4-10'),
-        });
         const expectFound = [];
         const expectNotFound = [];
         // console.log(`made.prod_date: ${made.prod_date.toString()}`);
@@ -434,33 +441,12 @@ describe('실제 모델기반 DB 테스트', function () {
         });
       });
       it('태그 검색이 잘 되어야 함', async function () {
-        const made = await model.Film.create({
-          title: 'ho',
-          prod_date: new Date('1996-05-22'),
-          open_date: new Date('2020-4-10'),
-          tags: ['hi', 'ho', 'hu'],
-        });
-
         const yes = await manager.getFilms(null, null, {}, ['hi', 'ho']);
         const no = await manager.getFilms(null, null, {}, ['hi', 'nnnooooo']);
         expect(yes.length).to.equal(1);
         expect(no.length).to.equal(0);
       });
       describe('검색', function () {
-        /** @type {mongoose.MongooseDocument} */
-        let made;
-        beforeEach('사람 세팅', async function () {
-          made = await model.Film.create({
-            title: '헬로우 마스터의 수퍼 길',
-            title_en: "hello master super's load",
-            people: [{ name: '하위' }],
-            prod_date: new Date('1996-05-22'),
-            open_date: new Date('2020-4-10'),
-            tags: ['hi', 'ho', 'hu'],
-          });
-          console.log(made._doc);
-          model.Film.syncIndexes();
-        });
         afterEach('인덱스 상태 출력', function () {
           // model.Film.collection.getIndexes({ full: true }).then((indexes) => {
           //   console.log('indexes:', indexes);
@@ -539,8 +525,30 @@ describe('실제 모델기반 DB 테스트', function () {
       //   expect(found[3].id).to.equal(12);
       // });
     });
-    describe('createFilm', function () {});
-    describe('updateFilm', function () {});
-    describe('removeFilm', function () {});
+    describe('createFilm', function () {
+      it('제대로 동작해야 함.', async function () {
+        await manager.createFilm({ title: '라그나로크' });
+
+        const found = await model.Film.findOne({ title: '라그나로크' });
+        expect(found.title).to.equal('라그나로크');
+        expect(found.id).to.be.a('number');
+      });
+    });
+    describe('updateFilm', function () {
+      it('제대로 동작해야 함', async function () {
+        const id = 1;
+        await manager.updateFilm(id, { title: '라스베거스' });
+        const found = await model.Film.findOne({ id });
+        expect(found.title).to.equal('라스베거스');
+      });
+    });
+    describe('removeFilm', function () {
+      it('제대로 동작해야 함', async function () {
+        const id = 1;
+        await manager.removeFilm(id);
+        const found = await model.Film.find();
+        expect(found.length).to.equal(0);
+      });
+    });
   });
 });
