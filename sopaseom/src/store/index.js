@@ -20,6 +20,7 @@ export default new Vuex.Store({
   state: {
     user: {},
     testString: '초기테스트 스토어',
+    errorMsg: '',
     ...testStates,
   },
   /**
@@ -38,6 +39,9 @@ export default new Vuex.Store({
    * 외부에서 store.commit('funcname', payload) 식으로 호출할 수 있음.
    */
   mutations: {
+    setErrorMsg(state, { message }) {
+      state.errorMsg = message;
+    },
     setUser(state, { user }) {
       state.user = user;
     },

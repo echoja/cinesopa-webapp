@@ -3,6 +3,7 @@
     <b-row>
       <b-col>
         <header>
+          <p v-if="errorMsg">{{ errorMsg }}</p>
           <!-- 어드민 헤더 -->
         </header>
       </b-col>
@@ -108,6 +109,7 @@
 import {
   BContainer, BCol, BRow, BListGroup, BListGroupItem,
 } from 'bootstrap-vue';
+import store from '../../store';
 
 const makeListItem = (to, label, color) => ({
   id: to,
@@ -124,6 +126,11 @@ export default {
     'b-list-group-item': BListGroupItem,
     'b-col': BCol,
     'b-row': BRow,
+  },
+  computed: {
+    errorMsg() {
+      return store.state.errorMsg;
+    },
   },
   data: () => ({
     sidebar: [
