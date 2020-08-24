@@ -26,6 +26,11 @@ const routes = [
     path: '/film/:id',
     name: 'IndividualFilm',
     component: () => import('../views/Film.vue'),
+    // children: [
+    //   { path: '', component: import('../components/film/Default.vue'), name: 'some-route' },
+    //   { path: 'foo', component: import('../components/film/Default.vue') },
+    //   { path: 'bar', component: import('../components/film/Default.vue') },
+    // ],
   },
   {
     path: '/board/:permalink',
