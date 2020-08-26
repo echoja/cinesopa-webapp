@@ -33,6 +33,13 @@ const {
   filmsQuery,
   removeFilmMutation,
   updateFilmMutation,
+  createPostMutation,
+  postAdminQuery,
+  postQuery,
+  postsAdminQuery,
+  postsQuery,
+  removePostMutation,
+  updatePostMutation,
 } = require('./graphql-request');
 const auth = require('../service/auth');
 const authValidatorMaker = require('../auth/validator');
@@ -46,10 +53,11 @@ const { graphqlSuper } = require('./tool');
 
 const makeAgent = request.agent;
 
-const doLogin = async (agent, email, pwd) => graphqlSuper(agent, loginQuery, {
-  email,
-  pwd,
-});
+const doLogin = async (agent, email, pwd) =>
+  graphqlSuper(agent, loginQuery, {
+    email,
+    pwd,
+  });
 
 /**
  * - graphql typedef 및 resolver 필요.
@@ -686,6 +694,102 @@ describe('REAL API', function () {
         expect(removed.body.data.removeFilm.id).to.equal(1);
         const docs = await model.Film.find();
         expect(docs.length).to.equal(0);
+      });
+    });
+  });
+
+  describe('post', function () {
+    beforeEach('포스트 여러개 세팅', async function () {
+      await model.Post.create({
+        title: '헬로',
+        status: 'public',
+      });
+      await model.Post.create({
+        title: '하읭',
+        status: 'private',
+      });
+    });
+    describe('post', function () {
+      it('제대로 동작해야 함', async function () {
+        const res = await graphqlSuper(agent, postQuery, {
+          id: 1,
+        });
+        expect(res.body.data.post.id).to.equal(1);
+        expect(res.body.data.post.title).to.equal('헬로');
+      });
+      it('private 은 보이지 않아야 함', async function () {
+        const res = await graphqlSuper(agent, postQuery, {
+          id: 2,
+        });
+        // console.log(res.body);
+        expect(res.body.data.post).to.be.null;
+      });
+    });
+    describe('posts', function () {
+      it('private 은 보이지 않아야 함', async function () {
+        const onlyPublic = await graphqlSuper(agent, postsQuery, {
+          condition: {},
+        });
+        // console.log(onlyPublic.body);
+        expect(onlyPublic.body.data.posts.length).to.equal(1);
+      });
+    });
+    describe('postAdmin', function () {
+      it('제대로 동작해야 함', async function () {
+        await doLogin(agent, 'testAdmin', 'abc');
+        expect();
+      });
+    });
+    describe('postsAdmin', function () {
+      it('모든 게시물이 나와야 함', async function () {
+        await doLogin(agent, 'testAdmin', 'abc');
+        const all = await graphqlSuper(agent, postsAdminQuery, {
+          condition: {},
+        });
+        // console.log(all.body);
+        expect(all.body.data.postsAdmin.length).to.equal(2);
+      });
+    });
+    describe('createPost', function () {
+      it('제대로 동작해야 함', async function () {
+        await doLogin(agent, 'testAdmin', 'abc');
+        const res = await graphqlSuper(agent, createPostMutation, {
+          input: { title: '제목이에요', excerpt: '요약입니다' },
+        });
+        expect(res.body.data.createPost).to.not.be.null;
+        const all = await model.Post.find();
+        expect(all.length).to.equal(3);
+      });
+    });
+    describe('updatePost', function () {
+      it('제대로 동작해야 함', async function () {
+        await doLogin(agent, 'testAdmin', 'abc');
+        const res = await graphqlSuper(agent, updatePostMutation, {
+          id: 1,
+          input: {
+            title: '이것은 바뀐 제목입니다.',
+            excerpt: '새로 생긴 필드',
+          },
+        });
+        // console.log(res.body);
+        expect(res.body.data.updatePost).to.not.be.null;
+        const found = await model.Post.findOne({ id: 1 }).exec();
+        // console.log(found);
+        expect(found.title).to.equal('이것은 바뀐 제목입니다.');
+        expect(found.excerpt).to.equal('새로 생긴 필드');
+      });
+    });
+    describe('removePost', function () {
+      it('제대로 동작해야 함', async function () {
+        await doLogin(agent, 'testAdmin', 'abc');
+        const res = await graphqlSuper(agent, removePostMutation, {
+          id: 1,
+        });
+        const found = await model.Post.find().exec();
+        expect(found.length).to.equal(1);
+
+        const exact = await model.Post.findOne({ id: 1 }).lean().exec();
+        expect(exact).to.be.null;
       });
     });
   });

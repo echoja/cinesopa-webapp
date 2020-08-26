@@ -99,25 +99,25 @@
  * @property {string} title
  * @property {string} title_en
  * @property {string} kobis_code
- * @property {[string]} genres
+ * @property {string[]} genres
  * @property {number} show_time
  * @property {string} type_name
  * @property {Date} prod_date
  * @property {Date} open_date
- * @property {[Personinfo]} people
- * @property {[Companyinfo]} companies
+ * @property {Personinfo[]} people
+ * @property {Companyinfo[]} companies
  * @property {string} watch_grade
  * @property {string} reviews
  * @property {number} star_naver
  * @property {number} star_daum
  * @property {number} star_cine21
  * @property {import("mongoose/lib/types/objectid")} poster File
- * @property {import("mongoose/lib/types/objectid")} photos File
+ * @property {import("mongoose/lib/types/objectid")[]} photos File
  * @property {number} id
- * @property {[Videoinfo]} videos
+ * @property {Videoinfo[]} videos
  * @property {string} synopsis
  * @property {string} note
- * @property {[string]} tags
+ * @property {string[]} tags
  * @property {object} meta
  * @property {string} search
  */
@@ -130,6 +130,32 @@
  * @property {number} ttl 유효 시간 (초)
  * @property {Date} c_date
  * @property {string} purpose
+ */
+
+/**
+ * 게시물 정보를 담는 객체
+ * @typedef {object} Postinfo
+ * @property {number} id
+ * @property {string} title
+ * @property {string} content
+ * @property {string} excerpt
+ * @property {string} permalink
+ * @property {string} status ['public', 'private']
+ * @property {import("mongoose/lib/types/objectid")} board 게시판에 대한 ObjectId
+ * @property {Date} c_date
+ * @property {Date} m_date
+ * @property {string} search
+ * @property {object} meta
+ */
+
+/**
+ * 게시물 검색 정보를 담는 객체
+ * @typedef {object} PostSearch
+ * @property {number} page 0이 1페이지임.
+ * @property {number} perpage
+ * @property {Date} date_gte
+ * @property {Date} date_lte
+ * @property {string} search
  */
 
 /*= ====================================

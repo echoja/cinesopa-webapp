@@ -529,30 +529,87 @@ class DBManager {
   ===================================== */
 
   /**
-   *
+   * 게시물을 만듭니다.
    * @param {PostInput} input
    */
   async createPost(input) {
-    const doc = await model.Post.create(input);
+    const refined_input = input;
+    refined_input.m_date = new Date();
+    const doc = await model.Post.create(refined_input);
     if (doc) return doc.toObject();
     return null;
   }
 
-  async getPost(id) {
-    return model.Post.findOne({ id }).lean().exec();
+  /**
+   * 게시물 하나를 얻습니다.
+   * @param {number} id
+   * @param {string} status
+   */
+  async getPost(id, status) {
+    const cond = { id };
+    if (status) cond.status = status;
+    return model.Post.findOne(cond).lean().exec();
   }
 
-  async getPosts(condition) {
+  /**
+   * 조건에 따라 포스트를 필터링합니다.
+   * @param {PostSearch} condition
+   * @param {*} status public 또는 private
+   */
+  async getPosts(condition, status) {
+    const {
+      page, perpage, date_gte, date_lte, search,
+    } = condition;
 
+    let query = model.Post.find();
+
+    if (search) {
+      console.log('getPosts: search!!');
+      query = query.find({ search: new RegExp(`${search}`) });
+    }
+
+    // query date
+    if (date_lte || date_gte) {
+      console.log(
+        `getPosts: date lte or date gte!! date_lte: ${date_lte}, date_gte: ${date_gte}`,
+      );
+      const c_date = {};
+      if (date_lte) c_date.$lte = date_lte;
+      if (date_gte) c_date.$gte = date_gte;
+      query = query.find({ c_date });
+    }
+
+    // status
+    if (status) {
+      console.log(`getPosts: status: ${status}`);
+      query = query.find({ status });
+    }
+
+    // pagination
+    if (page && perpage) {
+      console.log('getPosts: pagenation!!');
+      query = query.limit(perpage).skip(perpage * page);
+    }
+
+    return query.lean().exec();
   }
 
+  /**
+   * 게시물을 업데이트합니다.
+   * @param {number} id
+   * @param {Postinfo} input
+   */
   async updatePost(id, input) {
-
+    const refined_input = input;
+    refined_input.m_date = new Date();
+    await model.Post.updateOne({ id }, refined_input).exec();
+    return model.Post.findOne({ id }).lean().exec();
   }
 
   /**
    * 게시글을 찾아 삭제합니다.
    * @param {number} id
+   * @returns 삭제될 doc
    */
   async removePost(id) {
     const doc = await model.Post.findOne({ id }).lean().exec();

@@ -35,7 +35,7 @@ extend type Query {
   post(id: Int!): Post
   posts(condition: PostSearch!): [Post]
   postAdmin(id: Int!): Post
-  postsAdmin(id: Int!): Post
+  postsAdmin(condition: PostSearch!): [Post]
 }
 
 extend type Mutation {

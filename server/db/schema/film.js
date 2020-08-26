@@ -93,11 +93,11 @@ module.exports = function (mongoose) {
     this.search = getFilmSearchStr(this);
   });
 
-  const updateSearch = async (query) => {
-    const docToUpdate = await query.model.findOne(query.getFilter());
-    // console.log(docToUpdate._doc);
-    docToUpdate.search = getFilmSearchStr(docToUpdate);
-  };
+  // const updateSearch = async (query) => {
+  //   const docToUpdate = await query.model.findOne(query.getFilter());
+  //   // console.log(docToUpdate._doc);
+  //   docToUpdate.search = getFilmSearchStr(docToUpdate);
+  // };
 
   schema.post('updateOne', async function () {
     console.log('++film updateOne middleware 호출되었슴');

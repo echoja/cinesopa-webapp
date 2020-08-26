@@ -20,9 +20,6 @@ describe('mongoose schema and model', function () {
     const uri = await mongod.getUri();
     const mongooseOpts = {
       useNewUrlParser: true,
-      // autoReconnect: true,
-      // reconnectTries: Number.MAX_VALUE,
-      // reconnectInterval: 1000,
       useUnifiedTopology: true,
       useCreateIndex: true,
       useFindAndModify: false,
