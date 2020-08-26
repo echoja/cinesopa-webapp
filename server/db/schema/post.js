@@ -1,4 +1,6 @@
 const { Mongoose } = require('mongoose');
+
+const { getPostSearchStr } = require('./tool');
 const { enumPostStatus } = require('./enum');
 
 const autoIdSetter = require('./auto-id-setter');
@@ -20,9 +22,25 @@ module.exports = function (mongoose) {
     board: { type: mongoose.Schema.Types.ObjectId, ref: 'Board' },
     c_date: { type: Date, default: Date.now },
     m_date: { type: Date, default: Date.now },
+    search: String,
     meta: mongoose.Schema.Types.Mixed,
   });
   autoIdSetter(schema, mongoose, 'post', 'id');
+
+  schema.pre('save', function () {
+    this.search = getPostSearchStr(this);
+  });
+
+  // const updateSearch = async (query) => {
+  //   const docToUpdate = await query.model.findOne(query.getFilter());
+  //   // console.log(docToUpdate._doc);
+  //   docToUpdate.search = getFilmSearchStr(docToUpdate);
+  // };
+
+  schema.post('updateOne', async function () {
+    const docToUpdate = await this.model.findOne(this.getFilter());
+    if (docToUpdate) await docToUpdate.save();
+  });
 
   return schema;
 };

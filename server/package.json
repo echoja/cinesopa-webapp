@@ -30,6 +30,7 @@
     "passport": "^0.4.1",
     "pug": "^3.0.0",
     "sanitize-filename": "^1.6.3",
+    "string-strip-html": "^5.0.1",
     "uuid": "^8.3.0"
   },
   "scripts": {

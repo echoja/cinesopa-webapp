@@ -8,6 +8,7 @@ const { expect } = require('chai');
 const mongoose = require('mongoose');
 const { MongoMemoryServer } = require('mongodb-memory-server');
 
+const { modelSymbol } = require('mongoose/lib/helpers/symbols');
 const { model } = require('../loader');
 
 describe('mongoose schema and model', function () {
@@ -101,7 +102,7 @@ describe('mongoose schema and model', function () {
 
     it('새 doc을 만들었을 때 search 가 무사히 생겨야 함. (훅에 의해 생성됨.)', async function () {
       const test = await model.Film.create(filmInput);
-      expect(test.search).to.equal('ㅇㅣㄱㅓㅅㅇㅡㄴㅅㅠㅍㅓㅍㅏㅇㅜㅓㅈㅔㅁㅗㄱㅇㅣㄷㅏ.Thisissuperpowertitle.ㅎㅏhaㅎㅗghㅎㅔㅎㅔhehe');
+      expect(test.search).to.equal('ㅇㅣㄱㅓㅅㅇㅡㄴㅅㅠㅍㅓㅍㅏㅇㅜㅓㅈㅔㅁㅗㄱㅇㅣㄷㅏ.#Thisissuperpowertitle.#ㅎㅏ#ha#ㅎㅗ#gh#ㅎㅔㅎㅔ#hehe');
     });
 
     it('새 doc을 만든 후 수정했을 때 search 가 수정되어야 함 (UpdateOne에 의해 수정됨.)', async function () {
@@ -110,7 +111,20 @@ describe('mongoose schema and model', function () {
 
       const updated = await model.Film.findOne({ id: 1 }).lean().exec();
       // console.log(updated);
-      expect(updated.search).to.equal('ㅎㅔㄹㄹㅗㅁㅐㄴ~helloman~ㅎㅏhaㅎㅗghㅎㅔㅎㅔhehe');
+      expect(updated.search).to.equal('ㅎㅔㄹㄹㅗㅁㅐㄴ~#helloman~#ㅎㅏ#ha#ㅎㅗ#gh#ㅎㅔㅎㅔ#hehe');
+    });
+  });
+
+  describe('Post', function () {
+    it('새 doc을 만들었을 때 search가 무사히 생겨야 함', async function () {
+      const doc = await model.Post.create({ title: '안녕하세요', content: '<p style="line-height: 2;">이것은콘텐트 입니당.</p>' });
+      expect(doc.search).to.equal('ㅇㅏㄴㄴㅕㅇㅎㅏㅅㅔㅇㅛ#ㅇㅣㄱㅓㅅㅇㅡㄴㅋㅗㄴㅌㅔㄴㅌㅡㅇㅣㅂㄴㅣㄷㅏㅇ.');
+    });
+    it('새 doc을 만든 후 수정했을 때 search 가 수정되어야 함 (UpdateOne에 의해 수정됨.)', async function () {
+      await model.Post.create({ title: '안녕하세요', content: '<p style="line-height: 2;">이것은콘텐트 입니당.</p>' });
+      await model.Post.updateOne({ id: 1 }, { title: '이것은 바뀐 제목이에요~~~!' });
+      const found = (await model.Post.find())[0];
+      expect(found.search).to.equal('ㅇㅣㄱㅓㅅㅇㅡㄴㅂㅏㄲㅜㅣㄴㅈㅔㅁㅗㄱㅇㅣㅇㅔㅇㅛ~~~!#ㅇㅣㄱㅓㅅㅇㅡㄴㅋㅗㄴㅌㅔㄴㅌㅡㅇㅣㅂㄴㅣㄷㅏㅇ.');
     });
   });
 });

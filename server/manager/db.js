@@ -528,6 +528,38 @@ class DBManager {
   게시글(포스트)
   ===================================== */
 
+  /**
+   *
+   * @param {PostInput} input
+   */
+  async createPost(input) {
+    const doc = await model.Post.create(input);
+    if (doc) return doc.toObject();
+    return null;
+  }
+
+  async getPost(id) {
+    return model.Post.findOne({ id }).lean().exec();
+  }
+
+  async getPosts(condition) {
+
+  }
+
+  async updatePost(id, input) {
+
+  }
+
+  /**
+   * 게시글을 찾아 삭제합니다.
+   * @param {number} id
+   */
+  async removePost(id) {
+    const doc = await model.Post.findOne({ id }).lean().exec();
+    await model.Post.deleteOne({ id }).exec();
+    return doc;
+  }
+
   /*= ====================================
   제품
   ===================================== */

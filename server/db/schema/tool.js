@@ -1,5 +1,10 @@
 const Hangul = require('hangul-js');
+const stripHtml = require('string-strip-html');
 
+/**
+ *
+ * @param {Filminfo} FilmDoc
+ */
 const getFilmSearchStr = (FilmDoc) => {
   const strArray = [];
   strArray.push(FilmDoc.title);
@@ -16,6 +21,16 @@ const getFilmSearchStr = (FilmDoc) => {
   return result;
 };
 
+const getPostSearchStr = (postDoc) => {
+  console.log(`getPostSearchStr called! title: ${postDoc.title}`);
+  const strArray = [];
+  strArray.push(postDoc.title);
+  strArray.push(stripHtml(postDoc.content).result);
+  const result = Hangul.disassembleToString(strArray.join('#').replace(/ /g, ''));
+  return result;
+};
+
 module.exports = {
   getFilmSearchStr,
+  getPostSearchStr,
 };
