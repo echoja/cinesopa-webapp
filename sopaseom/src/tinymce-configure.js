@@ -64,16 +64,22 @@ const examplePlugin = (editor) => {
  * @returns {object} Tinymce 초기화 객체
  */
 export default (/* content */) => ({
-  height: 500,
-  menubar: false,
+  content_css: ['//fonts.googleapis.com/css2?family=Indie+Flower&family=Noto+Sans+KR:wght@300;700&family=Noto+Serif+KR:wght@300;600&family=Nanum+Gothic:wght@400;700'],
+  // menubar: 'file edit view insert format tools table tc help',
+  language: 'ko_KR',
+  content_style: "body { font-family: 'Noto Sans KR'; }",
+  font_formats: 'Noto Sans KR=Noto Sans KR, sans-serif;Noto Serif KR=Noto Serif KR, serif;나눔고딕=Nanum Gothic, sans-serif',
   // a11y_advanced_options: true,
+  fontsize_formats: '11px 12px 14px 16px 18px 24px 36px 48px',
+  height: 600,
+  // inline: true,
   plugins: [
-    'ExamplePlugin a11ychecker',
+    'ExamplePlugin', 'hr',
     'advlist autolink lists link image charmap print preview anchor',
     'searchreplace visualblocks code fullscreen',
     'insertdatetime media table paste code help wordcount',
   ],
-  toolbar: `example insertdatetime image | undo redo | formatselect | bold italic backcolor | 
+  toolbar1: `example image | undo redo | fontselect | formatselect | fontsizeselect | bold italic underline forecolor backcolor | 
      alignleft aligncenter alignright alignjustify | 
      bullist numlist outdent indent | removeformat | help`,
   setup(/* editor */) {
