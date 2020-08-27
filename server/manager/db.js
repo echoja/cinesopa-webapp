@@ -30,15 +30,16 @@ let initialized;
  * @param {string} plain 평문
  * @returns {Promise<Encrypted>} 암호화된 base64 기반 암호.
  */
-const pwd_encrypt = async (plain) => new Promise((resolve, reject) => {
-  const salt = crypto.randomBytes(64).toString('base64');
-  let result = '';
-  crypto.scrypt(plain, salt, 64, (err, derivedKey) => {
-    if (err) return reject(err);
-    result = derivedKey.toString('base64');
-    return resolve({ pwd: result, salt });
+const pwd_encrypt = async (plain) =>
+  new Promise((resolve, reject) => {
+    const salt = crypto.randomBytes(64).toString('base64');
+    let result = '';
+    crypto.scrypt(plain, salt, 64, (err, derivedKey) => {
+      if (err) return reject(err);
+      result = derivedKey.toString('base64');
+      return resolve({ pwd: result, salt });
+    });
   });
-});
 
 /**
  * 비밀번호가 맞는지 체크합니다.
@@ -47,14 +48,15 @@ const pwd_encrypt = async (plain) => new Promise((resolve, reject) => {
  * @returns {Promise<boolean>} 맞으면 true, 틀리면 false
  */
 
-const pwd_verify = async (given, encrypted) => new Promise((resolve, reject) => {
-  let result = '';
-  crypto.scrypt(given, encrypted.salt, 64, (err, derivedKey) => {
-    if (err) return reject(err);
-    result = derivedKey.toString('base64');
-    return resolve(result === encrypted.pwd);
+const pwd_verify = async (given, encrypted) =>
+  new Promise((resolve, reject) => {
+    let result = '';
+    crypto.scrypt(given, encrypted.salt, 64, (err, derivedKey) => {
+      if (err) return reject(err);
+      result = derivedKey.toString('base64');
+      return resolve(result === encrypted.pwd);
+    });
   });
-});
 
 /**
  * 유저를 구하려고 시도합니다.
@@ -149,9 +151,7 @@ class DBManager {
    * @throws 이메일이 이미 존재할 때
    */
   async createUser(userinfo) {
-    const {
-      email, name, role, verified,
-    } = userinfo;
+    const { email, name, role, verified } = userinfo;
     if (await model.User.findOne({ email })) {
       throw Error(`createUser: 이미 ${email}이 존재합니다.`);
     }
@@ -447,9 +447,7 @@ class DBManager {
   async getFilms(
     page,
     perpage,
-    {
-      prod_gte = null, prod_lte = null, open_gte = null, open_lte = null,
-    } = {},
+    { prod_gte = null, prod_lte = null, open_gte = null, open_lte = null } = {},
     tags,
     search,
   ) {
@@ -521,8 +519,70 @@ class DBManager {
   ===================================== */
 
   /*= ====================================
-  주문
+  게시판
   ===================================== */
+
+  /**
+   * 새로운 게시판을 만듭니다.
+   * @param {Boardinfo} input
+   */
+  async createBoard(input) {
+    const board = await model.Board.create(input);
+    if (board) return board.toObject();
+    return null;
+  }
+
+  /**
+   * id에 따라서 게시판을 얻습니다.
+   * @param {number} id
+   */
+  async getBoardById(id) {
+    return model.Board.findOne({ id }).lean().exec();
+  }
+
+  /**
+   * 어디에 위치해있는지에 따라 게시판을 얻습니다.
+   * @param {string} belongs_to
+   * @param {string} permalink
+   */
+  async getBoardByPermalink(belongs_to, permalink) {
+    return model.Board.findOne({ belongs_to, permalink }).lean().exec();
+  }
+
+  /**
+   * 모든 게시판을 얻습니다.
+   */
+  async getBoards() {
+    return model.Board.find().lean().exec();
+  }
+
+  /**
+   * 소속된 모든 게시판을 얻습니다.
+   * @param {string} belongs_to
+   */
+  async getBoardsAssigned(belongs_to) {
+    return model.Board.find({ belongs_to }).lean().exec();
+  }
+
+  /**
+   * 게시판을 갱신합니다.
+   * @param {number} id
+   * @param {Boardinfo} input
+   */
+  async updateBoard(id, input) {
+    await model.Board.updateOne({ id }, input).exec();
+    return model.Board.findOne({ id }).lean().exec();
+  }
+
+  /**
+   * 게시판을 삭제합니다.
+   * @param {number} id
+   */
+  async removeBoard(id) {
+    const doc = await model.Board.findOne({ id }).lean().exec();
+    await model.Board.deleteOne({ id }).exec();
+    return doc;
+  }
 
   /*= ====================================
   게시글(포스트)
@@ -530,12 +590,12 @@ class DBManager {
 
   /**
    * 게시물을 만듭니다.
-   * @param {PostInput} input
+   * @param {Postinfo} input
    */
   async createPost(input) {
-    const refined_input = input;
-    refined_input.m_date = new Date();
-    const doc = await model.Post.create(refined_input);
+    // const refined_input = input;
+    // refined_input.m_date = new Date();
+    const doc = await model.Post.create(input);
     if (doc) return doc.toObject();
     return null;
   }
@@ -555,10 +615,17 @@ class DBManager {
    * 조건에 따라 포스트를 필터링합니다.
    * @param {PostSearch} condition
    * @param {*} status public 또는 private
+   * @throws 만약 board 조건이 있지만 해당하는 게시판을 찾을 수 없을 때
    */
   async getPosts(condition, status) {
     const {
-      page, perpage, date_gte, date_lte, search,
+      page,
+      perpage,
+      date_gte,
+      date_lte,
+      search,
+      board_permalink,
+      board_belongs_to,
     } = condition;
 
     let query = model.Post.find();
@@ -566,6 +633,17 @@ class DBManager {
     if (search) {
       console.log('getPosts: search!!');
       query = query.find({ search: new RegExp(`${search}`) });
+    }
+
+    if (board_permalink && board_belongs_to) {
+      const boardDoc = await model.Board.findOne({
+        permalink: board_permalink,
+        belongs_to: board_belongs_to,
+      }).exec();
+      if (!boardDoc) {
+        return [];
+      }
+      // if (!boardDoc) throw Error(`${board_belongs_to}의 ${board_permalink} 게시판을 찾을 수 없습니다.`);
     }
 
     // query date
@@ -600,9 +678,9 @@ class DBManager {
    * @param {Postinfo} input
    */
   async updatePost(id, input) {
-    const refined_input = input;
-    refined_input.m_date = new Date();
-    await model.Post.updateOne({ id }, refined_input).exec();
+    // const refined_input = input;
+    // refined_input.m_date = new Date();
+    await model.Post.updateOne({ id }, input).exec();
     return model.Post.findOne({ id }).lean().exec();
   }
 
@@ -619,6 +697,10 @@ class DBManager {
 
   /*= ====================================
   제품
+  ===================================== */
+
+  /*= ====================================
+  주문
   ===================================== */
 }
 

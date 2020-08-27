@@ -29,6 +29,8 @@ input PostSearch {
   date_gte: DateTime
   date_lte: DateTime
   search: String
+  board_permalink: String
+  board_belongs_to: String
 }
 
 extend type Query {

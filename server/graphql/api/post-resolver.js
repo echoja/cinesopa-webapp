@@ -15,7 +15,10 @@ const postQuery = makeResolver(async (obj, args, context, info) => {
 
 const postsQuery = makeResolver(async (obj, args, context, info) => {
   const { condition } = args;
-  const { page, perpage, date_gte, date_lte, search } = condition;
+  const { page, perpage, date_gte, date_lte, board_permalink, board_belongs_to } = condition;
+
+  let { search } = condition;
+  search = search ? Hangul.disassembleToString(search) : null;
 
   return db.getPosts(
     {
@@ -24,6 +27,8 @@ const postsQuery = makeResolver(async (obj, args, context, info) => {
       date_gte,
       date_lte,
       search,
+      board_permalink,
+      board_belongs_to,
     },
     'public',
   );
@@ -36,7 +41,10 @@ const postAdmin = makeResolver(async (obj, args, context, info) => {
 
 const postsAdmin = makeResolver(async (obj, args, context, info) => {
   const { condition } = args;
-  const { page, perpage, date_gte, date_lte, search } = condition;
+  const { page, perpage, date_gte, date_lte } = condition;
+  let { search } = condition;
+
+  search = search ? Hangul.disassembleToString(search) : null;
 
   return db.getPosts({
     page,
@@ -67,7 +75,7 @@ const updatePost = makeResolver(async (obj, args, context, info) => {
   const { title, content, excerpt, status, board, c_date, meta } = input;
   const refined_input = { title, content, excerpt, board, c_date, meta };
   if (status) refined_input.status = status;
-  
+
   return db.updatePost(id, refined_input);
 }).only(ACCESS_ADMIN);
 

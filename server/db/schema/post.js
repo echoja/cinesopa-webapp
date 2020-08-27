@@ -29,6 +29,7 @@ module.exports = function (mongoose) {
 
   schema.pre('save', function () {
     this.search = getPostSearchStr(this);
+    this.m_date = new Date();
   });
 
   // const updateSearch = async (query) => {

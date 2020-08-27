@@ -7,6 +7,7 @@
 require('../typedef');
 const { expect } = require('chai');
 const { isTypedArray } = require('lodash');
+const { it } = require('mocha');
 const { MongoMemoryServer } = require('mongodb-memory-server');
 const mongoose = require('mongoose');
 const modelMaker = require('../db/model');
@@ -493,7 +494,6 @@ describe('실제 모델기반 DB 테스트', function () {
         await model.Film.create({ prod_date: new Date('2000-02-07') });
         const result = await manager.getFilms(null, null, {
           prod_gte: new Date('2000-02-04'),
-
         });
         expect(result.length).to.equal(4);
       });
@@ -582,7 +582,7 @@ describe('실제 모델기반 DB 테스트', function () {
         });
       });
 
-      // it.only('페이지가 제대로 동작하여야 함', async function () {
+      // it('페이지가 제대로 동작하여야 함', async function () {
       //   for (let i = 0; i < 20; i++) {
       //     // eslint-disable-next-line
       //     await model.Film.create({title: `ho${i+1}`});
@@ -640,7 +640,7 @@ describe('실제 모델기반 DB 테스트', function () {
         expect(doc.c_date.getTime()).to.equal(new Date('2019-12-25').getTime());
       });
 
-      it.only('private 가 제대로 걸러져야 함', async function () {
+      it('private 가 제대로 걸러져야 함', async function () {
         await model.Post.create({ title: '비공개 게시물', status: 'private' });
         const result = await manager.getPost(2, 'public');
         expect(result).to.be.null;
@@ -715,6 +715,132 @@ describe('실제 모델기반 DB 테스트', function () {
         await manager.removePost(1);
         const notFound = await model.Post.find();
         expect(notFound.length).to.equal(0);
+      });
+    });
+  });
+
+  describe('Board', function () {
+    describe('createBoard', function () {
+      it('제대로 작동해야 함', async function () {
+        await manager.createBoard({ title: '하이' });
+        const doc = await model.Board.findOne({ id: 1 }).exec();
+        // console.log(doc);
+        expect(doc.title).to.equal('하이');
+      });
+    });
+    describe('getBoardById', function () {
+      it('제대로 작동해야 함', async function () {
+        await model.Board.create({ title: '하이' });
+        const doc = await manager.getBoardById(1);
+        // console.log(doc);
+        expect(doc.title).to.equal('하이');
+      });
+    });
+    describe('getBoardByPermalink', function () {
+      it('제대로 작동해야 함', async function () {
+        await manager.createBoard({
+          title: '하이',
+          permalink: 'abc',
+          belongs_to: 'cinesopa',
+        });
+        const doc = await manager.getBoardByPermalink('cinesopa', 'abc');
+        // console.log(doc);
+        expect(doc.title).to.equal('하이');
+      });
+    });
+    describe('getBoards', function () {
+      it('제대로 작동해야 함', async function () {
+        for (let i = 0; i < 8; i++) {
+          await manager.createBoard({
+            title: '하이',
+            permalink: 'abc',
+            belongs_to: 'cinesopa',
+          });
+          await manager.createBoard({
+            title: '하이',
+            permalink: 'abc',
+            belongs_to: 'sopaseom',
+          });
+        }
+        const docs = await manager.getBoards();
+        // console.log(docs);
+        expect(docs.length).to.equal(16);
+      });
+    });
+    describe('getBoardsAssigned', function () {
+      it('제대로 작동해야 함', async function () {
+        for (let i = 0; i < 8; i++) {
+          await manager.createBoard({
+            title: '하이',
+            permalink: 'abc',
+            belongs_to: 'cinesopa',
+          });
+          await manager.createBoard({
+            title: '하이',
+            permalink: 'abc',
+            belongs_to: 'sopaseom',
+          });
+        }
+        const docs = await manager.getBoardsAssigned('cinesopa');
+        // console.log(docs);
+        expect(docs.length).to.equal(8);
+      });
+    });
+    describe('updateBoard', function () {
+      it('제대로 작동해야 함', async function () {
+        await model.Board.create({ title: '하이' });
+        const changed = await manager.updateBoard(1, { title: '바뀌었음' });
+        expect(changed.title).to.equal('바뀌었음');
+      });
+    });
+    describe('removeBoard', function () {
+      it('제대로 작동해야 함', async function () {
+        await model.Board.create({ title: '하이' });
+        await manager.removeBoard(1);
+        const found = await model.Board.find().exec();
+        expect(found.length).to.equal(0);
+      });
+    });
+  });
+
+  describe('복합', function () {
+    describe('Post and Board', function () {
+      it('post가 특정 board에 속해있을 때 잘 작동해야 함', async function () {
+        const bdoc = await manager.createBoard({
+          permalink: 'hi',
+          belongs_to: 'cinesopa',
+        });
+        // console.log(bdoc);
+        const pdoc = await manager.createPost({
+          title: '글제목',
+          board: bdoc._id,
+        });
+        // console.log(pdoc);
+        const found = await manager.getPosts({
+          board_belongs_to: 'cinesopa',
+          board_permalink: 'hi',
+        });
+        // console.log(found);
+        expect(found.length).to.equal(1);
+      });
+
+      it('post가 특정 board에 속해있지 않을 때는 결과가 없어야 함', async function () {
+        const bdoc = await manager.createBoard({
+          permalink: 'hi',
+          belongs_to: 'cinesopa',
+        });
+        // console.log(bdoc);
+        const pdoc = await manager.createPost({
+          title: '글제목',
+          board: bdoc._id,
+        });
+        // console.log(pdoc);
+        const found = await manager.getPosts({
+          board_belongs_to: 'cinesopa',
+          board_permalink: 'him',
+        });
+        // console.log(found);
+        expect(found.length).to.equal(0);
       });
     });
   });
