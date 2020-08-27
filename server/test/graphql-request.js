@@ -213,12 +213,12 @@ query getPosts($condition: PostSearch!) {
   posts(condition: $condition) ${postResponse}
 }`;
 const postAdminQuery = `
-query getPost($id: Int!) {
+query getPostAdmin($id: Int!) {
   postAdmin(id: $id) ${postResponse}
 }
 `;
 const postsAdminQuery = `
-query getPosts($condition: PostSearch!) {
+query getPostsAdmin($condition: PostSearch!) {
   postsAdmin(condition: $condition) ${postResponse}
 }`;
 const createPostMutation = `
@@ -237,6 +237,62 @@ mutation removePost($id: Int!) {
 }
 `;
 
+const post = {
+  postQuery,
+  postsQuery,
+  postAdminQuery,
+  postsAdminQuery,
+  createPostMutation,
+  updatePostMutation,
+  removePostMutation,
+};
+
+const boardResponse = `
+{
+  id
+  title
+  description
+  permalink
+  belongs_to
+  board_type
+  meta
+}
+`;
+const boardQuery = `
+query getBoard($condition: BoardSearch!) {
+  board(condition: $condition) ${boardResponse}
+}
+`;
+const boardsQuery = `
+query getBoards($belongs_to: String) {
+  boards(belongs_to: $belongs_to) ${boardResponse}
+}
+`;
+const createBoardMutation = `
+mutation createBoard($input: BoardInput!) {
+  createBoard(input: $input) ${boardResponse}
+}
+`;
+const updateBoardMutation = `
+mutation updateBoard($id: Int!, $input: BoardInput!) {
+  updateBoard(id: $id, input: $input) ${boardResponse}
+}
+`;
+const removeBoardMutation = `
+mutation removeBoard($id: Int!) {
+  removeBoard(id: $id) ${boardResponse}
+}
+
+`;
+
+const board = {
+  boardQuery,
+  boardsQuery,
+  createBoardMutation,
+  updateBoardMutation,
+  removeBoardMutation,
+};
+
 module.exports = {
   loginQuery,
   logoutMeMutation,
@@ -252,12 +308,7 @@ module.exports = {
   createFilmMutation,
   updateFilmMutation,
   removeFilmMutation,
-  postQuery,
-  postsQuery,
-  postAdminQuery,
-  postsAdminQuery,
-  createPostMutation,
-  updatePostMutation,
-  removePostMutation,
+  ...post,
+  ...board,
 };
 /** Films */

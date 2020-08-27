@@ -1,0 +1,34 @@
+type Board {
+  id: Int
+  title: String
+  description: String
+  permalink: String
+  belongs_to: String
+  board_type: String
+  meta: JSON
+}
+
+input BoardInput {
+  title: String
+  description: String
+  permalink: String
+  belongs_to: String
+  board_type: String
+  meta: JSON
+}
+
+input BoardSearch {
+  id: Int
+  permalink: String
+  belongs_to: String
+}
+extend type Query {
+  board(condition: BoardSearch!): Board
+  boards(belongs_to: String): [Board]
+}
+
+extend type Mutation {
+  createBoard(input: BoardInput!): Board
+  updateBoard(id: Int!, input: BoardInput!): Board
+  removeBoard(id: Int!): Board
+}

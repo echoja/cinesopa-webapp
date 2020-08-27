@@ -133,6 +133,26 @@
  */
 
 /**
+ * 게시판 정보를 담는 객체
+ * @typedef {object} Boardinfo
+ * @property {number} id
+ * @property {string} title
+ * @property {string} description
+ * @property {string} permalink
+ * @property {string} belongs_to
+ * @property {string} board_type
+ * @property {object} meta
+ */
+
+ /**
+ * 게시판 검색 객체
+ * @typedef {object} BoardSearch
+ * @property {number} id
+ * @property {string} permalink
+ * @property {string} belongs_to
+ */
+
+/**
  * 게시물 정보를 담는 객체
  * @typedef {object} Postinfo
  * @property {number} id
@@ -156,6 +176,8 @@
  * @property {Date} date_gte
  * @property {Date} date_lte
  * @property {string} search
+ * @property {string} board_permalink
+ * @property {string} board_belongs_to
  */
 
 /*= ====================================

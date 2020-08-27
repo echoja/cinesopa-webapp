@@ -40,6 +40,11 @@ const {
   postsQuery,
   removePostMutation,
   updatePostMutation,
+  boardQuery,
+  boardsQuery,
+  createBoardMutation,
+  removeBoardMutation,
+  updateBoardMutation,
 } = require('./graphql-request');
 const auth = require('../service/auth');
 const authValidatorMaker = require('../auth/validator');
@@ -698,7 +703,7 @@ describe('REAL API', function () {
     });
   });
 
-  describe('post', function () {
+  describe('Post', function () {
     beforeEach('포스트 여러개 세팅', async function () {
       await model.Post.create({
         title: '헬로',
@@ -735,9 +740,12 @@ describe('REAL API', function () {
       });
     });
     describe('postAdmin', function () {
-      it('제대로 동작해야 함', async function () {
+      it('private 도 제대로 검색되어야 함', async function () {
         await doLogin(agent, 'testAdmin', 'abc');
-        expect();
+        const res = await graphqlSuper(agent, postAdminQuery, {
+          id: 2,
+        });
+        expect(res.body.data.postAdmin).to.not.be.null;
       });
     });
     describe('postsAdmin', function () {
@@ -782,7 +790,7 @@ describe('REAL API', function () {
     describe('removePost', function () {
       it('제대로 동작해야 함', async function () {
         await doLogin(agent, 'testAdmin', 'abc');
-        const res = await graphqlSuper(agent, removePostMutation, {
+        await graphqlSuper(agent, removePostMutation, {
           id: 1,
         });
         const found = await model.Post.find().exec();
@@ -790,6 +798,94 @@ describe('REAL API', function () {
 
         const exact = await model.Post.findOne({ id: 1 }).lean().exec();
         expect(exact).to.be.null;
+      });
+    });
+  });
+
+  describe('Board', function () {
+    beforeEach('보드 세팅', async function () {
+      await model.Board.create({
+        title: '제목',
+        description: '설명',
+        belongs_to: 'cinesopa',
+        permalink: 'notice',
+      });
+    });
+    describe('board', function () {
+      it('id로 잘 얻어야 함', async function () {
+        const res = await graphqlSuper(agent, boardQuery, {
+          condition: {
+            id: 1,
+          },
+        });
+        // console.log(res.body);
+        expect(res.body.data.board).to.not.be.null;
+      });
+      it('permalink, belongs_to로 잘 얻어야 함.', async function () {
+        const res = await graphqlSuper(agent, boardQuery, {
+          condition: {
+            permalink: 'notice',
+            belongs_to: 'cinesopa',
+          },
+        });
+        // console.log(res.body);
+        expect(res.body.data.board).to.not.be.null;
+      });
+    });
+    describe('boards', function () {
+      it('제대로 작동되어야 함', async function () {
+        await doLogin(agent, 'testAdmin', 'abc');
+        const res = await graphqlSuper(agent, boardsQuery, {
+          belongs_to: 'cinesopa',
+        });
+        expect(res.body.data.boards.length).to.equal(1);
+      });
+      it('해당하는 belongs_to가 아닐 경우 결과가 없어야 함', async function () {
+        await doLogin(agent, 'testAdmin', 'abc');
+        const res = await graphqlSuper(agent, boardsQuery, {
+          belongs_to: '없는것',
+        });
+        expect(res.body.data.boards.length).to.equal(0);
+      });
+    });
+    describe('createBoard', function () {
+      it('제대로 작동되어야 함', async function () {
+        await doLogin(agent, 'testAdmin', 'abc');
+        await graphqlSuper(agent, createBoardMutation, {
+          input: {
+            title: 'hihello',
+          },
+        });
+        const found = await model.Board.findOne({ title: 'hihello' }).lean().exec();
+        console.log(found);
+        expect(found).to.not.be.null;
+      });
+    });
+    describe('updateBoard', function () {
+      it('제대로 작동되어야 함', async function () {
+        await doLogin(agent, 'testAdmin', 'abc');
+        await graphqlSuper(agent, updateBoardMutation, {
+          id: 1,
+          input: {
+            title: '변경된 타이틀',
+          },
+        });
+
+        const found = await model.Board.findOne({ id: 1 }).lean().exec();
+        console.log(found);
+        expect(found.title).to.equal('변경된 타이틀');
+      });
+    });
+    describe('removeBoard', function () {
+      it('제대로 작동되어야 함', async function () {
+        await doLogin(agent, 'testAdmin', 'abc');
+        await graphqlSuper(agent, removeBoardMutation, {
+          id: 1,
+        });
+
+        const found = await model.Board.find().lean().exec();
+        console.log(found);
+        expect(found.length).to.equal(0);
       });
     });
   });

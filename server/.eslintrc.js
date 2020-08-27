@@ -23,6 +23,7 @@ module.exports = {
     // 'no-underscore-dangle': 0, // var _foo;
     // 'comma-dangle': 0,
     'object-curly-newline': 0,
+    'no-await-in-loop': 1,
     'func-names': 0, // setTimeout(function () {}, 0);
     'prefer-arrow-callback': 0, // setTimeout(function () {}, 0)
     'class-methods-use-this': 0,
