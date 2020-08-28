@@ -40,17 +40,12 @@ const createBoard = makeResolver(async (obj, args, context, info) => {
   });
 }).only(ACCESS_ADMIN);
 
+// getArgrs
+
 const updateBoard = makeResolver(async (obj, args, context, info) => {
   const { id, input } = args;
-  const { title, description, permalink, belongs_to, board_type, meta } = input;
-  return db.updateBoard(id, {
-    title,
-    description,
-    permalink,
-    belongs_to,
-    board_type,
-    meta,
-  });
+  // const { title, description, permalink, belongs_to, board_type, meta } = input;
+  return db.updateBoard(id, input);
 }).only(ACCESS_ADMIN);
 
 const removeBoard = makeResolver(async (obj, args, context, info) => {

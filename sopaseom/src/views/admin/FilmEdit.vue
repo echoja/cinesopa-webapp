@@ -42,7 +42,7 @@
 <script>
 import {
   graphql, filmQuery, updateFilmMutation, createFilmMutation,
-} from '../../graphql-client';
+} from '../../api/graphql-client';
 import router from '../../router';
 
 export default {

@@ -54,7 +54,7 @@
 import { BFormInput, BButton } from 'bootstrap-vue';
 import url from 'url';
 // import { makeProcessingMixin } from '../../mixins/tool';
-import { graphql, loginQuery } from '../../graphql-client';
+import { graphql, loginQuery } from '../../api/graphql-client';
 import router from '../../router';
 
 /*

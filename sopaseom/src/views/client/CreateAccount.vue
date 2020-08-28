@@ -126,7 +126,7 @@ import {
 // import { graphql, loginQuery } from '../../graphql-client';
 // import router from '../../router';
 
-import { createGuest } from '@/graphql-client';
+import { createGuest } from '@/api/graphql-client';
 
 export default {
   name: 'CreateAccount',

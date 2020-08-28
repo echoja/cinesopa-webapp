@@ -37,7 +37,7 @@ import {
   createPageMutation,
   updatePageMutation,
   getPageByIdQuery,
-} from '../../graphql-client';
+} from '../../api/graphql-client';
 import router from '../../router';
 import WrapWithEditor from '../layout/WrapWithEditor.vue';
 

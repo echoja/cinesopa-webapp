@@ -175,10 +175,12 @@ export default {
   computed: {
     ...mapState(['messages']),
     errorMsg() {
-      return store.state.messages;
+      // return store.state.messages;
+      return null;
     },
     hasErrorMsg() {
-      return store.state.messages.length !== 0;
+      // return store.state.messages.length !== 0;
+      return false;
     },
   },
   created() {

@@ -9,7 +9,7 @@
 </template>
 
 <script>
-import { graphql, filmsQuery /* removeFilmMutation */ } from '../../graphql-client';
+import { graphql, filmsQuery /* removeFilmMutation */ } from '../../api/graphql-client';
 import router from '../../router';
 import store from '../../store';
 

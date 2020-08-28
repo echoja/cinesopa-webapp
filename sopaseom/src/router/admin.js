@@ -24,6 +24,7 @@ export default [
   {
     ...adminRoute('/admin/cinesopa/post', 'AdminPost'),
     component: () => import('@/views/admin/Post.vue'),
+    props: { belongs_to: 'cinesopa' },
   },
   {
     ...adminRoute('/admin/cinesopa/post/new', 'PostNew'),

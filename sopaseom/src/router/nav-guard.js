@@ -2,7 +2,7 @@ import store from '../store';
 
 import {
   graphql, checkAuthQuery, logoutMeQuery, emailVerifyMutation,
-} from '../graphql-client';
+} from '../api/graphql-client';
 
 export const logoutBeforeEnter = async (to, from, next) => {
   await graphql(logoutMeQuery, {});
