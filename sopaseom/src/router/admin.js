@@ -68,6 +68,11 @@ export default [
     component: () => import('@/views/admin/Product.vue'),
   },
   {
+    ...adminRoute('/admin/sopaseom/product/new', 'AdminProductNew'),
+    component: () => import('@/views/admin/Product.vue'),
+    props: { mode: 'new' },
+  },
+  {
     ...adminRoute('/admin/sopaseom/product/:id', 'AdminProductEdit'),
     component: () => import('@/views/admin/ProductEdit.vue'),
   },
@@ -80,7 +85,6 @@ export default [
     component: () => import('@/views/admin/ApplicationEdit.vue'),
   },
 
-
   /** design */
   {
     ...adminRoute('/admin/cinesopa/design', 'DesignCinesopa'),
@@ -92,7 +96,6 @@ export default [
     component: () => import('@/views/admin/Design.vue'),
     props: { belongs_to: 'sopaseom' },
   },
-
 
   /** page */
   {
@@ -121,7 +124,6 @@ export default [
     props: true,
   },
 
-
   /** site */
   {
     ...adminRoute('/admin/cinesopa/site', 'SiteCinesopa'),
@@ -146,6 +148,4 @@ export default [
     component: () => import('@/views/admin/Menu.vue'),
     props: { belongs_to: 'sopaseom' },
   },
-
-
 ];

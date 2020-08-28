@@ -1,22 +1,30 @@
 <template>
   <div>
-    <b-form-input v-model="permalink" placeholder="url 이름"></b-form-input>
-    <b-form-input v-model="title" placeholder="페이지 제목"></b-form-input>
-    <p v-if="!editorLoaded"><b-spinner label="Spinning" />에디터 로딩중</p>
-    <editor
-      api-key="gt5higoqzglgrwcu9r7cdbmj408cva4csd4aj2y6qvcr5i5r"
-      v-model="content"
-      :init="editorInit"
-      @onInit="onEditorInit"
-    />
-    <b-button @click="confirm">적용</b-button>
+    <wrap-with-editor>
+      <template #main>
+        <h2>페이지 편집</h2>
+        <b-form-input v-model="permalink" placeholder="url 이름"></b-form-input>
+        <b-form-input v-model="title" placeholder="페이지 제목"></b-form-input>
+        <p v-if="!editorLoaded"><b-spinner label="Spinning" />에디터 로딩중</p>
+        <editor
+          api-key="gt5higoqzglgrwcu9r7cdbmj408cva4csd4aj2y6qvcr5i5r"
+          v-model="content"
+          :init="editorInit"
+          @onInit="onEditorInit"
+        />
+        <b-button @click="confirm">적용</b-button>
 
-    <b-form-file v-model="file2" @input="fileUpload" ref="file-input" class="mt-3" plain>
-    </b-form-file>
-    <p>{{ file2 }}</p>
-    <p><b> content </b>:  {{ content }}</p>
-    <p>belongs_to : {{ belongs_to }}, mode: {{ mode }}</p>
-    <p>oldPermalink: {{ oldPermalink }}</p>
+        <b-form-file v-model="file2" @input="fileUpload" ref="file-input" class="mt-3" plain>
+        </b-form-file>
+        <p>{{ file2 }}</p>
+        <p><b> content </b>: {{ content }}</p>
+        <p>belongs_to : {{ belongs_to }}, mode: {{ mode }}</p>
+        <p>oldPermalink: {{ oldPermalink }}</p>
+      </template>
+      <template #sidebar>
+        bbb
+      </template>
+    </wrap-with-editor>
   </div>
 </template>
 
@@ -31,6 +39,7 @@ import {
   getPageByIdQuery,
 } from '../../graphql-client';
 import router from '../../router';
+import WrapWithEditor from '../layout/WrapWithEditor.vue';
 
 // const getPageByIdQuery = `
 // query getPageById($id: String!) {
@@ -59,6 +68,7 @@ export default {
   name: 'PageEdit',
   components: {
     editor: Editor,
+    'wrap-with-editor': WrapWithEditor,
     // 'b-form-file': BFormFile,
     // 'b-button' :
   },
@@ -129,7 +139,11 @@ export default {
     confirmEdit() {
       const {
         // eslint-disable-next-line
-        title, permalink, belongs_to, oldPermalink, content,
+        title,
+        permalink,
+        belongs_to,
+        oldPermalink,
+        content,
       } = this;
       dataGraphql(updatePageMutation, {
         permalink: oldPermalink,

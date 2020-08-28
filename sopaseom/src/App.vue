@@ -1,15 +1,13 @@
 <template>
   <div id="app">
     <component :is="layout">
-    <router-view/>
+      <router-view />
     </component>
   </div>
 </template>
 <script>
-
-import {
-// BFormInput, BButton, BFormSelect, BFormCheckboxGroup, BFormCheckbox, BCard,
-} from 'bootstrap-vue';
+import // BFormInput, BButton, BFormSelect, BFormCheckboxGroup, BFormCheckbox, BCard,
+'bootstrap-vue';
 import LayoutClient from '@/views/layout/LayoutClient.vue';
 import LayoutAdmin from '@/views/layout/LayoutAdmin.vue';
 
@@ -23,6 +21,11 @@ export default {
     layout() {
       return this.$route.meta.layout || LayoutClient;
     },
+  },
+  methods: {
+    // async successMsg(msg) {
+    //   alert(`"유후~~" ${msg}`);
+    // },
   },
 };
 </script>

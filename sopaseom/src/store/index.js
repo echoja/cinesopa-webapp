@@ -12,7 +12,7 @@ const testStates = {
 /**
  * store는 F5 할때마다 초기화된다.
  */
-export default new Vuex.Store({
+const store = new Vuex.Store({
   /**
    * store.state.name 으로 접근할 수 있음.
    * 값을 수정하려면 mutation 을 써야 함.
@@ -22,6 +22,7 @@ export default new Vuex.Store({
     testString: '초기테스트 스토어',
     errorMsg: '',
     ...testStates,
+    messages: [],
   },
   /**
    * 게터.
@@ -48,6 +49,15 @@ export default new Vuex.Store({
     setTestString(state, { value }) {
       state.testString = value;
     },
+    pushMessage(state, msgObj) {
+      state.messages.push(msgObj);
+    },
+    removeMessage(state, { id }) {
+      const foundIndex = state.messages.findIndex((msg) => {
+        return msg.id === id;
+      });
+      if (foundIndex > -1) state.messages.splice(foundIndex, 1);
+    },
   },
   /**
    * 비동기 작업들. 내부 함수는 async 가능
@@ -59,6 +69,14 @@ export default new Vuex.Store({
     async changeTestString(state, { text }) {
       state.commit('setTestString', { value: text });
     },
+    async pushMessage(state, { type, id, msg }) {
+      state.commit('pushMessage', { type, id, msg });
+    },
+    async removeMessage(state, { id }) {
+      state.commit('removeMessage', { id });
+    },
   },
   modules: {},
 });
+
+export default store;
