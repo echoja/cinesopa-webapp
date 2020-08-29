@@ -78,8 +78,20 @@
               }}</b-button>
               <b-button @click="cancelForm(row)">취소</b-button>
             </b-button-group>
-            <p v-if="state.processing.create">생성 중입니다.</p>
-            <p v-if="state.processing.update">업데이트 중입니다.</p>
+            <div
+              v-if="state.processing.create"
+              class="h-25 d-flex p-2 justify-content-center align-items-center"
+            >
+              <b-spinner variant="secondary" class="m-2 small"></b-spinner>
+              <p class="m-0">생성 중입니다.</p>
+            </div>
+            <div
+              v-if="state.processing.update"
+              class="h-25 d-flex p-2 justify-content-center align-items-center"
+            >
+              <b-spinner variant="secondary" class="m-2 small"></b-spinner>
+              <p class="m-0">업데이트 중입니다.</p>
+            </div>
           </b-form>
         </div>
       </template>

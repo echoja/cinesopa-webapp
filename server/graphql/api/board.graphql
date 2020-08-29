@@ -6,6 +6,7 @@ type Board {
   belongs_to: String
   board_type: String
   meta: JSON
+  _id: String
 }
 
 input BoardInput {

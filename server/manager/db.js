@@ -588,13 +588,39 @@ class DBManager {
   게시글(포스트)
   ===================================== */
 
+  // /**
+  //  * api로부터 전달된 id를 다듬습니다.
+  //  * @param {Postinfo} input
+  //  */
+  // async importPostInput(input) {
+  //   const refined_input = input;
+  //   if (input.board) {
+  //     refined_input.board = (
+  //       await model.File.findOne({ id: input.board }).exec()
+  //     )?._id;
+  //   }
+  //   if (input.featured_image) {
+  //     refined_input.featured_image = (
+  //       await model.Board.findOne({ id: input.featured_image }).exec()
+  //     )?._id;
+  //   }
+  //   // console.log(`refined_input: ${JSON.stringify(refined_input)}`);
+  //   return refined_input;
+  // }
+
+  // async exportPost(postinfo) {
+
+  // }
+
+
   /**
    * 게시물을 만듭니다.
    * @param {Postinfo} input
    */
   async createPost(input) {
-    // const refined_input = input;
+    // const refined_input = await this.importPostInput(input);
     // refined_input.m_date = new Date();
+
     const doc = await model.Post.create(input);
     if (doc) return doc.toObject();
     return null;
@@ -680,6 +706,7 @@ class DBManager {
   async updatePost(id, input) {
     // const refined_input = input;
     // refined_input.m_date = new Date();
+    // const refined_input = await this.importPostInput(input);
     await model.Post.updateOne({ id }, input).exec();
     return model.Post.findOne({ id }).lean().exec();
   }

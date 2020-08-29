@@ -58,6 +58,7 @@
  * @property {import("mongoose/lib/types/objectid")} owner
  * @property {boolean} public 외부 링크로 접근할 수 있는가의 여부.
  * @property {boolean} managed 파일이 파일 매니저에서 관리되는지 아닌지의 여부.
+ * @property {number} id
  */
 
 /**
@@ -162,6 +163,7 @@
  * @property {string} permalink
  * @property {string} status ['public', 'private']
  * @property {import("mongoose/lib/types/objectid")} board 게시판에 대한 ObjectId
+ * @property {import("mongoose/lib/types/objectid")} featured_image 이미지에 대한 ObjectId
  * @property {Date} c_date
  * @property {Date} m_date
  * @property {string} search

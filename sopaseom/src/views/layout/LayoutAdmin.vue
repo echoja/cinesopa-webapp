@@ -244,6 +244,9 @@ export default {
 </script>
 
 <style>
+body {
+  font-size: 14px;
+}
 .error-msg {
   background-color: #ddd;
 }

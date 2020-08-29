@@ -23,8 +23,15 @@ const boardResolver = makeResolver(async (obj, args, context, info) => {
 
 const boardsResolver = makeResolver(async (obj, args, context, info) => {
   const { belongs_to } = args;
-  if (belongs_to) return db.getBoardsAssigned(belongs_to);
-  return db.getBoards();
+  let result;
+  if (belongs_to) {
+    result = await db.getBoardsAssigned(belongs_to);
+  } else {
+    result = await db.getBoards();
+  }
+  console.log(result);
+  result.id = result._id;
+  return result;
 }).only(ACCESS_ADMIN);
 
 const createBoard = makeResolver(async (obj, args, context, info) => {

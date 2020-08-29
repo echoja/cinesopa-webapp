@@ -7,6 +7,7 @@ const boardResponse = `
   belongs_to
   board_type
   meta
+  _id
 }
 `;
 const boardQuery = `

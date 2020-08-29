@@ -17,7 +17,7 @@ export default [
 
   /** cinesopa - board, post */
   {
-    ...adminRoute('/admin/cinesopa/board', 'Board'),
+    ...adminRoute('/admin/cinesopa/board', 'AdminBoard'),
     component: () => import('@/views/admin/Board.vue'),
     props: { belongs_to: 'cinesopa' },
   },
@@ -30,6 +30,11 @@ export default [
     ...adminRoute('/admin/cinesopa/post/new', 'PostNew'),
     component: () => import('@/views/admin/PostEdit.vue'),
     props: { mode: 'new', belongs_to: 'cinesopa' },
+  },
+  {
+    ...adminRoute('/admin/cinesopa/post/:page', 'AdminPostPaged'),
+    component: () => import('@/views/admin/Post.vue'),
+    props: { belongs_to: 'cinesopa' },
   },
   {
     ...adminRoute('/admin/post/:id', 'PostEdit'),

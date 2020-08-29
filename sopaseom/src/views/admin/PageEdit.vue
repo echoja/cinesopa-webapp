@@ -22,7 +22,7 @@
         <p>oldPermalink: {{ oldPermalink }}</p>
       </template>
       <template #sidebar>
-        bbb
+        ...
       </template>
     </wrap-with-editor>
   </div>

@@ -1,11 +1,11 @@
-
-const {enumFileUsage} = require("./enum");
+const { enumFileUsage } = require('./enum');
+const autoIdSetter = require('./auto-id-setter');
 
 /**
- * @param {Mongoose} mongoose 
+ * @param {Mongoose} mongoose
  */
 module.exports = function (mongoose) {
-  return new mongoose.Schema({
+  const schema = new mongoose.Schema({
     encoding: String,
     mimetype: String,
     filename: String,
@@ -15,8 +15,10 @@ module.exports = function (mongoose) {
     alt: String,
     path: String,
     size: Number,
-    owner: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+    owner: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
     public: Boolean,
-    managed: Boolean, 
+    managed: Boolean,
   });
+  autoIdSetter(schema, mongoose, 'file', 'id');
+  return schema;
 };

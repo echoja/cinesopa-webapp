@@ -20,6 +20,7 @@ module.exports = function (mongoose) {
       enum: enumPostStatus.raw_str_list,
     },
     board: { type: mongoose.Schema.Types.ObjectId, ref: 'Board' },
+    featured_image: { type: mongoose.Schema.Types.ObjectId, ref: 'File' },
     c_date: { type: Date, default: Date.now },
     m_date: { type: Date, default: Date.now },
     search: String,
