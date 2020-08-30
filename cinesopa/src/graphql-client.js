@@ -49,13 +49,16 @@ query getPages {
 `;
 
 export const getPageQuery = `
-query getPage($permalink: String!) {
-  page(permalink: $permalink) {
-    id
+query getPage($permalink: String!, $belongs_to: String!) {
+  page(permalink: $permalink, belongs_to: $belongs_to) {
     title
     content
     permalink
-    c_date
+    c_date 
+    m_date 
+    role
+    belongs_to
+    meta_json
   }
 }
 `;

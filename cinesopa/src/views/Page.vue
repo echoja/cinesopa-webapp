@@ -6,12 +6,10 @@
       내용: {{ content }}
       {{ permalink }}
     </div>
-
   </div>
 </template>
 
 <script>
-
 import { graphql, getPageQuery } from '../graphql-client';
 
 export default {
@@ -27,14 +25,10 @@ export default {
     };
   },
   async created() {
-    const res = await graphql(getPageQuery, { permalink: this.permalink });
+    const res = await graphql(getPageQuery, { permalink: this.permalink, belongs_to: 'cinesopa' });
     this.content = res?.data?.page?.content;
   },
-
-
 };
 </script>
 
-<style>
-
-</style>
+<style></style>

@@ -43,15 +43,23 @@ const routes = [
     component: () => import('../views/Post.vue'),
   },
   {
-    path: '/request/distribution',
-    name: 'Distribution',
-    component: () => import('../views/Distribution.vue'),
+    path: '/request',
+    name: 'Request',
+    component: () => import('../views/Request.vue'),
+    children: [
+      {
+        path: '/distribution',
+        name: 'Distribution',
+        component: () => import('../views/Distribution.vue'),
+      },
+      {
+        path: '/community',
+        name: 'Community',
+        component: () => import('../views/Community.vue'),
+      },
+    ],
   },
-  {
-    path: '/request/community',
-    name: 'Community',
-    component: () => import('../views/Community.vue'),
-  },
+
   {
     path: '/sitemap',
     name: 'Sitemap',
