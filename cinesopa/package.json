@@ -10,7 +10,7 @@
     "lint": "vue-cli-service lint"
   },
   "dependencies": {
-    "@babel/polyfill": "^7.10.1",
+    "@babel/polyfill": "^7.10.4",
     "@tinymce/tinymce-vue": "^3.2.2",
     "axios": "^0.19.2",
     "bootstrap": "^4.5.0",
@@ -18,14 +18,17 @@
     "core-js": "^3.6.5",
     "form-data": "^3.0.0",
     "graphql": "^15.1.0",
+    "intersection-observer": "^0.11.0",
     "jquery": "^3.5.1",
     "mutationobserver-shim": "^0.3.5",
     "rellax": "^1.12.1",
     "tinymce": "^5.3.2",
     "vue": "^2.6.11",
     "vue-affix": "^0.5.2",
+    "vue-fullpage.js": "^0.1.5",
     "vue-router": "^3.2.0",
     "vue-scrollactive": "^0.9.3",
+    "vue-scrollto": "^2.18.2",
     "vuex": "^3.4.0"
   },
   "devDependencies": {

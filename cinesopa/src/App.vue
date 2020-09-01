@@ -1,8 +1,8 @@
 <template>
   <div
     id="app"
-    @scroll.passive="onScroll"
-    :class="{ top: isTop, 'noto-sans': true }"
+    @scroll="onScroll"
+    :class="{ top: isTop, bottom: isBottom, 'noto-sans': true, ['route-' + $route.name]: true }"
     :style="userStyle"
   >
     <div class="h-header"></div>
@@ -72,6 +72,8 @@ export default {
       prevHeight: 0,
       showA: true,
       scrollY: 0,
+      windowHeight: 0,
+      documentHeight: 0,
       cssVariables: {
         '--var-text-color': '#2B3E4A',
         '--var-header-height': '300px',
@@ -95,6 +97,9 @@ export default {
     isTop() {
       return this.scrollY === 0;
     },
+    isBottom() {
+      return this.scrollY + this.windowHeight === this.documentHeight;
+    },
     userStyle() {
       return this.cssVariables;
     },
@@ -103,13 +108,19 @@ export default {
     },
   },
 
+  created() {
+    this.getHeight();
+  },
+
   beforeMount() {
     window.addEventListener('scroll', this.onScroll, {
       passive: true,
     });
+    window.addEventListener('resize', this.onResize);
   },
   beforeDestroy() {
     window.removeEventListener('scroll', this.onScroll);
+    window.removeEventListener('resize', this.onResize);
   },
 
   methods: {
@@ -117,7 +128,20 @@ export default {
       // console.log(e);
       this.scrollY = window.scrollY;
     },
+    onResize() {
+      this.getHeight();
+      console.log('resized!');
+    },
+    getHeight() {
+      this.windowHeight = window.innerHeight;
+      this.documentHeight = document.body.clientHeight;
+    },
     beforeLeave(element) {
+      let top = 0;
+      if (window.scrollY >= 1) top = 1;
+      window.scroll({
+        top,
+      });
       this.prevHeight = getComputedStyle(element).height;
     },
     enter(element) {
@@ -177,6 +201,7 @@ export default {
   -moz-osx-font-smoothing: grayscale;
   // text-align: center;
   color: var(--var-text-color);
+  overflow-x: hidden;
 }
 
 #main {
@@ -204,7 +229,7 @@ export default {
 #nav a:hover {
   color: var(--var-link-color);
   text-decoration: none;
-  transition:none;
+  transition: none;
 }
 
 .logo {
@@ -250,6 +275,12 @@ footer {
 
 .transition-header {
   transition: 1s ease;
+}
+
+.no-scroll {
+  position: fixed;
+  overflow-y: scroll;
+  width: 100%;
 }
 
 /** fonts */

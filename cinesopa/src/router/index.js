@@ -66,6 +66,11 @@ const routes = [
     component: () => import('../views/Sitemap.vue'),
   },
   {
+    path: '/test',
+    name: 'Test',
+    component: () => import('../views/Test.vue'),
+  },
+  {
     path: '/:permalink',
     name: 'Page',
     component: () => import('../views/Page.vue'),
@@ -82,5 +87,14 @@ const router = new VueRouter({
   base: process.env.BASE_URL,
   routes,
 });
+
+// router.afterEach((to, from, next) => {
+//   window.scrollTo({
+//     behavior: 'auto',
+//     left: 0,
+//     top: 0,
+//   });
+//   next();
+// });
 
 export default router;
