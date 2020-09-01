@@ -6,9 +6,11 @@ import './plugins/bootstrap-vue';
 import './plugins/vuescrollactive';
 import './plugins/affix';
 import './plugins/vue-scrollto';
+import './plugins/fontawesome';
 import App from './App.vue';
 import router from './router';
 import store from './store';
+
 
 Vue.config.productionTip = false;
 

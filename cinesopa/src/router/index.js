@@ -66,6 +66,11 @@ const routes = [
     component: () => import('../views/Sitemap.vue'),
   },
   {
+    path: '/email-refuse',
+    name: 'EmailRefuse',
+    component: () => import('../views/EmailRefuse.vue'),
+  },
+  {
     path: '/test',
     name: 'Test',
     component: () => import('../views/Test.vue'),

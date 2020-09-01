@@ -14,10 +14,11 @@
     </div> -->
 
     <div class="page-scroll-container" ref="container">
-      <div class="page-scroll-section my-1" ref="scroll0" v-b-visible="visibleA">
+      <!-- ref="scroll0" -->
+      <div class="page-scroll-section my-1" v-b-visible="visible(0)">
         <transition name="scroll1">
           <div
-            v-if="isVisibleA"
+            v-if="isVisible(0)"
             class="d-flex h-100 border border-dark align-items-center justify-content-center"
           >
             <div>
@@ -26,18 +27,20 @@
           </div>
         </transition>
       </div>
-      <div class="page-scroll-section my-1" ref="scroll1" v-b-visible="visibleB">
+      <!-- ref="scroll1" -->
+      <div class="page-scroll-section my-1" v-b-visible="visible(1)">
         <transition name="scroll1">
           <div
-            v-if="isVisibleB"
+            v-if="isVisible(1)"
             class="d-flex h-100 border border-dark align-items-center justify-content-center"
           ></div>
         </transition>
       </div>
-      <div class="page-scroll-section my-1" ref="scroll2" v-b-visible="visibleC">
+      <!-- ref="scroll2" -->
+      <div class="page-scroll-section my-1" v-b-visible="visible(2)">
         <transition name="scroll1">
           <div
-            v-if="isVisibleC"
+            v-if="isVisible(2)"
             class="d-flex h-100 border border-dark align-items-center justify-content-center"
           >
             HELLO WORLD2!!
@@ -67,7 +70,6 @@
 
 <script>
 import Rellax from 'rellax';
-import { disableScroll, enableScroll } from '../plugins/scroll-deactive';
 // console.log(Rellax);
 
 function onScrollImpl(self) {
@@ -75,21 +77,21 @@ function onScrollImpl(self) {
   let lastScrollTop = window.pageYOffset || document.documentElement.scrollTop;
   return () => {
     // console.log('real!!! scroll!!!! yeah!!!');
-    const scrollSection = [
-      {
-        element: self.$refs.scroll0,
-        isVisible: self.isVisibleA,
-      },
-      {
-        element: self.$refs.scroll1,
-        isVisible: self.isVisibleB,
-      },
-      {
-        element: self.$refs.scroll2,
-        isVisible: self.isVisibleC,
-      },
-    ];
-    const visibles = scrollSection.filter((sec) => {
+    // const scrollSection = [
+    //   {
+    //     element: self.$refs.scroll0,
+    //     isVisible: self.isVisibleA,
+    //   },
+    //   {
+    //     element: self.$refs.scroll1,
+    //     isVisible: self.isVisibleB,
+    //   },
+    //   {
+    //     element: self.$refs.scroll2,
+    //     isVisible: self.isVisibleC,
+    //   },
+    // ];
+    const visibles = self.scrollSection.filter((sec) => {
       return sec.isVisible === true;
     });
 
@@ -130,33 +132,18 @@ export default {
       howv: false,
       rellax: {},
       currentScroll: 0,
-      scrollSection: {
-        a: {
-          element: null,
-          isVisible: false,
-        },
-        b: {
-          element: null,
-          isVisible: false,
-        },
-        c: {
-          element: null,
-          isVisible: false,
-        },
-      },
-      isVisibleA: false,
-      isVisibleB: false,
-      isVisibleC: false,
-      // show: {
-      //   main: true,
-      //   featured: false,
-      //   recent: false,
-      // },
+      scrollSection: [], // {element: domObject, isVisible: bool}
       lastScrollTop: window.pageYOffset || document.documentElement.scrollTop,
       scrollProcessing: false,
     };
   },
   computed: {
+    // isVisible(key) {
+    //   return function() {
+    //     const isVisible = this.scrollSection[key]?.isVisible;
+    //     return isVisible !== undefined ? isVisible : false;
+    //   };
+    // },
     // how() {
     //   return (o) => {
     //     return this.howv;
@@ -173,8 +160,8 @@ export default {
   },
   async beforeDestroy() {
     // window.removeEventListener('scroll', this.onScroll);
-    window.removeEventlistener('scroll', onScroll);
-    window.addEventListener('wheel', this.onWheel);
+    window.removeEventListener('scroll', onScroll);
+    window.removeEventListener('wheel', this.onWheel);
     window.removeEventListener('resize', this.onResize);
   },
   async mounted() {
@@ -188,20 +175,26 @@ export default {
     /**
      * @type {HTMLCollection}
     //  */
-    // const children = this.$refs.c.children;
+    const { children } = this.$refs.container;
+    children.forEach((child) => {
+      this.scrollSection.push({
+        element: child,
+        isVisible: false,
+      });
+    });
     // const c0 = children.item(0);
     // console.log(children[0].getBoundingClientRect());
     // console.log(children[1].getBoundingClientRect());
     // console.log(children[2].getBoundingClientRect());
 
     // console.dir(c0);
-    console.log(this.show);
+    // console.log(this.show);
     // this.scrollSection.a.element = this.$refs.scroll0;
     // this.scrollSection[1].element = this.$refs.scroll1;
     // this.scrollSection[2].element = this.$refs.scroll2;
 
     console.log(this.scrollSection);
-    console.log('mounted!');
+    // console.log('mounted!');
     this.setScrollSectionX();
 
     onScroll = onScrollImpl(this);
@@ -311,13 +304,12 @@ export default {
       this.setScrollSectionX();
       // disableScroll();
     },
-    // visibleA(el) {
-    //   return (isVisible) => {
-    //
-    //     this.scrollSection.el.isVisible = isVisible;
-    //   };
-    //   // console.log(`visible! >> ${str}, ${e}`);
-    // },
+    visible(index) {
+      return (isVisible) => {
+        this.scrollSection[index].isVisible = isVisible;
+      };
+      // console.log(`visible! >> ${str}, ${e}`);
+    },
     visibleA(isVisible) {
       console.log(`visible! >> a, ${isVisible}`);
       this.isVisibleA = isVisible;
@@ -331,18 +323,18 @@ export default {
       this.isVisibleC = isVisible;
     },
     isVisible(index) {
-      return this.scrollSection[index].isVisible;
+      return this.scrollSection[index]?.isVisible;
     },
     setScrollSectionX() {
       const { left } = this.$refs.container.getBoundingClientRect();
-      this.$refs.scroll0.style.transform = `translateX(-${left}px)`;
-      this.$refs.scroll1.style.transform = `translateX(-${left}px)`;
-      this.$refs.scroll2.style.transform = `translateX(-${left}px)`;
+      // this.$refs.scroll0.style.transform = `translateX(-${left}px)`;
+      // this.$refs.scroll1.style.transform = `translateX(-${left}px)`;
+      // this.$refs.scroll2.style.transform = `translateX(-${left}px)`;
 
-      // this.scrollSection.forEach((o) => {
-      //   // eslint-disable-next-line no-param-reassign
-      //   o.element.style.transform =
-      // });
+      this.scrollSection.forEach((o) => {
+        // eslint-disable-next-line no-param-reassign
+        o.element.style.transform = `translateX(-${left}px)`;
+      });
     },
     test1(a, b, c, d) {
       console.log(a);
@@ -394,7 +386,7 @@ export default {
 <style>
 #home {
   /* position: relative; */
-  margin-top: calc(-1 * var(--var-header-height));
+  margin-top: calc(-1 * var(--header-height));
 }
 
 .main-enter,
