@@ -64,7 +64,9 @@
         </transition> -->
       </main>
       <footer>
-        <div class="footer-sns-buttons mb-1 d-flex footer-link-color justify-content-center align-items-center">
+        <div
+          class="footer-sns-buttons mb-1 d-flex footer-link-color justify-content-center align-items-center"
+        >
           <b-link
             href="https://www.instagram.com/cinesopa/"
             target="_blank"
@@ -130,15 +132,19 @@
           <b-link :to="{ name: 'EmailRefuse' }" class="mx-2 my-2">이메일무단수집거부</b-link>
           <b-link :to="{ name: 'Sitemap' }" class="mx-2 my-2">사이트맵</b-link>
         </div>
+        <!-- class p-2 -->
         <div class="footer-information d-flex footer-text-color justify-content-center">
-          <span class="p-2">사업자등록번호 159-87-00749</span>
-          <span class="p-2">|</span>
-          <span class="p-2">부산시 해운대구 재반로103번길 5, 3층</span>
-          <span class="p-2">|</span>
-          <span class="p-2">coop.cinesopa@gmail.com</span>
+          <!-- <p>사업자등록번호 159-87-00749&nbsp; &nbsp;|&nbsp; &nbsp;부산시 해운대구 재반로103번길 5, 3층&nbsp; &nbsp;|&nbsp; &nbsp;coop.cinesopa@gmail.com</p> -->
+          <p>
+            <span class="m-2">사업자등록번호 159-87-00749</span>
+            <span class="m-2">|</span>
+            <span class="m-2">부산시 해운대구 재반로103번길 5, 3층</span>
+            <span class="m-2">|</span>
+            <span class="m-2">coop.cinesopa@gmail.com</span>
+          </p>
         </div>
         <div class="footer-copyright d-flex footer-text-color justify-content-center mb-4">
-          Copyright ⓒ 2020 CINESOPA All Rights Reserved
+          <p>Copyright ⓒ 2020 CINESOPA All Rights Reserved</p>
         </div>
         <!-- {{ text }} -->
       </footer>
@@ -363,6 +369,10 @@ header {
 }
 
 /* footer !footer */
+
+footer p {
+  margin: 0;
+}
 
 .footer-link-color,
 .footer-link-color a {
