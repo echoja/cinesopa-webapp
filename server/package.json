@@ -14,7 +14,7 @@
     "graphql": "^15.3.0",
     "graphql-passport": "^0.6.3",
     "graphql-scalars": "^1.2.6",
-    "graphql-tools": "^6.2.0",
+    "graphql-tools": "^6.0.18",
     "greenlock-express": "^4.0.3",
     "hangul-js": "^0.2.6",
     "isemail": "^3.2.0",
