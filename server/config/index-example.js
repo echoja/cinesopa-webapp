@@ -1,5 +1,5 @@
-module.exports.sessionSecret = "thisissecret";
+module.exports.sessionSecret = 'thisissecret';
 module.exports.mongodbUrl =
-  "mongodb+srv://admin_821423:dJSgnQwmjBuoPClh@cinesopa-root-gpwhe.azure.mongodb.net/cinesopa?retryWrites=true&w=majority";
-module.exports.gmailEmail = "";
-module.exports.gmailPassword = "";
+  'mongodb://localhost:27017/?readPreference=primary&appname=CINESOPA_SOPASEOM_TEST_SERVER&ssl=false';
+module.exports.gmailEmail = '';
+module.exports.gmailPassword = '';

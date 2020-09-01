@@ -5,10 +5,10 @@ services:
     hostname: proxy
     image: nginx:latest
     ports:
-      - "80:80" # common web
-      - "443:443" # https
-      - "4040:4040" # graphql
-      - "5000:5000" # (dev)localhost cinesopa proxy
+      - '80:80' # common web
+      - '443:443' # https
+      - '4040:4040' # graphql
+      - '5000:5000' # (dev)localhost cinesopa proxy
     volumes:
       - ./proxy/nginx.conf:/etc/nginx/nginx.conf:ro
       - ./proxy/web.conf:/etc/nginx/web.conf:ro
@@ -16,18 +16,18 @@ services:
       - ./proxy/common:/etc/nginx/common:ro
       - /etc/letsencrypt:/etc/ssl/private/letsencrypt:ro
       - ./server/config:/etc/ssl/private/server/config
-    depends_on: 
+    depends_on:
       - web
   web:
     build: .
     hostname: web
     ports:
-      - "4000:4000"
+      - '4000:4000'
     volumes:
       - /etc/letsencrypt:/app/server/config/letsencrypt
-    environment: 
+    environment:
       - COMPOSE_DOCKER_CLI_BUILD=1
-      - DOCKER_BUILDKIT=1 
+      - DOCKER_BUILDKIT=1
   # web2:
   #   image: nginx:latest
   #   ports:
