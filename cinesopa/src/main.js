@@ -1,4 +1,5 @@
-import '@babel/polyfill';
+import 'core-js/stable';
+import 'regenerator-runtime/runtime';
 import 'intersection-observer'; // Optional
 import 'mutationobserver-shim';
 import Vue from 'vue';

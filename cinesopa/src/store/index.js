@@ -6,9 +6,8 @@ Vue.use(Vuex);
 export default new Vuex.Store({
   state: {
     menuTransparent: false,
-    menuFontColor: 'default',
-    navLinkColor: '#2B3E4A',
-    navLinkHoverColor: '#00B6E7',
+    logoWhite: false,
+    navLinkWhite: false,
   },
   mutations: {
     setMenuTransparent(state, isTransparent) {
@@ -17,13 +16,11 @@ export default new Vuex.Store({
     toggleMenuTransparent(state) {
       state.menuTransparent = !state.menuTransparent;
     },
-    setMenuFontColor(state, { color, hoverColor }) {
-      if (color) state.navLinkColor = color;
-      if (hoverColor) state.navLinkHoverColor = hoverColor;
+    setLogoWhite(state, isLogoWhite) {
+      state.logoWhite = isLogoWhite;
     },
-    setMenuFontColorDefault(state) {
-      state.navLinkColor = '#2B3E4A';
-      state.navLinkHoverColor = '#00B6E7';
+    setNavLinkWhite(state, isNavLinkWhite) {
+      state.navLinkWhite = isNavLinkWhite;
     },
   },
   actions: {},

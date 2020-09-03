@@ -1,5 +1,9 @@
 <template>
-  <p>FilmList</p>
+<div>
+  <!-- placeholder -->
+  <div class="featured-height"></div>
+  <div class="featured position-absolute featured-height d-flex"></div>
+</div>
 
 </template>
 
@@ -10,5 +14,7 @@ export default {
 </script>
 
 <style>
-
+.featured-height {
+  height:600px;
+}
 </style>

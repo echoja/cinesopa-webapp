@@ -7,7 +7,8 @@
   "scripts": {
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
-    "lint": "vue-cli-service lint"
+    "lint": "vue-cli-service lint",
+    "browserslist": "browserslist"
   },
   "dependencies": {
     "@babel/polyfill": "^7.11.5",
@@ -19,12 +20,15 @@
     "axios": "^0.20.0",
     "bootstrap": "^4.5.2",
     "bootstrap-vue": "^2.16.0",
+    "browserslist": "^4.14.0",
     "core-js": "^3.6.5",
+    "css-vars-ponyfill": "^2.3.2",
     "form-data": "^3.0.0",
     "graphql": "^15.3.0",
     "intersection-observer": "^0.11.0",
     "jquery": "^3.5.1",
     "mutationobserver-shim": "^0.3.7",
+    "regenerator-runtime": "^0.13.7",
     "rellax": "^1.12.1",
     "tinymce": "^5.4.2",
     "vue": "^2.6.12",
@@ -53,6 +57,7 @@
     "eslint-plugin-vue": "^6.2.2",
     "popper.js": "^1.16.0",
     "portal-vue": "^2.1.6",
+    "postcss-css-variables": "^0.17.0",
     "sass": "^1.26.10",
     "sass-loader": "^8.0.0",
     "vue-cli-plugin-bootstrap-vue": "~0.6.0",

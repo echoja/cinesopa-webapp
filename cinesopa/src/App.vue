@@ -9,16 +9,14 @@
       ['route-' + $route.name]: true,
       mobile: isMobile,
       desktop: isDesktop,
+      ['power' + scrollY]: true,
     }"
-    :style="userStyle"
   >
     <div class="h-header"></div>
     <!-- fixed header 를 위한 빈자리 -->
     <!-- <affix relative-element-selector="#body"> -->
-    <div
-      class="header-wrapper fixed-top"
-      :style="{ 'background-color': $store.state.menuTransparent ? 'transparent' : '#fff' }"
-    >
+    <!-- :style="{ 'background-color': $store.state.menuTransparent ? 'transparent' : '#fff' }" -->
+    <div class="header-wrapper fixed-top" :class="{ transparent: $store.state.menuTransparent }">
       <header
         class="position-relative mx-auto"
         :class="{
@@ -26,7 +24,12 @@
         }"
       >
         <div class="logo text-center transition-header">
-          <b-link :to="{ name: 'Home' }" title="홈으로 이동">
+          <!-- :style="{ color: $store.state.logoColor }" -->
+          <b-link
+            :to="{ name: 'Home' }"
+            title="홈으로 이동"
+            :class="{ white: $store.state.logoWhite }"
+          >
             <svg
               xmlns="http://www.w3.org/2000/svg"
               class="transition-header"
@@ -102,17 +105,14 @@
           <div
             id="nav"
             class="font-weight-600 text-center transition-header d-flex justify-content-center"
-            :class="{ small: isMenuShouldSmall }"
+            :class="{ small: isMenuShouldSmall, white: $store.state.navLinkWhite }"
           >
             <b-link
               :class="[isMenuShouldSmall ? 'px-3' : 'px-4', {}]"
               :to="{ name: 'Page', params: { permalink: 'about' } }"
               >인사해요
             </b-link>
-            <b-link
-              :class="[isMenuShouldSmall ? 'px-3' : 'px-4']"
-              :to="{ name: 'FilmList' }"
-            >
+            <b-link :class="[isMenuShouldSmall ? 'px-3' : 'px-4']" :to="{ name: 'FilmList' }">
               영화봐요
             </b-link>
             <b-link
@@ -257,11 +257,13 @@
         <div class="footer-information d-flex footer-text-color justify-content-center">
           <!-- <p>사업자등록번호 159-87-00749&nbsp; &nbsp;|&nbsp; &nbsp;부산시 해운대구 재반로103번길 5, 3층&nbsp; &nbsp;|&nbsp; &nbsp;coop.cinesopa@gmail.com</p> -->
           <p>
-            <span class="m-2">사업자등록번호 159-87-00749</span>
-            <span class="m-2">|</span>
-            <span class="m-2">부산시 해운대구 재반로103번길 5, 3층</span>
-            <span class="m-2">|</span>
-            <span class="m-2">coop.cinesopa@gmail.com</span>
+            <span class="m-0 m-md-2 footer-information-item">사업자등록번호 159-87-00749</span>
+            <span class="m-0 m-md-2 footer-information-divider">|</span>
+            <span class="m-0 m-md-2 footer-information-item"
+              >부산시 해운대구 재반로103번길 5, 3층</span
+            >
+            <span class="m-0 m-md-2 footer-information-divider">|</span>
+            <span class="m-0 m-md-2 footer-information-item">coop.cinesopa@gmail.com</span>
           </p>
         </div>
         <div class="footer-copyright d-flex footer-text-color justify-content-center mb-4">
@@ -274,6 +276,8 @@
 </template>
 
 <script>
+// import cssVars from 'css-vars-ponyfill';
+
 export default {
   data() {
     return {
@@ -298,18 +302,30 @@ export default {
   },
   computed: {
     cssVariables() {
-      return {
-        '--text-color': '#2B3E4A',
-        '--text-secondary-color': '#576870',
-        '--desktop-top-header-height': '300px',
-        '--desktop-header-height': '100px',
-        '--mobile-header-height': '80px',
-        '--link-color': '#00B6E7',
-        '--max-content-size': '1260px',
-        '--footer-text-color': '#767676',
-        '--nav-link-color': this.$store.state.navLinkColor,
-        '--nav-link-hover-color': this.$store.state.navLinkHoverColor,
-      };
+      // const variables = {
+      //   '--text-color': '#2B3E4A',
+      //   '--text-secondary-color': '#576870',
+      //   '--desktop-top-header-height': '300px',
+      //   '--desktop-header-height': '100px',
+      //   '--mobile-header-height': '80px',
+      //   '--link-color': '#00B6E7',
+      //   '--max-content-size': '1260px',
+      //   '--footer-text-color': '#767676',
+      //   '--nav-link-color': this.$store.state.navLinkColor,
+      //   '--nav-link-hover-color': this.$store.state.navLinkHoverColor,
+      // };
+      // this.$nextTick(() => {
+      //   console.log('ponyfill called!');
+      //   cssVars({
+      //     onlyLegacy: false,
+      //     variables,
+      //     onComplete: (...args) => {
+      //       console.log(args);
+      //     },
+      //   });
+      // });
+      // return;
+      return null;
     },
     isTop() {
       return this.scrollY === 0;
@@ -424,6 +440,17 @@ export default {
 
 /* default style */
 
+:root {
+  --text-color: #2b3e4a;
+  --text-secondary-color: #576870;
+  --desktop-top-header-height: 300px;
+  --desktop-header-height: 100px;
+  --mobile-header-height: 80px;
+  --link-color: #00b6e7;
+  --max-content-size: 1260px;
+  --footer-text-color: #767676;
+}
+
 #app {
   // font-family: Avenir, Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
@@ -458,6 +485,10 @@ button:hover {
   &.small {
     min-width: 600px;
   }
+
+  &.white a {
+    color: #fff;
+  }
 }
 
 #nav a {
@@ -475,12 +506,16 @@ button:hover {
   position: absolute;
   transition: 1s ease;
 }
+.logo a.white {
+  color:#fff;
+}
 
 .mobile .logo {
   margin-top: 25px;
   left: 50%;
   transform: translateX(-50%);
-  & img & svg {
+  & img,
+  & svg {
     width: 154px;
   }
 }
@@ -534,6 +569,13 @@ button:hover {
 header {
   height: var(--desktop-header-height);
   max-width: var(--max-content-size);
+}
+
+.header-wrapper {
+  background-color: #fff;
+  &.transparent {
+    background-color: transparent;
+  }
 }
 
 .desktop .header-wrapper,
@@ -596,6 +638,16 @@ footer p {
 }
 .footer-information {
   font-weight: 500;
+}
+
+.mobile .footer-information-divider {
+  display: none;
+}
+
+.mobile .footer-information-item {
+  display: block;
+  text-align: center;
+  margin: 0;
 }
 .footer-copyright {
   font-weight: 600;

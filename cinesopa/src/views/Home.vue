@@ -44,11 +44,11 @@
             class="d-flex h-100 border-bottom border-dark align-items-center justify-content-center"
           >
             HELLO WORLD2!!
-            <b-button @click="$store.commit('toggleMenuTransparent')">토글이</b-button>
-            <b-button @click="$store.commit('setMenuFontColor', { color: '#0f0' })"
-              >메뉴 초록</b-button
-            >
-            <b-button @click="$store.commit('setMenuFontColorDefault')">메뉴 원래대로</b-button>
+            <b-button @click="$store.commit('toggleMenuTransparent')">메뉴 투명 토글이</b-button>
+            <b-button @click="$store.commit('setNavLinkWhite', true)">메뉴 하얗게</b-button>
+            <b-button @click="$store.commit('setNavLinkWhite', false)">메뉴 원래대로</b-button>
+            <b-button @click="$store.commit('setLogoWhite', true)">로고 하얗게</b-button>
+            <b-button @click="$store.commit('setLogoWhite', false)">로고 원래대로</b-button>
           </div>
         </transition>
       </div>
