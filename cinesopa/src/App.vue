@@ -27,11 +27,73 @@
       >
         <div class="logo text-center transition-header">
           <b-link :to="{ name: 'Home' }" title="홈으로 이동">
-            <b-img
-              src="./assets/imsi_logo.png"
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              class="transition-header"
+              viewBox="0 0 254 52.07"
+              role="img"
+              aria-hidden="true"
+              aria-labelledby="logo-title"
+            >
+              <title id="logo-title">씨네소파 로고</title>
+              <path
+                fill="currentColor"
+                d="M2.38,47.22,0,43l1.19,2.1L0,43A32.77,32.77,0,0,0,13.36,26C17.27,13.68,20.07,6,28.05,2.65L29.9,7.1c-5.72,2.38-8,8-11.95,20.33A37.13,37.13,0,0,1,2.38,47.22Z"
+              />
+              <path
+                fill="currentColor"
+                d="M23.25,43A20.51,20.51,0,0,1,13.8,24.76l4.8.48L16.2,25l2.4.22A15.71,15.71,0,0,0,25.92,39Z"
+              />
+              <path
+                fill="currentColor"
+                d="M17.24,50.43l-2-4.37,1,2.19-1-2.18c.44-.21,10.88-5.35,14.13-19.76,3.88-17.2,8.38-20,15.4-23.18l.69-.31,2,4.39-.71.32C41.2,10,37.57,11.64,34,27.37,30.23,44.17,17.77,50.18,17.24,50.43Z"
+              />
+              <path
+                fill="currentColor"
+                d="M46.93,49.07C34.79,42.22,29.48,33,30.69,20.93l4.8.48C34.47,31.53,38.86,39,49.3,44.87Z"
+              />
+              <rect fill="currentColor" x="54.49" y="1.33" width="4.82" height="50.18" />
+              <path
+                fill="currentColor"
+                d="M84.43,50.8H68.67V3h4.82V46H84.37c5.28-.13,11.79-1.13,13.07-2.41l3.41,3.4c-1,1-3.13,2.46-9.84,3.31-3.41.44-6.43.51-6.55.52Z"
+              />
+              <path
+                fill="currentColor"
+                d="M98.14,28.48a18.16,18.16,0,0,1-6.44-1.11l.92-2.23.92-2.23a14.52,14.52,0,0,0,12-1.27L108,25.81A19.53,19.53,0,0,1,98.14,28.48Z"
+              />
+              <rect fill="currentColor" x="104.39" y="1.33" width="4.82" height="50.18" />
+              <rect fill="currentColor" x="113.74" y="1.47" width="4.82" height="50.18" />
+              <path
+                fill="currentColor"
+                d="M128.4,36.6l-.68-4.77.34,2.38-.35-2.38A33.75,33.75,0,0,0,138,28,34.41,34.41,0,0,0,153.58,9.84C155.71,4,159,1.68,161.34.73a9.78,9.78,0,0,1,7.77.14L167,5.18a5.05,5.05,0,0,0-3.82,0c-2.09.83-3.83,3-5,6.3l0,0a39.63,39.63,0,0,1-18,20.77A37.57,37.57,0,0,1,128.4,36.6Z"
+              />
+              <path
+                fill="currentColor"
+                d="M180,36.56c-12.59-3-20.89-8.23-24.66-15.56a16.87,16.87,0,0,1-1.79-10.87l4.69,1.11-2.35-.56,2.35.54c-.13.59-2.85,14.54,22.87,20.65Z"
+              />
+              <path
+                fill="currentColor"
+                d="M153,49.84l-3.33-3.47a8.36,8.36,0,0,0,2.69-7.75,11.7,11.7,0,0,0-1.6-4.18l4-2.73C157.07,35.14,159.75,43.34,153,49.84Z"
+              />
+              <rect fill="currentColor" x="126.07" y="45.69" width="57.83" height="4.82" />
+              <rect fill="currentColor" x="190.14" y="3.45" width="40.26" height="4.82" />
+              <rect fill="currentColor" x="197.94" y="12.1" width="4.82" height="36" />
+              <rect fill="currentColor" x="217.22" y="12.1" width="4.82" height="36" />
+              <path
+                fill="currentColor"
+                d="M224.8,50.51H190.14V45.69h34.69a11.47,11.47,0,0,0,3.77-.83,17.92,17.92,0,0,0,7.82-6.16l3.84,2.91C233.79,50.15,226.06,50.51,224.8,50.51Z"
+              />
+              <rect fill="currentColor" x="235.93" y="1.04" width="4.82" height="51.03" />
+              <path
+                fill="currentColor"
+                d="M240.4,27.81l-4.13-2.49a14,14,0,0,1,4.56-4.41c2.78-1.66,7.33-2.92,13.17.44l-2.4,4.18C244.58,21.49,240.8,27.15,240.4,27.81Z"
+              />
+            </svg>
+            <!-- <b-img
+              src="./assets/cinesopa-logo.svg"
               class="transition-header"
               alt="씨네소파 로고"
-            ></b-img>
+            ></b-img> -->
           </b-link>
         </div>
 
@@ -43,21 +105,13 @@
             :class="{ small: isMenuShouldSmall }"
           >
             <b-link
-              :class="[isMenuShouldSmall ? 'px-3' : 'px-4']"
-              :style="{
-                color:
-                  $store.state.menuFontColor === 'default' ? 'inherit' : $store.state.menuFontColor,
-              }"
+              :class="[isMenuShouldSmall ? 'px-3' : 'px-4', {}]"
               :to="{ name: 'Page', params: { permalink: 'about' } }"
               >인사해요
             </b-link>
             <b-link
               :class="[isMenuShouldSmall ? 'px-3' : 'px-4']"
               :to="{ name: 'FilmList' }"
-              :style="{
-                color:
-                  $store.state.menuFontColor === 'default' ? 'inherit' : $store.state.menuFontColor,
-              }"
             >
               영화봐요
             </b-link>
@@ -229,16 +283,6 @@ export default {
       windowHeight: 0,
       windowWidth: 0,
       documentHeight: 0,
-      cssVariables: {
-        '--text-color': '#2B3E4A',
-        '--text-secondary-color': '#576870',
-        '--desktop-top-header-height': '300px',
-        '--desktop-header-height': '100px',
-        '--mobile-header-height': '80px',
-        '--link-color': '#00B6E7',
-        '--max-content-size': '1260px',
-        '--footer-text-color': '#767676',
-      },
       text: `
           Quis magna Lorem anim amet ipsum do mollit sit cillum voluptate ex nulla
           tempor. Laborum consequat non elit enim exercitation cillum aliqua
@@ -253,6 +297,20 @@ export default {
     };
   },
   computed: {
+    cssVariables() {
+      return {
+        '--text-color': '#2B3E4A',
+        '--text-secondary-color': '#576870',
+        '--desktop-top-header-height': '300px',
+        '--desktop-header-height': '100px',
+        '--mobile-header-height': '80px',
+        '--link-color': '#00B6E7',
+        '--max-content-size': '1260px',
+        '--footer-text-color': '#767676',
+        '--nav-link-color': this.$store.state.navLinkColor,
+        '--nav-link-hover-color': this.$store.state.navLinkHoverColor,
+      };
+    },
     isTop() {
       return this.scrollY === 0;
     },
@@ -404,13 +462,12 @@ button:hover {
 
 #nav a {
   font-weight: bold;
-  color: var(--text-color);
   transition: 1s;
-  // #2c3e50
+  color: var(--nav-link-color);
 }
 
 #nav a:hover {
-  color: var(--link-color);
+  color: var(--nav-link-hover-color);
   text-decoration: none;
   transition: none;
 }
@@ -423,7 +480,7 @@ button:hover {
   margin-top: 25px;
   left: 50%;
   transform: translateX(-50%);
-  & img {
+  & img & svg {
     width: 154px;
   }
 }
@@ -432,7 +489,8 @@ button:hover {
   left: 0;
   margin-left: 20px;
   margin-top: 30px;
-  & img {
+  & img,
+  & svg {
     width: 154px;
   }
 }
@@ -450,7 +508,8 @@ button:hover {
     margin-left: 0;
     left: 50%;
     transform: translateX(-50%);
-    & img {
+    & img,
+    & svg {
       width: 237px;
     }
   }
