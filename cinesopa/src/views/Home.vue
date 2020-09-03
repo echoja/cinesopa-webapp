@@ -44,6 +44,7 @@
             class="d-flex h-100 border-bottom border-dark align-items-center justify-content-center"
           >
             HELLO WORLD2!!
+            <b-button @click="$store.commit('toggleMenuTransparent')">토글이</b-button>
           </div>
         </transition>
       </div>

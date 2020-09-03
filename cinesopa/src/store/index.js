@@ -11,6 +11,9 @@ export default new Vuex.Store({
     setMenuTransparent(state, isTransparent) {
       state.menuTransparent = isTransparent;
     },
+    toggleMenuTransparent(state) {
+      state.menuTransparent = !state.menuTransparent;
+    },
   },
   actions: {},
   modules: {},

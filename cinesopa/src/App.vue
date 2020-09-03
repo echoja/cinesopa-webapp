@@ -15,7 +15,7 @@
     <div class="h-header"></div>
     <!-- fixed header 를 위한 빈자리 -->
     <!-- <affix relative-element-selector="#body"> -->
-    <div class="header-wrapper fixed-top">
+    <div class="header-wrapper fixed-top" :style="{'background-color': ($store.state.menuTransparent ? 'transparent' : '#fff')}">
       <header
         class="position-relative mx-auto"
         :class="{
@@ -446,9 +446,9 @@ button:hover {
   color: var(--link-color);
 }
 
-.header-wrapper {
-  background-color: #fff;
-}
+// .header-wrapper {
+//   background-color: #fff;
+// }
 
 .h-header {
   height: var(--desktop-top-header-height);
@@ -461,7 +461,6 @@ button:hover {
 header {
   height: var(--desktop-header-height);
   max-width: var(--max-content-size);
-  background-color: #fff;
 }
 
 .desktop .header-wrapper,
