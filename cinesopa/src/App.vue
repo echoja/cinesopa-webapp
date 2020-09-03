@@ -15,7 +15,10 @@
     <div class="h-header"></div>
     <!-- fixed header 를 위한 빈자리 -->
     <!-- <affix relative-element-selector="#body"> -->
-    <div class="header-wrapper fixed-top" :style="{'background-color': ($store.state.menuTransparent ? 'transparent' : '#fff')}">
+    <div
+      class="header-wrapper fixed-top"
+      :style="{ 'background-color': $store.state.menuTransparent ? 'transparent' : '#fff' }"
+    >
       <header
         class="position-relative mx-auto"
         :class="{
@@ -41,10 +44,21 @@
           >
             <b-link
               :class="[isMenuShouldSmall ? 'px-3' : 'px-4']"
+              :style="{
+                color:
+                  $store.state.menuFontColor === 'default' ? 'inherit' : $store.state.menuFontColor,
+              }"
               :to="{ name: 'Page', params: { permalink: 'about' } }"
               >인사해요
             </b-link>
-            <b-link :class="[isMenuShouldSmall ? 'px-3' : 'px-4']" :to="{ name: 'FilmList' }">
+            <b-link
+              :class="[isMenuShouldSmall ? 'px-3' : 'px-4']"
+              :to="{ name: 'FilmList' }"
+              :style="{
+                color:
+                  $store.state.menuFontColor === 'default' ? 'inherit' : $store.state.menuFontColor,
+              }"
+            >
               영화봐요
             </b-link>
             <b-link

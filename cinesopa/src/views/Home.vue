@@ -45,6 +45,8 @@
           >
             HELLO WORLD2!!
             <b-button @click="$store.commit('toggleMenuTransparent')">토글이</b-button>
+            <b-button @click="$store.commit('setMenuFontColor', '#0f0')">메뉴 초록</b-button>
+            <b-button @click="$store.commit('setMenuFontColorDefault')">메뉴 원래대로</b-button>
           </div>
         </transition>
       </div>
