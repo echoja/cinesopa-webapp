@@ -5,15 +5,13 @@ Vue.use(Vuex);
 
 export default new Vuex.Store({
   state: {
-    user: {},
+    menuTransparent: false,
   },
   mutations: {
-    setUser(state, { user }) {
-      state.user = user;
+    setMenuTransparent(state, isTransparent) {
+      state.menuTransparent = isTransparent;
     },
   },
-  actions: {
-  },
-  modules: {
-  },
+  actions: {},
+  modules: {},
 });

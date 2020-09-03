@@ -8,42 +8,48 @@ const keys = {
 };
 
 function preventDefault(e) {
-  // eslint-disable-next-line no-param-reassign
-  e = e || window.event;
-  if (e.preventDefault) e.preventDefault();
-  e.returnValue = false;
+  e.preventDefault();
 }
 
 function preventDefaultForScrollKeys(e) {
   if (keys[e.keyCode]) {
     preventDefault(e);
-    // return false;
+    return false;
   }
+  return null;
 }
 
+// modern Chrome requires { passive: false } when adding event
+let supportsPassive = false;
+try {
+  window.addEventListener(
+    'test',
+    null,
+    Object.defineProperty({}, 'passive', {
+      get: () => {
+        supportsPassive = true;
+        return null;
+      },
+    }),
+  );
+  // eslint-disable-next-line no-empty
+} catch (e) {}
+
+const wheelOpt = supportsPassive ? { passive: false } : false;
+const wheelEvent = 'onwheel' in document.createElement('div') ? 'wheel' : 'mousewheel';
+
+// call this to Disable
 export function disableScroll() {
-  console.log('disabled!');
-  if (window.addEventListener) {
-    // older FF
-    window.addEventListener('DOMMouseScroll', preventDefault, false);
-  }
-  document.addEventListener('wheel', preventDefault, { passive: false }); // Disable scrolling in Chrome
-  window.onwheel = preventDefault; // modern standard
-  window.onmousewheel = preventDefault; // older browsers, IE
-  document.onmousewheel = preventDefault; // older browsers, IE
-  window.ontouchmove = preventDefault; // mobile
-  document.onkeydown = preventDefaultForScrollKeys;
+  window.addEventListener('DOMMouseScroll', preventDefault, false); // older FF
+  window.addEventListener(wheelEvent, preventDefault, wheelOpt); // modern desktop
+  window.addEventListener('touchmove', preventDefault, wheelOpt); // mobile
+  window.addEventListener('keydown', preventDefaultForScrollKeys, false);
 }
 
+// call this to Enable
 export function enableScroll() {
-  console.log('enabled!');
-  if (window.removeEventListener) {
-    window.removeEventListener('DOMMouseScroll', preventDefault, false);
-  }
-  document.removeEventListener('wheel', preventDefault, { passive: false }); // Enable scrolling in Chrome
-  window.onmousewheel = null;
-  document.onmousewheel = null;
-  window.onwheel = null;
-  window.ontouchmove = null;
-  document.onkeydown = null;
+  window.removeEventListener('DOMMouseScroll', preventDefault, false);
+  window.removeEventListener(wheelEvent, preventDefault, wheelOpt);
+  window.removeEventListener('touchmove', preventDefault, wheelOpt);
+  window.removeEventListener('keydown', preventDefaultForScrollKeys, false);
 }

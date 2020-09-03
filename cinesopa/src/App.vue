@@ -2,49 +2,108 @@
   <div
     id="app"
     @scroll="onScroll"
-    :class="{ top: isTop, bottom: isBottom, 'noto-sans': true, ['route-' + $route.name]: true }"
+    :class="{
+      top: isTop,
+      bottom: isBottom,
+      'noto-sans': true,
+      ['route-' + $route.name]: true,
+      mobile: isMobile,
+      desktop: isDesktop,
+    }"
     :style="userStyle"
   >
     <div class="h-header"></div>
+    <!-- fixed header 를 위한 빈자리 -->
     <!-- <affix relative-element-selector="#body"> -->
-    <header
-      class="position-fixed fixed-top h-header mx-auto"
-      :class="{
-        /*'d-flex': !isTop, 'justify-content-between': !isTop*/
-      }"
-    >
-      <div class="logo text-center transition-header">
-        <b-link :to="{ name: 'Home' }" title="홈으로 이동">
-          <b-img
-            src="./assets/imsi_logo.png"
-            :width="logoWidth"
-            class="transition-header"
-            alt="씨네소파 로고"
-          ></b-img>
-        </b-link>
-      </div>
-      <div
-        id="nav"
-        class="font-weight-600 text-center transition-header d-flex justify-content-center"
+    <div class="header-wrapper fixed-top">
+      <header
+        class="position-relative mx-auto"
+        :class="{
+          /*'d-flex': !isTop, 'justify-content-between': !isTop*/
+        }"
       >
-        <b-link class="px-4" :to="{ name: 'Page', params: { permalink: 'about' } }"
-          >인사해요</b-link
-        >
-        <b-link class="px-4" :to="{ name: 'FilmList' }">영화봐요</b-link>
-        <b-link class="px-4" :to="{ name: 'Board', params: { permalink: 'activity' } }"
-          >활동해요</b-link
-        >
-        <b-link class="px-4" :to="{ name: 'Board', params: { permalink: 'notice' } }"
-          >공지해요</b-link
-        >
-        <b-link class="px-4" :to="{ name: 'Request', params: { permalink: 'about' } }"
-          >신청해요</b-link
-        >
-        <!-- <router-link to="/">Home</router-link> |
+        <div class="logo text-center transition-header">
+          <b-link :to="{ name: 'Home' }" title="홈으로 이동">
+            <b-img
+              src="./assets/imsi_logo.png"
+              class="transition-header"
+              alt="씨네소파 로고"
+            ></b-img>
+          </b-link>
+        </div>
+
+        <!-- 데스크톱 -->
+        <div class="menu-desktop d-none d-md-block">
+          <div
+            id="nav"
+            class="font-weight-600 text-center transition-header d-flex justify-content-center"
+            :class="{ small: isMenuShouldSmall }"
+          >
+            <b-link
+              :class="[isMenuShouldSmall ? 'px-3' : 'px-4']"
+              :to="{ name: 'Page', params: { permalink: 'about' } }"
+              >인사해요
+            </b-link>
+            <b-link :class="[isMenuShouldSmall ? 'px-3' : 'px-4']" :to="{ name: 'FilmList' }">
+              영화봐요
+            </b-link>
+            <b-link
+              :class="[isMenuShouldSmall ? 'px-3' : 'px-4']"
+              :to="{ name: 'Board', params: { permalink: 'activity' } }"
+              >활동해요
+            </b-link>
+            <b-link
+              :class="[isMenuShouldSmall ? 'px-3' : 'px-4']"
+              :to="{ name: 'Board', params: { permalink: 'notice' } }"
+              >공지해요
+            </b-link>
+            <b-link
+              :class="[isMenuShouldSmall ? 'px-3' : 'px-4']"
+              :to="{ name: 'Request', params: { permalink: 'about' } }"
+              >신청해요
+            </b-link>
+            <!-- <router-link to="/">Home</router-link> |
           <router-link to="/about">About</router-link> -->
-      </div>
-    </header>
-    <!-- </affix> -->
+          </div>
+        </div>
+
+        <!-- 모바일 -->
+        <div class="menu-mobile d-block d-md-none h-100 d-flex align-items-center">
+          <b-link v-b-toggle.sidebar-menu class="menu-button ml-3 p-0 ">
+            <font-awesome-icon size="2x" :icon="['fas', 'bars']" />
+          </b-link>
+          <b-sidebar id="sidebar-menu" title="MENU" :backdrop-variant="'dark'" backdrop shadow>
+            <div class="px-3 py-2">
+              <p>
+                <b-link class="px-4" :to="{ name: 'Page', params: { permalink: 'about' } }"
+                  >인사해요
+                </b-link>
+              </p>
+              <p>
+                <b-link class="px-4" :to="{ name: 'FilmList' }">
+                  영화봐요
+                </b-link>
+              </p>
+              <p>
+                <b-link class="px-4" :to="{ name: 'Board', params: { permalink: 'activity' } }"
+                  >활동해요
+                </b-link>
+              </p>
+              <p>
+                <b-link class="px-4" :to="{ name: 'Board', params: { permalink: 'notice' } }"
+                  >공지해요
+                </b-link>
+              </p>
+              <p>
+                <b-link class="px-4" :to="{ name: 'Request', params: { permalink: 'about' } }"
+                  >신청해요
+                </b-link>
+              </p>
+            </div>
+          </b-sidebar>
+        </div>
+      </header>
+    </div>
     <div id="body">
       <main id="main">
         <transition
@@ -56,12 +115,6 @@
         >
           <router-view :key="$route.path" />
         </transition>
-        <!-- <b-button @click="showA = !showA">토글</b-button>
-        <transition name="fade">
-          <p v-if="showA">
-            hi
-          </p>
-        </transition> -->
       </main>
       <footer>
         <div
@@ -160,11 +213,14 @@ export default {
       showA: true,
       scrollY: 0,
       windowHeight: 0,
+      windowWidth: 0,
       documentHeight: 0,
       cssVariables: {
         '--text-color': '#2B3E4A',
         '--text-secondary-color': '#576870',
-        '--header-height': '300px',
+        '--desktop-top-header-height': '300px',
+        '--desktop-header-height': '100px',
+        '--mobile-header-height': '80px',
         '--link-color': '#00B6E7',
         '--max-content-size': '1260px',
         '--footer-text-color': '#767676',
@@ -192,13 +248,22 @@ export default {
     userStyle() {
       return this.cssVariables;
     },
-    logoWidth() {
-      return this.isTop ? 237 : 154;
+    isMobile() {
+      return this.windowWidth < 768;
     },
+    isDesktop() {
+      return this.windowWidth >= 768;
+    },
+    isMenuShouldSmall() {
+      return this.windowWidth < 992;
+    },
+    // logoWidth() {
+    //   return this.isTop ? 237 : 154;
+    // },
   },
 
   created() {
-    this.getHeight();
+    this.setWindowSize();
   },
 
   beforeMount() {
@@ -218,12 +283,13 @@ export default {
       this.scrollY = window.scrollY;
     },
     onResize() {
-      this.getHeight();
+      this.setWindowSize();
       console.log('resized!');
     },
-    getHeight() {
+    setWindowSize() {
       this.windowHeight = window.innerHeight;
       this.documentHeight = document.body.clientHeight;
+      this.windowWidth = window.innerWidth;
     },
     beforeLeave(element) {
       let top = 0;
@@ -284,6 +350,8 @@ export default {
 <style lang="scss">
 @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@100;300;400;500;700;900&family=Noto+Serif+KR:wght@200;300;400;500;600;700;900&display=swap');
 
+/* default style */
+
 #app {
   // font-family: Avenir, Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
@@ -291,6 +359,14 @@ export default {
   // text-align: center;
   color: var(--text-color);
   overflow-x: hidden;
+}
+a,
+button {
+  color: var(--text-color);
+}
+
+button:hover {
+  color: var(--text-color);
 }
 
 #main {
@@ -306,6 +382,10 @@ export default {
   transform: translateX(-100%);
   min-width: 750px;
   position: absolute;
+
+  &.small {
+    min-width: 600px;
+  }
 }
 
 #nav a {
@@ -320,41 +400,90 @@ export default {
   text-decoration: none;
   transition: none;
 }
-
 .logo {
-  transition: 1s ease;
   position: absolute;
+  transition: 1s ease;
+}
+
+.mobile .logo {
+  margin-top: 25px;
+  left: 50%;
+  transform: translateX(-50%);
+  & img {
+    width: 154px;
+  }
+}
+
+.desktop .logo {
   left: 0;
   margin-left: 20px;
   margin-top: 30px;
+  & img {
+    width: 154px;
+  }
 }
 
-.top #nav {
-  margin-top: 133px;
-  left: 50%;
-  transform: translateX(-50%);
-  // transform: translateX(calc(var(--max-content-size) / -2 + 50%));
-}
+.top.desktop {
+  // position:absolute;
 
-.top .logo {
-  margin-top: 80px;
-  margin-left: 0;
-  left: 50%;
-  transform: translateX(-50%);
+  & #nav {
+    margin-top: 133px;
+    transform: translateX(-50%);
+    left: 50%;
+  }
+  & .logo {
+    margin-top: 80px;
+    margin-left: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    & img {
+      width: 237px;
+    }
+  }
 }
 
 #nav a.router-link-exact-active {
   color: var(--link-color);
 }
 
-header {
-  max-width: var(--max-content-size);
+.header-wrapper {
+  background-color: #fff;
 }
 
 .h-header {
-  height: var(--header-height);
+  height: var(--desktop-top-header-height);
 }
 
+.mobile .h-header {
+  height: var(--mobile-header-height);
+}
+
+header {
+  height: var(--desktop-header-height);
+  max-width: var(--max-content-size);
+  background-color: #fff;
+}
+
+.desktop .header-wrapper,
+.desktop header {
+  height: var(--desktop-header-height);
+}
+
+.mobile .header-wrapper,
+.mobile header {
+  height: var(--mobile-header-height);
+}
+
+/* main menu !menu */
+.menu-mobile {
+}
+.menu-desktop .small a {
+  font-size: 80%;
+}
+
+.menu-button {
+  color: var(--text-color);
+}
 .transform-absolute-center {
 }
 

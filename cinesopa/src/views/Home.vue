@@ -15,11 +15,11 @@
 
     <div class="page-scroll-container" ref="container">
       <!-- ref="scroll0" -->
-      <div class="page-scroll-section my-1" v-b-visible="visible(0)">
+      <div class="page-scroll-section " v-b-visible="visible(0)">
         <transition name="scroll1">
           <div
             v-if="isVisible(0)"
-            class="d-flex h-100 border border-dark align-items-center justify-content-center"
+            class="d-flex h-100 border-bottom border-dark align-items-center justify-content-center"
           >
             <div>
               영화배급협동조합 씨네소파
@@ -28,20 +28,20 @@
         </transition>
       </div>
       <!-- ref="scroll1" -->
-      <div class="page-scroll-section my-1" v-b-visible="visible(1)">
+      <div class="page-scroll-section " v-b-visible="visible(1)">
         <transition name="scroll1">
           <div
             v-if="isVisible(1)"
-            class="d-flex h-100 border border-dark align-items-center justify-content-center"
+            class="d-flex h-100 border-bottom border-dark align-items-center justify-content-center"
           ></div>
         </transition>
       </div>
       <!-- ref="scroll2" -->
-      <div class="page-scroll-section my-1" v-b-visible="visible(2)">
+      <div class="page-scroll-section " v-b-visible="visible(2)">
         <transition name="scroll1">
           <div
             v-if="isVisible(2)"
-            class="d-flex h-100 border border-dark align-items-center justify-content-center"
+            class="d-flex h-100 border-bottom border-dark align-items-center justify-content-center"
           >
             HELLO WORLD2!!
           </div>
@@ -70,12 +70,13 @@
 
 <script>
 import Rellax from 'rellax';
+import { disableScroll, enableScroll } from '../plugins/scroll-deactive';
 // console.log(Rellax);
 
 function onScrollImpl(self) {
   let scrollProcessing = false;
   let lastScrollTop = window.pageYOffset || document.documentElement.scrollTop;
-  return () => {
+  return (e) => {
     // console.log('real!!! scroll!!!! yeah!!!');
     // const scrollSection = [
     //   {
@@ -102,9 +103,12 @@ function onScrollImpl(self) {
 
     const onDone = () => () => {
       scrollProcessing = false;
+      enableScroll();
     };
     if (visibles.length === 2 && scrollProcessing === false) {
+      e.preventDefault();
       scrollProcessing = true;
+      disableScroll();
       let from = visibles[0].element;
       let to = visibles[1].element;
 
@@ -384,9 +388,14 @@ export default {
 </script>
 
 <style>
-#home {
+.desktop #home {
   /* position: relative; */
-  margin-top: calc(-1 * var(--header-height));
+  margin-top: calc(-1 * var(--desktop-top-header-height));
+}
+
+.mobile #home {
+  /* position: relative; */
+  margin-top: calc(-1 * var(--mobile-header-height));
 }
 
 .main-enter,
@@ -421,14 +430,20 @@ export default {
 .page-scroll-section {
   width: 100vw;
   height: 100vh;
+  margin-bottom: 2px;
   /* background-color: #ddd; */
 }
+
+/* .desktop .page-scroll-section:first-child {
+  height: calc(100vh - var(--desktop-top-header-height));
+}
+.mobile .page-scroll-section:first-child {
+  height: calc(100vh - var(--mobile-header-height));
+} */
 
 .main-placeholder > div {
   width: 100vw;
   height: 100vh;
 }
 
-.page-scroll-section {
-}
 </style>
