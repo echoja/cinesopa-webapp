@@ -97,13 +97,12 @@ function onScrollImpl(self) {
     //     isVisible: self.isVisibleC,
     //   },
     // ];
-    const visibles = self.scrollSection.filter((sec) => {
-      return sec.isVisible === true;
-    });
+    const visibles = self.scrollSection.filter((sec) => sec.isVisible === true);
 
     const currentScrollTop = window.pageYOffset || document.documentElement.scrollTop;
     console.log(
-      `last: ${lastScrollTop}, current: ${currentScrollTop}, visibleLength: ${visibles.length}, processing: ${scrollProcessing}`
+      `last: ${lastScrollTop}, current: ${currentScrollTop}, \
+      visibleLength: ${visibles.length}, processing: ${scrollProcessing}`,
     );
 
     const onDone = () => () => {
@@ -225,17 +224,15 @@ export default {
     // console.log('onscroll!!!');
     // this.onScroll = onScrollImpl(this.scrollSection, this.$scrollTo);
     // },
-    onWheel2(e) {
-      const visibles = this.scrollSection.filter((sec) => {
-        return sec.isVisible === true;
-      });
+    onWheel2() {
+      const visibles = this.scrollSection.filter((sec) => sec.isVisible === true);
 
       const currentScrollTop = window.pageYOffset || document.documentElement.scrollTop;
       console.log(
-        `last: ${this.lastScrollTop}, current: ${currentScrollTop}, visibleLength: ${visibles.length}, processing: ${this.scrollProcessing}`
+        `last: ${this.lastScrollTop}, current: ${currentScrollTop}, visibleLength: ${visibles.length}, processing: ${this.scrollProcessing}`,
       );
 
-      const onDone = (from, to) => () => {
+      const onDone = (/* from, to */) => () => {
         this.scrollProcessing = false;
         // enableScroll();
         // document.body.classList.remove('no-scroll');
@@ -272,11 +269,9 @@ export default {
     makeOnScrollimsi() {
       let lastScrollTop = window.pageYOffset || document.documentElement.scrollTop;
       let processing = false;
-      return (evt) => {
+      return () => {
         // console.log(evt);
-        const visibles = this.scrollSection.filter((sec) => {
-          return sec.isVisible === true;
-        });
+        const visibles = this.scrollSection.filter((sec) => sec.isVisible === true);
 
         const onDone = (from, to) => () => {
           processing = false;
