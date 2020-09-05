@@ -121,10 +121,10 @@
         </b-table>
       </div>
 
-      <!-- 수상실적 -->
+      <!-- 수상내역 -->
       <div class="detailed-info-item" id="awards">
         <h2>
-          수상실적
+          수상내역
         </h2>
         <div class="awards-table">
           <div
@@ -198,8 +198,7 @@
         <h2>
           제작노트
         </h2>
-        <div v-html="film.note">
-        </div>
+        <div v-html="film.note"></div>
       </div>
     </div>
   </div>
@@ -227,6 +226,7 @@ const groupBy = (array, keyFinder) => {
 
 export default {
   name: 'Film',
+  title: (context) => context.film.title,
   data() {
     return {
       film: {
@@ -515,7 +515,8 @@ export default {
   font-size: 24px;
   border: 20px solid transparent;
   border-radius: 500px;
-  transition: 1s;
+  transition: 0.5s;
+  transition-property: color;
 
   &:hover {
     color: #222;
@@ -563,20 +564,17 @@ export default {
 }
 
 .detailed-info-item {
-  padding-top: 50px;
+  padding-top: 70px;
   & > h2 {
     padding-bottom: 20px;
     border-bottom: 1px solid #eee;
     margin-bottom: 30px;
   }
   & > h2.no-divider {
-  border: 0;
-  margin-bottom: 10px;
-
+    border: 0;
+    margin-bottom: 10px;
+  }
 }
-}
-
-
 
 .row-fullwidth {
   margin-left: -15px;

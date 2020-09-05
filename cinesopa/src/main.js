@@ -8,6 +8,7 @@ import './plugins/vuescrollactive';
 import './plugins/affix';
 import './plugins/vue-scrollto';
 import './plugins/fontawesome';
+import './plugins/vue-page-title';
 import App from './App.vue';
 import router from './router';
 import store from './store';

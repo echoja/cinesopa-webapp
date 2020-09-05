@@ -12,11 +12,11 @@ const routes = [
     name: 'Home',
     component: () => import('../views/Home.vue'),
   },
-  {
-    path: '/about',
-    name: 'About',
-    component: () => import('../views/About.vue'),
-  },
+  // {
+  //   path: '/about',
+  //   name: 'About',
+  //   component: () => import('../views/About.vue'),
+  // },
   {
     path: '/film',
     name: 'FilmList',
@@ -51,11 +51,17 @@ const routes = [
         path: '/distribution',
         name: 'Distribution',
         component: () => import('../views/Distribution.vue'),
+        meta: {
+          title: '배급신청',
+        },
       },
       {
         path: '/community',
         name: 'Community',
         component: () => import('../views/Community.vue'),
+        meta: {
+          title: '공동체상영 신청',
+        },
       },
     ],
   },
@@ -64,11 +70,17 @@ const routes = [
     path: '/sitemap',
     name: 'Sitemap',
     component: () => import('../views/Sitemap.vue'),
+    meta: {
+      title: '사이트맵',
+    },
   },
   {
     path: '/email-refuse',
     name: 'EmailRefuse',
     component: () => import('../views/EmailRefuse.vue'),
+    meta: {
+      title: '이메일무단수집거부',
+    },
   },
   {
     path: '/test',
@@ -84,6 +96,9 @@ const routes = [
     path: '/404',
     name: '404',
     component: () => import('../views/404.vue'),
+    meta: {
+      title: '404',
+    },
   },
 ];
 
@@ -92,6 +107,18 @@ const router = new VueRouter({
   base: process.env.BASE_URL,
   routes,
 });
+
+// const DEFAULT_TITLE = '영화배급협동조합 씨네소파';
+// router.afterEach((to, from) => {
+//   // Use next tick to handle router history correctly
+//   // see: https://github.com/vuejs/vue-router/issues/914#issuecomment-384477609
+//   Vue.nextTick(() => {
+//     const { title } = to.meta;
+//     if (title) document.title = `${title} - ${DEFAULT_TITLE}`;
+//     else document.title = DEFAULT_TITLE;
+//     // document.title = to.meta.title || DEFAULT_TITLE;
+//   });
+// });
 
 // router.afterEach((to, from, next) => {
 //   window.scrollTo({

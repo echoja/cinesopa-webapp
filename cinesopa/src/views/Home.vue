@@ -134,7 +134,9 @@ function onScrollImpl(self) {
 let onScroll;
 
 export default {
+
   name: 'Home',
+  title: '홈',
   data() {
     return {
       howv: false,

@@ -14,6 +14,7 @@ import { graphql, getPageQuery } from '../graphql-client';
 
 export default {
   name: 'Page',
+  title: (context) => context.page.title,
   computed: {
     permalink() {
       return this.$route.params.permalink;
@@ -21,7 +22,10 @@ export default {
   },
   data() {
     return {
-      content: '',
+      page: {
+        title: '빈 페이지',
+        content: '',
+      },
     };
   },
   async created() {

@@ -9,6 +9,7 @@
 <script>
 export default {
   name: 'Request',
+  title: '신청',
 };
 </script>
 

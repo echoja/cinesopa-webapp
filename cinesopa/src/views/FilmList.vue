@@ -25,11 +25,11 @@
           label-goto-slide="특정 슬라이드로 이동: "
           label-indicators="슬라이드를 클릭하여 화면에 띄우세요"
         >
-          <b-carousel-slide
+          <!-- <b-carousel-slide
             caption="First slide"
             text="Nulla vitae elit libero, a pharetra augue mollis interdum."
             img-src="https://picsum.photos/1024/480/?image=52"
-          ></b-carousel-slide>
+          ></b-carousel-slide> -->
 
           <b-carousel-slide img-blank img-alt="Blank image">
             <template #img>
@@ -80,7 +80,7 @@
     <div class="filter">
       <!-- 개봉되었는지의 여부 필터링 -->
       <div class="opened text-center m-1 pt-5 pb-2 d-flex justify-content-center">
-        <div class="opened-options-wrapper" role="listbox">
+        <div class="opened-options-wrapper" role="listbox" aria-label="개봉되었는지의 여부 필터링" aria-orientation="horizontal">
           <b-link
             v-for="option in openedOptions"
             :key="option.key"
@@ -110,7 +110,6 @@
             aria-placeholder="영화제목, 감독, 배우 검색"
             contenteditable="true"
             autocomplete="off"
-            autofocus="autofocus"
             name="search"
           ></b-form-input>
         </label>
@@ -218,6 +217,7 @@
 <script>
 export default {
   name: 'FilmList',
+  title: '영화 리스트',
   data() {
     return {
       currentPage: 3,
@@ -547,6 +547,7 @@ button.tag {
   }
   & .poster-link:hover img {
     transform: scale(1.2);
+    opacity: 0.7;
   }
 
   & .poster-wrapper {
@@ -567,6 +568,7 @@ button.tag {
   }
   & h2 a:hover {
     color: var(--text-color);
+    transition: none;
     text-decoration: none;
   }
 
