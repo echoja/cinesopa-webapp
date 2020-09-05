@@ -80,7 +80,12 @@
     <div class="filter">
       <!-- 개봉되었는지의 여부 필터링 -->
       <div class="opened text-center m-1 pt-5 pb-2 d-flex justify-content-center">
-        <div class="opened-options-wrapper" role="listbox" aria-label="개봉되었는지의 여부 필터링" aria-orientation="horizontal">
+        <div
+          class="opened-options-wrapper"
+          role="listbox"
+          aria-label="개봉되었는지의 여부 필터링"
+          aria-orientation="horizontal"
+        >
           <b-link
             v-for="option in openedOptions"
             :key="option.key"
@@ -473,32 +478,6 @@ export default {
   }
 }
 
-.search-icon {
-  position: absolute;
-  pointer-events: none;
-  right: 0;
-  top: 0;
-  bottom: 0;
-  z-index: 1;
-  font-size: 24px;
-  color: #b0b6ba;
-}
-
-.search-box {
-  border: 2px solid #b0b6ba;
-}
-
-.search-box::-ms-clear {
-  display: none;
-}
-.search-box::-webkit-search-cancel-button {
-  display: none;
-}
-.search-box::-webkit-search-decoration {
-  -webkit-appearance: none;
-  appearance: none;
-}
-
 /* tags */
 
 button.tag {
@@ -551,7 +530,7 @@ button.tag {
   }
 
   & .poster-wrapper {
-    height: 500px;
+    max-height: 500px;
     overflow: hidden;
     margin-bottom: 30px;
   }
@@ -559,7 +538,7 @@ button.tag {
   & img {
     transition: 0.5s;
     max-width: 100%;
-    height: 500px;
+    max-height: 500px;
     border: 1px solid #ddd;
   }
   & h2 a {
@@ -579,38 +558,13 @@ button.tag {
 
 .mobile .filmlist {
   padding: 0 15px;
-}
-</style>
-
-<style lang="scss">
-// pagination
-.film-pagination {
-  & .page-item {
-    & .page-link {
-      width: 40px;
-      height: 40px;
-      text-align: center;
-      border: 0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin-left: 0;
-      background-color: white;
-      border-radius: 100px;
-      color: var(--text-color);
-    }
-    & .page-link:hover {
-      background-color: #eee;
-    }
-
-    &.disabled .page-link {
-      border: 0;
-    }
-
-    &.active .page-link {
-      color: #fff;
-      background-color: var(--text-color);
-    }
+  & .film-wrapper {
+    margin-top: 50px;
+  }
+  & .poster-wrapper {
+    margin-bottom: 20px;
   }
 }
 </style>
+
+<style lang="scss"></style>

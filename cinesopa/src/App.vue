@@ -134,12 +134,12 @@
             </b-link>
             <b-link
               :class="[isMenuShouldSmall ? 'px-3' : 'px-4']"
-              :to="{ name: 'Board', params: { permalink: 'activity' } }"
+              :to="{ name: 'BoardActivity', params: { permalink: 'activity' } }"
               >활동해요
             </b-link>
             <b-link
               :class="[isMenuShouldSmall ? 'px-3' : 'px-4']"
-              :to="{ name: 'Board', params: { permalink: 'notice' } }"
+              :to="{ name: 'BoardNotice', params: { permalink: 'notice' } }"
               >공지해요
             </b-link>
             <b-link
@@ -170,12 +170,14 @@
                 </b-link>
               </p>
               <p>
-                <b-link class="px-4" :to="{ name: 'Board', params: { permalink: 'activity' } }"
+                <b-link
+                  class="px-4"
+                  :to="{ name: 'BoardActivity', params: { permalink: 'activity' } }"
                   >활동해요
                 </b-link>
               </p>
               <p>
-                <b-link class="px-4" :to="{ name: 'Board', params: { permalink: 'notice' } }"
+                <b-link class="px-4" :to="{ name: 'BoardNotice', params: { permalink: 'notice' } }"
                   >공지해요
                 </b-link>
               </p>
@@ -678,16 +680,24 @@ footer p {
 
 .footer-sns-buttons {
   font-size: 30px;
+  & a{
+    transition: 1s;
+  }
+  & a:hover {
+    color: var(--link-color);
+    transition: none;
+  }
 }
 .footer-sns-buttons svg {
   vertical-align: -0.125em;
 }
 .footer-links {
   font-size: 105%;
-  font-weight: 700;
+  font-weight: 500;
 }
 .footer-information {
-  font-weight: 500;
+  font-weight: 300;
+  margin: 10px 0;
 }
 
 .mobile .footer-information-divider {
@@ -700,7 +710,7 @@ footer p {
   margin: 0;
 }
 .footer-copyright {
-  font-weight: 600;
+  font-weight: 500;
 }
 
 /** fonts !fonts */
@@ -732,5 +742,64 @@ footer p {
 }
 .font-weight-900 {
   font-weight: 900;
+}
+
+/* search box */
+
+.search-icon {
+  position: absolute;
+  pointer-events: none;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  z-index: 1;
+  font-size: 24px;
+  color: #b0b6ba;
+}
+
+.search-box {
+  border: 2px solid #b0b6ba;
+}
+
+.search-box::-ms-clear {
+  display: none;
+}
+.search-box::-webkit-search-cancel-button {
+  display: none;
+}
+.search-box::-webkit-search-decoration {
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+// pagination
+.film-pagination {
+  & .page-item {
+    & .page-link {
+      width: 40px;
+      height: 40px;
+      text-align: center;
+      border: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-left: 0;
+      background-color: white;
+      border-radius: 100px;
+      color: var(--text-color);
+    }
+    & .page-link:hover {
+      background-color: #eee;
+    }
+
+    &.disabled .page-link {
+      border: 0;
+    }
+
+    &.active .page-link {
+      color: #fff;
+      background-color: var(--text-color);
+    }
+  }
 }
 </style>
