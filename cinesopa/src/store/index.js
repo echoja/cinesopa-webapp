@@ -8,6 +8,7 @@ export default new Vuex.Store({
     menuTransparent: false,
     logoWhite: false,
     navLinkWhite: false,
+    isMobile: false,
   },
   mutations: {
     setMenuTransparent(state, isTransparent) {
@@ -18,6 +19,9 @@ export default new Vuex.Store({
     },
     setLogoWhite(state, isLogoWhite) {
       state.logoWhite = isLogoWhite;
+    },
+    setIsMobile(state, isMobile) {
+      state.isMobile = isMobile;
     },
     setNavLinkWhite(state, isNavLinkWhite) {
       state.navLinkWhite = isNavLinkWhite;

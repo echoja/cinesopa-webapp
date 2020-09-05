@@ -16,7 +16,7 @@
         <b-carousel
           id="carousel"
           v-model="slide"
-          :interval="100000000"
+          :interval="10000"
           controls
           indicators
           fade

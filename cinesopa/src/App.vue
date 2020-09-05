@@ -371,7 +371,9 @@ export default {
       return this.cssVariables;
     },
     isMobile() {
-      return this.windowWidth < 768;
+      const isMobile = this.windowWidth < 768;
+      this.$store.commit('setIsMobile', isMobile);
+      return isMobile;
     },
     isDesktop() {
       return this.windowWidth >= 768;
@@ -521,7 +523,7 @@ button:hover {
 
 #nav {
   padding: 30px 0;
-  font-size: 27px;
+  font-size: 24px;
   margin-top: 0;
   left: 100%;
   transform: translateX(-100%);
@@ -537,7 +539,6 @@ button:hover {
   }
   & a {
     font-weight: 500;
-    font-size: 24px;
     transition: 1s;
     color: var(--nav-link-color);
   }
@@ -622,8 +623,9 @@ header {
 }
 
 .header-wrapper {
-  background-color: rgba(255, 255, 255, 0.4);
-  backdrop-filter: blur(5px);
+  // background-color: rgba(255, 255, 255, 0.4);
+  // backdrop-filter: blur(5px);
+  background-color: #fff;
   &.transparent {
     background-color: transparent;
   }
