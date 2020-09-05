@@ -40,6 +40,14 @@ module.exports = function (mongoose) {
     title: String,
   });
 
+  const Award = new mongoose.Schema({
+    festival_name: String,
+    year: Number,
+    person_name: String,
+    award_name: String,
+    award_type: String,
+  });
+
   const schema = new mongoose.Schema({
     title: String,
     title_en: String,
@@ -66,6 +74,7 @@ module.exports = function (mongoose) {
     photos: [{ type: mongoose.Schema.Types.ObjectId, ref: 'File' }],
     // id: Number, AutoIncrement 로 인해서 명시적으로 적어줄 필요 없음.
     videos: [Video],
+    awards: [Award],
     synopsis: String,
     note: String,
     tags: [String],
