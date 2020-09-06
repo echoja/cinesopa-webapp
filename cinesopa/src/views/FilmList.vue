@@ -71,7 +71,7 @@
               tincidunt a tincidunt eget, convallis vel est. Ut pellentesque ut lacus vel interdum.
             </p> -->
           </b-carousel-slide>
-          <!-- <b-carousel-slide img-blank :style="{ 'background-color': '#777' }">
+          <!-- <b-carousel-slide img-blank :style="{ 'background-color': 'var(--secondary-text-color)' }">
             fdfdf
           </b-carousel-slide> -->
         </b-carousel>
@@ -445,7 +445,7 @@ export default {
   }
   & a {
     transition: 0.3s;
-    color: #777;
+    color: var(--secondary-text-color);
     border: 2px solid transparent;
     padding: 6px 15px;
   }
@@ -552,7 +552,7 @@ button.tag {
   }
 
   & p {
-    color: #777;
+    color: var(--secondary-text-color);
   }
 }
 

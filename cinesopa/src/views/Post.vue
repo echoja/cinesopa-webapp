@@ -35,7 +35,7 @@ export default {
 
 <style lang="scss" scoped>
 .meta {
-  color:#777;
+  color:var(--secondary-text-color);
   & .date {
     padding-left: 10px;
   }

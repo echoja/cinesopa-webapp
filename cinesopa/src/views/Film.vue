@@ -466,7 +466,7 @@ export default {
     }
     & p {
       margin-top: -5px;
-      color: #777;
+      color: var(--secondary-text-color);
       font-weight: 600;
     }
   }
@@ -511,7 +511,7 @@ export default {
   background-color: rgba(255, 255, 255, 1);
 }
 .scrollactive-item {
-  color: #777;
+  color: var(--secondary-text-color);
   font-size: 24px;
   border: 20px solid transparent;
   border-radius: 500px;
@@ -632,7 +632,7 @@ export default {
 
 .review-source {
   font-size: 80%;
-  color: #777;
+  color: var(--secondary-text-color);
 }
 </style>
 

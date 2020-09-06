@@ -499,6 +499,7 @@ $body-color: #eee;
   --nav-link-hover-color: #00b6e7;
   --max-content-size: 1260px;
   --footer-text-color: #767676;
+  --secondary-text-color: #767676;
 }
 
 #app {

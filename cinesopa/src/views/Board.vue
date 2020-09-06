@@ -217,7 +217,7 @@ h1 {
 .board-select-item {
   font-size: 32px;
   font-weight: 500;
-  color: #777;
+  color: var(--secondary-text-color);
   padding: 10px 20px;
 
   &:first-child {
@@ -274,7 +274,7 @@ h1 {
 .cell-board {
   width: 18vw;
   max-width: 200px;
-  color: #777;
+  color: var(--secondary-text-color);
 }
 
 .cell-date {
