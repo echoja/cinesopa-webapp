@@ -61,7 +61,7 @@ const routes = [
     component: () => import('../views/Request.vue'),
     children: [
       {
-        path: '/distribution',
+        path: 'distribution',
         name: 'Distribution',
         component: () => import('../views/Distribution.vue'),
         meta: {
@@ -69,7 +69,7 @@ const routes = [
         },
       },
       {
-        path: '/community',
+        path: 'community',
         name: 'Community',
         component: () => import('../views/Community.vue'),
         meta: {

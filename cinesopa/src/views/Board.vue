@@ -72,6 +72,8 @@
         label-prev-page="이전 페이지로 이동"
         label-next-page="다음 페이지로 이동"
         label-last-page="마지막 페이지로 이동"
+        label-page="페이지 이동:"
+        aria-label="게시글 페이지 이동"
         exact-active-class="exact"
       ></b-pagination-nav>
     </div>

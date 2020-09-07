@@ -11,6 +11,7 @@
       desktop: isDesktop,
     }"
   >
+  <VueSkipTo to="#main" label="본문 바로가기" />
     <div class="h-header"></div>
     <!-- fixed header 를 위한 빈자리 -->
     <!-- <affix relative-element-selector="#body"> -->
@@ -521,7 +522,7 @@ button:hover {
 
 #main {
   max-width: var(--max-content-size);
-  margin: 0 auto;
+  margin: 0 auto 50px;
 }
 
 #nav {
@@ -802,5 +803,16 @@ footer p {
       background-color: var(--text-color);
     }
   }
+}
+
+// utility
+
+.visually-hidden {
+  position: absolute;
+  left: -10000px;
+  top: auto;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
 }
 </style>

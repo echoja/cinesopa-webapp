@@ -16,7 +16,22 @@
         <h1>{{ film.title }}</h1>
         <p class="title-en">{{ film.title_en }}, {{ film.open_year }}</p>
       </div>
-      <div class="body" role="table" aria-colcount="2">
+      <p id="basic-info-table-summary" class="visually-hidden">
+        영화 {{ film.title }}의 장르, 상영시간, 감독, 출연진 등의 기본 정보입니다.
+      </p>
+      <div
+        class="body"
+        role="table"
+        aria-colcount="2"
+        :aria-label="`${film.title} 기본 정보`"
+        aria-describedby="basic-info-table-summary"
+      >
+        <div role="rowgroup" class="visually-hidden">
+          <div class="basic-body-row d-flex" role="row">
+            <span role="columnheader">구분</span>
+            <span role="columnheader">내용</span>
+          </div>
+        </div>
         <div role="rowgroup">
           <div class="basic-body-row d-flex" role="row">
             <span class="title" role="rowheader">
@@ -105,13 +120,18 @@
       </div>
       <!-- 배우/제작진 -->
       <div class="detailed-info-item" id="people">
-        <h2>배우/제작진</h2>
+        <h2 id="people-caption">배우/제작진</h2>
+        <p id="people-summar" class="visually-hidden">
+          역할이나 직무에 따른 사람들을 소개합니다.
+        </p>
         <b-table
           :fields="filmPeopleFields"
           :items="filmPeople"
           borderless
           small
-          thead-class="table-no-header"
+          thead-class="visually-hidden"
+          aria-describedby="people-summary"
+          aria-labelledby="people-caption"
         >
           <!-- <template #cell(role)="row">
             <div class="text-right">
@@ -164,10 +184,11 @@
         <b-carousel
           class="row-fullwidth"
           id="carousel"
+          :interval="0"
           label-prev="다음으로 이동"
           label-next="이전으로 이동"
           label-goto-slide="특정 슬라이드로 이동: "
-          label-indicators="슬라이드를 클릭하여 화면에 띄우세요"
+          label-indicators="클릭하여 해당하는 슬라이드를 화면에 띄우세요"
           controls
           indicators
         >
@@ -384,10 +405,12 @@ export default {
       return [
         {
           key: 'role',
+          label: '역할',
           isRowHeader: true,
         },
         {
           key: 'name',
+          label: '이름',
         },
       ];
     },
@@ -644,9 +667,5 @@ export default {
   left: 0;
   width: 100%;
   height: 100%;
-}
-
-.table-no-header {
-  display: none;
 }
 </style>

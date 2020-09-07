@@ -47,7 +47,7 @@
             <b-button @click="$store.commit('toggleMenuTransparent')">메뉴 투명 토글이</b-button>
             <b-button @click="$store.commit('setNavLinkWhite', true)">메뉴 하얗게</b-button>
             <b-button @click="$store.commit('setNavLinkWhite', false)">메뉴 원래대로</b-button>
-            <b-button @click="$store.commit('setLogoWhite', true)">로고 하얗게</b-button>
+            <b-button id="hi" @click="$store.commit('setLogoWhite', true)">로고 하얗게</b-button>
             <b-button @click="$store.commit('setLogoWhite', false)">로고 원래대로</b-button>
           </div>
         </transition>
@@ -446,5 +446,10 @@ export default {
 .main-placeholder > div {
   width: 100vw;
   height: 100vh;
+}
+
+#hi {
+  width: 10px;
+  height: 10px;
 }
 </style>

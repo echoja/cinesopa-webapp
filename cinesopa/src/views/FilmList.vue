@@ -16,14 +16,14 @@
         <b-carousel
           id="carousel"
           v-model="slide"
-          :interval="10000"
+          :interval="0"
           controls
           indicators
           fade
           label-prev="다음으로 이동"
           label-next="이전으로 이동"
           label-goto-slide="특정 슬라이드로 이동: "
-          label-indicators="슬라이드를 클릭하여 화면에 띄우세요"
+          label-indicators="클릭하여 해당하는 슬라이드를 화면에 띄우세요"
         >
           <!-- <b-carousel-slide
             caption="First slide"

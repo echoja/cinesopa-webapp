@@ -1,7 +1,9 @@
 <template>
   <div>
   <h2>신청</h2>
+  <transition name="fade">
   <router-view />
+  </transition>
   </div>
 
 </template>
@@ -13,6 +15,11 @@ export default {
 };
 </script>
 
-<style>
+
+<style lang="scss" scoped>
+
+</style>
+
+<style lang="scss">
 
 </style>

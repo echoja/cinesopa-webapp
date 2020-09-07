@@ -2,7 +2,7 @@ import Vue from 'vue';
 import ko from 'axe-core/locales/ko.json';
 
 if (process.env.NODE_ENV === 'development') {
-  // eslint-disable-next-line global-require
+  // eslint-disable-next-line global-require, import/no-extraneous-dependencies
   const VueAxe = require('vue-axe').default;
   Vue.use(VueAxe, {
     delay: 2000,
