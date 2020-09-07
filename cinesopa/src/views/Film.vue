@@ -150,7 +150,7 @@
           <div
             v-for="(year, index) in Object.keys(filmAwards).sort((a, b) => b - a)"
             :key="index"
-            class="d-flex"
+            class="year-block d-flex flex-column"
           >
             <div class="year">
               {{ year }}
@@ -297,28 +297,29 @@ export default {
         ],
         awards: [
           {
-            festival_name: '24회 인디포럼',
-            year: 2020,
-            person_name: '오정석',
-            award_name: '폐막작',
-            award_type: '초청',
-          },
-          {
-            festival_name: '24회 인디포럼',
-            year: 2020,
-            person_name: '오정석',
-            award_name: '배회하는 시네마의 주체들',
-            award_type: '초청',
-          },
-          {
-            festival_name: '8회 무주산골영화제',
+            festival_name: '제 8회 무주산골영화제',
             year: 2020,
             person_name: '오정석',
             award_name: '영화 창(窓)',
             award_type: '후보',
           },
           {
-            festival_name: '45회 서울독립영화제',
+            festival_name: '제 24회 인디포럼',
+            year: 2020,
+            person_name: '오정석',
+            award_name: '폐막작',
+            award_type: '초청',
+          },
+          {
+            festival_name: '제 24회 인디포럼',
+            year: 2020,
+            person_name: '오정석',
+            award_name: '배회하는 시네마의 주체들',
+            award_type: '초청',
+          },
+
+          {
+            festival_name: '제 45회 서울독립영화제',
             year: 2019,
             person_name: '오정석',
             award_name: '경쟁부문_장편',
@@ -340,10 +341,10 @@ export default {
         genres: ['드라마'],
         open_date: new Date('2020-08-20'),
         synopsis: `<p>‘승희’(김유라)는 서울 생활을 정리하고 고향
-        거제도에 내려왔지만 남겨진 것은 엄마의 빈 자리 뿐이다.
+        거제도에 내려왔지만<br> 남겨진 것은 엄마의 빈 자리 뿐이다.<br>
         의지할 곳 없이 마을을 서성이던 ‘승희’는 ‘거제 청년(김록경)’과
-        우연히 만난다. 그들은 평범한 일상 속에서 자신처럼 고립되어 있는
-        폐왕성에 도착하고, 그곳에서 누구나 언젠가 지나쳐야만 하는 유배된
+        우연히 만난다.</p><p> 그들은 평범한 일상 속에서 자신처럼 고립되어 있는
+        폐왕성에 도착하고,<br>그곳에서 누구나 언젠가 지나쳐야만 하는 유배된
         시간과 만난다.</p>`,
         youtubeIframeCode: `<iframe
         width="1245"
@@ -484,18 +485,21 @@ export default {
     margin-bottom: 50px;
 
     & h1 {
+      margin-left: -5px;
       color: var(--link-color);
       font-size: 60px;
     }
-    & p {
+    & .title-en {
       margin-top: -5px;
       color: var(--secondary-text-color);
       font-weight: 600;
+      word-spacing: -1px;
     }
   }
   & .basic-body-row {
     margin: 7px 0;
-    font-size: 22px;
+    font-size: 17px;
+
     & .title {
       font-weight: 700;
       margin-right: 25px;
@@ -516,7 +520,7 @@ export default {
     font-size: 36px;
   }
   & .basic-body-row {
-    font-size: 18px;
+    font-size: 14px;
   }
 }
 
@@ -535,14 +539,15 @@ export default {
 }
 .scrollactive-item {
   color: var(--secondary-text-color);
-  font-size: 24px;
+  font-size: 18px;
   border: 20px solid transparent;
   border-radius: 500px;
-  transition: 0.5s;
+  transition: 1s;
   transition-property: color;
 
   &:hover {
-    color: #222;
+    color: var(--link-color);
+    transition: none;
     // background-color:#eee;
     text-decoration: none;
   }
@@ -587,11 +592,13 @@ export default {
 }
 
 .detailed-info-item {
-  padding-top: 70px;
+  margin-bottom: 30px;
+  padding-top: 40px;
   & > h2 {
+    font-size: 24px;
     padding-bottom: 20px;
-    border-bottom: 1px solid #eee;
-    margin-bottom: 30px;
+    // border-bottom: 1px solid #eee;
+    margin-bottom: 0px;
   }
   & > h2.no-divider {
     border: 0;
@@ -603,6 +610,12 @@ export default {
   margin-left: -15px;
   margin-right: -15px;
 }
+
+// synopsis
+
+// #synopsis {
+//   max-width: 600px;
+// }
 
 // actor, people
 
@@ -616,17 +629,25 @@ export default {
 .awards-table .year {
   width: 40px;
   margin: 0px 20px 0 0;
-  font-size: 120%;
+  color: #fff;
+  color: var(--text-secondary-color);
+  font-weight: 600;
+  // font-size: 120%;
+}
+
+.awards-table .year-block {
+  margin-bottom: 25px;
 }
 .awards-table .festival {
-  width: 160px;
+  width: 180px;
+  font-weight: 600;
 }
 .awards-table .festival-box {
   margin: 0px 20px 10px 0px;
   display: flex;
 }
 .award-type {
-  font-weight: 600;
+  color: var(--text-secondary-color);
   padding-right: 10px;
 }
 

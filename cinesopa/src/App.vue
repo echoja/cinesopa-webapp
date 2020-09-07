@@ -11,7 +11,7 @@
       desktop: isDesktop,
     }"
   >
-  <VueSkipTo to="#main" label="본문 바로가기" />
+    <VueSkipTo to="#main" label="본문 바로가기" />
     <div class="h-header"></div>
     <!-- fixed header 를 위한 빈자리 -->
     <!-- <affix relative-element-selector="#body"> -->
@@ -123,28 +123,28 @@
           <div
             id="nav"
             class="font-weight-600 text-center transition-header d-flex justify-content-center"
-            :class="{ small: isMenuShouldSmall, white: $store.state.navLinkWhite }"
+            :class="{ /*small: isMenuShouldSmall,*/ white: $store.state.navLinkWhite }"
           >
             <b-link
-              :class="[isMenuShouldSmall ? 'px-3' : 'px-4', {}]"
+              :class="[isMenuShouldSmall ? 'px-3' : 'px-3', {}]"
               :to="{ name: 'Page', params: { permalink: 'about' } }"
               >인사해요
             </b-link>
-            <b-link :class="[isMenuShouldSmall ? 'px-3' : 'px-4']" :to="{ name: 'FilmList' }">
+            <b-link :class="[isMenuShouldSmall ? 'px-3' : 'px-3']" :to="{ name: 'FilmList' }">
               영화봐요
             </b-link>
             <b-link
-              :class="[isMenuShouldSmall ? 'px-3' : 'px-4']"
+              :class="[isMenuShouldSmall ? 'px-3' : 'px-3']"
               :to="{ name: 'BoardActivity', params: { permalink: 'activity' } }"
               >활동해요
             </b-link>
             <b-link
-              :class="[isMenuShouldSmall ? 'px-3' : 'px-4']"
+              :class="[isMenuShouldSmall ? 'px-3' : 'px-3']"
               :to="{ name: 'BoardNotice', params: { permalink: 'notice' } }"
               >공지해요
             </b-link>
             <b-link
-              :class="[isMenuShouldSmall ? 'px-3' : 'px-4']"
+              :class="[isMenuShouldSmall ? 'pl-3' : 'pl-3']"
               :to="{ name: 'Request', params: { permalink: 'about' } }"
               >신청해요
             </b-link>
@@ -216,7 +216,7 @@
             rel="external"
             title="씨네소파 인스타그램 새 창으로 이동"
           >
-            <font-awesome-icon class="m-2" :icon="['fab', 'instagram']" />
+            <font-awesome-icon :icon="['fab', 'instagram']" />
           </b-link>
           <b-link
             href="https://www.facebook.com/coop.cinesopa"
@@ -224,7 +224,7 @@
             rel="external"
             title="씨네소파 페이스북 새 창으로 이동"
           >
-            <font-awesome-icon class="m-2" :icon="['fab', 'facebook']" />
+            <font-awesome-icon :icon="['fab', 'facebook']" />
           </b-link>
           <!-- <b-img class="m-2" src="./assets/naver-blog.svg"></b-img> -->
           <b-link
@@ -236,7 +236,6 @@
             <!-- aria-describedby="설명id" -->
             <svg
               width="30"
-              class="m-2"
               role="img"
               aria-hidden="true"
               aria-labelledby="naver-blog-icon-title"
@@ -284,7 +283,7 @@
           <b-icon-tools class="m-2"></b-icon-tools>
           <b-icon-person-fill class="m-2"></b-icon-person-fill> -->
         </div>
-        <div class="footer-links d-flex mb-4 footer-link-color justify-content-center">
+        <div class="footer-links d-flex footer-link-color justify-content-center">
           <b-link :to="{ name: 'EmailRefuse' }" class="mx-2 my-2">이메일무단수집거부</b-link>
           <b-link :to="{ name: 'Sitemap' }" class="mx-2 my-2">사이트맵</b-link>
         </div>
@@ -492,14 +491,16 @@ $body-color: #eee;
 
 :root {
   --text-color: #2b3e4a;
-  --text-secondary-color: #576870;
-  --desktop-top-header-height: 300px;
+  // --text-secondary-color: #576870;
+  --text-secondary-color: #767676;
+  --desktop-top-header-height: 230px;
   --desktop-header-height: 100px;
   --mobile-header-height: 80px;
-  --link-color: #00b6e7;
-  --nav-link-hover-color: #00b6e7;
+  --link-color: #009eda;
+  --nav-link-hover-color: #009eda;
   --max-content-size: 1260px;
   --footer-text-color: #767676;
+  --footer-icon-color: #aaa;
   --secondary-text-color: #767676;
 }
 
@@ -522,7 +523,7 @@ button:hover {
 
 #main {
   max-width: var(--max-content-size);
-  margin: 0 auto 50px;
+  margin: 0 auto 200px;
 }
 
 #nav {
@@ -531,7 +532,7 @@ button:hover {
   margin-top: 0;
   left: 100%;
   transform: translateX(-100%);
-  min-width: 750px;
+  min-width: 612px;
   position: absolute;
 
   &.small {
@@ -551,6 +552,9 @@ button:hover {
     color: var(--nav-link-hover-color);
     text-decoration: none;
     transition: none;
+  }
+  & a:last-child {
+    padding-right: 0;
   }
 }
 
@@ -588,19 +592,20 @@ button:hover {
   // position:absolute;
 
   & #nav {
-    margin-top: 133px;
+    margin-top: 86px;
     transform: translateX(-50%);
     left: 50%;
   }
   & .logo {
-    margin-top: 80px;
+    margin-top: 50px;
     margin-left: 0;
     left: 50%;
     transform: translateX(-50%);
     & img,
     & svg {
-      width: 237px;
-      height: 49px;
+      width: 200px;
+      height: auto; // todo. 높이를 비율 맞게 해야 함.
+      // height: 49px;
     }
   }
 }
@@ -656,7 +661,7 @@ header {
 }
 
 .transition-header {
-  transition: 1s ease;
+  transition: 0.5s ease;
 }
 
 .no-scroll {
@@ -666,6 +671,10 @@ header {
 }
 
 /* footer !footer */
+
+footer {
+  font-size: 14px;
+}
 
 footer p {
   margin: 0;
@@ -677,12 +686,13 @@ footer p {
 }
 
 .footer-text-color {
-  color: var(--footer-text-color);
+  color: var(--text-secondary-color);
+  // color: var(--footer-text-color);
 }
 
 .footer-sns-buttons {
   font-size: 30px;
-  & a{
+  & a {
     transition: 1s;
   }
   & a:hover {
@@ -691,15 +701,18 @@ footer p {
   }
 }
 .footer-sns-buttons svg {
+  margin: 0px 6px;
   vertical-align: -0.125em;
+  color: var(--footer-icon-color);
 }
 .footer-links {
-  font-size: 105%;
+  // font-size: 105%;
   font-weight: 500;
+  margin-bottom: 20px;
 }
 .footer-information {
-  font-weight: 300;
-  margin: 10px 0;
+  font-weight: 400;
+  margin-bottom: 10px;
 }
 
 .mobile .footer-information-divider {

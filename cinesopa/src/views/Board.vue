@@ -49,7 +49,7 @@
       >
         <span class="cell-board flex-shrink-0 small">{{ post.board }}</span>
         <span class="cell-title flex-fill">
-          <b-link :to="{name: 'Post', params: {id: post.id}}">
+          <b-link :to="{ name: 'Post', params: { id: post.id } }">
             {{ post.title }}
           </b-link>
         </span>
@@ -58,7 +58,7 @@
     </ul>
 
     <!-- 페이지 옮기기 -->
-    <div class="d-flex justify-content-center m-5">
+    <div class="pagenav-wrapper d-flex justify-content-center">
       <!-- pills -->
       <b-pagination-nav
         limit="9"
@@ -99,6 +99,7 @@ export default {
   props: ['title', 'boardsProp'],
   data() {
     return {
+      currentPage: 1,
       boards: [
         {
           permalink: '_all',
@@ -140,13 +141,25 @@ export default {
         },
         {
           id: 4,
-          board: '협동조합',
+          board: '조합소식',
           title: '2018년 임시총회 공고',
           date: new Date('2018-03-11'),
         },
         {
           id: 5,
-          board: '협동조합',
+          board: '조합소식',
+          title: '2018년 정기총회 공고',
+          date: new Date('2018-01-11'),
+        },
+        {
+          id: 6,
+          board: '조합소식',
+          title: '2018년 임시총회 공고',
+          date: new Date('2018-03-11'),
+        },
+        {
+          id: 7,
+          board: '조합소식',
           title: '2018년 정기총회 공고',
           date: new Date('2018-01-11'),
         },
@@ -207,9 +220,9 @@ export default {
 
 <style lang="scss" scoped>
 h1 {
-  font-size: 60px;
+  font-size: 50px;
   color: var(--link-color);
-  margin-bottom: 50px;
+  margin-bottom: 20px;
 }
 .mobile h1 {
   font-size: 40px;
@@ -217,7 +230,7 @@ h1 {
 
 // 게시판 필터링
 .board-select-item {
-  font-size: 32px;
+  font-size: 26px;
   font-weight: 500;
   color: var(--secondary-text-color);
   padding: 10px 20px;
@@ -258,16 +271,23 @@ h1 {
 .post-list {
   padding: 0;
   padding-top: 2px;
-  margin-top: 30px;
+  margin-top: 10px;
 }
 .post-listitem {
-  border: 2px solid var(--text-color);
+  // border: 2px solid var(--text-color);
+  border: 1px solid #b0b6ba;
   border-left: 0;
   border-right: 0;
-  margin-top: -2px;
-  padding: 40px 0;
-  font-size: 22px;
+  margin-top: -1px;
+  padding: 35px 0;
+  font-size: 20px;
 }
+// .post-listitem:first-child {
+//   border-top: 2px solid #b0b6ba;
+// }
+// .post-listitem:last-child {
+//   border-bottom: 2px solid #b0b6ba;
+// }
 
 .mobile .post-listitem {
   font-size: 18px;
@@ -281,5 +301,18 @@ h1 {
 
 .cell-date {
   padding-left: 10px;
+}
+
+.pagenav-wrapper {
+  margin-top: 30px;
+}
+</style>
+
+<style lang="scss">
+.page-item.active a.page-link {
+  margin: 5px;
+  width: 30px;
+  height: 30px;
+padding-bottom: 10px;
 }
 </style>
