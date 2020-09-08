@@ -34,6 +34,7 @@
     "regenerator-runtime": "^0.13.7",
     "rellax": "^1.12.1",
     "tinymce": "^5.4.2",
+    "vee-validate": "^3.3.9",
     "vue": "^2.6.12",
     "vue-affix": "^0.5.2",
     "vue-fullpage.js": "^0.1.5",

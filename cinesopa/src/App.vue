@@ -144,8 +144,8 @@
               >공지해요
             </b-link>
             <b-link
-              :class="[isMenuShouldSmall ? 'pl-3' : 'pl-3']"
-              :to="{ name: 'Request', params: { permalink: 'about' } }"
+              :class="[isMenuShouldSmall ? 'px-3' : 'px-3']"
+              :to="{ name: 'Distribution', params: { permalink: 'about' } }"
               >신청해요
             </b-link>
             <!-- <router-link to="/">Home</router-link> |
@@ -194,6 +194,7 @@
     </div>
     <div id="body">
       <main id="main">
+        <!-- {{  }} -->
         <!-- mode="out-in" -->
         <transition
           name="fade"
@@ -202,7 +203,7 @@
           @enter="enter"
           @afterEnter="afterEnter"
         >
-          <router-view :key="$route.path" :style="{ overflow: 'visible' }" />
+          <router-view :key="$route.path.split('/')[1]" :style="{ overflow: 'visible' }" />
         </transition>
       </main>
       <footer>
@@ -390,7 +391,7 @@ export default {
 
   created() {
     this.setWindowSize();
-    cssVars();
+    // cssVars();
   },
 
   mounted() {
@@ -451,6 +452,42 @@ export default {
   },
 };
 </script>
+
+<style lang="scss" scoped>
+// header
+
+.h-header {
+  height: var(--desktop-top-header-height);
+}
+
+.mobile .h-header {
+  height: var(--mobile-header-height);
+}
+
+header {
+  height: var(--desktop-header-height);
+  max-width: var(--max-content-size);
+}
+
+.header-wrapper {
+  // background-color: rgba(255, 255, 255, 0.4);
+  // backdrop-filter: blur(5px);
+  background-color: #fff;
+  &.transparent {
+    background-color: transparent;
+  }
+}
+
+.desktop .header-wrapper,
+.desktop header {
+  height: var(--desktop-header-height);
+}
+
+.mobile .header-wrapper,
+.mobile header {
+  height: var(--mobile-header-height);
+}
+</style>
 
 <style>
 .a-enter-active .a-leave-active {
@@ -528,10 +565,10 @@ button:hover {
 
 #nav {
   padding: 30px 0;
-  font-size: 24px;
+  font-size: 22px;
   margin-top: 0;
   left: 100%;
-  transform: translateX(-100%);
+  transform: translateX(-96%);
   min-width: 612px;
   position: absolute;
 
@@ -553,9 +590,9 @@ button:hover {
     text-decoration: none;
     transition: none;
   }
-  & a:last-child {
-    padding-right: 0;
-  }
+  // & a:last-child {
+  //   padding-right: 0;
+  // }
 }
 
 .logo {
@@ -617,38 +654,6 @@ button:hover {
 // .header-wrapper {
 //   background-color: #fff;
 // }
-
-.h-header {
-  height: var(--desktop-top-header-height);
-}
-
-.mobile .h-header {
-  height: var(--mobile-header-height);
-}
-
-header {
-  height: var(--desktop-header-height);
-  max-width: var(--max-content-size);
-}
-
-.header-wrapper {
-  // background-color: rgba(255, 255, 255, 0.4);
-  // backdrop-filter: blur(5px);
-  background-color: #fff;
-  &.transparent {
-    background-color: transparent;
-  }
-}
-
-.desktop .header-wrapper,
-.desktop header {
-  height: var(--desktop-header-height);
-}
-
-.mobile .header-wrapper,
-.mobile header {
-  height: var(--mobile-header-height);
-}
 
 /* main menu !menu */
 

@@ -5,7 +5,7 @@
         <!-- https://logaretm.github.io/vee-validate/advanced/rules-object-expression.html#defining-rules -->
         <validation-provider
           name="Email"
-          :rules="{ required: true, email: true}"
+          :rules="{ required: true, email: true }"
           v-slot="validationContext"
         >
           <b-form-group id="input-email-group" label="이메일 주소" label-for="input-email"
@@ -32,11 +32,10 @@
         <validation-provider
           name="비밀번호"
           vid="password"
-          :rules="{ required: true, password_min:8}"
+          :rules="{ required: true, password_min: 8 }"
           v-slot="validationContext"
         >
           <b-form-group id="input-pass-group" label="비밀번호" label-for="input-password">
-
             <b-form-input
               id="input-password"
               name="input-password"
@@ -54,11 +53,14 @@
         </validation-provider>
         <validation-provider
           name="비밀번호 재입력"
-          :rules="{ required: true, password_same: {other: '@password'}}"
+          :rules="{ required: true, password_same: { other: '@password' } }"
           v-slot="validationContext"
         >
-          <b-form-group id="input-repass-group" label="비밀번호 재입력" label-for="input-repassword">
-
+          <b-form-group
+            id="input-repass-group"
+            label="비밀번호 재입력"
+            label-for="input-repassword"
+          >
             <b-form-input
               id="input-repassword"
               name="input-repassword"
@@ -163,11 +165,13 @@ export default {
       createGuest({
         email: this.form.email,
         pwd: this.form.password,
-      }).then((result) => {
-        console.log(result);
-      }).catch((error) => {
-        console.log(error);
-      });
+      })
+        .then((result) => {
+          console.log(result);
+        })
+        .catch((error) => {
+          console.log(error);
+        });
       // const obj = {
       //   "email": "eszqsc112@naver.com",
       //   "pwd": "13241324"

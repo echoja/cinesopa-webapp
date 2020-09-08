@@ -19,7 +19,7 @@
               v-model="email"
               placeholder="이메일"
               :disabled="state.loginProcessing"
-              @keydown.enter="handleSubmit(login)"
+              @keyup.enter="handleSubmit(login)"
             ></b-form-input>
             <!-- <p>{{ getValidationState(validationContext) }}</p> -->
             <b-form-invalid-feedback id="input-email-live-feedback">
@@ -33,7 +33,7 @@
               type="password"
               v-model="pwd"
               placeholder="패스워드"
-              @keydown.enter="handleSubmit(login)"
+              @keyup.enter="handleSubmit(login)"
               :disabled="state.loginProcessing"
             ></b-form-input>
             <b-form-invalid-feedback id="input-pwd-live-feedback">{{

@@ -1,0 +1,8 @@
+%smooth-hover{
+  transition: 1s;
+  &:hover {
+    color: var(--link-color);
+    transition: none;
+    text-decoration: none;
+  }
+}

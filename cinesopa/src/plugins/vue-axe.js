@@ -1,4 +1,5 @@
 import Vue from 'vue';
+// eslint-disable-next-line import/no-extraneous-dependencies
 import ko from 'axe-core/locales/ko.json';
 
 if (process.env.NODE_ENV === 'development') {
@@ -6,6 +7,8 @@ if (process.env.NODE_ENV === 'development') {
   const VueAxe = require('vue-axe').default;
   Vue.use(VueAxe, {
     delay: 2000,
+    clearConsoleOnUpdate: false,
+    allowConsoleClears: false,
     config: {
       locale: ko,
     },

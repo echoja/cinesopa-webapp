@@ -64,19 +64,18 @@ const routes = [
         path: 'distribution',
         name: 'Distribution',
         component: () => import('../views/Distribution.vue'),
-        meta: {
-          title: '배급신청',
-        },
       },
       {
         path: 'community',
         name: 'Community',
         component: () => import('../views/Community.vue'),
-        meta: {
-          title: '공동체상영 신청',
-        },
       },
     ],
+  },
+  {
+    path: '/request/success',
+    name: 'SuccessRequest',
+    component: () => import('../views/SuccessRequest.vue'),
   },
 
   {
