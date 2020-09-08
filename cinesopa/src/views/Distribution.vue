@@ -21,7 +21,7 @@
       <!-- <b-button @click="log(validate(), errors)">체크체크</b-button> -->
       <b-form class="distribution-form" @submit.stop.prevent="submit(validate())">
         <!-- <b-input type="text" required></b-input> -->
-        <div class="privacy-box" aria-label="개인정보처리방침"1>
+        <div class="privacy-box" aria-label="개인정보처리방침">
           <privacy></privacy>
         </div>
         <validation-provider
@@ -384,7 +384,6 @@
 </template>
 
 <script>
-
 import {
   ValidationObserver,
   ValidationProvider,
@@ -394,9 +393,7 @@ import {
 } from 'vee-validate';
 import Privacy from '../components/Privacy.vue';
 
-extend('shouldCheck', (value) => {
-  return value === true;
-});
+extend('shouldCheck', (value) => value === true);
 
 export default {
   title: '배급의뢰',
