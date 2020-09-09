@@ -689,4 +689,8 @@ export default {
   width: 100%;
   height: 100%;
 }
+
+#people th {
+  width: 110px;
+}
 </style>
