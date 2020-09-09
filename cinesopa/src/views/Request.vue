@@ -74,7 +74,9 @@ export default {
       return this.linkRefMap[this.$route.name]?.$el.offsetHeight;
     },
   },
-  methods: {},
+  methods: {
+
+  },
 };
 </script>
 

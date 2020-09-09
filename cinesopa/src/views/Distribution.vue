@@ -21,9 +21,8 @@
       <!-- <b-button @click="log(validate(), errors)">체크체크</b-button> -->
       <b-form class="distribution-form" @submit.stop.prevent="submit(validate())">
         <!-- <b-input type="text" required></b-input> -->
-        <div class="privacy-box" aria-label="개인정보처리방침">
-          <privacy></privacy>
-        </div>
+
+          <privacy height="300"></privacy>
         <validation-provider
           :rules="{ shouldCheck: true }"
           :customMessages="{ shouldCheck: '반드시 동의하여야 합니다.' }"
@@ -302,7 +301,11 @@
             label-calendar="달력"
             label-nav="달력 열기"
             label-help="방향키를 이용하여 날짜를 선택하세요"
-          ></b-form-datepicker>
+          >
+            <template #button-content>
+              날짜 선택
+            </template>
+          </b-form-datepicker>
         </b-form-group>
         <b-form-group
           class="distribution-form-group wide"
@@ -457,7 +460,7 @@ export default {
         console.log('hi!! success!');
         this.$router.push({ name: 'SuccessRequest' });
       } else {
-        this.$scrollTo(this.$refs.observer.$el, 500);
+        // this.$scrollTo(this.$refs.observer.$el, 500);
       }
     },
     async log(any, errors) {
@@ -487,12 +490,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.privacy-box {
-  height: 300px;
-  overflow-y: scroll;
-  border: 1px solid #ddd;
-  padding: 0 30px 20px;
-}
+
 .distribution-form {
 }
 .distribution-form h2 {

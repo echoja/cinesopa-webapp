@@ -51,16 +51,35 @@
                     class="featured-description text-left d-flex flex-column justify-content-center"
                     md="6"
                   >
-                    <p class="m-0"><b-badge pill variant="light">개봉예정</b-badge></p>
+                    <p class="m-0"><span class="featured-badge">개봉예정</span></p>
 
-                    <h2 class="display-3">여름날</h2>
-                    <p>Days in a Summer, 2020</p>
-                    <p>
+                    <h2 class="featured-title">여름날</h2>
+                    <p class="featured-subtitle">Days in a Summer, 2020</p>
+                    <p class="featured-synopsis">
                       그들은 평범한 일상 속에서 자신처럼 고립되어 있는 폐왕성에 도착하고, 그곳에서
                       누구나 언젠가 지나쳐야만 하는 유배된 시간과 만난다.
                     </p>
                     <p>
-                      <b-link :to="{ name: 'IndividualFilm', params: { id: 1 } }">더보기</b-link>
+                      <b-link
+                        class="d-flex align-items-center featured-more"
+                        :to="{ name: 'IndividualFilm', params: { id: 1 } }"
+                      >
+                        <span>더보기</span>
+                        <!-- style="enable-background:new 0 0 1920 1080;"
+                          xml:space="preserve" -->
+                        <svg
+                          width="8px"
+                          class="ml-1"
+                          xmlns="http://www.w3.org/2000/svg"
+                          viewBox="0 0 47.22 81.75"
+                        >
+                          <polygon
+                            class="cls-1"
+                            fill="currentColor"
+                            points="6.34 81.75 0 75.41 34.54 40.87 0 6.34 6.34 0 47.22 40.87 6.34 81.75"
+                          />
+                        </svg>
+                      </b-link>
                     </p>
                   </b-col>
                 </b-row>
@@ -152,7 +171,6 @@
           :key="index"
           class="film-wrapper text-center"
         >
-          <b-badge pill class="film-badge" v-if="film.badge">{{ film.badge }}</b-badge>
           <!-- {{ film }} -->
           <!-- <b-link :style="{'background-image': `url(${film.posterLink})`}"
            class="poster-link w-100" href=""></b-link> -->
@@ -162,6 +180,7 @@
               :to="{ name: 'IndividualFilm', params: { id: film.id } }"
               class="poster-link"
             >
+              <b-badge pill class="film-badge" v-if="film.badge">{{ film.badge }}</b-badge>
               <img :src="film.posterLink" :alt="`${film.title} 포스터`" />
             </b-link>
           </div>
@@ -176,7 +195,7 @@
             </b-link>
           </h2>
           <p class="film-description">
-            <span class="small">{{ film.title_en }}</span>
+            <span>{{ film.title_en }}</span>
           </p>
         </b-col>
       </b-row>
@@ -382,6 +401,32 @@ export default {
   & .featured-description {
     padding: 48px;
   }
+  & .featured-badge {
+    color: #fff;
+    background: transparent;
+    padding: 0;
+    margin: 0;
+    font-weight: 300;
+    font-size: 23px;
+    margin-bottom: 10px;
+  }
+  & .featured-title {
+    font-size: 50px;
+    margin-bottom: 0;
+  }
+  & .featured-subtitle {
+    margin-top: 0px;
+    margin-bottom: 25px;
+  }
+  & .featured-synopsis {
+    font-weight: 300;
+    font-size: 18px;
+    max-width: 380px;
+  }
+  & .featured-more {
+    color: #fff;
+    opacity: 60%;
+  }
 }
 
 .mobile {
@@ -506,23 +551,34 @@ button.tag {
 /* film */
 
 .filmlist {
+  margin-top: 80px;
+
   & .film-wrapper {
     position: relative;
-    margin-top: 150px;
+    margin-bottom: 80px;
+
+    & h2 {
+      font-weight: 600;
+    }
   }
 
   & .film-badge {
     position: absolute;
-    left: 15px;
-    top: -5px;
+    left: 0;
+    top: 0;
     z-index: 1;
-    font-size: 14px;
-    padding: 5px 8px;
+    font-size: 19px;
+    font-weight: 400;
     background-color: var(--link-color);
+    border-radius: 0 0 19px 0;
+    padding: 10px;
+    padding-right: 13px;
   }
 
   & .poster-link {
     transition: 0.5s;
+    overflow: hidden;
+    position: relative;
   }
   & .poster-link:hover img {
     transform: scale(1.2);
@@ -533,6 +589,13 @@ button.tag {
     max-height: 500px;
     overflow: hidden;
     margin-bottom: 30px;
+  }
+
+  & .film-description {
+    font-size: 14px;
+    color: #767676;
+    // font-weight:400;
+    // letter-spacing: -0.5px;
   }
 
   & img {
