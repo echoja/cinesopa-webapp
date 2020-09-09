@@ -379,7 +379,7 @@ export default {
 };
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
 .fullwidth {
   width: 100vw;
   position: relative;
@@ -443,38 +443,6 @@ export default {
   & .featured-description {
     padding: 48px 0;
     height: 500px;
-  }
-}
-
-.featured {
-  width: 100%;
-  position: absolute;
-  top: 0;
-  background-color: beige;
-
-  & .carousel {
-    width: 100%;
-    height: 100%;
-    overflow: hidden;
-  }
-
-  & .carousel-inner,
-  .carousel-item {
-    height: 100%;
-  }
-
-  & .carousel-indicators li {
-    width: 10px;
-    height: 10px;
-    border-radius: 30px;
-    border: 10px solid transparent;
-  }
-  & .carousel-item-content > div {
-    width: 70%;
-    max-width: var(--max-content-size);
-  }
-  & img {
-    min-width: 1px;
   }
 }
 
@@ -630,4 +598,48 @@ button.tag {
 }
 </style>
 
-<style lang="scss"></style>
+<style lang="scss">
+.featured {
+  width: 100%;
+  position: absolute;
+  top: 0;
+  background-color: beige;
+
+  & .carousel {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+  }
+
+  & .carousel-inner,
+  .carousel-item {
+    height: 100%;
+  }
+
+  & .carousel-indicators li {
+    width: 10px;
+    height: 10px;
+    border-radius: 30px;
+    border: 10px solid transparent;
+  }
+  & .carousel-item-content > div {
+    width: 70%;
+    max-width: var(--max-content-size);
+  }
+  & img {
+    min-width: 1px;
+  }
+}
+
+.featured-wrapper .carousel-control-prev-icon,
+.featured-wrapper .carousel-control-next-icon {
+  width: 80px;
+  height: 80px;
+}
+.featured-wrapper .carousel-control-prev-icon {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 50.3 97.78'%3E%3Cpolygon fill='%23fff' points='48.89 0 50.3 1.41 2.82 48.89 50.3 96.37 48.89 97.78 0 48.89 48.89 0' /%3E%3C/svg%3E");
+}
+.featured-wrapper .carousel-control-next-icon {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 50.51 98.2'%3E%3Cpolygon fill='%23fff' points='1.41 98.2 0 96.79 47.69 49.1 0 1.41 1.41 0 50.52 49.1 1.41 98.2' /%3E%3C/svg%3E");
+}
+</style>
