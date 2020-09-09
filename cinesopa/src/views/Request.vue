@@ -103,6 +103,9 @@ export default {
   &.router-link-exact-active {
     color: var(--link-color);
   }
+  &:hover {
+    color: var(--link-color);
+  }
 }
 
 .request-em {

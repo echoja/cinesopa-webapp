@@ -278,7 +278,7 @@ export default {
         const onDone = (from, to) => () => {
           processing = false;
           // enableScroll();
-          document.body.classList.remove('no-scroll');
+          // document.body.classList.remove('no-scroll');
           this.scrollSection[from].isVisible = false;
           this.scrollSection[to].isVisible = true;
         };
@@ -289,7 +289,7 @@ export default {
           if (currentScrollTop > lastScrollTop) {
             // going down
             // disableScroll();
-            document.body.classList.add('no-scroll');
+            // document.body.classList.add('no-scroll');
             this.$scrollTo(visibles[0].element, 0);
             this.$scrollTo(visibles[1].element, 5000, {
               onDone: onDone(0, 1),

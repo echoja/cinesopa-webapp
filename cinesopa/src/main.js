@@ -15,6 +15,7 @@ import './plugins/vue-plugin-load-script';
 import App from './App.vue';
 import router from './router';
 import store from './store';
+import './util.scss';
 
 Vue.config.productionTip = false;
 

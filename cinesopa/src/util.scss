@@ -1,8 +1,21 @@
-%smooth-hover{
+%smooth-hover {
   transition: 1s;
   &:hover {
-    color: var(--link-color);
     transition: none;
     text-decoration: none;
   }
+}
+// %smooth-move {
+//   transition: 0.5s ease;
+// }
+
+// @mixin smooth-link() {
+//   transition: 1s;
+//   &:hover {
+//     color: $hover-color
+//   }
+// }
+
+@mixin smooth-move($time) {
+  transition: $time ease;
 }

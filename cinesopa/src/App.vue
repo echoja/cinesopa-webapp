@@ -16,7 +16,11 @@
     <!-- fixed header 를 위한 빈자리 -->
     <!-- <affix relative-element-selector="#body"> -->
     <!-- :style="{ 'background-color': $store.state.menuTransparent ? 'transparent' : '#fff' }" -->
-    <div class="header-wrapper fixed-top" :class="{ transparent: $store.state.menuTransparent }">
+    <div
+      :style="{ 'margin-top': `${headerMarginTopWhenScrollTop}px` }"
+      class="header-wrapper transition-header fixed-top"
+      :class="{ transparent: $store.state.menuTransparent }"
+    >
       <header
         class="position-relative mx-auto"
         :class="{
@@ -33,7 +37,7 @@
             <svg
               xmlns="http://www.w3.org/2000/svg"
               class="transition-header"
-              viewBox="0 0 254 52.07"
+              viewBox="0 0 226.77 47.02"
               role="img"
               aria-hidden="true"
               aria-labelledby="logo-title"
@@ -109,27 +113,22 @@
             class="font-weight-600 text-center transition-header d-flex justify-content-center"
             :class="{ /*small: isMenuShouldSmall,*/ white: $store.state.navLinkWhite }"
           >
-            <b-link
-              :class="[isMenuShouldSmall ? 'px-3' : 'px-3', {}]"
-              :to="{ name: 'Page', params: { permalink: 'about' } }"
-              >인사해요
-            </b-link>
-            <b-link :class="[isMenuShouldSmall ? 'px-3' : 'px-3']" :to="{ name: 'FilmList' }">
+            <!-- :class="[isMenuShouldSmall ? 'px-3' : 'px-3', {}]" -->
+            <b-link :to="{ name: 'Page', params: { permalink: 'about' } }">인사해요 </b-link>
+            <!-- :class="[isMenuShouldSmall ? 'px-3' : 'px-3']"  -->
+            <b-link :to="{ name: 'FilmList' }">
               영화봐요
             </b-link>
-            <b-link
-              :class="[isMenuShouldSmall ? 'px-3' : 'px-3']"
-              :to="{ name: 'BoardActivity', params: { permalink: 'activity' } }"
+            <!-- :class="[isMenuShouldSmall ? 'px-3' : 'px-3']" -->
+            <b-link :to="{ name: 'BoardActivity', params: { permalink: 'activity' } }"
               >활동해요
             </b-link>
-            <b-link
-              :class="[isMenuShouldSmall ? 'px-3' : 'px-3']"
-              :to="{ name: 'BoardNotice', params: { permalink: 'notice' } }"
+            <!-- :class="[isMenuShouldSmall ? 'px-3' : 'px-3']" -->
+            <b-link :to="{ name: 'BoardNotice', params: { permalink: 'notice' } }"
               >공지해요
             </b-link>
-            <b-link
-              :class="[isMenuShouldSmall ? 'px-3' : 'px-3']"
-              :to="{ name: 'Distribution', params: { permalink: 'about' } }"
+            <!-- :class="[isMenuShouldSmall ? 'px-3' : 'px-3']" -->
+            <b-link :to="{ name: 'Distribution', params: { permalink: 'about' } }"
               >신청해요
             </b-link>
             <!-- <router-link to="/">Home</router-link> |
@@ -349,7 +348,7 @@ export default {
       return null;
     },
     isTop() {
-      return this.scrollY === 0;
+      return this.scrollY <= 50;
     },
     isBottom() {
       return this.scrollY + this.windowHeight === this.documentHeight;
@@ -367,6 +366,9 @@ export default {
     },
     isMenuShouldSmall() {
       return this.windowWidth < 992;
+    },
+    headerMarginTopWhenScrollTop() {
+      return this.isTop ? -this.scrollY : 0;
     },
     // logoWidth() {
     //   return this.isTop ? 237 : 154;
@@ -439,6 +441,60 @@ export default {
 
 <style lang="scss" scoped>
 // header
+@use 'util';
+
+#app {
+  // font-family: Avenir, Helvetica, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  // text-align: center;
+  color: var(--text-color);
+  overflow-x: hidden;
+}
+
+#main {
+  max-width: var(--max-content-size);
+  margin: 0 auto 200px;
+}
+
+#nav {
+  font-size: 22px;
+  margin-top: 0;
+  left: 100%;
+  transform: translateX(-96%);
+  min-width: 612px;
+  position: absolute;
+
+  &.small {
+    min-width: 600px;
+  }
+
+  &.white a {
+    color: #fff;
+  }
+  & a {
+    @extend %smooth-hover;
+    font-weight: 500;
+    padding: 16px;
+    color: var(--nav-link-color);
+  }
+
+  & a:hover {
+    color: var(--nav-link-hover-color);
+  }
+  // & a:last-child {
+  //   padding-right: 0;
+  // }
+}
+.desktop #nav {
+  margin-top: 20px;
+}
+
+// header
+
+.transition-header {
+  transition: 0.5s ease;
+}
 
 .h-header {
   height: var(--desktop-top-header-height);
@@ -457,6 +513,7 @@ header {
   // background-color: rgba(255, 255, 255, 0.4);
   // backdrop-filter: blur(5px);
   background-color: #fff;
+  // @include util.smooth-move(0.2s);
   &.transparent {
     background-color: transparent;
   }
@@ -471,44 +528,78 @@ header {
 .mobile header {
   height: var(--mobile-header-height);
 }
-</style>
 
-<style>
-.a-enter-active .a-leave-active {
-  transition: opacity 0.5s;
-}
-.a-enter,
-.a-leave-to {
-  opacity: 0;
-}
+// logo
 
-.fade-enter-active,
-.fade-leave-active {
-  transition-property: opacity;
-  transition-property: height, opacity, margin, transform;
-  transition-timing-function: ease;
-  overflow: hidden;
+.logo {
+  position: absolute;
+  & svg {
+    @include util.smooth-move(0.5s);
+  }
 }
 
-.fade-enter-active {
-  transition-duration: 1s;
+.logo a {
+  color: var(--logo-color);
+  display: inline-block;
+  padding: 10px;
+  // transition: 1s;
 }
-.fade-leave-active {
-  transition-duration: 0.3s;
+.logo a:hover {
+  color: var(--text-color);
 }
-.fade-enter,
-.fade-leave-to {
-  transform: translateY(20px);
-  opacity: 0;
+
+.logo a.white {
+  color: #fff;
 }
+
+.mobile .logo {
+  margin-top: 25px;
+  left: 50%;
+  transform: translateX(-50%);
+  & img,
+  & svg {
+    width: 154px;
+    height: 31.92px;
+  }
+}
+
+.desktop .logo {
+  left: 0;
+  margin-left: 20px;
+  margin-top: 20px;
+  & img,
+  & svg {
+    width: 154px;
+    height: 31.92px;
+  }
+}
+
+// top desktop nav, logo, img
+
+.top.desktop {
+  & #nav {
+    // margin-top: 86px;
+    margin-top: 100px;
+    transform: translateX(-50%);
+    left: 50%;
+  }
+  & .logo {
+    margin-top: 40px;
+    margin-left: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    & img,
+    & svg {
+      width: 200px;
+      height: 41.47px;
+    }
+  }
+}
+
 </style>
 
 <style lang="scss">
 @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@100;300;400;500;700;900&family=Noto+Serif+KR:wght@200;300;400;500;600;700;900&display=swap');
-
-/* default style */
-$body-bg: #eee;
-$body-color: #eee;
 
 :root {
   --text-color: #2b3e4a;
@@ -526,14 +617,6 @@ $body-color: #eee;
   --secondary-text-color: #767676;
 }
 
-#app {
-  // font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  // text-align: center;
-  color: var(--text-color);
-  overflow-x: hidden;
-}
 a,
 button {
   color: var(--text-color);
@@ -543,111 +626,11 @@ button:hover {
   color: var(--text-color);
 }
 
-#main {
-  max-width: var(--max-content-size);
-  margin: 0 auto 200px;
-}
 
-#nav {
-  padding: 30px 0;
-  font-size: 22px;
-  margin-top: 0;
-  left: 100%;
-  transform: translateX(-96%);
-  min-width: 612px;
-  position: absolute;
-
-  &.small {
-    min-width: 600px;
-  }
-
-  &.white a {
-    color: #fff;
-  }
-  & a {
-    font-weight: 500;
-    transition: 1s;
-    color: var(--nav-link-color);
-  }
-
-  & a:hover {
-    color: var(--nav-link-hover-color);
-    text-decoration: none;
-    transition: none;
-  }
-  // & a:last-child {
-  //   padding-right: 0;
-  // }
-}
-
-.logo {
-  position: absolute;
-  transition: 1s ease;
-}
-
-.logo a{
-  color: var(--logo-color);
-  // transition: 1s;
-}
-.logo a:hover{
-  color: var(--text-color);
-}
-
-.logo a.white {
-  color: #fff;
-}
-
-.mobile .logo {
-  margin-top: 25px;
-  left: 50%;
-  transform: translateX(-50%);
-  & img,
-  & svg {
-    width: 154px;
-    height: 32px;
-  }
-}
-
-.desktop .logo {
-  left: 0;
-  margin-left: 20px;
-  margin-top: 30px;
-  & img,
-  & svg {
-    width: 154px;
-    height: 32px;
-  }
-}
-
-.top.desktop {
-  // position:absolute;
-
-  & #nav {
-    margin-top: 86px;
-    transform: translateX(-50%);
-    left: 50%;
-  }
-  & .logo {
-    margin-top: 50px;
-    margin-left: 0;
-    left: 50%;
-    transform: translateX(-50%);
-    & img,
-    & svg {
-      width: 200px;
-      height: auto; // todo. 높이를 비율 맞게 해야 함.
-      // height: 49px;
-    }
-  }
-}
 
 #nav a.router-link-exact-active {
   color: var(--link-color);
 }
-
-// .header-wrapper {
-//   background-color: #fff;
-// }
 
 /* main menu !menu */
 
@@ -657,16 +640,6 @@ button:hover {
 
 .menu-button {
   color: var(--text-color);
-}
-
-.transition-header {
-  transition: 0.5s ease;
-}
-
-.no-scroll {
-  position: fixed;
-  overflow-y: scroll;
-  width: 100%;
 }
 
 /* footer !footer */
@@ -829,5 +802,38 @@ footer p {
   width: 1px;
   height: 1px;
   overflow: hidden;
+}
+</style>
+
+<style>
+/* *********************** */
+/* **** AMINATION!!! ***** */
+/* *********************** */
+.a-enter-active .a-leave-active {
+  transition: opacity 0.5s;
+}
+.a-enter,
+.a-leave-to {
+  opacity: 0;
+}
+
+.fade-enter-active,
+.fade-leave-active {
+  transition-property: opacity;
+  transition-property: height, opacity, margin, transform;
+  transition-timing-function: ease;
+  overflow: hidden;
+}
+
+.fade-enter-active {
+  transition-duration: 1s;
+}
+.fade-leave-active {
+  transition-duration: 0.3s;
+}
+.fade-enter,
+.fade-leave-to {
+  transform: translateY(20px);
+  opacity: 0;
 }
 </style>
