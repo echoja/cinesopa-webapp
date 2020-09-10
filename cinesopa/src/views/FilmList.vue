@@ -1,6 +1,7 @@
 <template>
   <div>
     <!-- placeholder -->
+    <h1 class="visually-hidden">영화 리스트</h1>
     <div class="featured-wrapper position-relative fullwidth">
       <div class="featured-height"></div>
       <div
@@ -97,36 +98,65 @@
       </div>
     </div>
     <div class="filter">
-      <!-- 개봉되었는지의 여부 필터링 -->
-      <div class="opened text-center m-1 pt-5 pb-2 d-flex justify-content-center">
-        <div
-          class="opened-options-wrapper"
-          role="listbox"
-          aria-label="개봉되었는지의 여부 필터링"
-          aria-orientation="horizontal"
-        >
-          <b-link
-            v-for="option in openedOptions"
-            :key="option.key"
-            :aria-selected="option.selected"
-            class="d-inline-block"
-            :class="{ selected: option.selected }"
-            role="option"
-            @click="setOpened(option)"
+      <!-- 모바일 때만 보이는 필터 -->
+      <template v-if="$store.state.isMobile">
+        <!-- 개봉되었는지의 여부 필터링 -->
+        <div class="opened text-center m-1 pt-5 pb-2 d-flex justify-content-center">
+          <div
+            class="opened-options-wrapper"
+            role="listbox"
+            aria-label="개봉되었는지의 여부 필터링"
+            aria-orientation="horizontal"
           >
-            {{ option.label }}
-          </b-link>
+            <b-link
+              v-for="option in openedOptions"
+              :key="option.key"
+              :aria-selected="option.selected"
+              class="d-inline-block"
+              :class="{ selected: option.selected }"
+              role="option"
+              @click="setOpened(option)"
+            >
+              {{ option.label }}
+            </b-link>
+          </div>
         </div>
-      </div>
 
-      <!-- 검색창 -->
-      <div class="search text-center mx-auto my-2 position-relative d-flex align-items-center">
+        <!-- 검색창 -->
+        <div class="search text-center mx-auto my-2 position-relative d-flex align-items-center">
+          <div class="search-icon mr-3 d-flex align-items-center">
+            <font-awesome-icon :icon="['fas', 'search']"></font-awesome-icon>
+          </div>
+          <label class="w-100 m-0" for="keywords" title="영화제목, 감독, 배우 검색">
+            <b-form-input
+              class="rounded-pill search-box"
+              id="keywords"
+              size="lg"
+              type="search"
+              placeholder="영화제목, 감독, 배우 검색"
+              aria-placeholder="영화제목, 감독, 배우 검색"
+              contenteditable="true"
+              autocomplete="off"
+              name="search"
+            ></b-form-input>
+          </label>
+        </div>
+      </template>
+
+      <!-- 데스크탑일 때만 보이는 필터 -->
+      <div v-if="!$store.state.isMobile" class="search text-center mx-auto my-2 position-relative d-flex align-items-center">
         <div class="search-icon mr-3 d-flex align-items-center">
           <font-awesome-icon :icon="['fas', 'search']"></font-awesome-icon>
         </div>
+        <b-form-radio-group v-model="opened" class="isopen-in-search">
+          <b-form-radio value="all">모두</b-form-radio>
+          <b-form-radio value="opened">개봉작</b-form-radio>
+          <b-form-radio value="owned">보유작</b-form-radio>
+        </b-form-radio-group>
         <label class="w-100 m-0" for="keywords" title="영화제목, 감독, 배우 검색">
           <b-form-input
-            class="rounded-pill search-box"
+            v-model="search"
+            class="rounded-pill search-box has-inner-button"
             id="keywords"
             size="lg"
             type="search"
@@ -148,7 +178,7 @@
       >
         <template v-for="tag in tags">
           <b-button
-            class="tag m-2"
+            class="tag"
             role="checkbox"
             :aria-checked="tag.checked"
             :class="{ checked: tag.checked }"
@@ -241,12 +271,14 @@
 <script>
 export default {
   name: 'FilmList',
-  title: '영화 리스트',
+  title: '영화봐요',
   data() {
     return {
       currentPage: 3,
       slide: null,
       selected: null,
+      opened: 'all',
+      search: '',
       testBackgroundColor: '#40B5BB',
       testTextColor: '#fff',
       tags: [
@@ -453,7 +485,7 @@ export default {
 //   text-align: center;
 // }
 
-/* opened */
+/* 모바일 opened */
 .opened {
   & .opened-options-wrapper {
     padding: 20px 0 0;
@@ -461,20 +493,19 @@ export default {
   }
   & a {
     transition: 0.3s;
-    color: var(--secondary-text-color);
-    border: 2px solid transparent;
+    color: var(--text-secondary-color);
+    border-bottom: 2px solid transparent;
     padding: 6px 15px;
   }
   & a:hover {
-    color: #000;
+    color: var(--text-color);
     text-decoration: none;
     background-color: #eee;
-    // border-color: #000;
   }
 
   & a.selected {
     border-color: var(--link-color);
-    color: #111;
+    color: var(--text-color);
     // color: #fff;
     // background-color: var(--link-color);
   }
@@ -483,6 +514,11 @@ export default {
 /* search */
 .search {
   max-width: 740px;
+}
+.has-inner-button {
+  // padding-left: 190px;
+  height: 50px;
+  padding: 14px 10px 14px 190px;
 }
 
 .mobile {
@@ -495,16 +531,23 @@ export default {
 }
 
 /* tags */
+.tags {
+  margin-top: 15px;
+}
 
-button.tag {
-  border: 2px solid #ddd;
+.tag {
+  color: var(--text-secondary-color);
+  border: 2px solid var(--text-secondary-color);
+  padding: 2px 10px;
+  font-weight: 600;
+  margin: 5px;
 
   &,
   &:focus,
   &:active,
   &:hover {
     background-color: transparent;
-    color: var(--text-color);
+    // color: var(--text-color);
   }
 
   &.checked,
@@ -515,7 +558,7 @@ button.tag {
     // border-color: var(--link-color);
     color: #fff;
     border-color: transparent;
-    background-color: #555;
+    background-color: var(--text-secondary-color);
   }
 }
 
@@ -631,6 +674,61 @@ button.tag {
   }
   & img {
     min-width: 1px;
+  }
+}
+
+// 검색창 안 모두/개봉작/보유작
+
+.desktop .filter {
+  margin-top: 50px;
+}
+
+.filter .form-control::placeholder {
+  color: #ccc;
+  font-weight: 700;
+}
+
+.isopen-in-search {
+  position: absolute;
+  left: 15px;
+  font-weight: 500;
+
+  &:after {
+    content: '|';
+    color: #aaa;
+    padding-left: 10px;
+    font-size: 15px;
+    display: inline-flex;
+    vertical-align: top;
+  }
+
+  & .custom-control-label {
+    transition: 1s;
+    transition-property: color;
+    margin-left: 0;
+    padding: 0 5px;
+    cursor: pointer;
+    color: var(--text-secondary-color);
+
+    &:after {
+      display: none;
+    }
+    &:before {
+      display: none;
+    }
+    &:hover {
+      transition: none;
+      color: var(--link-color);
+    }
+  }
+  & .custom-radio .custom-control-input:checked ~ .custom-control-label {
+    /*      background-color: #aaa; */
+    color: var(--link-color);
+    font-weight: 600;
+  }
+  & .custom-control.custom-control-inline.custom-radio {
+    padding-left: 0;
+    margin: 0;
   }
 }
 
