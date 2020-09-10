@@ -33,22 +33,29 @@ const routes = [
     // ],
   },
   {
-    path: '/board/notice',
-    name: 'BoardNotice',
-    component: () => import('../views/Board.vue'),
-    props: {
-      title: '공지해요',
-      boardsProp: ['press', 'cooperative'],
-    },
-  },
-  {
-    path: '/board/activity',
-    name: 'BoardActivity',
-    component: () => import('../views/Board.vue'),
-    props: {
-      title: '활동해요',
-      boardsProp: ['community', 'study', 'activity-etc'],
-    },
+    path: '/board',
+    name: 'Board',
+    component: () => import('../views/BoardWrapper.vue'),
+    children: [
+      {
+        path: 'notice',
+        name: 'BoardNotice',
+        component: () => import('../views/Board.vue'),
+        props: {
+          title: '공지해요',
+          boardsProp: ['press', 'cooperative'],
+        },
+      },
+      {
+        path: 'activity',
+        name: 'BoardActivity',
+        component: () => import('../views/Board.vue'),
+        props: {
+          title: '활동해요',
+          boardsProp: ['community', 'study', 'activity-etc'],
+        },
+      },
+    ],
   },
   {
     path: '/post/:id',

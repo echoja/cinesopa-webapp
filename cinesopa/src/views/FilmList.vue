@@ -375,6 +375,9 @@ export default {
       // eslint-disable-next-line no-param-reassign
       option.selected = true;
     },
+    linkGen() {
+      return null;
+    },
   },
 };
 </script>

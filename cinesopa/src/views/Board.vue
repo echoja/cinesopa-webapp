@@ -214,6 +214,9 @@ export default {
     formatDate(date) {
       return moment(date).format('YYYY.MM.DD');
     },
+    linkGen() {
+      return null;
+    },
   },
 };
 </script>
@@ -313,6 +316,6 @@ h1 {
   margin: 5px;
   width: 30px;
   height: 30px;
-padding-bottom: 10px;
+  padding-bottom: 10px;
 }
 </style>
