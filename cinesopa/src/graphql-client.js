@@ -5,7 +5,7 @@ const headers = {
   Accept: 'application/json',
 };
 
-const url = process.env.NODE_ENV === 'production' ? 'https://sopaseom.com/graphql/' : '/graphql';
+const url = process.env.NODE_ENV === 'production' ? 'https://graphql.sopaseom.com/graphql/' : '/graphql';
 
 export const graphql = async (query, variables) => {
   try {
