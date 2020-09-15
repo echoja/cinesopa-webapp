@@ -30,14 +30,14 @@ describe('실제 모델기반 DB 테스트', function () {
     console.log(model);
     manager = makeDB(model);
 
-    mongod = new MongoMemoryServer();
-    const uri = await mongod.getConnectionString();
+    mongod = new MongoMemoryServer({ binary: { version: '4.2.9' } });
+    const uri = await mongod.getUri();
     const mongooseOpts = {
       useNewUrlParser: true,
       useUnifiedTopology: true,
       useCreateIndex: true,
       useFindAndModify: false,
-      debug: true,
+      // debug: true,
     };
     await mongoose.connect(uri, mongooseOpts);
   });
@@ -702,7 +702,7 @@ describe('실제 모델기반 DB 테스트', function () {
         const yes = await manager.createPost({ title: '테스트' });
         console.log(yes);
         expect(yes.id).to.equal(2);
-        expect(yes.title).to.equal("테스트");
+        expect(yes.title).to.equal('테스트');
       });
     });
     describe('updatePost', function () {

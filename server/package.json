@@ -56,7 +56,7 @@
     "memorystore": "^1.6.2",
     "mocha": "^8.1.3",
     "mochawesome": "^6.1.1",
-    "mongodb-memory-server": "^6.6.7",
+    "mongodb-memory-server": "^6.7.5",
     "sinon": "^9.0.3",
     "supertest": "^4.0.2"
   }
