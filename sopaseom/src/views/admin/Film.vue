@@ -1,9 +1,10 @@
-
 <template>
   <div>
-    <h2>영화 관리</h2>
-    <div class="actions"><b-button :to="{ name: 'FilmNew' }">새 영화</b-button></div>
-    <b-table hover :items="films" @row-clicked="rowClicked"></b-table>
+    <header class="p-3">
+      <h2>영화 관리<b-button class="new" :to="{ name: 'FilmNew' }">새 영화</b-button></h2>
+    </header>
+    <div class="notice"><p>줄을 클릭하면 편집합니다.</p></div>
+    <b-table hover :fields="fields" :items="films" @row-clicked="rowClicked"></b-table>
     <!-- {{ films }} -->
   </div>
 </template>
@@ -20,8 +21,21 @@ export default {
   },
   data() {
     return {
+      fields: [
+        {
+          key: 'id',
+          label: '주소',
+        },
+        {
+          key: 'title',
+          label: '제목',
+        },
+        {
+          key: 'director',
+          label: '감독',
+        },
+      ],
       films: [],
-
     };
   },
   methods: {
@@ -44,7 +58,7 @@ export default {
         return {
           id,
           title,
-          director,
+          director: director.name,
         };
       });
       console.log(list);
@@ -53,5 +67,9 @@ export default {
   },
 };
 </script>
-dfdf
 <style></style>
+<style lang="scss" scoped>
+.new {
+  margin-left: 10px;
+}
+</style>

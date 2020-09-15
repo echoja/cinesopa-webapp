@@ -105,6 +105,7 @@
  * @property {string} type_name
  * @property {Date} prod_date
  * @property {Date} open_date
+ * @property {boolean} is_opened
  * @property {Personinfo[]} people
  * @property {Companyinfo[]} companies
  * @property {string} watch_grade
@@ -119,6 +120,9 @@
  * @property {string} synopsis
  * @property {string} note
  * @property {string[]} tags
+ * @property {boolean} is_featured
+ * @property {string} featured_poster
+ * @property {string} badge
  * @property {object} meta
  * @property {string} search
  */
@@ -145,7 +149,7 @@
  * @property {object} meta
  */
 
- /**
+/**
  * 게시판 검색 객체
  * @typedef {object} BoardSearch
  * @property {number} id

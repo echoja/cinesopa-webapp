@@ -89,7 +89,7 @@ describe('REAL API', function () {
 
     // manager = makeDB(model);
 
-    mongod = new MongoMemoryServer();
+    mongod = new MongoMemoryServer({ binary: { version: '4.2.9' } });
     const uri = await mongod.getUri();
     const mongooseOpts = {
       useNewUrlParser: true,

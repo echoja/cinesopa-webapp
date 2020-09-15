@@ -78,6 +78,10 @@ module.exports = function (mongoose) {
     synopsis: String,
     note: String,
     tags: [String],
+    is_featured: Boolean,
+    is_opened: Boolean,
+    featured_steel: { type: mongoose.Schema.Types.ObjectId, ref: 'File' },
+    badge: String,
     meta: mongoose.Schema.Types.Mixed,
     search: String,
   });

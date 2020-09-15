@@ -254,6 +254,10 @@ const filmResponse = `{
   synopsis 
   note 
   tags 
+  is_featured
+  is_opened
+  featured_steel
+  badge
   meta
 }
 `;

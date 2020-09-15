@@ -47,6 +47,10 @@ type Film {
   synopsis: String
   note: String
   tags: [String]
+  is_featured: Boolean # 특집 칸에 올라가있는가?
+  is_opened: Boolean # 개봉되었는지 여부 
+  featured_steel: String # 특집 칸에 올라가있을 때의 이미지 File에 대한 ObjectId
+  badge: String # 뱃지에 들어갈 텍스트
   meta: JSON # Mixed
 }
 
@@ -99,18 +103,23 @@ input FilmInput {
   synopsis: String
   note: String
   tags: [String]
+  is_featured: Boolean
+  is_opened: Boolean 
+  featured_steel: String 
+  badge: String 
   meta: JSON # Mixed
 }
 
 input FilmSearch {
   page: Int
   perpage: Int
-  prod_gte: DateTime # unix time. or "
-  prod_lte: DateTime # unix time
-  open_gte: DateTime # unix time
-  open_lte: DateTime # unix time
+  prod_gte: DateTime
+  prod_lte: DateTime
+  open_gte: DateTime
+  open_lte: DateTime
   tags: [String]
   search: String
+  is_opened: Boolean
 }
 
 extend type Query {

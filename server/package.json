@@ -36,8 +36,8 @@
   "scripts": {
     "start-dev": "nodemon --trace-warnings --trace-uncaught index.js",
     "start:ci": "node index.js",
-    "test": "mocha --trace-warnings",
-    "test:mochawesome": "mocha --reporter mochawesome --trace-warnings",
+    "test:no": "mocha --trace-warnings",
+    "test": "mocha --reporter mochawesome --trace-warnings",
     "test-server:multer": "nodemon test/multer-test-server.js",
     "test:mkdir": "npm test ./test/file.spec.js"
   },
