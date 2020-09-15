@@ -2,6 +2,10 @@
   <div class="container-fluid">
     <div class="guide">
       <h2>
+        상영료 안내
+      </h2>
+
+      <h2>
         공동체상영 절차
       </h2>
       <ol>
@@ -47,7 +51,7 @@
         <h2>행사 정보</h2>
         <b-form-group
           class="community-form-group"
-          label="주최기관 혹은 단체 이름"
+          label="주최기관 / 단체 이름"
           label-cols-sm="3"
           label-align-sm="left"
           label-size="md"
@@ -146,7 +150,7 @@
             v-model="form.playplace"
             id="playplace"
             type="text"
-            placeholder="예: 소파극장 (부산시 해운대구)"
+            placeholder="예) 소파극장 (부산시 해운대구)"
             :required="required"
           ></b-form-input>
         </b-form-group>
@@ -183,7 +187,7 @@
             v-model="form.userphone"
             id="userphone"
             type="text"
-            placeholder="예: 01012345678"
+            placeholder="예) 01012345678"
             :required="required"
           ></b-form-input>
           <b-form-text>반드시 연락 가능한 연락처를 적어주세요. </b-form-text>
@@ -300,7 +304,7 @@
 
         <b-form-group
           class="community-form-group"
-          label="상영본 받을 주소 (상세)"
+          label="상세 주소"
           label-cols-sm="3"
           label-align-sm="left"
           label-size="md"
@@ -612,6 +616,7 @@ export default {
 
 .community-form-group {
   max-width: 600px;
+    margin: 20px 0;
 }
 
 .address-new {
@@ -629,6 +634,17 @@ export default {
 .community-form-group {
   & > label {
     font-weight: 500;
+  }
+}
+
+.community-form {
+  & .custom-control-input.is-valid ~ .custom-control-label,
+  & .was-validated .custom-control-input:valid ~ .custom-control-label {
+    color: var(--text-color);
+  }
+  & .custom-control-input:checked ~ .custom-control-label::before {
+    background-color: var(--link-color);
+    border-color: var(--link-color);
   }
 }
 </style>

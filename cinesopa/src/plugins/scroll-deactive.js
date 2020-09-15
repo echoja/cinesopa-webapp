@@ -35,8 +35,8 @@ try {
   // eslint-disable-next-line no-empty
 } catch (e) {}
 
-const wheelOpt = supportsPassive ? { passive: false } : false;
-const wheelEvent = 'onwheel' in document.createElement('div') ? 'wheel' : 'mousewheel';
+export const wheelOpt = supportsPassive ? { passive: false } : false;
+export const wheelEvent = 'onwheel' in document.createElement('div') ? 'wheel' : 'mousewheel';
 
 // call this to Disable
 export function disableScroll() {

@@ -1,6 +1,7 @@
 import Vue from 'vue';
 
 import VueRouter from 'vue-router';
+import { getPageQuery, graphql } from '../graphql-client';
 
 // import { graphql, logoutMeQuery } from '../graphql-client';
 
@@ -110,6 +111,16 @@ const routes = [
     path: '/:permalink',
     name: 'Page',
     component: () => import('../views/Page.vue'),
+    async beforeEnter(to, from, next) {
+      // console.log(to.params);
+      const { permalink } = to.params;
+      const res = await graphql(getPageQuery, { permalink, belongs_to: 'cinesopa' });
+      if (res?.data?.page === null) {
+        next({ name: '404' });
+      } else {
+        next();
+      }
+    },
   },
   {
     path: '/404',

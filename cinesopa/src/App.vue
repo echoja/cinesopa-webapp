@@ -12,6 +12,7 @@
     }"
   >
     <VueSkipTo to="#main" label="본문 바로가기" />
+    <div class="loading" v-if="pageLoading">loading</div>
     <div class="h-header"></div>
     <!-- fixed header 를 위한 빈자리 -->
     <!-- <affix relative-element-selector="#body"> -->
@@ -21,11 +22,10 @@
       class="header-wrapper transition-header fixed-top"
       :class="{ transparent: $store.state.menuTransparent }"
     >
+    
+    <!-- <b-link :to="'/test'">테스트</b-link> -->
       <header
         class="position-relative mx-auto"
-        :class="{
-          /*'d-flex': !isTop, 'justify-content-between': !isTop*/
-        }"
       >
         <div class="logo text-center transition-header">
           <!-- :style="{ color: $store.state.logoColor }" -->
@@ -318,6 +318,7 @@ export default {
           ipsum commodo tempor sunt in proident.
         `,
       textColor: 'blue',
+      pageLoading: false,
     };
   },
   computed: {
@@ -803,6 +804,12 @@ footer p {
   height: 1px;
   overflow: hidden;
 }
+.underlined-box {
+    border: 0;
+    border-radius: 0;
+    border-bottom: 1px solid #ddd;
+}
+
 </style>
 
 <style>

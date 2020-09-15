@@ -518,7 +518,7 @@ export default {
 .has-inner-button {
   // padding-left: 190px;
   height: 50px;
-  padding: 14px 10px 14px 190px;
+  padding: 14px 10px 16px 190px;
 }
 
 .mobile {
@@ -537,9 +537,9 @@ export default {
 
 .tag {
   color: var(--text-secondary-color);
-  border: 2px solid var(--text-secondary-color);
+  border: 2px solid #b0b6ba;
   padding: 2px 10px;
-  font-weight: 600;
+  font-weight: 500;
   margin: 5px;
 
   &,
@@ -684,7 +684,7 @@ export default {
 }
 
 .filter .form-control::placeholder {
-  color: #ccc;
+  color: #ddd;
   font-weight: 700;
 }
 

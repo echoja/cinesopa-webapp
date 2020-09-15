@@ -12,7 +12,25 @@
         <div v-if="show.recent" key="recent">3333</div>
       </transition> name="main" m
     </div> -->
+    <div class="home-start" ref="homeStart"></div>
+    <div class="swiper-container" ref="swiperContainer" style="display:none;">
+      <div class="swiper-wrapper">
+        <!-- Slides -->
+        <div class="swiper-slide">Slide 1</div>
+        <div class="swiper-slide">Slide 2</div>
+        <div class="swiper-slide">Slide 3</div>
+      </div>
+      <!-- If we need pagination -->
+      <div class="swiper-pagination"></div>
 
+      <!-- If we need navigation buttons -->
+      <div class="swiper-button-prev"></div>
+      <div class="swiper-button-next"></div>
+
+      <!-- If we need scrollbar -->
+      <div class="swiper-scrollbar"></div>
+    </div>
+    <!-- style="display:none;" -->
     <div class="page-scroll-container" ref="container">
       <!-- ref="scroll0" -->
       <div class="page-scroll-section " v-b-visible="visible(0)">
@@ -53,88 +71,66 @@
         </transition>
       </div>
     </div>
-
-    <!-- <div class="main-placeholder">
-      <div v-b-visible="visible('A')"><p>A</p></div>
-      <div v-b-visible="visible('B')">
-        <p>B</p>
-        <div class="rellax" data-rellax-percentage="0.5">
-          I’m that default chill speed of "-2" and "centered"
-        </div>
-        <div class="rellax" data-rellax-speed="7" data-rellax-percentage="0.5">
-          I’m super fast!! And super centered!!
-        </div>
-        <div class="rellax" data-rellax-speed="-4" data-rellax-percentage="0.5">
-          I’m extra slow and smooth, and hella centered.
-        </div>
-      </div>
-      <div v-b-visible="visible('C')"><p>C</p></div>
-    </div> -->
   </div>
 </template>
 
 <script>
 import Rellax from 'rellax';
-import { disableScroll, enableScroll } from '../plugins/scroll-deactive';
+import Swiper, { Mousewheel } from 'swiper';
+import { disableScroll, enableScroll, wheelOpt, wheelEvent } from '../plugins/scroll-deactive';
+// import Swiper styles
+import 'swiper/swiper-bundle.css';
 // console.log(Rellax);
 
-function onScrollImpl(self) {
-  let scrollProcessing = false;
-  let lastScrollTop = window.pageYOffset || document.documentElement.scrollTop;
-  return (e) => {
-    // console.log('real!!! scroll!!!! yeah!!!');
-    // const scrollSection = [
-    //   {
-    //     element: self.$refs.scroll0,
-    //     isVisible: self.isVisibleA,
-    //   },
-    //   {
-    //     element: self.$refs.scroll1,
-    //     isVisible: self.isVisibleB,
-    //   },
-    //   {
-    //     element: self.$refs.scroll2,
-    //     isVisible: self.isVisibleC,
-    //   },
-    // ];
-    const visibles = self.scrollSection.filter((sec) => sec.isVisible === true);
+Swiper.use([Mousewheel]);
 
-    const currentScrollTop = window.pageYOffset || document.documentElement.scrollTop;
-    console.log(
-      `last: ${lastScrollTop}, current: ${currentScrollTop}, \
-      visibleLength: ${visibles.length}, processing: ${scrollProcessing}`,
-    );
+let moving = false;
+let locateInScroll = true;
+let currentLocation = 0;
+let passedScroll = false;
 
-    const onDone = () => () => {
-      scrollProcessing = false;
-      enableScroll();
-    };
-    if (visibles.length === 2 && scrollProcessing === false) {
-      e.preventDefault();
-      scrollProcessing = true;
-      disableScroll();
-      let from = visibles[0].element;
-      let to = visibles[1].element;
+// function onScrollImpl(self) {
+//   let scrollProcessing = false;
+//   let lastScrollTop = window.pageYOffset || document.documentElement.scrollTop;
+//   return (e) => {
+//     // console.log(e);
+//     const visibles = self.scrollSection.filter((sec) => sec.isVisible === true);
 
-      // 순서 조정
-      if (currentScrollTop < lastScrollTop) {
-        from = visibles[1].element;
-        to = visibles[0].element;
-      }
-      window.scrollTo(0, from.getBoundingClientRect().top + currentScrollTop);
-      self.$scrollTo(to, 1000, {
-        onDone: onDone(0, 1),
-        cancelable: false,
-      });
-    }
-    lastScrollTop = currentScrollTop;
-  };
-}
+//     const currentScrollTop = window.pageYOffset || document.documentElement.scrollTop;
+//     console.log(
+//       `last: ${lastScrollTop}, current: ${currentScrollTop}, \
+//       visibleLength: ${visibles.length}, processing: ${scrollProcessing}`
+//     );
 
-let onScroll;
+//     const onDone = () => () => {
+//       scrollProcessing = false;
+//       enableScroll();
+//     };
+//     if (visibles.length === 2 && scrollProcessing === false) {
+//       e.preventDefault();
+//       scrollProcessing = true;
+//       disableScroll();
+//       let from = visibles[0].element;
+//       let to = visibles[1].element;
+
+//       // 순서 조정
+//       if (currentScrollTop < lastScrollTop) {
+//         from = visibles[1].element;
+//         to = visibles[0].element;
+//       }
+//       window.scrollTo(0, from.getBoundingClientRect().top + currentScrollTop);
+//       self.$scrollTo(to, 1000, {
+//         onDone: onDone(0, 1),
+//         cancelable: false,
+//       });
+//     }
+//     lastScrollTop = currentScrollTop;
+//   };
+// }
+
+// let onScroll;
 
 export default {
-
   name: 'Home',
   title: '홈',
   data() {
@@ -145,46 +141,23 @@ export default {
       scrollSection: [], // {element: domObject, isVisible: bool}
       lastScrollTop: window.pageYOffset || document.documentElement.scrollTop,
       scrollProcessing: false,
+      swiper: null,
+      // swiper 스크롤이 마지막 번째까지 완전히 끝났는지 테스트하는 도구.
+      scrollEnded: false,
     };
   },
-  computed: {
-    // isVisible(key) {
-    //   return function() {
-    //     const isVisible = this.scrollSection[key]?.isVisible;
-    //     return isVisible !== undefined ? isVisible : false;
-    //   };
-    // },
-    // how() {
-    //   return (o) => {
-    //     return this.howv;
-    //   };
-    // },
-  },
-  async created() {
-    // window.addEventListener('scroll', this.onScroll);
-    window.addEventListener('wheel', this.onWheel);
-    window.addEventListener('resize', this.onResize);
-    // this.rellax = new Rellax('.rellax', {
-    //   center: true,
-    // });
-  },
-  async beforeDestroy() {
-    // window.removeEventListener('scroll', this.onScroll);
-    window.removeEventListener('scroll', onScroll);
-    window.removeEventListener('wheel', this.onWheel);
-    window.removeEventListener('resize', this.onResize);
-  },
+  computed: {},
+
   async mounted() {
+    moving = false;
+    locateInScroll = true;
+    window.scrollTo(0, 0);
+
     const rellax = new Rellax('.rellax', {
       // center: true,
     });
-    // console.log(rellax);
-    // console.log('ho');
+
     this.rellax = rellax;
-    // console.log(this.$refs.c.children);
-    /**
-     * @type {HTMLCollection}
-    //  */
     const { children } = this.$refs.container;
     children.forEach((child) => {
       this.scrollSection.push({
@@ -192,120 +165,253 @@ export default {
         isVisible: false,
       });
     });
-    // const c0 = children.item(0);
-    // console.log(children[0].getBoundingClientRect());
-    // console.log(children[1].getBoundingClientRect());
-    // console.log(children[2].getBoundingClientRect());
-
-    // console.dir(c0);
-    // console.log(this.show);
-    // this.scrollSection.a.element = this.$refs.scroll0;
-    // this.scrollSection[1].element = this.$refs.scroll1;
-    // this.scrollSection[2].element = this.$refs.scroll2;
 
     console.log(this.scrollSection);
-    // console.log('mounted!');
     this.setScrollSectionX();
 
-    onScroll = onScrollImpl(this);
-    window.addEventListener('scroll', onScroll);
+    // adding events;
+    // onScroll = onScrollImpl(this);
+    // window.addEventListener('scroll', onScroll);
+    window.addEventListener(wheelEvent, this.onWheel, { passive: false });
+    window.addEventListener('resize', this.onResize);
+    this.$store.commit('setMenuTransparent', true);
+
+    // swiper initializing
+    const swiper = new Swiper('.swiper-container', {
+      mousewheel: {
+        releaseOnEdges: true,
+      },
+      direction: 'vertical',
+      slidesPerView: 1,
+      speed: 500,
+    });
+
+    // swiper addEventListener.
+    swiper.on('slideChange', (context) => {
+      const { previousIndex, realIndex } = context;
+      const topElement = this.$refs.homeStart;
+
+      // enableScroll(); 어차피 중복 addEventListener 안되므로 할 필요 없음.
+      disableScroll();
+
+      // console.log(`preveious: ${previousIndex}, now: ${realIndex}`);
+      // 첫 번째에서 두 번째로 넘어갈 때
+      if (previousIndex === 0 && realIndex === 1) {
+        this.$scrollTo(topElement, 100, {
+          offset: 51,
+          cancelable: false,
+        });
+      }
+      // 두 번째에서 첫 번째로 넘어갈 때
+      else if (previousIndex === 1 && realIndex === 0) {
+        this.$scrollTo(topElement, 100, {
+          cancelable: false,
+        });
+      }
+      // 세 번째에서 두 번째로 넘어갈 때
+      else if (previousIndex === 2 && realIndex === 1) {
+        this.$scrollTo(topElement, 100, {
+          offset: 51,
+          cancelable: false,
+        });
+      }
+    });
+    swiper.on('slideChangeTransitionEnd', (context) => {
+      const { previousIndex, realIndex } = context;
+
+      console.log(`preveious: ${previousIndex}, now: ${realIndex}`);
+      // 두번째 에서 세번째로 넘어가고 완전히 끝났을 때
+      if (previousIndex === 1 && realIndex === 2) {
+        enableScroll();
+        this.scrollEnded = true;
+      }
+    });
+    this.swiper = swiper;
+
+    // 기본은 취소하도록 한다.
+    // disableScroll();
+  },
+
+  async beforeDestroy() {
+    // window.removeEventListener('scroll', onScroll);
+    window.removeEventListener(wheelEvent, this.onWheel, { passive: false });
+    window.removeEventListener('resize', this.onResize);
+    this.$store.commit('setMenuTransparent', false);
   },
   methods: {
+    getCurrentScrollY() {
+      return window.scrollY || window.pageYOffset;
+    },
     customAppearHook(e) {
       console.log(`customAppearHook! >> ${e}`);
     },
-    // makeOnWheel() {
-    //   let lastScrollTop = window.pageYOffset || document.documentElement.scrollTop;
-    //   return (e) => {
 
+    // onWheel2() {
+    //   const visibles = this.scrollSection.filter((sec) => sec.isVisible === true);
+
+    //   const currentScrollTop = window.pageYOffset || document.documentElement.scrollTop;
+    //   console.log(
+    //     `last: ${this.lastScrollTop}, current: ${currentScrollTop}, visibleLength: ${visibles.length}, processing: ${this.scrollProcessing}`
+    //   );
+
+    //   const onDone = (/* from, to */) => () => {
+    //     this.scrollProcessing = false;
     //   };
-    // },
-    // onScroll: (function o(self) {
-    //   return onScrollImpl(self.scrollSection, self.$scrollTo);
-    // })(this),
-    // console.log('onscroll!!!');
-    // this.onScroll = onScrollImpl(this.scrollSection, this.$scrollTo);
-    // },
-    onWheel2() {
-      const visibles = this.scrollSection.filter((sec) => sec.isVisible === true);
+    //   if (visibles.length === 2 && this.scrollProcessing === false) {
+    //     this.scrollProcessing = true;
+    //     if (currentScrollTop > this.lastScrollTop) {
+    //       this.$scrollTo(visibles[1].element, 5000, {
+    //         onDone: onDone(0, 1),
+    //         cancelable: false,
+    //       });
+    //     } else if (currentScrollTop < this.lastScrollTop) {
+    //       this.$scrollTo(visibles[0].element, 5000, {
+    //         onDone: onDone(1, 0),
+    //         cancelable: false,
+    //       });
+    //     }
+    //   }
 
-      const currentScrollTop = window.pageYOffset || document.documentElement.scrollTop;
+    //   this.lastScrollTop = currentScrollTop;
+    // },
+    // 휠 이벤트
+    /** @param {WheelEvent} event */
+    onWheel(event) {
+      const { container } = this.$refs;
+      const currentScrollY = this.getCurrentScrollY();
+      const { deltaY } = event;
+      const maxCount = this.scrollSection.length;
+      // console.dir(this.$refs.container);
+      console.dir(container);
+
       console.log(
-        `last: ${this.lastScrollTop}, current: ${currentScrollTop}, visibleLength: ${visibles.length}, processing: ${this.scrollProcessing}`,
+        `${currentScrollY} + ${window.innerHeight} + ${deltaY} <= ${container.offsetTop} + ${container.offsetHeight}`
+      );
+      console.log(
+        `${currentScrollY + window.innerHeight + deltaY} <= ${container.offsetTop +
+          container.offsetHeight}`
       );
 
-      const onDone = (/* from, to */) => () => {
-        this.scrollProcessing = false;
-        // enableScroll();
-        // document.body.classList.remove('no-scroll');
-        // this.scrollSection[from].isVisible = false;
-        // this.scrollSection[to].isVisible = true;
-      };
-      if (visibles.length === 2 && this.scrollProcessing === false) {
-        this.scrollProcessing = true;
-        if (currentScrollTop > this.lastScrollTop) {
-          // going down
-          // disableScroll();
-          // document.body.classList.add('no-scroll');
-          // this.$scrollTo(visibles[0].element, 0);
-          this.$scrollTo(visibles[1].element, 5000, {
-            onDone: onDone(0, 1),
-            cancelable: false,
-          });
-        } else if (currentScrollTop < this.lastScrollTop) {
-          // going top
-          // disableScroll();
-          // document.body.classList.add('no-scroll');
-          // this.$scrollTo(visibles[1].element, 0);
-          this.$scrollTo(visibles[0].element, 5000, {
-            onDone: onDone(1, 0),
-            cancelable: false,
-          });
-        }
-      }
-
-      this.lastScrollTop = currentScrollTop;
-    },
-
-    onWheel() {},
-    makeOnScrollimsi() {
-      let lastScrollTop = window.pageYOffset || document.documentElement.scrollTop;
-      let processing = false;
-      return () => {
-        // console.log(evt);
-        const visibles = this.scrollSection.filter((sec) => sec.isVisible === true);
-
-        const onDone = (from, to) => () => {
-          processing = false;
-          // enableScroll();
-          // document.body.classList.remove('no-scroll');
-          this.scrollSection[from].isVisible = false;
-          this.scrollSection[to].isVisible = true;
-        };
-
-        const currentScrollTop = window.pageYOffset || document.documentElement.scrollTop;
-        if (visibles.length === 2 && processing === false) {
-          processing = true;
-          if (currentScrollTop > lastScrollTop) {
-            // going down
-            // disableScroll();
-            // document.body.classList.add('no-scroll');
-            this.$scrollTo(visibles[0].element, 0);
-            this.$scrollTo(visibles[1].element, 5000, {
-              onDone: onDone(0, 1),
+      if (!locateInScroll) {
+        // 위에서 (처음상태에서) 스크롤 객체로 진입
+        if (
+          !passedScroll &&
+          currentScrollY < container.offsetTop &&
+          container.offsetTop + deltaY > 50
+        ) {
+          console.log(event);
+          // this.$scrollTo(this.$refs.container, 100, {
+          //   cancelable: false,
+          // });
+          if (!moving) {
+            moving = true;
+            this.$scrollTo(container, 100, {
               cancelable: false,
+              onDone() {
+                console.log('done!!');
+                moving = false;
+                locateInScroll = true;
+              },
             });
-          } else if (currentScrollTop < lastScrollTop) {
-            // going top
           }
+          // window.scrollTo({
+          //   top: container.offsetTop,
+          //   behavior: 'smooth',
+          // });
         }
+        // 아래에서 위로 진입
+        else if (
+          currentScrollY + window.innerHeight + deltaY <=
+          container.offsetTop + container.offsetHeight
+        ) {
+          console.log('아래에서 위로 진입!');
+          if (!moving) {
+            console.log('실제 움직여!');
+            moving = true;
+            passedScroll = false;
+            this.$scrollTo(this.scrollSection[maxCount - 1].element, 100, {
+              cancelable: false,
+              onDone() {
+                moving = false;
+                locateInScroll = true;
+              },
+            });
+          }
+        } else if (!moving) {
+          // 어느 것도 해당하지 않으면 원래 행동대로 진행한다.
+          return true;
+        }
+        // 한 번이라도 특수한 경우를 겪으면, 스크롤 동작을 멈춘다.
+        event.preventDefault();
+        return false;
+      }
+      // 처음 상태에서 스크롤 객체로 진입
 
-        lastScrollTop = currentScrollTop <= 0 ? 0 : currentScrollTop; // for mobile
-      };
-      // console.log('hi');
-      // evt.preventDefault();
-      // evt.stopPropagation();
+      // 내부에서 움직이는데, 밖으로 (아래로) 빠져나왔다면?
+      if (
+        currentScrollY + window.innerHeight + deltaY >
+        container.offsetTop + container.offsetHeight
+      ) {
+        console.log('ended!11');
+        locateInScroll = false;
+        passedScroll = true;
+        return true;
+      }
+      // 목적지 설정
+      let dest = currentLocation + (deltaY > 0 ? 1 : -1);
+      dest = dest < 0 ? 0 : dest;
+      dest = dest >= maxCount ? maxCount - 1 : dest;
+
+      if (!moving) {
+        moving = true;
+        console.log(`${currentLocation} >> ${dest}`);
+        currentLocation = dest;
+        this.$scrollTo(this.scrollSection[dest].element, 700, {
+          cancelable: false,
+          onDone() {
+            moving = false;
+          },
+        });
+      }
+      event.preventDefault();
+
+      // e.preventDefault();
+      // e.stopPropagation();
+      // return false;
     },
+    // makeOnScrollimsi() {
+    //   let lastScrollTop = window.pageYOffset || document.documentElement.scrollTop;
+    //   let processing = false;
+    //   return () => {
+    //     // console.log(evt);
+    //     const visibles = this.scrollSection.filter((sec) => sec.isVisible === true);
+
+    //     const onDone = (from, to) => () => {
+    //       processing = false;
+    //       // enableScroll();
+    //       // document.body.classList.remove('no-scroll');
+    //       this.scrollSection[from].isVisible = false;
+    //       this.scrollSection[to].isVisible = true;
+    //     };
+
+    //     const currentScrollTop = window.pageYOffset || document.documentElement.scrollTop;
+    //     if (visibles.length === 2 && processing === false) {
+    //       processing = true;
+    //       if (currentScrollTop > lastScrollTop) {
+
+    //         this.$scrollTo(visibles[0].element, 0);
+    //         this.$scrollTo(visibles[1].element, 5000, {
+    //           onDone: onDone(0, 1),
+    //           cancelable: false,
+    //         });
+    //       } else if (currentScrollTop < lastScrollTop) {
+    //         // going top
+    //       }
+    //     }
+
+    //     lastScrollTop = currentScrollTop <= 0 ? 0 : currentScrollTop; // for mobile
+    //   };
+    // },
     onResize() {
       this.setScrollSectionX();
       // disableScroll();
@@ -332,7 +438,7 @@ export default {
       return this.scrollSection[index]?.isVisible;
     },
     setScrollSectionX() {
-      const { left } = this.$refs.container.getBoundingClientRect();
+      const { left } = this.$refs.homeStart.getBoundingClientRect();
       // this.$refs.scroll0.style.transform = `translateX(-${left}px)`;
       // this.$refs.scroll1.style.transform = `translateX(-${left}px)`;
       // this.$refs.scroll2.style.transform = `translateX(-${left}px)`;
@@ -341,6 +447,7 @@ export default {
         // eslint-disable-next-line no-param-reassign
         o.element.style.transform = `translateX(-${left}px)`;
       });
+      this.$refs.swiperContainer.style.transform = `translateX(-${left}px)`;
     },
     test1(a, b, c, d) {
       console.log(a);
@@ -400,6 +507,11 @@ export default {
   margin-top: calc(-1 * var(--mobile-header-height));
 }
 
+.home-start {
+  width: 100%;
+  /* height: 51px; */
+}
+
 .main-enter,
 .main-leave-to {
   opacity: 0;
@@ -420,14 +532,14 @@ export default {
   transition: opacity 5s;
 }
 
-.main-transition > div {
+/* .main-transition > div {
   width: 100vw;
   height: 100vh;
   position: fixed;
   left: 0;
   top: 0;
   z-index: -2;
-}
+} */
 
 .page-scroll-section {
   width: 100vw;
@@ -451,5 +563,14 @@ export default {
 #hi {
   width: 10px;
   height: 10px;
+}
+</style>
+
+<style lang="scss" scoped>
+// swiper
+
+.swiper-container {
+  width: 100vw;
+  height: 100vh;
 }
 </style>

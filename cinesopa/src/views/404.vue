@@ -6,7 +6,7 @@
 <script>
 export default {
   title: '찾을 수 없는 페이지',
-  name: '404',
+  name: 'NotFound',
 };
 </script>
 

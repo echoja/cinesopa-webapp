@@ -22,32 +22,6 @@
       <b-form class="distribution-form" @submit.stop.prevent="submit(validate())">
         <!-- <b-input type="text" required></b-input> -->
 
-          <privacy height="300"></privacy>
-        <validation-provider
-          :rules="{ shouldCheck: true }"
-          :customMessages="{ shouldCheck: '반드시 동의하여야 합니다.' }"
-          v-slot="v_context"
-        >
-          <b-form-group id="check-privacy">
-            <b-checkbox
-              :state="getValidationState(v_context)"
-              v-model="checkPrivacy"
-              v-bind="v_context.ariaInput"
-              class="check-privacy d-flex align-items-center mt-3"
-            >
-              <strong>개인정보처리방침에 동의합니다.</strong>
-            </b-checkbox>
-            <b-form-invalid-feedback
-              :state="getValidationState(v_context)"
-              id="check-prifacy-invalid-feedback"
-              >{{ v_context.errors[0] }}</b-form-invalid-feedback
-            >
-            <span class="invalid-feedback" v-bind="v_context.ariaMsg">{{
-              v_context.errors[0]
-            }}</span>
-            <!-- <span>{{ JSON.stringify(v_context) }}</span> -->
-          </b-form-group>
-        </validation-provider>
         <hr />
         <h2>신청인</h2>
         <b-form-group
@@ -218,9 +192,9 @@
             placeholder=""
             :required="required"
           >
-            <template v-slot:first>
+            <!-- <template v-slot:first>
               <option value="">-- 장편 / 단편 --</option>
-            </template>
+            </template> -->
             <option :value="true">장편</option>
             <option :value="false">단편</option>
           </b-form-select>
@@ -243,9 +217,9 @@
             placeholder=""
             :required="required"
           >
-            <template v-slot:first>
+            <!-- <template v-slot:first>
               <option value="">-- 형식 --</option>
-            </template>
+            </template> -->
             <option :value="'극영화'">극영화</option>
             <option :value="'실험영화'">실험영화</option>
             <option :value="'다큐멘터리'">다큐멘터리</option>
@@ -302,9 +276,9 @@
             label-nav="달력 열기"
             label-help="방향키를 이용하여 날짜를 선택하세요"
           >
-            <template #button-content>
+            <!-- <template #button-content>
               날짜 선택
-            </template>
+            </template> -->
           </b-form-datepicker>
         </b-form-group>
         <b-form-group
@@ -353,7 +327,7 @@
             v-model="form.film.festival_list"
             size="sm"
             id="film-festival_list"
-            placeholder="2019 제24회 부산국제영화제 단편경쟁 수상(김감독)"
+            placeholder="예) 2019 제24회 부산국제영화제 단편경쟁 수상(김감독)"
             :required="required"
             rows="5"
           ></b-form-textarea>
@@ -378,6 +352,33 @@
             ></b-form-input>
           </b-input-group>
         </b-form-group>
+        <privacy height="300"></privacy>
+        <validation-provider
+          :rules="{ shouldCheck: true }"
+          :customMessages="{ shouldCheck: '반드시 동의하여야 합니다.' }"
+          v-slot="v_context"
+        >
+          <b-form-group id="check-privacy">
+            <b-checkbox
+              :state="getValidationState(v_context)"
+              v-model="checkPrivacy"
+              v-bind="v_context.ariaInput"
+              class="check-privacy d-flex align-items-center mt-3"
+            >
+              <strong>개인정보처리방침에 동의합니다.</strong>
+            </b-checkbox>
+            <b-form-invalid-feedback
+              :state="getValidationState(v_context)"
+              id="check-prifacy-invalid-feedback"
+              >{{ v_context.errors[0] }}</b-form-invalid-feedback
+            >
+            <span class="invalid-feedback" v-bind="v_context.ariaMsg">{{
+              v_context.errors[0]
+            }}</span>
+            <!-- <span>{{ JSON.stringify(v_context) }}</span> -->
+          </b-form-group>
+        </validation-provider>
+
         <b-button type="submit">제출</b-button>
         <!-- </b-col>
       </b-row> -->
@@ -426,8 +427,8 @@ export default {
         film: {
           title: null,
           title_en: null,
-          islong: '',
-          type: '',
+          islong: true,
+          type: '극영화',
           runningtime: null,
           prod_date: null,
           synopsis: '',
@@ -490,7 +491,6 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-
 .distribution-form {
 }
 .distribution-form h2 {
@@ -510,6 +510,12 @@ export default {
     max-width: 700px;
   }
 }
+
+// .distribution-form-group input::placeholder {
+//   font-weight:300;
+//   // color: #fff;
+// }
+
 </style>
 <style lang="scss">
 .distribution-form {
@@ -517,10 +523,14 @@ export default {
     background-color: var(--link-color);
     border-color: var(--link-color);
   }
+  & .custom-control {
+    min-height: 1.2rem;
+  }
   & .custom-control-label::after,
   & .custom-control-label::before {
     top: 50%;
-    transform: translateY(-50%);
+    transform: translateY(-45%);
+    left: -1.4rem;
   }
   & .distribution-form-group > label {
     font-weight: 500;
@@ -540,4 +550,6 @@ export default {
   margin-left: 30px;
   color: var(--text-secondary-color);
 }
+
+
 </style>

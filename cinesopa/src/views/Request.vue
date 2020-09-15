@@ -91,7 +91,7 @@ export default {
 .request-menu-listitem {
   display: inline-block;
   margin-right: 30px;
-  font-size: 36px;
+  font-size: 50px;
   font-weight: 500;
 }
 

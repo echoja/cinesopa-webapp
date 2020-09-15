@@ -244,6 +244,9 @@ h1 {
   &.selected {
     color: var(--link-color);
   }
+  // &:hover {
+  //   text-decoration: none;
+  // }
 }
 .mobile .board-select-item {
   font-size: 20px;
