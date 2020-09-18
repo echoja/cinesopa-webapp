@@ -1,10 +1,11 @@
 <template>
+  <!-- bottom: isBottom, -->
+  <!-- top: isTop, -->
   <div
     id="app"
+    ref="app"
     @scroll="onScroll"
     :class="{
-      top: isTop,
-      bottom: isBottom,
       'noto-sans': true,
       ['route-' + $route.name]: true,
       mobile: isMobile,
@@ -17,23 +18,18 @@
     <!-- fixed header 를 위한 빈자리 -->
     <!-- <affix relative-element-selector="#body"> -->
     <!-- :style="{ 'background-color': $store.state.menuTransparent ? 'transparent' : '#fff' }" -->
+    <!-- :style="{ 'margin-top': `${headerMarginTopWhenScrollTop}px` }" -->
     <div
-      :style="{ 'margin-top': `${headerMarginTopWhenScrollTop}px` }"
       class="header-wrapper transition-header fixed-top"
       :class="{ transparent: $store.state.menuTransparent }"
+      ref="header-wrapper"
     >
-    
-    <!-- <b-link :to="'/test'">테스트</b-link> -->
-      <header
-        class="position-relative mx-auto"
-      >
+      <!-- <b-link :to="'/test'">테스트</b-link> -->
+      <header class="position-relative mx-auto">
         <div class="logo text-center transition-header">
           <!-- :style="{ color: $store.state.logoColor }" -->
-          <b-link
-            :to="{ name: 'Home' }"
-            title="홈으로 이동"
-            :class="{ white: $store.state.logoWhite }"
-          >
+          <b-link :to="{ name: 'Home' }" :class="{ white: $store.state.logoWhite }">
+            <span class="visually-hidden">홈으로 이동</span>
             <svg
               xmlns="http://www.w3.org/2000/svg"
               class="transition-header"
@@ -194,29 +190,17 @@
           class="footer-sns-buttons mb-1 d-flex footer-link-color
           justify-content-center align-items-center"
         >
-          <b-link
-            href="https://www.instagram.com/cinesopa/"
-            target="_blank"
-            rel="external"
-            title="씨네소파 인스타그램 새 창으로 이동"
-          >
+          <b-link href="https://www.instagram.com/cinesopa/" target="_blank" rel="external">
+            <span class="visually-hidden">씨네소파 인스타그램 이동</span>
             <font-awesome-icon :icon="['fab', 'instagram']" />
           </b-link>
-          <b-link
-            href="https://www.facebook.com/coop.cinesopa"
-            target="_blank"
-            rel="external"
-            title="씨네소파 페이스북 새 창으로 이동"
-          >
+          <b-link href="https://www.facebook.com/coop.cinesopa" target="_blank" rel="external">
+            <span class="visually-hidden">씨네소파 페이스북 이동</span>
             <font-awesome-icon :icon="['fab', 'facebook']" />
           </b-link>
           <!-- <b-img class="m-2" src="./assets/naver-blog.svg"></b-img> -->
-          <b-link
-            href="https://blog.naver.com/cinesopa"
-            target="_blank"
-            rel="external"
-            title="씨네소파 네이버 블로그 새 창으로 이동"
-          >
+          <b-link href="https://blog.naver.com/cinesopa" target="_blank" rel="external">
+            <span class="visually-hidden">씨네소파 네이버 블로그 이동</span>
             <!-- aria-describedby="설명id" -->
             <svg
               width="30"
@@ -348,12 +332,12 @@ export default {
       // return;
       return null;
     },
-    isTop() {
-      return this.scrollY <= 50;
-    },
-    isBottom() {
-      return this.scrollY + this.windowHeight === this.documentHeight;
-    },
+    // isTop() {
+    //   return this.scrollY <= 50;
+    // },
+    // isBottom() {
+    //   return this.scrollY + this.windowHeight === this.documentHeight;
+    // },
     userStyle() {
       return this.cssVariables;
     },
@@ -368,20 +352,21 @@ export default {
     isMenuShouldSmall() {
       return this.windowWidth < 992;
     },
-    headerMarginTopWhenScrollTop() {
-      return this.isTop ? -this.scrollY : 0;
-    },
+    // headerMarginTopWhenScrollTop() {
+    //   return this.isTop ? -this.scrollY : 0;
+    // },
     // logoWidth() {
     //   return this.isTop ? 237 : 154;
     // },
   },
 
   created() {
-    this.setWindowSize();
     // cssVars();
   },
 
   mounted() {
+    this.setWindowSize();
+    this.updateThingsWhenScroll();
     // this.$nextTick(() => {
     //   cssVars({
     //     onlyLegacy: false,
@@ -402,8 +387,9 @@ export default {
 
   methods: {
     onScroll() {
+      this.updateThingsWhenScroll();
       // console.log(e);
-      this.scrollY = window.scrollY || window.pageYOffset;
+      // this.scrollY = window.scrollY || window.pageYOffset;
     },
     onResize() {
       this.setWindowSize();
@@ -414,9 +400,20 @@ export default {
       this.documentHeight = document.body.clientHeight;
       this.windowWidth = window.innerWidth;
     },
+    updateThingsWhenScroll() {
+      const scrollY = window.scrollY || window.pageYOffset;
+      const isTop = scrollY <= 50;
+      if (isTop) {
+        this.$refs.app.classList.add('top');
+        this.$refs['header-wrapper'].style.marginTop = -scrollY;
+      } else {
+        this.$refs.app.classList.remove('top');
+        this.$refs['header-wrapper'].style.marginTop = 0;
+      }
+    },
     beforeLeave(/* element */) {
       let top = 0;
-      if (window.scrollY >= 1) top = 1;
+      if ((window.scrollY || window.pageYOffset) >= 1) top = 1;
       window.scroll({
         top,
         behavior: 'smooth',
@@ -450,7 +447,7 @@ export default {
   -moz-osx-font-smoothing: grayscale;
   // text-align: center;
   color: var(--text-color);
-  overflow-x: hidden;
+  overflow: hidden;
 }
 
 #main {
@@ -472,6 +469,7 @@ export default {
 
   &.white a {
     color: #fff;
+    opacity: 0.7;
   }
   & a {
     @extend %smooth-hover;
@@ -514,6 +512,7 @@ header {
   // background-color: rgba(255, 255, 255, 0.4);
   // backdrop-filter: blur(5px);
   background-color: #fff;
+  z-index: 900;
   // @include util.smooth-move(0.2s);
   &.transparent {
     background-color: transparent;
@@ -551,10 +550,11 @@ header {
 
 .logo a.white {
   color: #fff;
+  opacity: 0.7;
 }
 
 .mobile .logo {
-  margin-top: 25px;
+  margin-top: 15px;
   left: 50%;
   transform: translateX(-50%);
   & img,
@@ -596,7 +596,6 @@ header {
     }
   }
 }
-
 </style>
 
 <style lang="scss">
@@ -627,7 +626,9 @@ button:hover {
   color: var(--text-color);
 }
 
-
+#body {
+  // overflow: hidden;
+}
 
 #nav a.router-link-exact-active {
   color: var(--link-color);
@@ -647,6 +648,9 @@ button:hover {
 
 footer {
   font-size: 14px;
+  position: absolute;
+  width: 100%;
+  height: auto;
 }
 
 footer p {
@@ -805,11 +809,10 @@ footer p {
   overflow: hidden;
 }
 .underlined-box {
-    border: 0;
-    border-radius: 0;
-    border-bottom: 1px solid #ddd;
+  border: 0;
+  border-radius: 0;
+  border-bottom: 1px solid #ddd;
 }
-
 </style>
 
 <style>

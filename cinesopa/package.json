@@ -38,6 +38,7 @@
     "tinygradient": "^1.1.2",
     "tinymce": "^5.4.2",
     "vee-validate": "^3.3.9",
+    "velocity-animate": "^1.5.2",
     "vue": "^2.6.12",
     "vue-affix": "^0.5.2",
     "vue-fullpage.js": "^0.1.5",
@@ -72,6 +73,7 @@
     "sass-loader": "^8.0.0",
     "vue-axe": "^2.4.0",
     "vue-cli-plugin-bootstrap-vue": "~0.6.0",
-    "vue-template-compiler": "^2.6.12"
+    "vue-template-compiler": "^2.6.12",
+    "webpack-bundle-analyzer": "^3.8.0"
   }
 }

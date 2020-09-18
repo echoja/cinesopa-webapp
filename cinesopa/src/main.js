@@ -12,6 +12,7 @@ import './plugins/vue-page-title';
 import './plugins/vue-axe';
 import './plugins/vue-skip-to';
 import './plugins/vue-plugin-load-script';
+import './plugins/vue-parallax';
 import App from './App.vue';
 import router from './router';
 import store from './store';
