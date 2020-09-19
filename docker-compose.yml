@@ -19,7 +19,8 @@ services:
     depends_on:
       - web
   web:
-    build: .
+    image: eszqsc112/cinesopa:latest
+    # build: .
     hostname: web
     ports:
       - '4000:4000'

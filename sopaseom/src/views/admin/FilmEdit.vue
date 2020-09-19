@@ -454,7 +454,8 @@ export default {
       return [
         {
           // eslint-disable-next-line global-require
-          src: require('../../../../cinesopa/src/assets/test/test-poster.jpg'),
+          // src: require('../../../../cinesopa/src/assets/test/test-poster.jpg'),
+          src: '',
           title: '여름날 포스터',
         },
       ];
