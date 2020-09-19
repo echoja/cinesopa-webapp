@@ -6,8 +6,13 @@ module.exports = {
   //   ? '/'
   //   : '/sopaseom/',
   lintOnSave: true,
-  configureWebpack: {
-    plugins: [new BundleAnalyzerPlugin(), new webpack.IgnorePlugin(/^\.\/locale$/, /moment$/)],
+  configureWebpack: (config) => {
+    config.plugins.push(new webpack.IgnorePlugin(/^\.\/locale$/, /moment$/));
+    if (process.env.NODE_ENV === 'production') {
+      // mutate config for production...
+    } else {
+      config.plugins.push(new BundleAnalyzerPlugin());
+    }
   },
   devServer: {
     proxy: {
