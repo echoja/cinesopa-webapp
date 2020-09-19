@@ -105,7 +105,7 @@ sudo docker run -it --rm --name certbot \
 certbot/certbot renew --manual --preferred-challenges dns --server https://acme-v02.api.letsencrypt.org/directory
 ```
 
-##### crontab 으로 인증서 갱신 자동화
+##### ~~crontab 으로 인증서 갱신 자동화~~ (수정 필요)
 
 ```crontab
 50 23 * * * crontab -l > $HOME/crontab_log/crontab_bak.txt
@@ -118,17 +118,21 @@ certbot/certbot renew --manual --preferred-challenges dns --server https://acme-
 
 ## 배포
 
-### 환경 세팅
+### 로컬에서 이미지 빌드 후 Docker Hub에 배포하기
 
-1. `git pull`로 최신 버전 소스 파일들로 땡겨오기.
-1. `server/config/index.js` 파일 생성 (`server/config/index-example.js` 파일 참고하여 해당하는 파일 설정하기.)
+1. `docker build -t eszqsc112/cinesopa:latest .` 실행하여 이미지 빌드
+2. `docker push eszqsc112/cinesopa` 실행하여 배포
+
+### 서버 환경 세팅
+
+1. `git pull`로 최신 버전 소스 파일들로 땡겨오기. (서버를 실행시키는 `docker-compose.yml` 및 `refresh.sh` 파일을 받아와야 함)
+1. `server/config/common/index.js` 파일 생성 (`server/config/common/index-example.js` 파일 참고하여 해당하는 파일 설정하기.)
 1. [프록시 설정 문서](proxy)를 참고하여 프록시 서버 설정하기.
 
-### 서버 실행
+### 실행(및 재실행)
 
-도커 이미지 빌드 및 컨테이너 실행
+다음 쉘 프로그램 실행 (docker hub에서 이미지 내려받고 다시 진행)
 
 ```bash
-sudo docker-compose build
-sudo docker-compose up -d
+./refresh.sh
 ```

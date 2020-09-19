@@ -1,16 +1,16 @@
 <template>
   <!-- bottom: isBottom, -->
   <!-- top: isTop, -->
+  <!-- ['route-' + $route.name]: true,/ -->
   <div
     id="app"
     ref="app"
-    @scroll="onScroll"
     :class="{
       'noto-sans': true,
-      ['route-' + $route.name]: true,
       mobile: isMobile,
       desktop: isDesktop,
     }"
+    class="top"
   >
     <VueSkipTo to="#main" label="본문 바로가기" />
     <div class="loading" v-if="pageLoading">loading</div>
@@ -363,8 +363,10 @@ export default {
   },
 
   mounted() {
-    this.setWindowSize();
-    this.updateThingsWhenScroll();
+    this.$nextTick(() => {
+      this.setWindowSize();
+      this.updateThingsWhenScroll();
+    });
     // this.$nextTick(() => {
     //   cssVars({
     //     onlyLegacy: false,
@@ -400,6 +402,7 @@ export default {
     },
     updateThingsWhenScroll() {
       const scrollY = window.scrollY || window.pageYOffset;
+      console.log(`scrollY: ${scrollY}`);
       const isTop = scrollY <= 50;
       if (isTop) {
         this.$refs.app.classList.add('top');
