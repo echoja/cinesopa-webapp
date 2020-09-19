@@ -110,7 +110,7 @@
             :class="{ /*small: isMenuShouldSmall,*/ white: $store.state.navLinkWhite }"
           >
             <!-- :class="[isMenuShouldSmall ? 'px-3' : 'px-3', {}]" -->
-            <b-link :to="{ name: 'Page', params: { permalink: 'about' } }">인사해요 </b-link>
+            <b-link :to="{ name: 'About' }">인사해요 </b-link>
             <!-- :class="[isMenuShouldSmall ? 'px-3' : 'px-3']"  -->
             <b-link :to="{ name: 'FilmList' }">
               영화봐요
@@ -140,9 +140,7 @@
           <b-sidebar id="sidebar-menu" title="MENU" :backdrop-variant="'dark'" backdrop shadow>
             <div class="px-3 py-2">
               <p>
-                <b-link class="px-4" :to="{ name: 'Page', params: { permalink: 'about' } }"
-                  >인사해요
-                </b-link>
+                <b-link class="px-4" :to="{ name: 'About' }">인사해요 </b-link>
               </p>
               <p>
                 <b-link class="px-4" :to="{ name: 'FilmList' }">

@@ -867,7 +867,7 @@ export default {
         // eslint-disable-next-line no-param-reassign
         el.style.opacity = 0;
         // eslint-disable-next-line no-param-reassign
-        el.style.transform = 'translateY(50px)';
+        // el.style.transform = 'translateY(50px)';
       });
     },
     enter2(_, done) {
@@ -886,10 +886,11 @@ export default {
       this.$refs.news.forEach((el, index) => {
         Velocity(
           el,
-          { opacity: 1, translateY: 0 },
+          { opacity: 1, translateX: [0, 100] },
           {
             duration: 1000,
             delay: index * 200,
+            easing: 'easeInOutQuad',
           },
         );
       });

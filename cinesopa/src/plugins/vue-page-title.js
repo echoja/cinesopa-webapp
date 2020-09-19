@@ -20,7 +20,7 @@ const pageTitle = {
       // 이것이 사용자 정의 함수에게 완성된 vm을 전달하는 핵심 방법!
       document.title = `${title.call(this, this)}${suffix}`;
     } else {
-      //
+      document.title = '영화배급협동조합 씨네소파';
     }
   },
 };
