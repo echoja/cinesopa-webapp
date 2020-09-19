@@ -11,6 +11,7 @@ module.exports = {
     if (process.env.NODE_ENV === 'production') {
       // mutate config for production...
     } else {
+      // mutate config for development or etc...
       config.plugins.push(new BundleAnalyzerPlugin());
     }
   },
