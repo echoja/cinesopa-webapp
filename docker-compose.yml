@@ -25,7 +25,8 @@ services:
     ports:
       - '4000:4000'
     volumes:
-      - /etc/letsencrypt:/app/server/config/letsencrypt
+      - /etc/letsencrypt:/app/server/config/letsencrypt:ro
+      - ./server/config/common:/app/server/config/common:ro
     environment:
       - COMPOSE_DOCKER_CLI_BUILD=1
       - DOCKER_BUILDKIT=1

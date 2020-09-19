@@ -5,7 +5,7 @@ const nodemailer = require('nodemailer');
 
 /* manager */
 const mailManagerMaker = require('./manager/mail');
-const { gmailEmail, gmailPassword } = require('./config');
+const { gmailEmail, gmailPassword } = require('./config/common');
 
 const mailTransporter = mailManagerMaker.makeWeakTransporter(
   nodemailer.createTransport,

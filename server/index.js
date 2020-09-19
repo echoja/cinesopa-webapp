@@ -5,7 +5,7 @@ const passport = require('passport');
 const uuidv4 = require('uuid').v4;
 const { localAuthConfig } = require('./loader');
 const { dbServerInit } = require('./db/db-server');
-const config = require('./config');
+const config = require('./config/common');
 const { getRouter } = require('./router');
 const sessionStore = require('./service/session-store');
 

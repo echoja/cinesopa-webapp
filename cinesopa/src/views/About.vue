@@ -220,7 +220,7 @@ export default {
 
 .value-three-background {
   position: absolute;
-  transform: translateX(min(calc((100vw - 1260px)/-2), 0px));
+  transform: translateX(min(calc((100vw - 1260px)/-2), 0.000000000000000001px));
   // background-color: #ddd;
   width: 100vw;
   height: 100%;
@@ -235,6 +235,7 @@ export default {
 .blue-circle {
   text-align: center;
   background-color: var(--link-color);
+  background-color: var(--link-dark-color);
   color: #fff;
   width: 190px;
   height: 190px;

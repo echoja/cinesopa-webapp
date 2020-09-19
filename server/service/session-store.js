@@ -1,6 +1,6 @@
 const session = require('express-session');
 const MongoStore = require('connect-mongo')(session);
-const config = require('../config');
+const config = require('../config/common');
 
 const sessionStore = new MongoStore({
   url: config.mongodbUrl, // env required

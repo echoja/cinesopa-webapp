@@ -609,6 +609,7 @@ header {
   --logo-color: #00a9e0;
   --link-color: #009eda;
   --nav-link-hover-color: #009eda;
+  --link-dark-color: #007faf;
   --max-content-size: 1260px;
   --footer-text-color: #767676;
   --footer-icon-color: #aaa;
