@@ -78,7 +78,7 @@
           </b-input-group>
         </b-form-group>
 
-        <h2 class="d-flex align-items-end">
+        <h2 class="d-flex align-items-center">
           감독
           <!-- <b-button @click="fillDirectorInfo">신청인 정보로 채워넣기</b-button> -->
           <b-form-checkbox
@@ -352,21 +352,26 @@
             ></b-form-input>
           </b-input-group>
         </b-form-group>
-        <privacy height="300"></privacy>
         <validation-provider
           :rules="{ shouldCheck: true }"
           :customMessages="{ shouldCheck: '반드시 동의하여야 합니다.' }"
           v-slot="v_context"
         >
           <b-form-group id="check-privacy">
-            <b-checkbox
-              :state="getValidationState(v_context)"
-              v-model="checkPrivacy"
-              v-bind="v_context.ariaInput"
-              class="check-privacy d-flex align-items-center mt-3"
-            >
-              <strong>개인정보처리방침에 동의합니다.</strong>
-            </b-checkbox>
+            <div class="check-privacy-wrapper">
+              <b-checkbox
+                :state="getValidationState(v_context)"
+                v-model="checkPrivacy"
+                v-bind="v_context.ariaInput"
+                class="check-privacy d-flex align-items-center"
+              >
+                <strong>개인정보처리방침에 동의합니다.</strong>
+              </b-checkbox>
+              <b-button class="privacy-button" size="sm" outlined v-b-modal.modal-privacy variant="outline-dark">전문 보기</b-button>
+              <b-modal id="modal-privacy" size="lg" scrollable hide-footer title="개인정보처리방침">
+                <privacy></privacy>
+              </b-modal>
+            </div>
             <b-form-invalid-feedback
               :state="getValidationState(v_context)"
               id="check-prifacy-invalid-feedback"
@@ -379,7 +384,7 @@
           </b-form-group>
         </validation-provider>
 
-        <b-button type="submit">제출</b-button>
+        <b-button type="submit" variant="primary">의뢰서를 제출합니다</b-button>
         <!-- </b-col>
       </b-row> -->
       </b-form>
@@ -511,6 +516,24 @@ export default {
   }
 }
 
+#check-privacy {
+  margin-top: 10px;
+}
+
+.check-privacy-wrapper {
+  display: flex;
+  align-items: center;
+}
+
+.mobile .check-privacy-wrapper {
+  margin: 0 -15px;
+}
+
+.privacy-button {
+  margin-left: 10px;
+}
+
+
 // .distribution-form-group input::placeholder {
 //   font-weight:300;
 //   // color: #fff;
@@ -525,6 +548,8 @@ export default {
   }
   & .custom-control {
     min-height: 1.2rem;
+    align-items: center;
+    display: flex;
   }
   & .custom-control-label::after,
   & .custom-control-label::before {
@@ -542,6 +567,14 @@ export default {
   & .was-validated .custom-control-input:valid ~ .custom-control-label {
     color: var(--text-color);
   }
+}
+
+.distribution-form .radio-group {
+  margin-top: 8px;
+}
+
+.mobile .distribution-form .radio-group {
+  margin-top: 0px;
 }
 
 .same {

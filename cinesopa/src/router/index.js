@@ -44,7 +44,8 @@ const routes = [
         component: () => import('../views/Board.vue'),
         props: {
           title: '공지해요',
-          boardsProp: ['press', 'cooperative'],
+          boardPermalinks: ['press', 'cooperative'],
+          viewType: 'list',
         },
       },
       {
@@ -53,7 +54,8 @@ const routes = [
         component: () => import('../views/Board.vue'),
         props: {
           title: '활동해요',
-          boardsProp: ['community', 'study', 'activity-etc'],
+          boardPermalinks: ['community', 'study', 'activity-etc'],
+          viewType: 'gallery',
         },
       },
     ],

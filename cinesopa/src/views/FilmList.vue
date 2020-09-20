@@ -32,11 +32,15 @@
             img-src="https://picsum.photos/1024/480/?image=52"
           ></b-carousel-slide> -->
 
-          <b-carousel-slide img-blank img-alt="Blank image">
+          <b-carousel-slide img-blank class="carousel-item">
             <template #img>
               <div
+                class="carousel-item-content-bg"
+                :style="{ 'background-image': `url(${testBackgroundImage})` }"
+              ></div>
+              <div
                 class="carousel-item-content h-100"
-                :style="{ 'background-color': testBackgroundColor, color: testTextColor }"
+                :style="{ 'background-color': testBackgroundColor }"
               >
                 <b-row class="mx-auto">
                   <b-col
@@ -144,7 +148,10 @@
       </template>
 
       <!-- 데스크탑일 때만 보이는 필터 -->
-      <div v-if="!$store.state.isMobile" class="search text-center mx-auto my-2 position-relative d-flex align-items-center">
+      <div
+        v-if="!$store.state.isMobile"
+        class="search text-center mx-auto my-2 position-relative d-flex align-items-center"
+      >
         <div class="search-icon mr-3 d-flex align-items-center">
           <font-awesome-icon :icon="['fas', 'search']"></font-awesome-icon>
         </div>
@@ -279,7 +286,10 @@ export default {
       selected: null,
       opened: 'all',
       search: '',
-      testBackgroundColor: '#40B5BB',
+      testBackgroundColor: 'rgb(0 76 80 / 50%)',
+      // testBackgroundColor: '#40B5BB',
+      // eslint-disable-next-line global-require
+      testBackgroundImage: require('../assets/test/steel23.jpg'),
       testTextColor: '#fff',
       tags: [
         {
@@ -662,11 +672,29 @@ export default {
     height: 100%;
   }
 
+  & .carousel-item {
+    background-position: center;
+    background-size: cover;
+  }
+
   & .carousel-indicators li {
     width: 10px;
     height: 10px;
     border-radius: 30px;
     border: 10px solid transparent;
+  }
+  & .carousel-item-content-bg {
+    height: 100%;
+    width: 100%;
+    position: absolute;
+    background-position: center;
+    background-size: cover;
+  }
+
+  & .carousel-item-content {
+    color: #fff;
+    position: relative;
+    background-color: rgba(0, 0, 0, 0.3);
   }
   & .carousel-item-content > div {
     width: 70%;

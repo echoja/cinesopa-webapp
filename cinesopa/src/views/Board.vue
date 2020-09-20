@@ -41,7 +41,7 @@
       </div>
     </div>
     <!-- 게시글 목록 -->
-    <ul class="post-list" :aria-label="listARIALabel">
+    <ul v-if="viewType === 'list'" class="post-list" :aria-label="listARIALabel">
       <li
         v-for="(post, index) in posts"
         :key="index"
@@ -55,6 +55,31 @@
         </span>
         <span class="cell-date flex-shrink-0 small">{{ formatDate(post.date) }}</span>
       </li>
+    </ul>
+
+    <!-- 게시글 목록 (갤러리형) -->
+    <ul v-if="viewType === 'gallery'" class="gallery" :aria-label="listARIALabel">
+      <div class="row">
+        <div
+          class="gallery-item col-12 col-sm-6 col-md-4"
+          v-for="(post, index) in posts"
+          :key="index"
+        >
+          <div class="gallery-thumbnail">
+            <b-link :to="{ name: 'Post', params: { id: post.id } }" class="thumbnail-link">
+              <span class="visually-hidden">{{ post.title }}</span>
+              <img :src="post.thumbnailUrl" class="gallery-thumbnail-img" />
+              <!-- todo: 서버에서 alt 받아와서 처리해야 함. -->
+            </b-link>
+          </div>
+          <div class="gallery-title">
+            <b-link class="gallery-title-link" :to="{ name: 'Post', params: { id: post.id } }">
+              {{ post.title }}
+            </b-link>
+          </div>
+          <div class="gallery-board">{{ post.board }}</div>
+        </div>
+      </div>
     </ul>
 
     <!-- 페이지 옮기기 -->
@@ -96,7 +121,15 @@ import moment from 'moment';
 export default {
   name: 'Board',
   title: (context) => context.title,
-  props: ['title', 'boardsProp'],
+  props: {
+    title: String,
+    boardPermalinks: String,
+    viewType: {
+      // 'list' or 'gallery'
+      type: String,
+      default: 'list',
+    },
+  },
   data() {
     return {
       currentPage: 1,
@@ -124,6 +157,8 @@ export default {
           board: '프레스',
           title: '성송이 영화배급협동조합 씨네소파 대표 - 부산에서 독립영화 배급하기',
           date: new Date('2018-01-18'),
+          // eslint-disable-next-line global-require, import/no-unresolved
+          thumbnailUrl: require('../assets/test/steel23.jpg'),
         },
         // http://www.busan.com/view/busan/view.php?code=20170720000205
         {
@@ -131,6 +166,8 @@ export default {
           board: '프레스',
           title: "독립영화 배급 나선 당찬 20대 청년들 '씨네소파' 협동조합 \"멀티플렉스 게, 섰거라!",
           date: new Date('2017-07-20'),
+          // eslint-disable-next-line global-require, import/no-unresolved
+          thumbnailUrl: require('../assets/test/steel23.jpg'),
         },
         // https://actmediact.tistory.com/1204
         {
@@ -138,30 +175,40 @@ export default {
           board: '프레스',
           title: '[ACT! 107호 인터뷰] “희생하지 않습니다.” - 부산 영화배급협동조합 씨네소파',
           date: new Date('2017-11-06'),
+          // eslint-disable-next-line global-require, import/no-unresolved
+          thumbnailUrl: require('../assets/test/steel23.jpg'),
         },
         {
           id: 4,
           board: '조합소식',
           title: '2018년 임시총회 공고',
           date: new Date('2018-03-11'),
+          // eslint-disable-next-line global-require, import/no-unresolved
+          thumbnailUrl: require('../assets/test/steel23.jpg'),
         },
         {
           id: 5,
           board: '조합소식',
-          title: '2018년 정기총회 공고',
+          title: '2019년 정기총회 공고',
           date: new Date('2018-01-11'),
+          // eslint-disable-next-line global-require, import/no-unresolved
+          thumbnailUrl: require('../assets/test/steel23.jpg'),
         },
         {
           id: 6,
           board: '조합소식',
-          title: '2018년 임시총회 공고',
+          title: '2020년 임시총회 공고',
           date: new Date('2018-03-11'),
+          // eslint-disable-next-line global-require, import/no-unresolved
+          thumbnailUrl: require('../assets/test/steel23.jpg'),
         },
         {
           id: 7,
           board: '조합소식',
-          title: '2018년 정기총회 공고',
+          title: '2021년 정기총회 공고',
           date: new Date('2018-01-11'),
+          // eslint-disable-next-line global-require, import/no-unresolved
+          thumbnailUrl: require('../assets/test/steel23.jpg'),
         },
       ],
     };
@@ -220,7 +267,9 @@ export default {
   },
 };
 </script>
-
+<!----------------------------------------------------------------->
+<!---------------------------- SCSS SCOPED!!!! -------------------->
+<!----------------------------------------------------------------->
 <style lang="scss" scoped>
 h1 {
   font-size: 50px;
@@ -280,7 +329,6 @@ h1 {
   margin-top: 10px;
 }
 .post-listitem {
-  // border: 2px solid var(--text-color);
   border: 1px solid #b0b6ba;
   border-left: 0;
   border-right: 0;
@@ -288,12 +336,6 @@ h1 {
   padding: 35px 0;
   font-size: 20px;
 }
-// .post-listitem:first-child {
-//   border-top: 2px solid #b0b6ba;
-// }
-// .post-listitem:last-child {
-//   border-bottom: 2px solid #b0b6ba;
-// }
 
 .mobile .post-listitem {
   font-size: 18px;
@@ -311,6 +353,67 @@ h1 {
 
 .pagenav-wrapper {
   margin-top: 30px;
+}
+
+// 포스트 갤러리형
+$gallery-item-padding: 30px;
+
+.gallery {
+  padding: 30px 0;
+  margin-left: 15px - $gallery-item-padding;
+  margin-right: 15px - $gallery-item-padding;
+}
+
+.gallery-item {
+  padding-left: $gallery-item-padding;
+  padding-right: $gallery-item-padding;
+  margin-bottom: 50px;
+}
+
+.thumbnail-link {
+  position: absolute;
+  display: block;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  height: 100%;
+}
+.thumbnail-link:hover .gallery-thumbnail-img {
+  transform: scale(1.2);
+  opacity: 0.7;
+}
+
+.gallery-thumbnail {
+  position: relative;
+  overflow: hidden;
+  width: 100%;
+
+  &::after {
+    content: '';
+    display: block;
+    padding-bottom: 100%;
+  }
+}
+
+// todo 갤러리 탭했을 때 그림이랑 제목링크랑 중복으로 되는 문제 수정해야 함.?? 평가때 보나?
+
+.gallery-thumbnail-img {
+  transition: .5s;
+  height: 100%;
+  width: auto;
+}
+
+.gallery-title {
+  font-size: 18px;
+  font-weight: 500;
+  padding: 5px 20px 0;
+  text-align: center;
+}
+
+.gallery-board {
+  font-size: 16px;
+  color: var(--text-secondary-color);
+  text-align: center;
 }
 </style>
 

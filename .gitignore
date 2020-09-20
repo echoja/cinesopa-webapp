@@ -6,7 +6,7 @@
 # mochawesome가 생성한 테스트용 html 폴더
 /server/mochawesome-report
 /server/test/upload-middlewares
-
+/server/test/uploads
 # local env files
 .env.local
 .env.*.local

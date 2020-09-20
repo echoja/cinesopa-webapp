@@ -1,9 +1,19 @@
 <template>
   <div class="container-fluid">
     <div class="guide">
+      <p>
+        <span class="colored-strong">학교, 일터, 혹은 공동체에서 여럿이 함께 영화를</span> 보고자 하시는 분들을 위한 공동체 상영 신청
+        페이지입니다.
+      <!-- </p>
+      <p> -->
+        본 신청서를 작성하시면 <span class="colored-strong">3일 이내</span>에 메일 또는 전화로 연락을 드리오니, 잠시만 기다려주세요 :)
+      </p>
       <h2>
         상영료 안내
       </h2>
+      <b-table class="guide-showing-fee" :items="showingFeeItems" :fields="showingFeeFields">
+      </b-table>
+
 
       <h2>
         공동체상영 절차
@@ -41,12 +51,12 @@
         <li>
           씨네소파는 예비사회적기업으로서 독립영화 저변 확대를 위해 노력하고 있습니다. 이에,
           상영료를 좌석 수가 아닌 관객 수를 기준으로 책정하고 있습니다. 그에 따른 차액만큼
-          사회서비스제공확인서(양식제공)를 요청드릴 수 있으니 참고 부탁드립니다.
+          <u>사회서비스제공확인서(양식제공)</u>를 요청드릴 수 있으니 참고 부탁드립니다.
         </li>
       </ul>
     </div>
 
-    <validation-observer ref="observer" v-slot="{ handleSubmit, validate, errors }">
+    <validation-observer ref="observer" v-slot="{ /* handleSubmit, */ validate /* errors */ }">
       <b-form class="community-form" @submit.stop.prevent="submit(validate())">
         <h2>행사 정보</h2>
         <b-form-group
@@ -243,7 +253,13 @@
           label-size="md"
           label-for="format"
         >
-          <b-form-radio-group id="format" @change="formatSelected" v-model="form.format" stacked>
+          <b-form-radio-group
+            class="radio-group"
+            id="format"
+            @change="formatSelected"
+            v-model="form.format"
+            stacked
+          >
             <b-form-radio value="DCP">DCP <small>(별도 영사기 필요)</small></b-form-radio>
             <b-form-radio value="MOV1"
               >초고화질 MOV <small>(100GB 내외, 고사양 PC 및 대형 프로젝터용)</small></b-form-radio
@@ -265,6 +281,7 @@
           label-for="how-to-receive"
         >
           <b-form-radio-group
+            class="radio-group"
             id="how-to-receive"
             :required="required"
             @change="changedHowToReceive"
@@ -370,7 +387,12 @@
           label-size="md"
           label-for="film-type"
         >
-          <b-form-radio-group :required="required" id="film-type" v-model="form.filmType">
+          <b-form-radio-group
+            class="radio-group"
+            :required="required"
+            id="film-type"
+            v-model="form.filmType"
+          >
             <b-form-radio value="long">장편</b-form-radio>
             <b-form-radio value="short">단편</b-form-radio>
             <b-form-text>영화 길이가 60분 이상이면 장편, 60분 미만이면 단편입니다.</b-form-text>
@@ -394,10 +416,13 @@
             <template v-slot:first>
               <option value="">-- 선택해주세요 --</option>
             </template>
-            <option :value="0">30명 이하</option>
-            <option :value="1">31 ~ 60명</option>
-            <option :value="2">61 ~ 80명</option>
-            <option :value="3">81명 이상</option>
+
+            <option
+              v-for="(key, index) in Object.keys(showingFeePopLabels)"
+              :value="key"
+              :key="index"
+              >{{ showingFeePopLabels[key] }}</option
+            >
           </b-form-select>
         </b-form-group>
         <b-form-group
@@ -417,21 +442,33 @@
           <option v-for="(size, index) in sizes" :key="index">{{ size }}</option>
         </datalist> -->
 
-        <privacy height="300"></privacy>
         <validation-provider
           :rules="{ shouldCheck: true }"
           :customMessages="{ shouldCheck: '반드시 동의하여야 합니다.' }"
           v-slot="v_context"
         >
           <b-form-group id="check-privacy">
-            <b-checkbox
-              :state="getValidationState(v_context)"
-              v-model="checkPrivacy"
-              v-bind="v_context.ariaInput"
-              class="check-privacy d-flex align-items-center mt-3"
-            >
-              <strong>개인정보처리방침에 동의합니다.</strong>
-            </b-checkbox>
+            <div class="check-privacy-wrapper">
+              <b-checkbox
+                :state="getValidationState(v_context)"
+                v-model="checkPrivacy"
+                v-bind="v_context.ariaInput"
+                class="check-privacy d-flex align-items-center"
+              >
+                <strong>개인정보처리방침에 동의합니다.</strong>
+              </b-checkbox>
+              <b-button
+                class="privacy-button"
+                size="sm"
+                outlined
+                v-b-modal.modal-privacy
+                variant="outline-dark"
+                >전문 보기</b-button
+              >
+              <b-modal id="modal-privacy" size="lg" scrollable hide-footer title="개인정보처리방침">
+                <privacy></privacy>
+              </b-modal>
+            </div>
             <b-form-invalid-feedback
               :state="getValidationState(v_context)"
               id="check-prifacy-invalid-feedback"
@@ -443,7 +480,7 @@
             <!-- <span>{{ JSON.stringify(v_context) }}</span> -->
           </b-form-group>
         </validation-provider>
-        <b-button type="submit">제출</b-button>
+        <b-button type="submit" variant="primary">신청서를 제출하겠습니다요!</b-button>
       </b-form>
     </validation-observer>
   </div>
@@ -491,6 +528,27 @@ export default {
           short: 250000,
         },
       },
+      showingFeePopLabels: {
+        0: '30명 이하',
+        1: '31 ~ 60명',
+        2: '61 ~ 80명',
+        3: '81명 이상',
+      },
+      showingFeeFields: [
+        {
+          key: 'popClass',
+          label: '구분',
+          isRowHeader: true,
+        },
+        {
+          key: 'long',
+          label: '장편',
+        },
+        {
+          key: 'short',
+          label: '단편',
+        },
+      ],
       required: true,
       checkPrivacy: false,
       mapLoader: null,
@@ -531,6 +589,24 @@ export default {
       let fee = this.showingFeeMap[expectedPopulation][filmType];
       fee += fee / 10 + 10000;
       return this.numberWithCommas(fee);
+    },
+    showingFeeItems() {
+      const keys = Object.keys(this.showingFeeMap);
+      const items = [];
+      keys.forEach((key) => {
+        let { long, short } = this.showingFeeMap[key];
+        short += short / 10 + 10000;
+        long += long / 10 + 10000;
+        short = `${this.numberWithCommas(short)}원`;
+        long = `${this.numberWithCommas(long)}원`;
+
+        items.push({
+          popClass: this.showingFeePopLabels[key],
+          long,
+          short,
+        });
+      });
+      return items;
     },
   },
 
@@ -601,6 +677,7 @@ export default {
 
 <style lang="scss" scoped>
 .guide {
+  max-width: 700px;
   & h2 {
     font-size: 18px;
   }
@@ -609,6 +686,11 @@ export default {
     font-size: 16px;
   }
 }
+
+.guide-showing-fee {
+  text-align: center;
+  // max-width: 500px;
+}
 .community-form h2 {
   margin-top: 70px;
   color: var(--link-color);
@@ -616,7 +698,7 @@ export default {
 
 .community-form-group {
   max-width: 600px;
-    margin: 20px 0;
+  margin: 20px 0;
 }
 
 .address-new {
@@ -627,6 +709,28 @@ export default {
   font-size: 80%;
   color: var(--text-secondary-color);
   margin: 0;
+}
+
+#check-privacy {
+  margin-top: 10px;
+}
+
+.check-privacy-wrapper {
+  display: flex;
+  align-items: center;
+}
+
+.mobile .check-privacy-wrapper {
+  margin: 0 -15px;
+}
+
+.privacy-button {
+  margin-left: 10px;
+}
+
+.colored-strong {
+  color: var(--link-dark-color);
+  font-weight: 700;
 }
 </style>
 
@@ -646,5 +750,13 @@ export default {
     background-color: var(--link-color);
     border-color: var(--link-color);
   }
+}
+
+.community-form .radio-group {
+  margin-top: 8px;
+}
+
+.mobile .community-form .radio-group {
+  margin-top: 0px;
 }
 </style>

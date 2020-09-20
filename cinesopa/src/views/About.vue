@@ -31,7 +31,10 @@
     <!-- value three -->
     <div class="value-three">
       <div class="value-three-background">
-        <b-img class="value-three-background-img unselectable" src="../assets/about/values-bg.png"></b-img>
+        <b-img
+          class="value-three-background-img unselectable"
+          src="../assets/about/values-bg.png"
+        ></b-img>
       </div>
       <div class="value-three-prefix">우리의 작은 파도는</div>
       <div class="value-three-main d-flex justify-content-center">
@@ -65,9 +68,7 @@
         </div>
       </div>
       <div class="value-three-affix">
-        <div class="value-three-affix-bg">
-          
-        </div>
+        <div class="value-three-affix-bg"></div>
         <div class="value-three-affix-sub">씨네소파는 시야를 확장시키는 영화를 통해</div>
         <div class="value-three-affix-main">
           나 자신을 발견하고, 상대를 헤아리며,<br />
@@ -161,10 +162,9 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-
 .big-title {
   position: relative;
-  z-index:2;
+  z-index: 2;
   margin: 80px 0 0;
 }
 
@@ -175,7 +175,7 @@ export default {
 
 .big-title-letter-down {
   color: var(--link-color);
-  font-weight:600;
+  font-weight: 600;
   font-size: 20px;
   letter-spacing: -1px;
   text-align: center;
@@ -190,7 +190,7 @@ export default {
 
 .excerpt {
   position: relative;
-  z-index:2;
+  z-index: 2;
   text-align: center;
   font-size: 20px;
   font-weight: 600;
@@ -215,12 +215,11 @@ export default {
   position: relative;
   // margin: 30px 0;
   padding: 0 0 30px;
-
 }
 
 .value-three-background {
   position: absolute;
-  transform: translateX(min(calc((100vw - 1260px)/-2), 0.000000000000000001px));
+  transform: translateX(min(calc((100vw - 1260px) / -2), 0.000000000000000001px));
   // background-color: #ddd;
   width: 100vw;
   height: 100%;
@@ -234,7 +233,7 @@ export default {
 }
 .blue-circle {
   text-align: center;
-  background-color: var(--link-color);
+  // background-color: var(--link-color);
   background-color: var(--link-dark-color);
   color: #fff;
   width: 190px;
@@ -256,7 +255,7 @@ export default {
 }
 .blue-dots {
   display: flex;
-  align-items:center;
+  align-items: center;
   margin: 8px;
 }
 .mobile .boue-dots {
@@ -268,7 +267,8 @@ export default {
   height: 10px;
   border-radius: 100px;
   margin: 2px;
-  background-color: var(--link-color);
+  // background-color: var(--link-color);
+  background-color: var(--link-dark-color);
 }
 .value-three-affix {
   position: relative;
@@ -277,16 +277,23 @@ export default {
 
 .value-three-affix-bg {
   position: absolute;
+  top: 0%;
+  width: 100%;
+  height: 120%;
+  background: radial-gradient(rgba(255, 255, 255, 1) 0%, transparent 50%);
 }
 
 .value-three-affix-sub {
+  position: relative;
   text-align: center;
   font-size: 18px;
   font-weight: 500;
-  color: var(--link-color);
+  color: var(--link-dark-color);
+  // color: var(--link-color);
 }
 
 .value-three-affix-main {
+  position: relative;
   text-align: center;
   font-size: 26px;
   font-weight: 500;
@@ -394,7 +401,7 @@ export default {
   user-select: none;
   pointer-events: none;
   // user-drag: none;
-  // user-drag: none; 
+  // user-drag: none;
 }
 </style>
 

@@ -1,10 +1,5 @@
 <template>
-  <div
-    :style="{ height: `${height}px` }"
-    class="privacy-box"
-    aria-label="개인정보처리방침"
-    tabindex="0"
-  >
+  <div :style="style" class="privacy-box" aria-label="개인정보처리방침" tabindex="0">
     <p></p>
     <h2>개인정보처리방침</h2>
     <p>
@@ -204,14 +199,24 @@
 export default {
   name: 'Privacy',
   props: ['height'],
+  computed: {
+    style() {
+      if (!this.height) return {};
+      return {
+        height: `${this.height}px`,
+        overflowY: 'scroll',
+        border: '1px solid #ddd',
+      };
+    },
+  },
 };
 </script>
 
 <style lang="scss" scoped>
 .privacy-box {
-  height: 300px;
-  overflow-y: scroll;
-  border: 1px solid #ddd;
+  // height: 300px;
+  // overflow-y: scroll;
+  // border: 1px solid #ddd;
   padding: 0 30px 20px;
 }
 

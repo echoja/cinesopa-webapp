@@ -160,9 +160,7 @@
                 </b-link>
               </p>
               <p>
-                <b-link class="px-4" :to="{ name: 'Request', params: { permalink: 'about' } }"
-                  >신청해요
-                </b-link>
+                <b-link class="px-4" :to="{ name: 'Distribution' }">신청해요 </b-link>
               </p>
             </div>
           </b-sidebar>
