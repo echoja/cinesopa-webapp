@@ -346,14 +346,10 @@ export default {
         우연히 만난다.</p><p> 그들은 평범한 일상 속에서 자신처럼 고립되어 있는
         폐왕성에 도착하고,<br>그곳에서 누구나 언젠가 지나쳐야만 하는 유배된
         시간과 만난다.</p>`,
-        youtubeIframeCode: `<iframe
-        width="1245"
-        height="672"
-        src="https://www.youtube.com/embed/OeuIAQnrbZo"
-        frameborder="0"
-        allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"
-        allowfullscreen
-      ></iframe>`,
+        youtubeIframeCode: `<iframe width="1280" height="691" 
+        src="https://www.youtube.com/embed/OeuIAQnrbZo" 
+        frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+        allowfullscreen></iframe>`,
       },
       trailerRatio: 0,
     };
@@ -437,6 +433,9 @@ export default {
     const trailerDiv = this.$refs.trailer;
     const iframe = trailerDiv.querySelector('iframe');
     this.trailerRatio = iframe.height / iframe.width;
+    // console.log(`iframe.height: ${iframe.height}`);
+    // console.log(`iframe.width: ${iframe.width}`);
+    // console.log(`this.trailerRatio: ${this.trailerRatio}`);
   },
 };
 </script>
@@ -606,7 +605,7 @@ export default {
   }
 }
 
-.row-fullwidth {
+.mobile .row-fullwidth {
   margin-left: -15px;
   margin-right: -15px;
 }
