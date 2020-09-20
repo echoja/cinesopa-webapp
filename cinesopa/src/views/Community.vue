@@ -1,20 +1,15 @@
 <template>
-  <div class="container-fluid">
+  <div class="">
     <div class="guide">
-      <p>
-        <span class="colored-strong">학교, 일터, 혹은 공동체에서 여럿이 함께 영화를</span> 보고자 하시는 분들을 위한 공동체 상영 신청
-        페이지입니다.
-      <!-- </p>
-      <p> -->
-        본 신청서를 작성하시면 <span class="colored-strong">3일 이내</span>에 메일 또는 전화로 연락을 드리오니, 잠시만 기다려주세요 :)
+      <p class="guide-main">
+        학교, 일터, 혹은 공동체에서 <span class="colored-strong">여럿이 함께 영화</span>를 보고자
+        하시는 분들을 위한 공동체 상영 신청 페이지입니다.<br>
+        </p>
+      <p class="guide-main-sub">
+        본 신청서를 작성하시면 <span class="colored-strong">3일 이내</span>에 메일 또는 전화로
+        연락을 드리오니,<br>잠시만 기다려주세요 :)
       </p>
-      <h2>
-        상영료 안내
-      </h2>
-      <b-table class="guide-showing-fee" :items="showingFeeItems" :fields="showingFeeFields">
-      </b-table>
-
-
+      <hr />
       <h2>
         공동체상영 절차
       </h2>
@@ -33,7 +28,12 @@
           상영료를 정산합니다.
         </li>
       </ol>
-      <p></p>
+      <h2>
+        상영료 안내
+      </h2>
+      <b-table class="guide-showing-fee" :items="showingFeeItems" :fields="showingFeeFields">
+      </b-table>
+
       <h2>
         유의사항
       </h2>
@@ -45,12 +45,13 @@
           하나의 영화가 아닌, 여러 영화를 상영하실 경우 영화 각각 신청서를 작성해주세요.
         </li>
         <li>
-          감독님 섭외 부분은 신청인께서 직접 하셔야함을 알려드립니다. (씨네소파는 신청인과 감독의
-          상호 연락처 전달 업무만 담당합니다.)
+          <p>감독님 섭외 부분은 신청인께서 직접 하셔야함을 알려드립니다.</p>
+          <p class="small">씨네소파는 신청인과 감독의
+          상호 연락처 전달 업무만 담당합니다.</p>
         </li>
         <li>
-          씨네소파는 예비사회적기업으로서 독립영화 저변 확대를 위해 노력하고 있습니다. 이에,
-          상영료를 좌석 수가 아닌 관객 수를 기준으로 책정하고 있습니다. 그에 따른 차액만큼
+          씨네소파는 예비사회적기업으로서 독립영화 저변 확대를 위해 노력하고 있습니다.<br>이에,
+          상영료를 좌석 수가 아닌 관객 수를 기준으로 책정하고 있습니다. 그에 따른 차액만큼<br>
           <u>사회서비스제공확인서(양식제공)</u>를 요청드릴 수 있으니 참고 부탁드립니다.
         </li>
       </ul>
@@ -677,19 +678,43 @@ export default {
 
 <style lang="scss" scoped>
 .guide {
+  padding: 50px 0;
+
   max-width: 700px;
   & h2 {
-    font-size: 18px;
+    margin-top: 40px;
+    font-size: 22px;
+
   }
-  & p,
   & li {
     font-size: 16px;
+    margin-bottom: 5px;
+    & p {
+      margin-bottom: 0;
+    }
   }
+
+  & hr {
+    margin-bottom: 60px;
+  }
+}
+
+
+.guide-main {
+  font-size: 22px;
+  font-weight: 600;
+  letter-spacing: -0.7px;
+  max-width: 660px;
+}
+
+.guide-main-sub {
+  font-size: 19px;
+  font-weight: 600;
 }
 
 .guide-showing-fee {
   text-align: center;
-  // max-width: 500px;
+  margin-top: 20px;
 }
 .community-form h2 {
   margin-top: 70px;
@@ -712,7 +737,7 @@ export default {
 }
 
 #check-privacy {
-  margin-top: 10px;
+  margin-top: 50px;
 }
 
 .check-privacy-wrapper {
@@ -729,9 +754,11 @@ export default {
 }
 
 .colored-strong {
-  color: var(--link-dark-color);
+  color: var(--link-color);
   font-weight: 700;
 }
+
+
 </style>
 
 <style lang="scss">
@@ -758,5 +785,10 @@ export default {
 
 .mobile .community-form .radio-group {
   margin-top: 0px;
+}
+
+
+.guide-showing-fee tbody tr:last-child {
+  border-bottom: 1px solid #dee2e6;
 }
 </style>

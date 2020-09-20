@@ -367,7 +367,14 @@
               >
                 <strong>개인정보처리방침에 동의합니다.</strong>
               </b-checkbox>
-              <b-button class="privacy-button" size="sm" outlined v-b-modal.modal-privacy variant="outline-dark">전문 보기</b-button>
+              <b-link
+                class="privacy-button"
+                size="sm"
+                outlined
+                v-b-modal.modal-privacy
+                variant="outline-dark"
+                >전문 보기</b-link
+              >
               <b-modal id="modal-privacy" size="lg" scrollable hide-footer title="개인정보처리방침">
                 <privacy></privacy>
               </b-modal>
@@ -517,7 +524,7 @@ export default {
 }
 
 #check-privacy {
-  margin-top: 10px;
+  margin-top: 50px;
 }
 
 .check-privacy-wrapper {
@@ -531,14 +538,26 @@ export default {
 
 .privacy-button {
   margin-left: 10px;
+  font-size: 14px;
+  text-decoration: underline;
+  transition: 1s;
+  &:hover {
+    color: var(--link-color);
+    transition: none;
+  }
 }
 
+.main-summary {
+  padding: 50px 0 0;
+  font-size: 22px;
+  font-weight: 600;
+  letter-spacing: -0.7px;
+}
 
 // .distribution-form-group input::placeholder {
 //   font-weight:300;
 //   // color: #fff;
 // }
-
 </style>
 <style lang="scss">
 .distribution-form {
@@ -583,6 +602,5 @@ export default {
   margin-left: 30px;
   color: var(--text-secondary-color);
 }
-
 
 </style>

@@ -299,19 +299,19 @@ export default {
       windowHeight: 0,
       news: [
         {
-          date: new Date('2018-1-11'),
+          date: new Date('2018-01-11'),
           dateFormatted: null,
           title: '2018년 정기총회 공고',
           id: 1,
         },
         {
-          date: new Date('2018-3-11'),
+          date: new Date('2018-03-11'),
           dateFormatted: null,
           title: '2018년 임시총회 공고',
           id: 1,
         },
         {
-          date: new Date('2018-1-18'),
+          date: new Date('2018-01-18'),
           dateFormatted: null,
           title: '성송이 영화배급협동조합 씨네소파 대표 - 부산에서 독립영화 배급하기',
           id: 1,
@@ -323,7 +323,7 @@ export default {
           id: 1,
         },
         {
-          date: new Date('2017-7-20'),
+          date: new Date('2017-07-20'),
           dateFormatted: null,
           title: "독립영화 배급 나선 당찬 20대 청년들 '씨네소파' 협동조합 \"멀티플렉스 게, 섰거라!",
           id: 1,
@@ -394,6 +394,7 @@ export default {
     // window.addEventListener('scroll', onScroll);
     window.addEventListener(wheelEvent, this.onWheel, { passive: false });
     window.addEventListener('resize', this.onResize);
+    window.addEventListener('cssVarsSuccessed', this.onCssVarsSuccessed);
     this.$store.commit('setMenuTransparent', true);
 
     // swiper initializing
@@ -489,6 +490,7 @@ export default {
     // window.removeEventListener('scroll', onScroll);
     window.removeEventListener(wheelEvent, this.onWheel, { passive: false });
     window.removeEventListener('resize', this.onResize);
+    window.removeEventListener('cssVarsSuccessed', this.onCssVarsSuccessed);
     this.$store.commit('setMenuTransparent', false);
     this.$store.commit('setLogoWhite', false);
     this.$store.commit('setNavLinkWhite', false);
@@ -667,6 +669,7 @@ export default {
     },
     setScrollSectionX() {
       const left = this.$refs.home.offsetLeft;
+      console.dir(this.$refs.home);
       this.$refs.container.style.marginLeft = `-${left}px`;
       // this.$refs.swiperContainer.style.transform = `translateX(-${left}px)`;
     },
@@ -940,6 +943,10 @@ export default {
 
       // })
     },
+    onCssVarsSuccessed() {
+      console.log('cssVarsSuccessed!');
+      this.setScrollSectionX();
+    },
   },
 };
 </script>
@@ -1197,42 +1204,44 @@ export default {
   top: -50%;
 }
 
-  // hsl(0, 0%, 100%) 0%,
-  // hsla(0, 0%, 100%, 0.738) 19%,
-  // hsla(0, 0%, 100%, 0.541) 34%,
-  // hsla(0, 0%, 100%, 0.382) 47%,
-  // hsla(0, 0%, 100%, 0.278) 56.5%,
-  // hsla(0, 0%, 100%, 0.194) 65%,
-  // hsla(0, 0%, 100%, 0.126) 73%,
-  // hsla(0, 0%, 100%, 0.075) 80.2%,
-  // hsla(0, 0%, 100%, 0.042) 86.1%,
-  // hsla(0, 0%, 100%, 0.021) 91%,
-  // hsla(0, 0%, 100%, 0.008) 95.2%,
-  // hsla(0, 0%, 100%, 0.002) 98.2%,
-  // hsla(0, 0%, 100%, 0) 100%
-  
+// hsl(0, 0%, 100%) 0%,
+// hsla(0, 0%, 100%, 0.738) 19%,
+// hsla(0, 0%, 100%, 0.541) 34%,
+// hsla(0, 0%, 100%, 0.382) 47%,
+// hsla(0, 0%, 100%, 0.278) 56.5%,
+// hsla(0, 0%, 100%, 0.194) 65%,
+// hsla(0, 0%, 100%, 0.126) 73%,
+// hsla(0, 0%, 100%, 0.075) 80.2%,
+// hsla(0, 0%, 100%, 0.042) 86.1%,
+// hsla(0, 0%, 100%, 0.021) 91%,
+// hsla(0, 0%, 100%, 0.008) 95.2%,
+// hsla(0, 0%, 100%, 0.002) 98.2%,
+// hsla(0, 0%, 100%, 0) 100%
+
 .whiteboard {
   position: absolute;
   top: -25%;
   height: 150%;
   width: 100%;
-  background: rgb(255,255,255);
-background: linear-gradient(0deg,
-  hsl(0, 0%, 100%) 0%,
-  hsl(0, 0%, 100%) 50%,
-  hsla(0, 0%, 100%, 0.738) 59.5%,
-  hsla(0, 0%, 100%, 0.541) 67%,
-  hsla(0, 0%, 100%, 0.382) 73.5%,
-  hsla(0, 0%, 100%, 0.278) 78.25%,
-  hsla(0, 0%, 100%, 0.194) 82.5%,
-  hsla(0, 0%, 100%, 0.126) 86.5%,
-  hsla(0, 0%, 100%, 0.075) 90.1%,
-  hsla(0, 0%, 100%, 0.042) 93.05%,
-  hsla(0, 0%, 100%, 0.021) 95.5%,
-  hsla(0, 0%, 100%, 0.008) 97.6%,
-  hsla(0, 0%, 100%, 0.002) 99.1%,
-  hsla(0, 0%, 100%, 0) 100%
-);}
+  background: rgb(255, 255, 255);
+  background: linear-gradient(
+    0deg,
+    hsl(0, 0%, 100%) 0%,
+    hsl(0, 0%, 100%) 50%,
+    hsla(0, 0%, 100%, 0.738) 59.5%,
+    hsla(0, 0%, 100%, 0.541) 67%,
+    hsla(0, 0%, 100%, 0.382) 73.5%,
+    hsla(0, 0%, 100%, 0.278) 78.25%,
+    hsla(0, 0%, 100%, 0.194) 82.5%,
+    hsla(0, 0%, 100%, 0.126) 86.5%,
+    hsla(0, 0%, 100%, 0.075) 90.1%,
+    hsla(0, 0%, 100%, 0.042) 93.05%,
+    hsla(0, 0%, 100%, 0.021) 95.5%,
+    hsla(0, 0%, 100%, 0.008) 97.6%,
+    hsla(0, 0%, 100%, 0.002) 99.1%,
+    hsla(0, 0%, 100%, 0) 100%
+  );
+}
 .main-new-post-header {
   color: var(--link-color);
   font-size: 40px;
@@ -1269,7 +1278,7 @@ background: linear-gradient(0deg,
 .news-cell-link a {
   font-size: 18px;
 }
-.mobile .news-cell-link a{
+.mobile .news-cell-link a {
   font-size: 15px;
 }
 

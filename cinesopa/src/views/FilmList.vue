@@ -547,7 +547,7 @@ export default {
 
 .tag {
   color: var(--text-secondary-color);
-  border: 2px solid #b0b6ba;
+  border: 1px solid #b0b6ba;
   padding: 2px 10px;
   font-weight: 500;
   margin: 5px;

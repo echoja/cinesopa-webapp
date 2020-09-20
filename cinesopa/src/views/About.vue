@@ -233,21 +233,21 @@ export default {
 }
 .blue-circle {
   text-align: center;
-  // background-color: var(--link-color);
-  background-color: var(--link-dark-color);
+  background-color: var(--link-color);
   color: #fff;
-  width: 190px;
-  height: 190px;
+  width: 200px;
+  height: 200px;
   border-radius: 300px;
   display: flex;
-  font-size: 18px;
-  font-weight: 300;
+  font-size: 19px;
+  font-weight: 500;
+  letter-spacing: -0.4px;
   justify-content: center;
   align-items: center;
 }
 .blue-circle-strong {
-  font-weight: 500;
-  font-size: 20px;
+  font-weight: 700;
+  font-size: 21px;
 }
 .blue-circle p {
   // padding-bottom: 100%;
@@ -267,8 +267,8 @@ export default {
   height: 10px;
   border-radius: 100px;
   margin: 2px;
-  // background-color: var(--link-color);
-  background-color: var(--link-dark-color);
+  background-color: var(--link-color);
+  // background-color: var(--link-dark-color);
 }
 .value-three-affix {
   position: relative;
@@ -286,9 +286,9 @@ export default {
 .value-three-affix-sub {
   position: relative;
   text-align: center;
-  font-size: 18px;
-  font-weight: 500;
-  color: var(--link-dark-color);
+  font-size: 19px;
+  font-weight: 600;
+  color: var(--link-color);
   // color: var(--link-color);
 }
 
