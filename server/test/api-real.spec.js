@@ -8,20 +8,19 @@
  */
 
 const addContext = require('mochawesome/addContext');
-const request = require('supertest');
-const uuidv4 = require('uuid').v4;
-const passport = require('passport');
+// const request = require('supertest');
+// const uuidv4 = require('uuid').v4;
+// const passport = require('passport');
 const { expect } = require('chai');
-const express = require('express');
-const session = require('express-session');
-const MemoryStore = require('memorystore')(session);
-const mongoose = require('mongoose');
-const { MongoMemoryServer } = require('mongodb-memory-server');
+// const express = require('express');
+// const session = require('express-session');
+// const MemoryStore = require('memorystore')(session);
+// const mongoose = require('mongoose');
+// const { MongoMemoryServer } = require('mongodb-memory-server');
 
 const {
   checkAuthQuery,
   createPageMutation,
-  getPageByIdQuery,
   getPageQuery,
   getPagesQuery,
   loginQuery,
@@ -46,23 +45,17 @@ const {
   removeBoardMutation,
   updateBoardMutation,
 } = require('./graphql-request');
-const auth = require('../service/auth');
-const authValidatorMaker = require('../auth/validator');
+// const auth = require('../service/auth');
+// const authValidatorMaker = require('../auth/validator');
 const { db: manager, model } = require('../loader');
-const { graphQLServerMiddleware } = require('../graphql');
-const local = require('../auth/local');
+// const { graphQLServerMiddleware } = require('../graphql');
+// const local = require('../auth/local');
 // const { noConflict } = require("lodash");
-const { make: makeAuthMiddleware } = require('../auth/auth-middleware');
-const { enumAuthmap } = require('../db/schema/enum');
-const { graphqlSuper } = require('./tool');
+// const { make: makeAuthMiddleware } = require('../auth/auth-middleware');
+// const { enumAuthmap } = require('../db/schema/enum');
+const { graphqlSuper, initTestServer, doLogin } = require('./tool');
 
-const makeAgent = request.agent;
-
-const doLogin = async (agent, email, pwd) =>
-  graphqlSuper(agent, loginQuery, {
-    email,
-    pwd,
-  });
+// const makeAgent = request.agent;
 
 /**
  * - graphql typedef 및 resolver 필요.
@@ -70,137 +63,8 @@ const doLogin = async (agent, email, pwd) =>
  * - db 세팅법은 `./db.spec.js` 에서 가져옴.
  */
 describe('REAL API', function () {
-  // const model = require("../db/model").make(mongoose);
-  /** @type {MongoMemoryServer} */
-  let mongod;
-  /** @type {import("supertest").SuperAgentTest} */
-  let agent;
-
-  /** @type {import("express").Express} */
-  let webapp;
-
-  before('서버 및 db 세팅', async function () {
-    // delete require.cache[require.resolve('passport')];
-    this.timeout(10000);
-
-    webapp = express();
-
-    /** DB 세팅 */
-
-    // manager = makeDB(model);
-
-    mongod = new MongoMemoryServer({ binary: { version: '4.2.9' } });
-    const uri = await mongod.getUri();
-    const mongooseOpts = {
-      useNewUrlParser: true,
-      // autoReconnect: true,
-      // reconnectTries: Number.MAX_VALUE,
-      // reconnectInterval: 1000,
-      useUnifiedTopology: true,
-      useCreateIndex: true,
-      useFindAndModify: false,
-    };
-    await mongoose.connect(uri, mongooseOpts);
-    // const autoIncrement = AutoIncrementFactory(mongoose);
-    // autoIncrement.initialize(mongoose.connection);
-    // setAutoIncrement(autoIncrement, 'Page', 'id');
-
-    /** 웹앱 세팅 */
-    webapp.use(
-      session({
-        genid: (req) => uuidv4(),
-        secret: 'test',
-        resave: false,
-        saveUninitialized: false,
-        store: new MemoryStore(),
-        cookie: {
-          maxAge: 1000 * 60 * 60 * 24,
-        },
-      }),
-    );
-    webapp.use(passport.initialize()); // passport 구동
-    webapp.use(passport.session());
-    local.init(
-      async (email) => {
-        // console.log("--userFinder called--");
-        const result = await manager.getUserByEmail(email);
-        // console.dir(result);
-        return result;
-      },
-      async (email, pwd) => {
-        if (await manager.isCorrectPassword(email, pwd)) {
-          // console.log(`getUserByAuth successed: email: ${email}, pwd: ${pwd}`);
-          const result = await manager.getUserByEmail(email);
-          // console.dir(result);
-          return result;
-        }
-        // console.log("getUserByAuth failed");
-        return null;
-      },
-    );
-    webapp.use('/graphql', graphQLServerMiddleware);
-    webapp.get('/session', (req, res) => {
-      res.send({ session: req.session, id: req.sessionID });
-    });
-    webapp.get('/logout', (req, res, next) => {
-      req.logout();
-      res.send();
-    });
-    webapp.get('/user', (req, res, next) => {
-      res.send({ user: req.user, isAuthenticated: req.isAuthenticated() });
-    });
-    const authValidator = authValidatorMaker.make(auth.authmapLevel);
-    // console.log("--auth.authmapLevel--");
-    // console.dir(auth.authmapLevel);
-    webapp.get(
-      '/auth-test-admin',
-      makeAuthMiddleware(authValidator, [enumAuthmap.ADMIN]),
-      (req, res, next) => {
-        res.send({ message: 'success' });
-      },
-    );
-
-    webapp.get(
-      '/auth-test-error',
-      makeAuthMiddleware(authValidator, 'ADMIN'),
-      (req, res, next) => {
-        res.send({ message: 'success' });
-      },
-    );
-    agent = makeAgent(webapp);
-  });
-
-  beforeEach('유저 세팅', async function () {
-    await manager.createUser({
-      email: 'testAdmin',
-      pwd: 'abc',
-      role: 'ADMIN',
-    });
-    await manager.createUser({
-      email: 'testGuest',
-      pwd: 'abc',
-      role: 'GUEST',
-    });
-  });
-
-  afterEach('세션 초기화 및 DB 내용 초기화', async function () {
-    await agent.get('/logout');
-    const { collections } = mongoose.connection;
-
-    const promises = [];
-    Object.keys(collections).forEach((key) => {
-      const collection = collections[key];
-      promises.push(collection.deleteMany());
-    });
-    await Promise.allSettled(promises);
-    // console.log("세션 초기화 및 DB 내용 초기ㅗ하!!!!!");
-  });
-
-  after('DB 종료', async function () {
-    await mongoose.connection.dropDatabase();
-    await mongoose.connection.close();
-    await mongod.stop();
-  });
+  // eslint-disable-next-line mocha/no-setup-in-describe
+  const { agent } = initTestServer({ before, beforeEach, after, afterEach });
 
   describe('auth-middleware', function () {
     it('권한이 성공해야 함', async function () {
@@ -856,7 +720,9 @@ describe('REAL API', function () {
             title: 'hihello',
           },
         });
-        const found = await model.Board.findOne({ title: 'hihello' }).lean().exec();
+        const found = await model.Board.findOne({ title: 'hihello' })
+          .lean()
+          .exec();
         console.log(found);
         expect(found).to.not.be.null;
       });
@@ -889,4 +755,5 @@ describe('REAL API', function () {
       });
     });
   });
+  describe('File', function () {});
 });

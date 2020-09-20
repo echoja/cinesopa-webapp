@@ -1,29 +1,31 @@
-const express = require("express");
-const { enumAuthmap } = require("./db/schema/enum");
-const path = require("path");
-const history = require("connect-history-api-fallback");
+const express = require('express');
+const path = require('path');
+const history = require('connect-history-api-fallback');
+const { enumAuthmap } = require('./db/schema/enum');
 
 // const upload = require("multer")({ dest: "uploads/" }).single("bin");
-const { graphQLServerMiddleware } = require("./graphql");
+const { graphQLServerMiddleware } = require('./graphql');
 const {
   file: { uploadMiddleware },
   makeAuthMiddleware,
   validator,
   user,
   db,
-} = require("./loader");
+} = require('./loader');
 
 const router = express.Router();
 
 // upload
 router.post(
-  "/upload",
+  '/upload',
   makeAuthMiddleware(validator, [enumAuthmap.ADMIN]),
-  uploadMiddleware
+  uploadMiddleware,
 );
 
 // graphiql
-router.use("/graphql", graphQLServerMiddleware, 
+router.use(
+  '/graphql',
+  graphQLServerMiddleware,
   // (err, req, res, next) => {
   //   console.log("graphql!");
   //   console.error(err);
@@ -31,10 +33,10 @@ router.use("/graphql", graphQLServerMiddleware,
   // }
 );
 
-router.get("/test/remove-user/:email", (req, res, next) => {
+router.get('/test/remove-user/:email', (req, res, next) => {
   db.removeUserByEmail(req.params.email)
-    .then((user) => {
-      res.send(user);
+    .then((userReceived) => {
+      res.send(userReceived);
     })
     .catch((error) => {
       // console.error(error);
@@ -42,11 +44,11 @@ router.get("/test/remove-user/:email", (req, res, next) => {
     });
 });
 
-router.get("/test/make-super-user", (req, res, next) => {
+router.get('/test/make-super-user', (req, res, next) => {
   user
     .initAdmin()
-    .then((result) => {
-      res.send("admin create successed!");
+    .then((/* result */) => {
+      res.send('admin create successed!');
     })
     .catch((error) => {
       res.send(error);
@@ -59,24 +61,24 @@ router.get("/test/make-super-user", (req, res, next) => {
  */
 module.exports.getRouter = (app) => {
   app.use(
-    "/cinesopa",
+    '/cinesopa',
     history({
       //   // rewrites: [
       //   //   { from: /\/graphql/, to: '/graphql'}
       //   // ],
       //   // index: '/cinesopa/index.html',
       verbose: true, // production settings required
-    })
+    }),
   );
   app.use(
-    "/sopaseom",
+    '/sopaseom',
     history({
       // rewrites: [
       //   { from: /\/graphql/, to: '/graphql'}
       // ],
       // index: '/sopaseom/index.html',
       verbose: true, // production settings required
-    })
+    }),
   );
   // app.use(express.static('dist'));
   return router;

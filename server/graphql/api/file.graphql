@@ -1,0 +1,33 @@
+type File {
+  id: Int
+  encoding: String
+  mimetype: String
+  filename: String
+  origin: String
+  description: String
+  label: String
+  alt: String
+  path: String
+  size: Int
+  owner: String
+  public: Boolean
+  managed: Boolean
+}
+
+input FileInput {
+  filename: String
+  description: String
+  label: String # 보이는 이름..?
+  alt: String # 대체텍스트
+}
+
+extend type Query {
+  file(filename: String, id: Int): File
+  files: [File]
+  fileByName(name: String!): File
+}
+
+extend type Mutation {
+  updateFile(id: Int!, input: FileInput!): File
+  removeFile(id: Int!): File
+}

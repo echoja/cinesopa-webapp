@@ -2,9 +2,64 @@ const fs = require('fs');
 const axios = require('axios');
 const FormData = require('form-data');
 const path = require('path');
-
-const foldername = 'generated-html';
 const sanitizeFilename = require('sanitize-filename');
+// eslint-disable-next-line import/no-extraneous-dependencies
+const { MongoMemoryServer } = require('mongodb-memory-server');
+const express = require('express');
+const session = require('express-session');
+const mongoose = require('mongoose');
+const passport = require('passport');
+const uuidv4 = require('uuid').v4;
+const request = require('supertest');
+
+const auth = require('../service/auth');
+const authValidatorMaker = require('../auth/validator');
+const {
+  db,
+  model,
+  validator,
+  // file: { uploadMiddleware },
+} = require('../loader');
+const fileManager = require('../manager/file');
+const fileServiceMaker = require('../service/file');
+const { graphQLServerMiddleware } = require('../graphql');
+const local = require('../auth/local');
+const { enumAuthmap } = require('../db/schema/enum');
+const { make: makeAuthMiddleware } = require('../auth/auth-middleware');
+const {
+  // checkAuthQuery,
+  // createPageMutation,
+  // getPageQuery,
+  // getPagesQuery,
+  loginQuery,
+  // removePageMutation,
+  // updatePageMutation,
+  // logoutMeMutation,
+  // createFilmMutation,
+  // filmQuery,
+  // filmsQuery,
+  // removeFilmMutation,
+  // updateFilmMutation,
+  // createPostMutation,
+  // postAdminQuery,
+  // postQuery,
+  // postsAdminQuery,
+  // postsQuery,
+  // removePostMutation,
+  // updatePostMutation,
+  // boardQuery,
+  // boardsQuery,
+  // createBoardMutation,
+  // removeBoardMutation,
+  // updateBoardMutation,
+} = require('./graphql-request');
+
+const uploadDest = 'test/uploads';
+const uploadField = 'bin';
+const fileService = fileServiceMaker.make(db, fileManager, uploadDest, uploadField);
+const { uploadMiddleware } = fileService;
+const foldername = 'generated-html';
+const makeAgent = request.agent;
 
 /**
  * supertest 의 agent 기반으로 graphql 요청을 보냅니다.
@@ -13,26 +68,165 @@ const sanitizeFilename = require('sanitize-filename');
  * @param {string} query
  * @param {string} variables
  */
-const graphqlSuper = async (agent, query, variables) => new Promise((resolve, reject) => {
-  agent
-    .post('/graphql')
-    .set('Content-Type', 'application/json')
-    .set('Accept', 'application/json')
-    .withCredentials()
-    .send(
-      JSON.stringify({
-        query,
-        variables,
+const graphqlSuper = async (agent, query, variables) =>
+  new Promise((resolve, reject) => {
+    agent
+      .post('/graphql')
+      .set('Content-Type', 'application/json')
+      .set('Accept', 'application/json')
+      .withCredentials()
+      .send(
+        JSON.stringify({
+          query,
+          variables,
+        }),
+      )
+      .expect(200)
+      .end((err, res) => {
+        // console.log(`status: ${res.status}`);
+        const errors = res?.body?.errors;
+        if (errors === null || errors === undefined) return resolve(res);
+        return reject(errors);
+      });
+  });
+
+const doLogin = async (agent, email, pwd) =>
+  graphqlSuper(agent, loginQuery, {
+    email,
+    pwd,
+  });
+
+const initTestServer = (hookFunctions) => {
+  // const model = require("../db/model").make(mongoose);
+  /** @type {MongoMemoryServer} */
+  const mongod = new MongoMemoryServer({ binary: { version: '4.2.9' } });
+  /** @type {import("express").Express} */
+  const webapp = express();
+  /** @type {import("supertest").SuperAgentTest} */
+  const agent = makeAgent(webapp);
+  /** DB 세팅 */
+  // delete require.cache[require.resolve('passport')];
+  // this.timeout(10000);
+  hookFunctions.before('db 및 웹서버 초기화', async function () {
+    const uri = await mongod.getUri();
+    const mongooseOpts = {
+      useNewUrlParser: true,
+      // autoReconnect: true,
+      // reconnectTries: Number.MAX_VALUE,
+      // reconnectInterval: 1000,
+      useUnifiedTopology: true,
+      useCreateIndex: true,
+      useFindAndModify: false,
+    };
+    await mongoose.connect(uri, mongooseOpts);
+    // const autoIncrement = AutoIncrementFactory(mongoose);
+    // autoIncrement.initialize(mongoose.connection);
+    // setAutoIncrement(autoIncrement, 'Page', 'id');
+
+    /** 웹앱 세팅 */
+    webapp.use(
+      session({
+        genid: (req) => uuidv4(),
+        secret: 'test',
+        resave: false,
+        saveUninitialized: false,
+        // store: new MemoryStore(),
+        cookie: {
+          maxAge: 1000 * 60 * 60 * 24,
+        },
       }),
-    )
-    .expect(200)
-    .end((err, res) => {
-      // console.log(`status: ${res.status}`);
-      const errors = res?.body?.errors;
-      if (errors === null || errors === undefined) return resolve(res);
-      return reject(errors);
+    );
+    webapp.use(passport.initialize()); // passport 구동
+    webapp.use(passport.session());
+    local.init(
+      async (email) => {
+        // console.log("--userFinder called--");
+        const result = await db.getUserByEmail(email);
+        // console.dir(result);
+        return result;
+      },
+      async (email, pwd) => {
+        if (await db.isCorrectPassword(email, pwd)) {
+          // console.log(`getUserByAuth successed: email: ${email}, pwd: ${pwd}`);
+          const result = await db.getUserByEmail(email);
+          // console.dir(result);
+          return result;
+        }
+        // console.log("getUserByAuth failed");
+        return null;
+      },
+    );
+    webapp.use('/graphql', graphQLServerMiddleware);
+    webapp.get('/session', (req, res) => {
+      res.send({ session: req.session, id: req.sessionID });
     });
-});
+    webapp.get('/logout', (req, res, next) => {
+      req.logout();
+      res.send();
+    });
+    webapp.get('/user', (req, res, next) => {
+      res.send({ user: req.user, isAuthenticated: req.isAuthenticated() });
+    });
+    const authValidator = authValidatorMaker.make(auth.authmapLevel);
+    // console.log("--auth.authmapLevel--");
+    // console.dir(auth.authmapLevel);
+
+    // 권한 테스트용
+    webapp.get(
+      '/auth-test-admin',
+      makeAuthMiddleware(authValidator, [enumAuthmap.ADMIN]),
+      (req, res, next) => {
+        res.send({ message: 'success' });
+      },
+    );
+
+    // 권한 테스트용 (실패)
+    webapp.get(
+      '/auth-test-error',
+      makeAuthMiddleware(authValidator, 'ADMIN'),
+      (req, res, next) => {
+        res.send({ message: 'success' });
+      },
+    );
+
+    // 업로드용
+    webapp.post(
+      '/upload',
+      makeAuthMiddleware(validator, [enumAuthmap.ADMIN]),
+      uploadMiddleware,
+    );
+  });
+  hookFunctions.beforeEach('유저 세팅', async function () {
+    await db.createUser({
+      email: 'testAdmin',
+      pwd: 'abc',
+      role: 'ADMIN',
+    });
+    await db.createUser({
+      email: 'testGuest',
+      pwd: 'abc',
+      role: 'GUEST',
+    });
+  });
+  hookFunctions.afterEach('db 내용 및 세션 초기화', async function () {
+    await agent.get('/logout');
+    const { collections } = mongoose.connection;
+
+    const promises = [];
+    Object.keys(collections).forEach((key) => {
+      const collection = collections[key];
+      promises.push(collection.deleteMany());
+    });
+    await Promise.allSettled(promises);
+  });
+  hookFunctions.after('서버 및 db 종료', async function () {
+    await mongoose.connection.dropDatabase();
+    await mongoose.connection.close();
+    await mongod.stop();
+  });
+
+  return { mongod, agent, webapp, uploadDest, fileService };
+};
 
 /**
  * @typedef {object} MockFile
@@ -43,11 +237,13 @@ const graphqlSuper = async (agent, query, variables) => new Promise((resolve, re
 
 module.exports = {
   graphqlSuper,
-
+  doLogin,
+  initTestServer,
   /**
    * HTML File 객체를 만듭니다.
    * @param {MockFile} file
    * @returns {File}
+   * @deprecated
    */
   createFileFromMockFile(file) {
     const blob = new Blob([file.body], { type: file.mimeType });
@@ -60,6 +256,7 @@ module.exports = {
    * HTML FileList 객체를 만듭니다.
    * @param {MockFile[]} files
    * @returns {FileList}
+   * @deprecated
    */
   createMockFileList(files) {
     const fileList = {

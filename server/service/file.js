@@ -1,6 +1,6 @@
-const path = require("path");
-const multer = require("multer");
-require("../typedef");
+const path = require('path');
+const multer = require('multer');
+require('../typedef');
 
 /** @type {DBManager} */
 let db;
@@ -21,12 +21,22 @@ let uploadField;
 //  */
 // const newFile = async (fileinfo) => {};
 
+const getFile = async (filename) => {
+  return db.getFile(filename);
+};
+
+const getFiles = async () => {
+  return db.getFiles();
+};
+
 /**
  *
  * @param {string} filename 실제 저장되는 파일 이름
+ * @throws 파일이 db상 존재하지 않을 때
  */
 const removeFile = async (filename) => {
   const toRemove = await db.getFile(filename);
+  if (!toRemove) throw Error(`파일이 존재하지 않습니다: ${filename}`);
   const fullpath = toRemove.path;
   await db.removeFile(filename);
   await file.removeFile(fullpath);
@@ -51,17 +61,46 @@ const replaceFile = async (origin, replacement, owner) => {
 const getUntrackedFiles = async () => {
   const dbFiles = await db.getFiles();
   const actualFilenames = await file.getFiles(dest);
-  const untracked = actualFilenames.filter((actualFilename) => {
-    return dbFiles.findIndex((dbFile) => {
-      return dbFile.filename === actualFilename;
-    }) === -1
-      ? true
-      : false;
-  });
+  const untracked = actualFilenames.filter(
+    (actualFilename) =>
+      dbFiles.findIndex((dbFile) => dbFile.filename === actualFilename) === -1,
+  );
   return untracked;
 };
 
-const makeMulter = () => multer({ dest }).single(uploadField);
+const makeMulter = () => {
+  const multerMiddleware = multer({ dest }).single(uploadField);
+  return [
+    multerMiddleware,
+    async (req, res, next) => {
+      try {
+        // console.log('ho~~~~~~!~!~!~!~!~!~!~!~!');
+        const fileinfo = {};
+        const { file: fileObj } = req;
+        ['filename', 'mimetype', 'path', 'encoding', 'size'].forEach((key) => {
+          fileinfo[key] = fileObj[key];
+        });
+        fileinfo.origin = fileObj.originalname;
+        const fileRegex = /(.+)\.([0-9a-zA-Z]+)$/;
+        const [_, label, extension] = fileObj.originalname.match(fileRegex);
+        fileinfo.extension = extension;
+        fileinfo.label = label;
+        fileinfo.alt = label;
+        // 이메일
+        const email = req?.user?.email;
+        if (email) fileinfo.owner = email;
+        await db.createFile(fileinfo, email);
+
+        res.send({ message: 'success', file: fileinfo });
+        // next();
+      } catch (error) {
+        // console.log('ho~~~~~~!~!~!~!~!~!~!~!~!3');
+        next(error);
+      }
+    },
+  ];
+};
+
 /**
  * db 상 존재하지만 실제 파일이 없는 파일을 얻습니다. (아직 구현 안함)
  * @returns {Promise<string[]>} filename 의 배열
@@ -76,6 +115,8 @@ module.exports = {
     uploadField = uploadFieldstr;
     // console.log(path.join(dest));
     return {
+      getFile,
+      getFiles,
       removeFile,
       replaceFile,
       getUntrackedFiles,

@@ -1,5 +1,23 @@
 require('./typedef');
 
+/** ******************* */
+/* express middleware */
+/** ******************* */
+
+
+
+/**
+ * 
+ * @param {import('express').Handler} asyncFunc
+ */
+const aw = (asyncFunc) => async (req, res, next) => {
+  try {
+    return await asyncFunc(req, res, next);
+  } catch (error) {
+    return next(error);
+  }
+};
+
 // /**
 //  *
 //  * @param {} roleList
@@ -47,6 +65,7 @@ require('./typedef');
  * string 만 있는 배열을 이용하여 enum 객체를 만듭니다.
  * 이 객체는 raw_str_list 멤버가 있습니다. 순수 javascript string array 입니다.
  * @param {string[]} str_list enum할 것들의 string 배열
+ * @deprecated
  */
 const makeEnum = (str_list) => {
   const result = {};
@@ -63,13 +82,11 @@ const makeEnum = (str_list) => {
 };
 
 const getDateFromObj = (datetime) => {
-  const {
-    year, month, day, hour, minute, second,
-  } = datetime;
+  const { year, month, day, hour, minute, second } = datetime;
   return new Date(year, month, day, hour, minute, second);
 };
 /**
- *
+ * @deprecated
  * @param {Date} date
  */
 const getObjFromDate = (date) => ({
@@ -92,6 +109,7 @@ const graphqlOutput = (obj, func, keyArray) => {
 };
 
 module.exports = {
+  aw,
   makeEnum,
   getDateFromObj,
   getObjFromDate,

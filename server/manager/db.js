@@ -362,7 +362,7 @@ class DBManager {
   async createFile(fileinfo, owner) {
     const user = await _getUserByEmailOrThrow('createFile', owner);
     const file = fileinfo;
-    file.owner = user._id;
+    file.owner = user.owner;
     const newFile = new model.File(file);
     await newFile.save();
   }
@@ -372,7 +372,7 @@ class DBManager {
    * @param {number} page 페이지
    * @param {number} perpage 한 페이지당 파일의 개수
    */
-  async getFileManaged(page, perpage) {
+  async getFilesManaged(page, perpage) {
     return model.File.find({ managed: true })
       .limit(perpage)
       .skip(perpage * page)
