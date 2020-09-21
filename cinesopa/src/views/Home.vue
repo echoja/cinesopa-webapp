@@ -53,21 +53,33 @@
             </div>
             <div class="position-absolute w-100 h-100 top0">
               <parallax :speed="-90" class="w-100 h-100 position-relative">
-                <div ref="img0-3" class="position-relative w-100 h-100">
+                <div
+                  ref="img0-3"
+                  data-animation-number="3"
+                  class="position-relative w-100 h-100"
+                >
                   <b-img class="img0-3 position-absolute" src="../assets/home/3.png"></b-img>
                 </div>
               </parallax>
             </div>
             <div class="position-absolute w-100 h-100 top0">
               <parallax :speed="-80" class="w-100 h-100 position-relative">
-                <div ref="img0-2" class="position-relative w-100 h-100">
+                <div
+                  ref="img0-2"
+                  data-animation-number="2"
+                  class="position-relative w-100 h-100"
+                >
                   <b-img class="img0-2 position-absolute" src="../assets/home/2.png"></b-img>
                 </div>
               </parallax>
             </div>
             <div class="position-absolute w-100 h-100 top0">
               <parallax :speed="-75" class="w-100 h-100 position-relative">
-                <div ref="img0-1" class="position-relative w-100 h-100">
+                <div
+                  ref="img0-1"
+                  data-animation-number="1"
+                  class="position-relative w-100 h-100"
+                >
                   <b-img class="img0-1 position-absolute" src="../assets/home/arch.png"></b-img>
                 </div>
               </parallax>
@@ -75,7 +87,7 @@
             <div class="noto-serif  position-absolute w-100 h-100 top0">
               <parallax :speed="-70" class="w-100 h-100 position-relative">
                 <div class="sec0-text">
-                  <div ref="sec0-text" class="text-center ">
+                  <div ref="sec0-text" class="text-center sec0-text-aminated">
                     <span> 독립영화, 작은 파도<br />영화배급협동조합 씨네소파 </span>
                   </div>
                 </div>
@@ -279,6 +291,26 @@ let locateInScroll = true;
 let currentLocation = 0;
 let passedScroll = false;
 let rellaxInstance = null;
+
+// transition end 이벤트를 쓰기 위한 브라우저 대응
+function getTransitionEndEventName() {
+  const transitions = {
+    transition: 'transitionend',
+    OTransition: 'oTransitionEnd',
+    MozTransition: 'transitionend',
+    WebkitTransition: 'webkitTransitionEnd',
+  };
+  const bodyStyle = document.body.style;
+  let result = '';
+  Object.keys(transitions).some((transition) => {
+    if (bodyStyle[transition] !== undefined) {
+      result = transitions[transition];
+      return true;
+    }
+    return false;
+  });
+  return result;
+}
 
 export default {
   name: 'Home',
@@ -484,6 +516,9 @@ export default {
     this.news.forEach((o, index) => {
       news[index].dateFormatted = moment(o.date).format('yyyy.MM.DD');
     });
+
+    // 애니메이션 등록하기
+    // this.$refs['img0-1'].addEventListener('animationiteration', this.changeAnimation, false);
   },
 
   async beforeDestroy() {
@@ -640,7 +675,7 @@ export default {
     },
     onResize() {
       // this.windowHeight = window.innerHeight;
-      // this.setScrollSectionX();
+      this.setScrollSectionX();
       // if (rellaxInstance?.refresh) {
       //   rellaxInstance.refresh();
       // }
@@ -682,71 +717,88 @@ export default {
       });
 
       // 물결 느낌 스스 나게 함.
-      const images = [];
-      images.push(this.$refs['img0-3'], this.$refs['img0-2'], this.$refs['img0-1']);
-      const loopWaves = (img) => {
-        Velocity(
-          img,
-          {
-            translateX: () => Math.floor(Math.random() * 21) - 10,
-            translateY: () => Math.floor(Math.random() * 21) - 10,
-          },
-          {
-            duration: Math.floor(Math.random() * 2000) + 2000,
-            easing: 'easeInOutQuad',
-            complete: () => {
-              loopWaves(img);
-            },
-            // queue: false,
-          },
-        );
-      };
-      images.forEach((img) => {
-        loopWaves(img);
-      });
+      // const images = [];
+      // images.push(this.$refs['img0-3'], this.$refs['img0-2'], this.$refs['img0-1']);
+      // const loopWaves = (img) => {
+      //   Velocity(
+      //     img,
+      //     {
+      //       translateX: () => Math.floor(Math.random() * 21) - 10,
+      //       translateY: () => Math.floor(Math.random() * 21) - 10,
+      //     },
+      //     {
+      //       duration: Math.floor(Math.random() * 2000) + 2000,
+      //       easing: 'easeInOutQuad',
+      //       complete: () => {
+      //         loopWaves(img);
+      //       },
+      //       // queue: false,
+      //     },
+      //   );
+      // };
+      // images.forEach((img) => {
+      //   loopWaves(img);
+      // });
     },
     async enter0() {
+      const transitionEnd = getTransitionEndEventName();
+      // this.$refs['img0-1'].addEventListener('animationiteration', this.changeAnimation, false);
+      // this.$refs['img0-1'].addEventListener(transitionEnd, this.transitionEnd);
+      // this.$refs['img0-0'].classList.add('img0-0-wrapper');
+      this.$refs['img0-1'].classList.add('img0-1-wrapper');
+      this.$refs['img0-2'].classList.add('img0-2-wrapper');
+      this.$refs['img0-3'].classList.add('img0-3-wrapper');
+      // this.$refs['img0-0'].addEventListener(transitionEnd, this.transitionEnd);
+      this.$refs['img0-1'].addEventListener(transitionEnd, this.transitionEnd);
+      this.$refs['img0-2'].addEventListener(transitionEnd, this.transitionEnd);
+      this.$refs['img0-3'].addEventListener(transitionEnd, this.transitionEnd);
+
       Velocity(
         this.$refs['img0-0'],
         { opacity: 1, bottom: [0, -150] },
-        { delay: 2000, duration: 3000, easing: 'easeInOutQuad', queue: false },
+        {
+          delay: 2000,
+          duration: 3000,
+          easing: 'easeInOutQuad',
+          queue: false,
+        },
       );
 
-      Velocity(
-        this.$refs['img0-1'],
-        { opacity: 1, bottom: [0, -150] },
-        { duration: 3000, easing: 'easeInOutQuad', queue: false },
-      );
-      Velocity(
-        this.$refs['img0-2'],
-        { opacity: 1, bottom: [0, -150] },
-        {
-          delay: 300,
-          duration: 3000,
-          easing: 'easeInOutQuad',
-          queue: false,
-        },
-      );
-      Velocity(
-        this.$refs['img0-3'],
-        { opacity: 1, bottom: [0, -150] },
-        {
-          delay: 600,
-          duration: 3000,
-          easing: 'easeInOutQuad',
-          queue: false,
-        },
-      );
-      Velocity(
-        this.$refs['sec0-text'],
-        { opacity: 1, translateY: [0, 100] },
-        {
-          delay: 500,
-          duration: 4000,
-          easing: 'easeInOutQuad',
-          queue: false,
-        },
-      );
+      // Velocity(
+      //   this.$refs['img0-1'],
+      //   { opacity: 1, bottom: [0, -150] },
+      //   { duration: 3000, easing: 'easeInOutQuad', queue: false },
+      // );
+      // Velocity(
+      //   this.$refs['img0-2'],
+      //   { opacity: 1, bottom: [0, -150] },
+      //   {
+      //     delay: 300,
+      //     duration: 3000,
+      //     easing: 'easeInOutQuad',
+      //     queue: false,
+      //   },
+      // );
+      // Velocity(
+      //   this.$refs['img0-3'],
+      //   { opacity: 1, bottom: [0, -150] },
+      //   {
+      //     delay: 600,
+      //     duration: 3000,
+      //     easing: 'easeInOutQuad',
+      //     queue: false,
+      //   },
+      // );
+      // Velocity(
+      //   this.$refs['sec0-text'],
+      //   { opacity: 1, translateY: [0, 100] },
+      //   {
+      //     delay: 500,
+      //     duration: 4000,
+      //     easing: 'easeInOutQuad',
+      //     queue: false,
+      //   },
+      // );
       // Velocity(el, { fontSize: '1em' }, { complete: done });
     },
     afterEnter0() {
@@ -947,6 +999,25 @@ export default {
       console.log('cssVarsSuccessed!');
       this.setScrollSectionX();
     },
+    /**
+     * @param {Event} event
+     */
+    changeAnimation(event) {
+      console.log(`changeAnimation Called! > ${event.target.classList}`);
+      const { target } = event;
+      const animationNumber = target.getAttribute('data-animation-number');
+
+      target.style.setProperty(`--r${animationNumber}-1`, `${Math.random() * 20 - 10}px`);
+      target.style.setProperty(`--r${animationNumber}-2`, `${Math.random() * 20 - 10}px`);
+    },
+    transitionEnd(event) {
+      console.log('`transitionEnd!`');
+      const { target } = event;
+      const animationNumber = target.getAttribute('data-animation-number');
+      target.style.setProperty(`--r${animationNumber}-1`, `${Math.random() * 20 - 10}px`);
+      target.style.setProperty(`--r${animationNumber}-2`, `${Math.random() * 20 - 10}px`);
+      target.style.setProperty(`--r${animationNumber}-3`, `${Math.random() * 2 + 2}s`);
+    },
   },
 };
 </script>
@@ -990,11 +1061,54 @@ export default {
 }
 @keyframes slide-up {
   from {
-    transform: translateY(150px);
+    bottom: -150px;
   }
   to {
+    bottom: 0;
+    opacity: 1;
+  }
+}
+
+@keyframes slide-up-text {
+  from {
+    transform: translateY(100px);
+  }
+  to {
+    opacity: 1;
     transform: translateY(0);
   }
+}
+
+@keyframes random-wave-0 {
+  to {
+    transform: translate(var(--r0-1, 0), var(--r0-2, 0));
+  }
+}
+@keyframes random-wave-1 {
+}
+.random-wave-1 {
+  animation: var(--r0-3, 2s) infinite random-wave-0;
+}
+.img0-0-wrapper {
+  animation: 3s ease 2000ms forwards slide-up;
+}
+.img0-1-wrapper {
+  animation: 3s slide-up forwards /*, var(--r1-3, 2s) infinite forwards random-wave-1*/;
+  transition: var(--r1-3, 2s);
+  transform: translate(var(--r1-1, 5px), var(--r1-2, 5px));
+}
+.img0-2-wrapper {
+  animation: 3s ease 300ms forwards slide-up;
+    transition: var(--r2-3, 2s);
+  transform: translate(var(--r2-1, 5px), var(--r2-2, 5px));
+}
+.img0-3-wrapper {
+  animation: 3s ease 600ms forwards slide-up;
+    transition: var(--r3-3, 2s);
+  transform: translate(var(--r3-1, 5px), var(--r3-2, 5px));
+}
+.sec0-text-aminated {
+  animation: 4s ease 500ms forwards slide-up-text;
 }
 
 .scroll0-enter,
@@ -1051,7 +1165,11 @@ export default {
   height: 10px;
 }
 </style>
+
+<!--------------------------------------------------------------------->
 <!-- scoped!!!!!!!!!!!!!! -->
+<!--------------------------------------------------------------------->
+
 <style lang="scss" scoped>
 // swiper
 
