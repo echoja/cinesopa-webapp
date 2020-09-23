@@ -35,14 +35,14 @@ export default {
 
 <style lang="scss" scoped>
 .meta {
-  color:var(--secondary-text-color);
+  color:#767676;
   & .date {
     padding-left: 10px;
   }
 }
 .content {
   padding-top: 20px;
-  border-top: 2px solid var(--text-color);
+  border-top: 2px solid #2b3e4a;
   margin: 30px 0 100px;
 }
 </style>

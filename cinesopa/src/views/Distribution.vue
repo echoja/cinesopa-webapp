@@ -12,12 +12,13 @@
         (반드시 비밀번호가 있는 비공개 링크 첨부)
       </small>
     </p>
-    <p class="how-to">*링크 첨부가 어려운 분들은 이메일 coop.cinesopa@gmail.com 으로 시사용 파일(mp4, avi, wmv / 2GB 이하)을 보내주세요.
+    <p class="how-to">*링크 첨부가 어려운 분들은 이메일 coop.cinesopa@gmail.com 으로
+      시사용 파일(mp4, avi, wmv / 2GB 이하)을 보내주세요.
    메일 제목에 ‘배급의뢰’와 ‘영화제목’을 꼭 써주세요.</p>
     <p class="how-to">*시사용 DVD를 우편으로 발송할 경우에는 포장 겉면에 반드시 <배급의뢰신청>이라고 기재하시고 아래 주소로 보내주세요.
   부산광역시 해운대구 재반로</p>
     <p class="how-to">내부 시사 후 15일 이내에 메일로 연락드립니다.</p> -->
-    <validation-observer ref="observer" v-slot="{ handleSubmit, validate, errors }">
+    <validation-observer ref="observer" v-slot="{ /*handleSubmit, */ validate /*errors*/ }">
       <!-- <b-button @click="log(validate(), errors)">체크체크</b-button> -->
       <b-form class="distribution-form" @submit.stop.prevent="submit(validate())">
         <!-- <b-input type="text" required></b-input> -->
@@ -503,11 +504,10 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.distribution-form {
-}
+
 .distribution-form h2 {
   margin-top: 70px;
-  color: var(--link-color);
+  color: #009eda;
 }
 .underlined-box {
   border: 0;
@@ -542,7 +542,7 @@ export default {
   text-decoration: underline;
   transition: 1s;
   &:hover {
-    color: var(--link-color);
+    color: #009eda;
     transition: none;
   }
 }
@@ -562,8 +562,8 @@ export default {
 <style lang="scss">
 .distribution-form {
   & .custom-control-input:checked ~ .custom-control-label::before {
-    background-color: var(--link-color);
-    border-color: var(--link-color);
+    background-color: #009eda;
+    border-color: #009eda;
   }
   & .custom-control {
     min-height: 1.2rem;
@@ -584,7 +584,7 @@ export default {
   }
   & .custom-control-input.is-valid ~ .custom-control-label,
   & .was-validated .custom-control-input:valid ~ .custom-control-label {
-    color: var(--text-color);
+    color: #2b3e4a;
   }
 }
 
@@ -600,7 +600,6 @@ export default {
   font-size: 14px;
   display: inline-block;
   margin-left: 30px;
-  color: var(--text-secondary-color);
+  color: #767676;
 }
-
 </style>

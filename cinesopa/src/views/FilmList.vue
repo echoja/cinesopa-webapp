@@ -95,7 +95,7 @@
               tincidunt a tincidunt eget, convallis vel est. Ut pellentesque ut lacus vel interdum.
             </p> -->
           </b-carousel-slide>
-          <!-- <b-carousel-slide img-blank :style="{ 'background-color': 'var(--secondary-text-color)' }">
+          <!-- <b-carousel-slide img-blank :style="{ 'background-color': '#767676' }">
             fdfdf
           </b-carousel-slide> -->
         </b-carousel>
@@ -468,10 +468,10 @@ export default {
     font-size: 18px;
     max-width: 380px;
   }
-  & .featured-more {
-    color: #fff;
-    opacity: 60%;
-  }
+}
+.desktop .featured-more {
+  color: #fff;
+  opacity: 60%;
 }
 
 .mobile {
@@ -503,21 +503,21 @@ export default {
   }
   & a {
     transition: 0.3s;
-    color: var(--text-secondary-color);
+    color: #767676;
     border-bottom: 2px solid transparent;
     padding: 6px 15px;
   }
   & a:hover {
-    color: var(--text-color);
+    color: #2b3e4a;
     text-decoration: none;
     background-color: #eee;
   }
 
   & a.selected {
-    border-color: var(--link-color);
-    color: var(--text-color);
+    border-color: #009eda;
+    color: #2b3e4a;
     // color: #fff;
-    // background-color: var(--link-color);
+    // background-color: #009eda;
   }
 }
 
@@ -546,7 +546,7 @@ export default {
 }
 
 .tag {
-  color: var(--text-secondary-color);
+  color: #767676;
   border: 1px solid #b0b6ba;
   padding: 2px 10px;
   font-weight: 500;
@@ -557,18 +557,18 @@ export default {
   &:active,
   &:hover {
     background-color: transparent;
-    // color: var(--text-color);
+    // color: #2b3e4a;
   }
 
   &.checked,
   &.checked:focus,
   &.checked:active,
   &.checked:hover {
-    // background-color: var(--link-color);
-    // border-color: var(--link-color);
+    // background-color: #009eda;
+    // border-color: #009eda;
     color: #fff;
     border-color: transparent;
-    background-color: var(--text-secondary-color);
+    background-color: #767676;
   }
 }
 
@@ -593,7 +593,7 @@ export default {
     z-index: 1;
     font-size: 19px;
     font-weight: 400;
-    background-color: var(--link-color);
+    background-color: #009eda;
     border-radius: 0 0 19px 0;
     padding: 10px;
     padding-right: 13px;
@@ -630,16 +630,16 @@ export default {
   }
   & h2 a {
     font-size: 36px;
-    color: var(--link-color);
+    color: #009eda;
   }
   & h2 a:hover {
-    color: var(--text-color);
+    color: #2b3e4a;
     transition: none;
     text-decoration: none;
   }
 
   & p {
-    color: var(--secondary-text-color);
+    color: #767676;
   }
 }
 
@@ -698,7 +698,7 @@ export default {
   }
   & .carousel-item-content > div {
     width: 70%;
-    max-width: var(--max-content-size);
+    max-width: 1260px;
   }
   & img {
     min-width: 1px;
@@ -720,6 +720,8 @@ export default {
   position: absolute;
   left: 15px;
   font-weight: 500;
+  top: 50%;
+  transform: translateY(-50%);
 
   &:after {
     content: '|';
@@ -736,7 +738,7 @@ export default {
     margin-left: 0;
     padding: 0 5px;
     cursor: pointer;
-    color: var(--text-secondary-color);
+    color: #767676;
 
     &:after {
       display: none;
@@ -746,12 +748,12 @@ export default {
     }
     &:hover {
       transition: none;
-      color: var(--link-color);
+      color: #009eda;
     }
   }
   & .custom-radio .custom-control-input:checked ~ .custom-control-label {
     /*      background-color: #aaa; */
-    color: var(--link-color);
+    color: #009eda;
     font-weight: 600;
   }
   & .custom-control.custom-control-inline.custom-radio {

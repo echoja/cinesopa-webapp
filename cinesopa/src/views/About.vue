@@ -44,22 +44,22 @@
             만나게 합니다.
           </p>
         </div>
-        <div class="blue-dots">
+        <!-- <div class="blue-dots">
           <div class="blue-dot"></div>
           <div class="blue-dot"></div>
           <div class="blue-dot"></div>
-        </div>
+        </div> -->
         <div class="blue-circle">
           <p>
             영화를 재밌고<br />깊이 <span class="blue-circle-strong">향유</span>할 수 있는<br />방법을
             고민합니다.
           </p>
         </div>
-        <div class="blue-dots">
+        <!-- <div class="blue-dots">
           <div class="blue-dot"></div>
           <div class="blue-dot"></div>
           <div class="blue-dot"></div>
-        </div>
+        </div> -->
         <div class="blue-circle">
           <p>
             다재다능한 친구들과<br />영화를 매개로<br /><span class="blue-circle-strong">함께</span
@@ -120,22 +120,22 @@ export default {
     return {
       people: [{ name: '' }],
       history: [
-        { date: new Date('2019-5-3'), title: '영화展; 기억할 만한 지나침[머무는 집] 전시' },
-        { date: new Date('2019-4-3'), title: '<기억할 만한 지나침> 전국 개봉' },
-        { date: new Date('2019-3-3'), title: '<밤의 문이 열린다> 전국 개봉' },
-        { date: new Date('2019-2-3'), title: '높아서 재송 ‘재송동 사무실’시대 개막' },
-        { date: new Date('2019-1-3'), title: '부산독립영화제 순회상영회 <단, 비>진행' },
-        { date: new Date('2018-6-3'), title: '<마담B> 전국 개봉' },
-        { date: new Date('2018-5-3'), title: '시민배급단 씨네보배 1기 운영' },
-        { date: new Date('2018-4-3'), title: '부산형 예비사회적 기업 지정' },
-        { date: new Date('2018-3-3'), title: '배급기록집 [소파섬] 1호 출간' },
-        { date: new Date('2018-2-3'), title: '관객리뷰단 씨네보쓰 2기 운영' },
-        { date: new Date('2018-1-3'), title: '<파란입이 달린 얼굴> 전국 개봉' },
-        { date: new Date('2017-5-3'), title: '배급기록집 [소파섬] 0호 출간' },
-        { date: new Date('2017-4-3'), title: '관객리뷰단 씨네보쓰 1기 운영' },
-        { date: new Date('2017-3-3'), title: '<그럼에도 불구하고> 전국 개봉' },
-        { date: new Date('2017-2-3'), title: '영화배급협동조합 씨네소파 설립' },
-        { date: new Date('2017-1-3'), title: '영화배급협동조합 씨네소파 창립총회' },
+        { date: new Date('2019-05-03'), title: '영화展; 기억할 만한 지나침[머무는 집] 전시' },
+        { date: new Date('2019-04-03'), title: '<기억할 만한 지나침> 전국 개봉' },
+        { date: new Date('2019-03-03'), title: '<밤의 문이 열린다> 전국 개봉' },
+        { date: new Date('2019-02-03'), title: '높아서 재송 ‘재송동 사무실’시대 개막' },
+        { date: new Date('2019-01-03'), title: '부산독립영화제 순회상영회 <단, 비>진행' },
+        { date: new Date('2018-06-03'), title: '<마담B> 전국 개봉' },
+        { date: new Date('2018-05-03'), title: '시민배급단 씨네보배 1기 운영' },
+        { date: new Date('2018-04-03'), title: '부산형 예비사회적 기업 지정' },
+        { date: new Date('2018-03-03'), title: '배급기록집 [소파섬] 1호 출간' },
+        { date: new Date('2018-02-03'), title: '관객리뷰단 씨네보쓰 2기 운영' },
+        { date: new Date('2018-01-03'), title: '<파란입이 달린 얼굴> 전국 개봉' },
+        { date: new Date('2017-05-03'), title: '배급기록집 [소파섬] 0호 출간' },
+        { date: new Date('2017-04-03'), title: '관객리뷰단 씨네보쓰 1기 운영' },
+        { date: new Date('2017-03-03'), title: '<그럼에도 불구하고> 전국 개봉' },
+        { date: new Date('2017-02-03'), title: '영화배급협동조합 씨네소파 설립' },
+        { date: new Date('2017-01-03'), title: '영화배급협동조합 씨네소파 창립총회' },
       ],
     };
   },
@@ -162,6 +162,8 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+@use '../util.scss';
+
 .big-title {
   position: relative;
   z-index: 2;
@@ -169,23 +171,23 @@ export default {
 }
 
 .big-title-letter-up {
-  font-size: 60px;
+  font-size: 24px;
   font-weight: 700;
 }
 
 .big-title-letter-down {
-  color: var(--link-color);
-  font-weight: 600;
-  font-size: 20px;
+  color: util.$text-secondary-color;
+  font-weight: 400;
+  font-size: 16px;
   letter-spacing: -1px;
   text-align: center;
-  margin: -10px -20px 0;
+  margin:0 -20px 0;
 }
 .big-title-plus {
-  font-size: 60px;
+  font-size: 24px;
   font-weight: 700;
-  color: #ddd;
-  padding: 0 10px;
+  color: util.$text-secondary-color;
+  padding: 0 30px;
 }
 
 .excerpt {
@@ -208,7 +210,8 @@ export default {
   text-align: center;
   font-size: 20px;
   font-weight: 600;
-  padding: 50px 0;
+  padding: 50px 0 20px;
+  color: util.$link-color;
 }
 
 .value-three-main {
@@ -233,21 +236,24 @@ export default {
 }
 .blue-circle {
   text-align: center;
-  background-color: var(--link-color);
-  color: #fff;
-  width: 200px;
-  height: 200px;
-  border-radius: 300px;
+  color: util.$text-color;
+  // border-bottom: 1px solid util.$link-color;
+  margin: 0 20px;
+  // background-color: #fff;
+  padding: 0 20px;
+  // width: 200px;
+  // height: 200px;
+  // border-radius: 300px;
   display: flex;
-  font-size: 19px;
-  font-weight: 500;
+  font-size: 16px;
+  font-weight: 400;
   letter-spacing: -0.4px;
   justify-content: center;
   align-items: center;
 }
 .blue-circle-strong {
   font-weight: 700;
-  font-size: 21px;
+  // font-size: 21px;
 }
 .blue-circle p {
   // padding-bottom: 100%;
@@ -267,7 +273,7 @@ export default {
   height: 10px;
   border-radius: 100px;
   margin: 2px;
-  background-color: var(--link-color);
+  background-color: #009eda;
   // background-color: var(--link-dark-color);
 }
 .value-three-affix {
@@ -288,8 +294,8 @@ export default {
   text-align: center;
   font-size: 19px;
   font-weight: 600;
-  color: var(--link-color);
-  // color: var(--link-color);
+  color: #009eda;
+  // color: #009eda;
 }
 
 .value-three-affix-main {
@@ -307,7 +313,7 @@ export default {
 }
 .big-heading-wrapper::before {
   content: '';
-  background-color: var(--link-color);
+  background-color: #009eda;
   display: block;
   position: absolute;
   width: 360px;
@@ -319,10 +325,10 @@ export default {
 .big-heading {
   text-align: center;
   display: block;
-  color: var(--link-color);
+  color: #009eda;
   margin: 60px auto;
   font-size: 38px;
-  // border-top: 1px solid var(--link-color);
+  // border-top: 1px solid #009eda;
 }
 
 .works {
@@ -354,7 +360,7 @@ export default {
   text-align: center;
   font-size: 28px;
   line-height: 1.3;
-  color: var(--link-color);
+  color: #009eda;
   font-weight: 500;
   padding: 100px 0 150px;
 }
@@ -385,7 +391,7 @@ export default {
   margin: 0 auto 30px;
 }
 .history-year {
-  color: var(--link-color);
+  color: #009eda;
   font-weight: 600;
   font-size: 32px;
   line-height: calc(100% + 3px);

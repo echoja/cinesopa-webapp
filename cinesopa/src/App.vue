@@ -297,7 +297,7 @@
 </template>
 
 <script>
-import cssVars from 'css-vars-ponyfill';
+// import cssVars from 'css-vars-ponyfill';
 
 export default {
   data() {
@@ -392,14 +392,14 @@ export default {
   },
 
   mounted() {
-    cssVars({
-      onlyLegacy: true,
-      onComplete() {
-        const event = new CustomEvent('cssVarsSuccessed');
-        // 이벤트 디스패치.
-        window.dispatchEvent(event);
-      },
-    });
+    // cssVars({
+    //   onlyLegacy: false,
+    //   onComplete() {
+    //     const event = new CustomEvent('cssVarsSuccessed');
+    //     // 이벤트 디스패치.
+    //     window.dispatchEvent(event);
+    //   },
+    // });
     this.$nextTick(() => {
       this.setWindowSize();
       this.updateThingsWhenScroll();
@@ -479,12 +479,12 @@ export default {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   // text-align: center;
-  color: var(--text-color);
+  color: #2b3e4a;
   overflow: hidden;
 }
 
 #main {
-  max-width: var(--max-content-size);
+  max-width: 1260px;
   margin: 0 auto 200px;
 }
 
@@ -511,7 +511,7 @@ export default {
   }
 
   & a:hover {
-    color: var(--nav-link-hover-color);
+    color: #009eda;
   }
   // & a:last-child {
   //   padding-right: 0;
@@ -528,16 +528,16 @@ export default {
 }
 
 .h-header {
-  height: var(--desktop-top-header-height);
+  height: 230px;
 }
 
 .mobile .h-header {
-  height: var(--mobile-header-height);
+  height: 80px;
 }
 
 header {
-  height: var(--desktop-header-height);
-  max-width: var(--max-content-size);
+  height: 100px;
+  max-width: 1260px;
 }
 
 .header-wrapper {
@@ -553,12 +553,12 @@ header {
 
 .desktop .header-wrapper,
 .desktop header {
-  height: var(--desktop-header-height);
+  height: 100px;
 }
 
 .mobile .header-wrapper,
 .mobile header {
-  height: var(--mobile-header-height);
+  height: 80px;
 }
 
 // logo
@@ -571,13 +571,13 @@ header {
 }
 
 .logo a {
-  color: var(--logo-color);
+  color:  #00a9e0;
   display: inline-block;
   padding: 10px;
   // transition: 1s;
 }
 .logo a:hover {
-  color: var(--text-color);
+  color: #2b3e4a;
 }
 
 .logo a.white {
@@ -652,11 +652,11 @@ header {
 
 a,
 button {
-  color: var(--text-color);
+  color: #2b3e4a;
 }
 
 button:hover {
-  color: var(--text-color);
+  color: #2b3e4a;
 }
 
 #body {
@@ -664,7 +664,7 @@ button:hover {
 }
 
 #nav a.router-link-exact-active {
-  color: var(--link-color);
+  color: #009eda;
 }
 
 /* main menu !menu */
@@ -674,7 +674,7 @@ button:hover {
 }
 
 .menu-button {
-  color: var(--text-color);
+  color: #2b3e4a;
 }
 
 /* footer !footer */
@@ -692,12 +692,12 @@ footer p {
 
 .footer-link-color,
 .footer-link-color a {
-  color: var(--text-secondary-color);
+  color: #767676;
 }
 
 .footer-text-color {
-  color: var(--text-secondary-color);
-  // color: var(--footer-text-color);
+  color: #767676;
+  // color: #767676;
 }
 
 .footer-sns-buttons {
@@ -706,14 +706,14 @@ footer p {
     transition: 1s;
   }
   & a:hover {
-    color: var(--link-color);
+    color: #009eda;
     transition: none;
   }
 }
 .footer-sns-buttons svg {
   margin: 0px 6px;
   vertical-align: -0.125em;
-  color: var(--footer-icon-color);
+  color: #aaa;
 }
 .footer-links {
   // font-size: 105%;
@@ -814,7 +814,7 @@ footer p {
       margin-left: 0;
       background-color: white;
       border-radius: 100px;
-      color: var(--text-color);
+      color: #2b3e4a;
     }
     & .page-link:hover {
       background-color: #eee;
@@ -826,7 +826,7 @@ footer p {
 
     &.active .page-link {
       color: #fff;
-      background-color: var(--text-color);
+      background-color: #2b3e4a;
     }
   }
 }

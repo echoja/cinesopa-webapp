@@ -805,7 +805,7 @@ export default {
 }
 .community-form h2 {
   margin-top: 70px;
-  color: var(--link-color);
+  color: #009eda;
 }
 
 .community-form-group {
@@ -819,7 +819,7 @@ export default {
 }
 .address-old {
   font-size: 80%;
-  color: var(--text-secondary-color);
+  color: #767676;
   margin: 0;
 }
 
@@ -842,13 +842,13 @@ export default {
   text-decoration: underline;
   transition: 1s;
   &:hover {
-    color: var(--link-color);
+    color: #009eda;
     transition: none;
   }
 }
 
 .colored-strong {
-  color: var(--link-color);
+  color: #009eda;
   font-weight: 700;
 }
 
@@ -872,11 +872,11 @@ export default {
 .community-form {
   & .custom-control-input.is-valid ~ .custom-control-label,
   & .was-validated .custom-control-input:valid ~ .custom-control-label {
-    color: var(--text-color);
+    color: #2b3e4a;
   }
   & .custom-control-input:checked ~ .custom-control-label::before {
-    background-color: var(--link-color);
-    border-color: var(--link-color);
+    background-color: #009eda;
+    border-color: #009eda;
   }
 }
 
@@ -892,6 +892,5 @@ export default {
 .guide-showing-fee tbody tr:last-child {
   border-bottom: 1px solid #dee2e6;
 }
-
 
 </style>

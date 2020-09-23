@@ -273,7 +273,7 @@ export default {
 <style lang="scss" scoped>
 h1 {
   font-size: 50px;
-  color: var(--link-color);
+  color: #009eda;
   margin-bottom: 20px;
 }
 .mobile h1 {
@@ -284,14 +284,14 @@ h1 {
 .board-select-item {
   font-size: 26px;
   font-weight: 500;
-  color: var(--secondary-text-color);
+  color: #767676;
   padding: 10px 20px;
 
   &:first-child {
     padding-left: 0;
   }
   &.selected {
-    color: var(--link-color);
+    color: #009eda;
   }
   // &:hover {
   //   text-decoration: none;
@@ -344,7 +344,7 @@ h1 {
 .cell-board {
   width: 18vw;
   max-width: 200px;
-  color: var(--secondary-text-color);
+  color: #767676;
 }
 
 .cell-date {
@@ -412,7 +412,7 @@ $gallery-item-padding: 30px;
 
 .gallery-board {
   font-size: 16px;
-  color: var(--text-secondary-color);
+  color: #767676;
   text-align: center;
 }
 </style>

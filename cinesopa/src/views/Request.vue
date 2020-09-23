@@ -97,21 +97,21 @@ export default {
 
 .request-router-link {
   @extend %smooth-hover;
-  color: var(--text-secondary-color);
+  color: #767676;
   transition: 1s;
 
   &.router-link-exact-active {
-    color: var(--link-color);
+    color: #009eda;
   }
   &:hover {
-    color: var(--link-color);
+    color: #009eda;
   }
 }
 
 .request-em {
   position: absolute;
   transition: 1s;
-  background-color: var(--link-color);
+  background-color: #009eda;
   height: 2px;
   left: 0;
   width: 0;

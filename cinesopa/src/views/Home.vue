@@ -34,7 +34,8 @@
     <div class="page-scroll-container" ref="container">
       <!-- ref="scroll0" -->
       <div class="page-scroll-section" v-b-visible="visible(0)">
-        <!-- <transition name="scroll0" @after-enter="afterEnter0" @before-enter="refreshRellax"> -->
+        <!-- <transition name="scroll0" @after-enter="afterEnter0"
+         @before-enter="refreshRellax"> -->
         <transition
           @enter="enter0"
           @leave="leave0"
@@ -53,33 +54,21 @@
             </div>
             <div class="position-absolute w-100 h-100 top0">
               <parallax :speed="-90" class="w-100 h-100 position-relative">
-                <div
-                  ref="img0-3"
-                  data-animation-number="3"
-                  class="position-relative w-100 h-100"
-                >
+                <div ref="img0-3" data-animation-number="3" class="position-relative w-100 h-100">
                   <b-img class="img0-3 position-absolute" src="../assets/home/3.png"></b-img>
                 </div>
               </parallax>
             </div>
             <div class="position-absolute w-100 h-100 top0">
               <parallax :speed="-80" class="w-100 h-100 position-relative">
-                <div
-                  ref="img0-2"
-                  data-animation-number="2"
-                  class="position-relative w-100 h-100"
-                >
+                <div ref="img0-2" data-animation-number="2" class="position-relative w-100 h-100">
                   <b-img class="img0-2 position-absolute" src="../assets/home/2.png"></b-img>
                 </div>
               </parallax>
             </div>
             <div class="position-absolute w-100 h-100 top0">
               <parallax :speed="-75" class="w-100 h-100 position-relative">
-                <div
-                  ref="img0-1"
-                  data-animation-number="1"
-                  class="position-relative w-100 h-100"
-                >
+                <div ref="img0-1" data-animation-number="1" class="position-relative w-100 h-100">
                   <b-img class="img0-1 position-absolute" src="../assets/home/arch.png"></b-img>
                 </div>
               </parallax>
@@ -155,7 +144,8 @@
                         <polygon
                           class="cls-1"
                           fill="currentColor"
-                          points="6.34 81.75 0 75.41 34.54 40.87 0 6.34 6.34 0 47.22 40.87 6.34 81.75"
+                          points="6.34 81.75 0 75.41 34.54 40.87 0
+                          6.34 6.34 0 47.22 40.87 6.34 81.75"
                         />
                       </svg>
                     </b-link>
@@ -238,51 +228,53 @@ import Rellax from 'rellax';
 import Swiper, { Mousewheel } from 'swiper';
 import Velocity from 'velocity-animate';
 import moment from 'moment';
-import { disableScroll, enableScroll, wheelOpt, wheelEvent } from '../plugins/scroll-deactive';
+import { disableScroll, enableScroll, wheelEvent } from '../plugins/scroll-deactive';
 // import Swiper styles
 import 'swiper/swiper-bundle.css';
 import Parallax from '../components/parallax.vue';
 
-function getPosition(element) {
-  let xPosition = 0;
-  let yPosition = 0;
-  let el = element;
+// function getPosition(element) {
+//   let xPosition = 0;
+//   let yPosition = 0;
+//   let el = element;
 
-  while (el) {
-    xPosition += el.offsetLeft - el.scrollLeft + el.clientLeft;
-    yPosition += el.offsetTop - el.scrollTop + el.clientTop;
-    el = el.offsetParent;
-  }
+//   while (el) {
+//     xPosition += el.offsetLeft - el.scrollLeft + el.clientLeft;
+//     yPosition += el.offsetTop - el.scrollTop + el.clientTop;
+//     el = el.offsetParent;
+//   }
 
-  return { x: xPosition, y: yPosition };
-}
-function getTopByoffset(element) {
-  // Our element
-  let elem = element;
+//   return { x: xPosition, y: yPosition };
+// }
 
-  // Set our distance placeholder
-  let distance = 0;
+// function getTopByoffset(element) {
+//   // Our element
+//   let elem = element;
 
-  // Loop up the dom
-  do {
-    // Increase our distance counter
-    distance += elem.offsetTop;
+//   // Set our distance placeholder
+//   let distance = 0;
 
-    // Set the element to it's parent
-    // elem = elem.offsetParent;
-    // console.dir(elem);
-    // console.log(elem);
-    // console.log(distance);
-    elem = elem.parentElement;
-  } while (elem);
-  return distance < 0 ? 0 : distance;
-}
-function getTop(element) {
-  // return getTopByoffset(element);
-  const rect = element.getBoundingClientRect();
-  console.log(rect);
-  return (window.scrollY || window.pageYOffset) + rect.top;
-}
+//   // Loop up the dom
+//   do {
+//     // Increase our distance counter
+//     distance += elem.offsetTop;
+
+//     // Set the element to it's parent
+//     // elem = elem.offsetParent;
+//     // console.dir(elem);
+//     // console.log(elem);
+//     // console.log(distance);
+//     elem = elem.parentElement;
+//   } while (elem);
+//   return distance < 0 ? 0 : distance;
+// }
+
+// function getTop(element) {
+//   // return getTopByoffset(element);
+//   const rect = element.getBoundingClientRect();
+//   console.log(rect);
+//   return (window.scrollY || window.pageYOffset) + rect.top;
+// }
 
 Swiper.use([Mousewheel]);
 
@@ -454,15 +446,13 @@ export default {
           offset: 51,
           cancelable: false,
         });
-      }
-      // 두 번째에서 첫 번째로 넘어갈 때
-      else if (previousIndex === 1 && realIndex === 0) {
+      } else if (previousIndex === 1 && realIndex === 0) {
+        // 두 번째에서 첫 번째로 넘어갈 때
         this.$scrollTo(topElement, 100, {
           cancelable: false,
         });
-      }
-      // 세 번째에서 두 번째로 넘어갈 때
-      else if (previousIndex === 2 && realIndex === 1) {
+      } else if (previousIndex === 2 && realIndex === 1) {
+        // 세 번째에서 두 번째로 넘어갈 때
         this.$scrollTo(topElement, 100, {
           offset: 51,
           cancelable: false,
@@ -543,7 +533,8 @@ export default {
 
     //   const currentScrollTop = window.pageYOffset || document.documentElement.scrollTop;
     //   console.log(
-    //     `last: ${this.lastScrollTop}, current: ${currentScrollTop}, visibleLength: ${visibles.length}, processing: ${this.scrollProcessing}`
+    //     `last: ${this.lastScrollTop}, current: ${currentScrollTop},
+    // visibleLength: ${visibles.length}, processing: ${this.scrollProcessing}`
     //   );
 
     //   const onDone = (/* from, to */) => () => {
@@ -579,7 +570,8 @@ export default {
       // console.dir(container);
 
       // console.log(
-      //   `${currentScrollY} + ${window.innerHeight} + ${deltaY} <= ${container.offsetTop} + ${container.offsetHeight}`,
+      //   `${currentScrollY} + ${window.innerHeight} +
+      // ${deltaY} <= ${container.offsetTop} + ${container.offsetHeight}`,
       // );
       // console.log(
       //   `${currentScrollY + window.innerHeight + deltaY} <= ${container.offsetTop +
@@ -668,7 +660,7 @@ export default {
         });
       }
       event.preventDefault();
-
+      return false;
       // e.preventDefault();
       // e.stopPropagation();
       // return false;
@@ -1025,12 +1017,12 @@ export default {
 <style>
 .desktop #home {
   /* position: relative; */
-  margin-top: calc(-1 * var(--desktop-top-header-height));
+  margin-top: calc(-1 * 230px);
 }
 
 .mobile #home {
   /* position: relative; */
-  margin-top: calc(-1 * var(--mobile-header-height));
+  margin-top: calc(-1 * 80px);
 }
 
 .home-start {
@@ -1099,12 +1091,12 @@ export default {
 }
 .img0-2-wrapper {
   animation: 3s ease 300ms forwards slide-up;
-    transition: var(--r2-3, 2s);
+  transition: var(--r2-3, 2s);
   transform: translate(var(--r2-1, 5px), var(--r2-2, 5px));
 }
 .img0-3-wrapper {
   animation: 3s ease 600ms forwards slide-up;
-    transition: var(--r3-3, 2s);
+  transition: var(--r3-3, 2s);
   transform: translate(var(--r3-1, 5px), var(--r3-2, 5px));
 }
 .sec0-text-aminated {
@@ -1149,10 +1141,10 @@ export default {
 }
 
 /* .desktop .page-scroll-section:first-child {
-  height: calc(100vh - var(--desktop-top-header-height));
+  height: calc(100vh - 230px);
 }
 .mobile .page-scroll-section:first-child {
-  height: calc(100vh - var(--mobile-header-height));
+  height: calc(100vh - 80px);
 } */
 
 .main-placeholder > div {
@@ -1312,7 +1304,7 @@ export default {
       margin-top: 2px;
     }
     &:hover {
-      color: var(--link-color);
+      color: #009eda;
       transition: none;
       text-decoration: none;
     }
@@ -1361,7 +1353,7 @@ export default {
   );
 }
 .main-new-post-header {
-  color: var(--link-color);
+  color: #009eda;
   font-size: 40px;
   margin-bottom: 50px;
 }
@@ -1372,7 +1364,7 @@ export default {
   margin-top: -1px;
   border-width: 1px 0;
   border-style: solid;
-  border-color: var(--text-color);
+  border-color: #2b3e4a;
   // border: 1px
 }
 .news-cell {
@@ -1383,7 +1375,7 @@ export default {
   flex-grow: 0;
   padding-right: 50px;
   font-size: 16px;
-  color: var(--text-secondary-color);
+  color: #767676;
 }
 
 .mobile .news-cell-date {

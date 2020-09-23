@@ -469,11 +469,11 @@ export default {
 .application {
   & button {
     background-color: transparent;
-    color: var(--link-color);
-    border-color: var(--link-color);
+    color: #009eda;
+    border-color: #009eda;
     &:hover {
       color: #fff;
-      background-color: var(--link-color);
+      background-color: #009eda;
     }
   }
 }
@@ -485,12 +485,12 @@ export default {
 
     & h1 {
       margin-left: -5px;
-      color: var(--link-color);
+      color: #009eda;
       font-size: 60px;
     }
     & .title-en {
       margin-top: -5px;
-      color: var(--secondary-text-color);
+      color: #767676;
       font-weight: 600;
       word-spacing: -1px;
     }
@@ -537,7 +537,7 @@ export default {
   background-color: rgba(255, 255, 255, 1);
 }
 .scrollactive-item {
-  color: var(--secondary-text-color);
+  color: #767676;
   font-size: 18px;
   border: 20px solid transparent;
   border-radius: 500px;
@@ -545,7 +545,7 @@ export default {
   transition-property: color;
 
   &:hover {
-    color: var(--link-color);
+    color: #009eda;
     transition: none;
     // background-color:#eee;
     text-decoration: none;
@@ -570,7 +570,7 @@ export default {
   z-index: 888;
 
   &.affix {
-    max-width: var(--max-content-size);
+    max-width: 1260px;
     top: 100px !important;
     left: auto;
     right: auto;
@@ -586,7 +586,7 @@ export default {
 
 .scrollactive-item.active,
 .vue-affix.affix-top .scrollactive-item.first {
-  color: var(--link-color);
+  color: #009eda;
   font-weight: 700;
 }
 
@@ -629,7 +629,7 @@ export default {
   width: 40px;
   margin: 0px 20px 0 0;
   color: #fff;
-  color: var(--text-secondary-color);
+  color: #767676;
   font-weight: 600;
   // font-size: 120%;
 }
@@ -646,7 +646,7 @@ export default {
   display: flex;
 }
 .award-type {
-  color: var(--text-secondary-color);
+  color: #767676;
   padding-right: 10px;
 }
 
@@ -666,16 +666,16 @@ export default {
 .review-title {
   text-decoration: underline;
   & a {
-    color: var(--link-color);
+    color: #009eda;
   }
   & a:hover {
-    color: var(--text-color);
+    color: #2b3e4a;
   }
 }
 
 .review-source {
   font-size: 80%;
-  color: var(--secondary-text-color);
+  color: #767676;
 }
 </style>
 

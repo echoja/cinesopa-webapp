@@ -1,15 +1,39 @@
 <template>
-  <div class="container-fluid">
+  <div class="container-fluid sitemap">
     <h1>사이트맵</h1>
-    <ul>
+    <div class="row">
+      <div class="col-12 col-md-6">
+        <h2>전체 메뉴</h2>
+    <ul class="main">
       <li><b-link :to="{ name: 'Home' }">홈</b-link></li>
       <li><b-link :to="{ name: 'About' }">인사해요</b-link></li>
-      <li><b-link :to="{ name: 'BoardActivity' }">활동해요</b-link></li>
-      <li><b-link :to="{ name: 'BoardNotice' }">공지해요</b-link></li>
-      <li><b-link :to="{ name: 'BoardActivity' }">인사해요</b-link></li>
+      <li><b-link :to="{ name: 'FilmList' }">영화봐요</b-link></li>
+      <li><b-link :to="{ name: 'BoardActivity' }">활동해요</b-link>
+        <ul class="sub">
+          <li>
+            <b-link :to="{ name: 'BoardActivity' }">커뮤니티</b-link>
+          </li>
+          <li>
+            <b-link :to="{ name: 'BoardActivity' }">스터디</b-link>
+          </li>
+          <li>
+            <b-link :to="{ name: 'BoardActivity' }">기타</b-link>
+          </li>
+        </ul>
+      </li>
+      <li><b-link :to="{ name: 'BoardNotice' }">공지해요</b-link>
+        <ul class="sub">
+          <li>
+            <b-link :to="{ name: 'BoardNotice' }">프레스</b-link>
+          </li>
+          <li>
+            <b-link :to="{ name: 'BoardNotice' }">조합소식</b-link>
+          </li>
+        </ul>
+      </li>
       <li>
-        신청해요
-        <ul>
+        <b-link :to="{ name: 'Distribution' }">신청해요</b-link>
+        <ul class="sub">
           <li>
             <b-link :to="{ name: 'Distribution' }">배급의뢰</b-link>
           </li>
@@ -18,17 +42,18 @@
           </li>
         </ul>
       </li>
-      <hr />
-
-      <li><b-link :to="{ name: 'EmailRefuse' }">이메일무단수집거부</b-link></li>
     </ul>
-    <div class="col-md-4 col-sm-6 col-12">asdf</div>
-    <div class="col-md-4 col-sm-6 col-12">asdf</div>
-    <div class="col-md-4 col-sm-6 col-12">asdf</div>
-    <div class="col-md-4 col-sm-6 col-12">asdf</div>
-    <div class="col-md-4 col-sm-6 col-12">asdf</div>
-    <div class="col-md-4 col-sm-6 col-12">asdf</div>
-    <h2></h2>
+      </div>
+      <div class="col-12 col-md-6">
+        <h2>기타 페이지</h2>
+    <ul class="main">
+      <li><b-link :to="{ name: 'EmailRefuse' }">이메일무단수집거부</b-link></li>
+      <li><b-link :to="{ name: 'Sitemap' }">사이트맵</b-link></li>
+
+    </ul>
+      </div>
+    </div>
+    
   </div>
 </template>
 
@@ -40,8 +65,34 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+@use '../util.scss';
+
+.sitemap {
+  max-width: 700px;
+}
+
+h1 {
+  color: util.$link-color;
+  margin-bottom: 50px;
+}
+h2 {
+  font-size: 20px;
+}
 ul {
-  list-style-type: '-';
+  // list-style-type: '- ';
+}
+
+.main {
+  list-style-type: disc;
+  // list-style-position: disc;
+  & > li {
+    font-size: 18px;
+  }
+}
+.sub {
+  & > li {
+    font-size: 16px;
+  }
 }
 </style>
 <style></style>
