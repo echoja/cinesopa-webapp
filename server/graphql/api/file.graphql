@@ -1,5 +1,6 @@
 type File {
   id: Int
+  c_date: DateTime
   encoding: String
   mimetype: String
   filename: String
@@ -12,6 +13,8 @@ type File {
   owner: String
   public: Boolean
   managed: Boolean
+  width: Int
+  height: Int
 }
 
 input FileInput {
@@ -19,15 +22,15 @@ input FileInput {
   description: String
   label: String # 보이는 이름..?
   alt: String # 대체텍스트
+  public: Boolean
 }
 
 extend type Query {
   file(filename: String, id: Int): File
-  files: [File]
-  fileByName(name: String!): File
+  files(page:Int = 0, perpage:Int = 20, onlyManaged: Boolean = true): [File]
 }
 
 extend type Mutation {
-  updateFile(id: Int!, input: FileInput!): File
-  removeFile(id: Int!): File
+  updateFile(filename: String!, input: FileInput!): File
+  removeFile(filename: String!): File
 }

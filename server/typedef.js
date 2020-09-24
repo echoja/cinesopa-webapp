@@ -46,6 +46,7 @@
 /**
  * 파일 정보를 담는 객체
  * @typedef {object} Fileinfo
+ * @property {Date} c_date
  * @property {string} encoding
  * @property {string} mimetype
  * @property {string} filename 실제 저장되는 파일 이름 (multer에 의해 생성)
@@ -58,6 +59,8 @@
  * @property {string} owner
  * @property {boolean} public
  * @property {boolean} managed
+ * @property {number} width
+ * @property {number} height
  * @property {number} id
  */
 
@@ -90,7 +93,7 @@
 /**
  * 영화의 영상 정보를 담는 객체 (유튜브 연결)
  * @typedef {object} Videoinfo
- * @property {string} youtube_id
+ * @property {string} youtube_iframe
  * @property {string} title
  */
 

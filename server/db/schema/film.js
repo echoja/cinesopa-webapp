@@ -36,7 +36,7 @@ module.exports = function (mongoose) {
   });
 
   const Video = new mongoose.Schema({
-    youtube_id: String,
+    youtube_iframe: String,
     title: String,
   });
 

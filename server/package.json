@@ -17,6 +17,7 @@
     "graphql-tools": "^6.0.18",
     "greenlock-express": "^4.0.3",
     "hangul-js": "^0.2.6",
+    "image-size": "^0.9.1",
     "isemail": "^3.2.0",
     "lodash": "^4.17.20",
     "merge-graphql-schemas": "^1.7.8",

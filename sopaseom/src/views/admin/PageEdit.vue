@@ -14,7 +14,7 @@
         />
         <b-button @click="confirm">적용</b-button>
 
-        <b-form-file v-model="file2" @input="fileUpload" ref="file-input" class="mt-3" plain>
+        <b-form-file v-model="file2" @input="fileUpload" ref="file-input" class="mt-3">
         </b-form-file>
         <p>{{ file2 }}</p>
         <p><b> content </b>: {{ content }}</p>

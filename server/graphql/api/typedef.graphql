@@ -25,11 +25,11 @@ type Page {
   meta_json: JSON
 }
 
-type File {
-  filename: String
-  mimetype: String
-  encoding: String
-}
+# type File {
+#   filename: String
+#   mimetype: String
+#   encoding: String
+# }
 
 # SignInUserPayload bundles information about the user and token
 type SignInUserPayload {
@@ -83,13 +83,13 @@ input UserUpdateInfo {
   role: UserRole
 }
 
-input FileModInput {
-  description: String
-  label: String # 보여지는 이름
-  alt: String
-  public: Boolean
-  managed: Boolean
-}
+# input FileModInput {
+#   description: String
+#   label: String # 보여지는 이름
+#   alt: String
+#   public: Boolean
+#   managed: Boolean
+# }
 
 input DatetimeInput {
   day: Int!

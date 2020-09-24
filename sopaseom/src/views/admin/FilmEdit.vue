@@ -342,7 +342,7 @@
               </tr>
 
               <tr v-for="(video, index) in film.videos" :key="index">
-                <td><b-form-input size="sm" v-model="video.youtube_id"></b-form-input></td>
+                <td><b-form-input size="sm" v-model="video.youtube_iframe"></b-form-input></td>
                 <td><b-form-input size="sm" v-model="video.title"></b-form-input></td>
                 <td><b-button-close @click="removeReview(index)"></b-button-close></td>
               </tr>
@@ -528,13 +528,13 @@ export default {
     },
     async importVideoByLink() {
       this.film.videos.push({
-        youtube_id: '',
+        youtube_iframe: '',
         title: '',
       });
     },
     async addPhoto() {
       this.film.photos.push({
-        youtube_id: '',
+        youtube_iframe: '',
         title: '',
       });
     },

@@ -20,7 +20,7 @@ type Review {
 }
 
 type Video {
-  youtube_id: String
+  youtube_iframe: String
   title: String
 }
 
@@ -77,7 +77,7 @@ input ReviewInput {
 }
 
 input VideoInput {
-  youtube_id: String
+  youtube_iframe: String
   title: String
 }
 

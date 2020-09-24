@@ -21,6 +21,7 @@
     "jquery": "^3.5.1",
     "moment": "^2.27.0",
     "mutationobserver-shim": "^0.3.7",
+    "pretty-bytes": "^5.4.1",
     "tinymce": "^5.4.2",
     "vee-validate": "^3.3.9",
     "vue": "^2.6.12",

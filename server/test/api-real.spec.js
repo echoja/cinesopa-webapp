@@ -596,11 +596,11 @@ describe('REAL API', function () {
     });
     describe('posts', function () {
       it('private 은 보이지 않아야 함', async function () {
-        const onlyPublic = await graphqlSuper(agent, postsQuery, {
+        const onlyManaged = await graphqlSuper(agent, postsQuery, {
           condition: {},
         });
-        // console.log(onlyPublic.body);
-        expect(onlyPublic.body.data.posts.length).to.equal(1);
+        // console.log(onlyManaged.body);
+        expect(onlyManaged.body.data.posts.length).to.equal(1);
       });
     });
     describe('postAdmin', function () {

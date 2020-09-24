@@ -1,6 +1,12 @@
 const path = require('path');
 const multer = require('multer');
+// const { promisify } = require('util');
+const sizeOf = require('image-size');
+
 require('../typedef');
+const { aw } = require('../util');
+
+// const sizeOf = promisify(sizeOfCallbackBased);
 
 /** @type {DBManager} */
 let db;
@@ -21,13 +27,9 @@ let uploadField;
 //  */
 // const newFile = async (fileinfo) => {};
 
-const getFile = async (filename) => {
-  return db.getFile(filename);
-};
+const getFile = async (filename) => db.getFile(filename);
 
-const getFiles = async () => {
-  return db.getFiles();
-};
+const getFiles = async () => db.getFiles();
 
 /**
  *
@@ -63,6 +65,7 @@ const getUntrackedFiles = async () => {
   const actualFilenames = await file.getFiles(dest);
   const untracked = actualFilenames.filter(
     (actualFilename) =>
+      // eslint-disable-next-line implicit-arrow-linebreak
       dbFiles.findIndex((dbFile) => dbFile.filename === actualFilename) === -1,
   );
   return untracked;
@@ -73,6 +76,7 @@ const makeMulter = () => {
   return [
     multerMiddleware,
     async (req, res, next) => {
+      let fullpath = '';
       try {
         // console.log('ho~~~~~~!~!~!~!~!~!~!~!~!');
         const fileinfo = {};
@@ -80,6 +84,7 @@ const makeMulter = () => {
         ['filename', 'mimetype', 'path', 'encoding', 'size'].forEach((key) => {
           fileinfo[key] = fileObj[key];
         });
+        fullpath = fileObj.path;
         fileinfo.origin = fileObj.originalname;
         const fileRegex = /(.+)\.([0-9a-zA-Z]+)$/;
         const [_, label, extension] = fileObj.originalname.match(fileRegex);
@@ -89,13 +94,30 @@ const makeMulter = () => {
         // 이메일
         const email = req?.user?.email;
         if (email) fileinfo.owner = email;
+
+        // public은 기본적으로 true 여야 함.
+        fileinfo.public = true;
+
+        // managed도 기본적으로 true 여야 함.
+        fileinfo.managed = true;
+
+        // 만약 이미지일 경우 사이즈 지정
+        if (fileObj.mimetype.startsWith('image')) {
+          const dimensions = sizeOf(fileObj.path);
+          fileinfo.width = dimensions.width;
+          fileinfo.height = dimensions.height;
+        }
+
+        // db에 새롭게 저장
         await db.createFile(fileinfo, email);
 
         res.send({ message: 'success', file: fileinfo });
         // next();
       } catch (error) {
-        // console.log('ho~~~~~~!~!~!~!~!~!~!~!~!3');
         next(error);
+        await file.removeFile(fullpath);
+        console.log('파일 업로드 중 에러로 인해 중단하고 업로드했던 파일을 삭제했습니다.');
+        console.error(error);
       }
     },
   ];
@@ -106,6 +128,33 @@ const makeMulter = () => {
  * @returns {Promise<string[]>} filename 의 배열
  */
 const getDangledFiles = async () => {};
+
+const absPath = (relative) => path.join(__dirname, '../', relative);
+
+const getFileMiddleware = aw(async (req, res, next) => {
+  // console.log(req.params.filename);
+  // 파일 이름이 주어지지 않을 경우 404
+  const { filename } = req.params;
+  if (!filename) return res.status(404).send();
+
+  // 파일이름으로 찾기 시도. 찾을시 바로 보냄.
+  const foundByFilename = await db.getFile(filename);
+  // console.log(foundByFilename.path);
+  // console.log(__dirname);
+  if (foundByFilename) return res.sendFile(absPath(foundByFilename.path));
+
+  // 옵션 찾기 시도. 못찾을시 404
+  const optionName = filename;
+  const foundOption = await db.getOption(optionName);
+  if (foundOption?.type !== 'file') return res.status(404).send();
+
+  // 옵션이 주어진다면, 해당하는 파일 보내기.
+  const fileByOption = await db.getFile(foundOption.value);
+  if (fileByOption) return res.sendFile(absPath(foundByFilename.path));
+
+  // 해당하는 옵션의 파일도 존재하지 않는다면, 404
+  return res.status(404).send();
+});
 
 module.exports = {
   make(dbManager, fileManager, deststr, uploadFieldstr) {
@@ -122,6 +171,7 @@ module.exports = {
       getUntrackedFiles,
       getDangledFiles,
       uploadMiddleware: makeMulter(),
+      getFileMiddleware,
     };
   },
 

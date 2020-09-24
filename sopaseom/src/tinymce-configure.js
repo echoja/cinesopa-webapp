@@ -1,3 +1,7 @@
+/**
+ * 
+ * @param {import('tinymce').Editor} editor 
+ */
 const examplePlugin = (editor) => {
   const openDialog = () => editor.windowManager.open({
     title: 'Example plugin',
@@ -14,11 +18,11 @@ const examplePlugin = (editor) => {
     buttons: [
       {
         type: 'cancel',
-        text: 'Close',
+        text: '닫기',
       },
       {
         type: 'submit',
-        text: 'Save',
+        text: '저장',
         primary: true,
       },
     ],

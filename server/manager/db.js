@@ -348,7 +348,26 @@ class DBManager {
       throw Error(`removePage: ${id}에 해당하는 페이지가 존재하지 않습니다`);
     }
   }
+  /*= ====================================
+  옵션 (Global Variables 등)
+  ===================================== */
 
+  /**
+   * 옵션을 얻습니다.
+   * @param {string} name 옵션 이름
+   */
+  async getOption(name) {
+    return null;
+  }
+
+  /**
+   * 옵션을 설정합니다.
+   * @param {string}} name
+   * @param {object} param1
+   */
+  async setOption(name, { type, value }) {
+    return null;
+  }
   /*= ====================================
   파일
   ===================================== */
@@ -365,6 +384,8 @@ class DBManager {
     file.owner = user.owner;
     const newFile = new model.File(file);
     await newFile.save();
+    // console.log('createFilE!!!!');
+    // console.log(newFile.c_date);
   }
 
   /**
@@ -373,10 +394,14 @@ class DBManager {
    * @param {number} perpage 한 페이지당 파일의 개수
    */
   async getFilesManaged(page, perpage) {
+    // console.log('getFilesManaged!!!!');
+    // console.log(`page: ${page}, perpage: ${perpage}`);
     return model.File.find({ managed: true })
+      .sort({ c_date: -1 })
       .limit(perpage)
       .skip(perpage * page)
-      .lean();
+      .lean()
+      .exec();
   }
 
   /**
@@ -611,7 +636,6 @@ class DBManager {
   // async exportPost(postinfo) {
 
   // }
-
 
   /**
    * 게시물을 만듭니다.

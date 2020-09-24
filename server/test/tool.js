@@ -56,8 +56,13 @@ const {
 
 const uploadDest = 'test/uploads';
 const uploadField = 'bin';
-const fileService = fileServiceMaker.make(db, fileManager, uploadDest, uploadField);
-const { uploadMiddleware } = fileService;
+const fileService = fileServiceMaker.make(
+  db,
+  fileManager,
+  uploadDest,
+  uploadField,
+);
+const { uploadMiddleware, getFileMiddleware } = fileService;
 const foldername = 'generated-html';
 const makeAgent = request.agent;
 
@@ -195,6 +200,9 @@ const initTestServer = (hookFunctions) => {
       makeAuthMiddleware(validator, [enumAuthmap.ADMIN]),
       uploadMiddleware,
     );
+
+    // 파일 get용.
+    webapp.get('/upload/:filename', getFileMiddleware);
   });
   hookFunctions.beforeEach('유저 세팅', async function () {
     await db.createUser({

@@ -6,7 +6,7 @@ const { enumAuthmap } = require('./db/schema/enum');
 // const upload = require("multer")({ dest: "uploads/" }).single("bin");
 const { graphQLServerMiddleware } = require('./graphql');
 const {
-  file: { uploadMiddleware },
+  file: { uploadMiddleware, getFileMiddleware },
   makeAuthMiddleware,
   validator,
   user,
@@ -20,6 +20,11 @@ router.post(
   '/upload',
   makeAuthMiddleware(validator, [enumAuthmap.ADMIN]),
   uploadMiddleware,
+);
+
+router.get(
+  '/upload/:filename',
+  getFileMiddleware,
 );
 
 // graphiql

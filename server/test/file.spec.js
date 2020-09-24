@@ -1,4 +1,5 @@
 const sinon = require('sinon');
+
 // const pug = require('pug');
 const path = require('path');
 const fs = require('fs');
@@ -15,6 +16,12 @@ const { fake } = require('sinon');
 const { db, model } = require('../loader');
 const fileService = require('../service/file');
 const fileManager = require('../manager/file');
+const {
+  fileQuery,
+  filesQuery,
+  updateFileMutation,
+  removeFileMutation,
+} = require('./graphql-request');
 const { initTestServer, graphqlSuper, doLogin } = require('./tool');
 
 const app = express();
@@ -298,12 +305,18 @@ describe('file', function () {
       afterEach,
       after,
     });
+    const adminLogin = async () => {
+      await doLogin(agent, 'testAdmin', 'abc');
+    };
+    const guestLogin = async () => {
+      await doLogin(agent, 'testGuest', 'abc');
+    };
 
     afterEach('업로드된 파일 삭제', function (done) {
       removeFilesInDir(uploadDest, done);
     });
 
-    describe('upload', function () {
+    describe('upload Middleware', function () {
       it('업로드시 성공해야 함', async function () {
         await doLogin(agent, 'testAdmin', 'abc');
         const res = await agent
@@ -317,6 +330,16 @@ describe('file', function () {
         expect(found[0].origin).to.equal('tool.js');
         expect(found[0].label).to.equal('tool');
         expect(found[0].alt).to.equal('tool');
+      });
+      it.only('업로드 시 public이 기본적으로 true 여야 함', async function () {
+        await doLogin(agent, 'testAdmin', 'abc');
+        const res = await agent
+          .post('/upload')
+          .attach('bin', path.join(__dirname, 'tool.js'))
+          .expect(200);
+        const { filename } = res.body.file;
+        const found = await model.File.findOne({ filename }).lean().exec();
+        expect(found.public).to.equal(true);
       });
       it('/upload post 요청은 권한이 ADMIN 이 아니면 실패해야 함', async function () {
         const res = await agent
@@ -353,6 +376,120 @@ describe('file', function () {
         expect(fs.existsSync(found[0].path)).to.be.true;
         expect(fs.existsSync(found[1].path)).to.be.true;
         expect(fs.existsSync(found[2].path)).to.be.true;
+      });
+    });
+    describe('get Middleware', function () {
+      it('업로드된 파일은 제대로 가져올 수 있어야 함', async function () {
+        // 일단 파일 업로드
+        await doLogin(agent, 'testAdmin', 'abc');
+        const res = await agent
+          .post('/upload')
+          .attach('bin', path.join(__dirname, 'tool.js'))
+          .expect(200);
+        const { filename } = res.body.file;
+        const res2 = await agent.get(`/upload/${filename}`).expect(200);
+        expect(res2.body).to.not.be.null;
+      });
+
+      // todo
+      it('옵션으로 제대로 갖고와야 함.', async function () {
+        this.skip();
+      });
+      // todo
+      it('옵션으로 갖고 오는데, 파일이 아니면 404여야 함', async function () {
+        this.skip();
+      });
+      // todo
+      it('옵션으로 갖고 오는데, 파일이 존재하지 않으면 404여야 함', async function () {
+        this.skip();
+      });
+
+      it('존재하지 않는 파일은 404여야 함', async function () {
+        const res2 = await agent.get(`/upload/hello`).expect(404);
+        expect(res2.body).to.not.have.any.keys;
+      });
+    });
+
+    describe('graphql api', function () {
+      /** @type {import('supertest').Response} */
+      let res1;
+      /** @type {import('supertest').Response} */
+      let res2;
+
+      beforeEach('파일 두 개 업로드', async function () {
+        await adminLogin();
+        res1 = await agent
+          .post('/upload')
+          .attach('bin', path.join(__dirname, 'tool.js'));
+        res2 = await agent
+          .post('/upload')
+          .attach('bin', path.join(__dirname, '../util.js'));
+      });
+
+      // beforeEach('파일 하나 업로드 해놓기', async function () {
+
+      // });
+      describe('file', function () {
+        it('filename 만 넣었을 때 제대로 동작해야 함', async function () {
+          // 일단 업로드
+          await adminLogin();
+          const res = await agent
+            .post('/upload')
+            .attach('bin', path.join(__dirname, 'tool.js'))
+            .expect(200);
+          const { filename } = res.body.file;
+          // 요청하여 갖고 오기
+          const res2 = await graphqlSuper(agent, fileQuery, {
+            filename,
+          });
+          expect(res2.body.data.file.origin).to.equal('tool.js');
+        });
+        // todo
+        it('id를 넣었을 때 제대로 동작해야 함', function () {
+          this.skip();
+        });
+        // todo
+        it('id와 filename을 둘다 넣었을 때 filename 만 제대로 동작해야 함', function () {
+          this.skip();
+        });
+      });
+      describe('files', function () {
+        it('제대로 동작해야 함', async function () {
+          const res = await graphqlSuper(agent, filesQuery);
+          expect(res.body.data.files.length).to.equal(2);
+        });
+        it('기본 값으로 관리되는 것만 불러와져야 함', async function () {
+          await model.File.updateOne({ managed: false });
+
+          const res = await graphqlSuper(agent, filesQuery);
+          // console.log(res.body);
+          expect(res.body.data.files.length).to.equal(1);
+        });
+      });
+      describe('updateFile', function () {
+        it.only('제대로 동작해야 함', async function () {
+          const { filename } = res2.body.file;
+          await graphqlSuper(agent, updateFileMutation, {
+            filename,
+            input: {
+              description: '테스트 설명',
+            },
+          });
+          const found = await model.File.findOne({ filename }).lean().exec();
+          expect(found.description).to.equal('테스트 설명');
+        });
+      });
+      describe('removeFile', function () {
+        it.only('제대로 동작해야 함', async function () {
+          const { filename } = res2.body.file;
+          await graphqlSuper(agent, removeFileMutation, {
+            filename,
+          });
+          const found = await model.File.findOne({ filename }).lean().exec();
+          expect(found).to.be.null;
+          const all = await model.File.find().lean().exec();
+          expect(all.length).to.equal(1);
+        });
       });
     });
 
