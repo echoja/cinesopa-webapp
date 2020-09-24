@@ -93,6 +93,41 @@
     <div class="big-heading-wrapper">
       <h2 class="big-heading">함께하는 사람들</h2>
     </div>
+    <div class="people row">
+      <div class="person col-12 col-md-6" v-for="(person, index) in people" :key="index">
+        <div class="person-sign">
+          <b-img class="person-sign-image" :src="person.imageLink" alt=""></b-img>
+        </div>
+        <div class="person-info">
+          <div class="person-name-position">
+            <div class="person-name-position-wrapper">
+              <div class="person-name">
+                <span class="person-real-name">{{ person.name }}</span>
+                <span class="person-nickname"> {{ person.nickname }}</span>
+              </div>
+              <div class="person-position">
+                <template v-if="person.position !== ''">
+                  {{ person.position }}
+                  <span class="position-seperator">|</span>
+                </template>
+
+                {{ person.work }}
+              </div>
+            </div>
+          </div>
+          <div class="person-contact">
+            <div class="person-phone">
+              <span class="person-contact-title">m</span>
+              <span class="person-contact-content">{{ person.phone }}</span>
+            </div>
+            <div class="person-email">
+              <span class="person-contact-title">e</span>
+              <span class="person-contact-content">{{ person.email }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
 
     <!-- history -->
     <div class="big-heading-wrapper">
@@ -118,7 +153,64 @@ export default {
   title: '인사해요',
   data() {
     return {
-      people: [{ name: '' }],
+      //       최예지(딩딩)
+      // - 직무: 홍보마케팅
+
+      // 성송이(쏭쏭)
+      // - 직급: 대표
+      // - 직무: 배급
+
+      // 남유진(남다른)
+      // - 직무: 배급/홍보지원
+
+      // 최동녁(누룩)
+      // - 직무: 디자인, 홍보지원
+      //       nulook@cinesopa.kr
+      // ssong@cinesopa.kr
+      // dingding@cinesopa.kr
+      // namda@cinesopa.kr
+      people: [
+        {
+          name: '성송이',
+          nickname: '쏭쏭',
+          position: '대표',
+          work: '배급',
+          email: 'ssong@cinesopa.kr',
+          phone: '010-3577-4970',
+          // eslint-disable-next-line global-require
+          imageLink: require('../assets/test/ss.png'),
+        },
+        {
+          name: '최예지',
+          nickname: '딩딩',
+          position: '',
+          work: '홍보마케팅',
+          email: 'dingding@cinesopa.kr',
+          phone: '010-3399-4668',
+          // eslint-disable-next-line global-require
+          imageLink: require('../assets/test/dd.png'),
+        },
+        {
+          name: '최동녁',
+          nickname: '누룩',
+          position: '',
+          work: '디자인/홍보지원',
+          email: 'nulook@cinesopa.kr',
+          phone: '010-5295-9737',
+          // eslint-disable-next-line global-require
+          imageLink: require('../assets/test/nu.png'),
+        },
+        {
+          name: '남유진',
+          nickname: '남다른',
+          position: '',
+          work: '배급/홍보지원',
+          email: 'namda@cinesopa.kr',
+          phone: '010-8425-9362',
+          // eslint-disable-next-line global-require
+          imageLink: require('../assets/test/nam.png'),
+        },
+      ],
       history: [
         { date: new Date('2019-05-03'), title: '영화展; 기억할 만한 지나침[머무는 집] 전시' },
         { date: new Date('2019-04-03'), title: '<기억할 만한 지나침> 전국 개봉' },
@@ -181,7 +273,7 @@ export default {
   font-size: 16px;
   letter-spacing: -1px;
   text-align: center;
-  margin:0 -20px 0;
+  margin: 0 -20px 0;
 }
 .big-title-plus {
   font-size: 24px;
@@ -305,6 +397,8 @@ export default {
   font-weight: 500;
 }
 
+/* BIG HEADING */
+
 .big-heading-wrapper {
   display: flex;
   position: relative;
@@ -330,6 +424,100 @@ export default {
   font-size: 38px;
   // border-top: 1px solid #009eda;
 }
+/* PEOPLE */
+
+.people {
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+.person {
+  padding: 50px;
+}
+
+.person-sign {
+  // text-align: center;
+  // background-color: #eee;
+  width: 100%;
+  height: 200px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.person-sign-image {
+  max-width: 100%;
+  max-height: 100%;
+  min-width: 1px;
+  min-height: 1px;
+  padding: 30px;
+}
+
+.person-info {
+  display: flex;
+}
+
+.person-name-position,
+.person-contact {
+  // flex: 0 0 auto;
+  
+  width: 50%;
+}
+
+.person-name-position {
+  // padding-left: 60px;
+  display: flex;
+  justify-content: flex-end;
+  padding-right: 20px;
+  // text-align: right;
+}
+
+.person-name-position-wrapper {
+
+}
+.person-contact {
+
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+
+
+.person-real-name {
+  font-size: 28px;
+  font-weight: 600;
+}
+
+.person-nickname {
+  font-size: 20px;
+  font-weight: 500;
+}
+
+.person-position {
+  margin-top: -5px;
+  margin-left: 1px;
+}
+.person-phone, .person-email {
+  border-left: 1px solid util.$link-color;
+  padding-left: 20px;
+  font-size: 15px;
+}
+
+.person-phone {
+  padding-bottom: 5px;
+}
+
+.person-contact-title {
+  font-weight: 600;
+  width: 20px;
+  display: inline-block;
+}
+
+.person-contact-content {
+  color: util.$text-secondary-color;
+}
+/* WORKS */
 
 .works {
   position: relative;
@@ -372,30 +560,38 @@ export default {
 }
 
 .history-bg {
-  background: url('../assets/about/vertical-wave.svg') repeat-y;
-  position: absolute;
-  left: 50%;
-  transform: translateX(-50%);
-  top: 10px;
-  background-position: left 92px top 0px;
-  max-width: 600px;
-  width: 100%;
-  height: calc(100% - 20px);
-  background-size: auto 461px;
+  // background: url('../assets/about/vertical-wave.svg') repeat-y;
+  // position: absolute;
+  // left: 50%;
+  // transform: translateX(-50%);
+  // top: 10px;
+  // background-position: left 92px top 0px;
+  // max-width: 600px;
+  // width: 100%;
+  // height: calc(100% - 20px);
+  // background-size: auto 461px;
 }
 
 .history-year-row {
   display: flex;
   position: relative;
   max-width: 600px;
-  margin: 0 auto 30px;
+  margin: 0 auto;
 }
 .history-year {
   color: #009eda;
   font-weight: 600;
   font-size: 32px;
   line-height: calc(100% + 3px);
-  padding-right: 60px;
+  padding-right: 30px;
+  border-style: solid;
+  border-image: linear-gradient(to bottom, util.$link-color 0%, #fff 80%);
+  border-image-slice: 1;
+  border-image-width: 0 1px 0 0;
+}
+.history-events {
+  padding-left: 30px;
+    margin-bottom: 30px;
 }
 .history-event {
   font-size: 20px;
