@@ -87,7 +87,7 @@
         <!-- </transition> -->
       </div>
       <!-- ref="scroll1" -->
-      <div class="page-scroll-section" ref="section1" v-b-visible="visible(1)">
+      <div class="page-scroll-section d-none" ref="section1" v-b-visible="visible(1)">
         <transition
           @beforeEnter="beforeEnter1"
           @enter="enter1"
@@ -102,15 +102,15 @@
           <div v-if="isVisible(1)" class="w-100 h-100">
             <div ref="steel1" class="position-absolute w-100 h-100 top0">
               <!-- <div class="w-100 h-100 position-relative"> -->
-              <parallax :speed="-80" class="steel1"></parallax>
+              <!-- <parallax :speed="-80" class="steel1"></parallax> -->
               <!-- </div> -->
             </div>
             <div ref="black1" class="position-absolute w-100 h-100 top0">
               <!-- data-rellax-percentage="2" -->
               <!-- <div ref="black1" class="w-100 h-100 position-relative top0"> -->
-              <parallax :speed="-80" class="black1">
-                <!-- <div class="black1"></div> -->
-              </parallax>
+              <!-- <parallax :speed="-80" class="black1"> -->
+              <!-- <div class="black1"></div> -->
+              <!-- </parallax> -->
               <!-- <div class="rellax position-relative black1" data-rellax-speed="-3"></div> -->
               <!-- </div> -->
             </div>
@@ -118,46 +118,43 @@
               <!-- data-rellax-mobile-speed="-3"
                 data-rellax-tablet-speed="-3"
                 data-rellax-desktop-speed="-5" -->
-              <parallax :speed="-30" class="w-100 h-100 position-relative">
-                <div class="home-featured position-relative">
-                  <h2 ref="steel1-title" class="title">여름날</h2>
-                  <p ref="steel1-subtitle" class="subtitle">Days In a Summer, 2020</p>
-                  <p ref="steel1-open" class="open">2020.08.20 개봉</p>
-                  <p ref="steel1-synopsis" class="synopsis">
-                    그들은 평범한 일상 속에서 자신처럼 고립되어 있는 폐왕성에 도착하고, 그곳에서
-                    누구나 언젠가 지나쳐야만 하는 유배된 시간과 만난다.
-                  </p>
-                  <p ref="steel1-featured-more">
-                    <b-link
-                      class="featured-more"
-                      :to="{ name: 'IndividualFilm', params: { id: 1 } }"
-                    >
-                      <span>더보기</span>
-                      <!-- style="enable-background:new 0 0 1920 1080;"
+              <!-- <parallax :speed="-30" class="w-100 h-100 position-relative"> -->
+              <div class="home-featured position-relative">
+                <h2 ref="steel1-title" class="title">여름날</h2>
+                <p ref="steel1-subtitle" class="subtitle">Days In a Summer, 2020</p>
+                <p ref="steel1-open" class="open">2020.08.20 개봉</p>
+                <p ref="steel1-synopsis" class="synopsis">
+                  그들은 평범한 일상 속에서 자신처럼 고립되어 있는 폐왕성에 도착하고, 그곳에서
+                  누구나 언젠가 지나쳐야만 하는 유배된 시간과 만난다.
+                </p>
+                <p ref="steel1-featured-more">
+                  <b-link class="featured-more" :to="{ name: 'IndividualFilm', params: { id: 1 } }">
+                    <span>더보기</span>
+                    <!-- style="enable-background:new 0 0 1920 1080;"
                           xml:space="preserve" -->
-                      <svg
-                        width="8px"
-                        class="ml-1"
-                        xmlns="http://www.w3.org/2000/svg"
-                        viewBox="0 0 47.22 81.75"
-                      >
-                        <polygon
-                          class="cls-1"
-                          fill="currentColor"
-                          points="6.34 81.75 0 75.41 34.54 40.87 0
+                    <svg
+                      width="8px"
+                      class="ml-1"
+                      xmlns="http://www.w3.org/2000/svg"
+                      viewBox="0 0 47.22 81.75"
+                    >
+                      <polygon
+                        class="cls-1"
+                        fill="currentColor"
+                        points="6.34 81.75 0 75.41 34.54 40.87 0
                           6.34 6.34 0 47.22 40.87 6.34 81.75"
-                        />
-                      </svg>
-                    </b-link>
-                  </p>
-                </div>
-              </parallax>
+                      />
+                    </svg>
+                  </b-link>
+                </p>
+              </div>
+              <!-- </parallax> -->
             </div>
           </div>
         </transition>
       </div>
       <!-- ref="scroll2" -->
-      <div class="page-scroll-section " v-b-visible="visible(2)">
+      <div class="page-scroll-section d-none" v-b-visible="visible(2)">
         <transition
           @beforeEnter="beforeEnter2"
           @enter="enter2"
@@ -225,12 +222,12 @@
 
 <script>
 import Rellax from 'rellax';
-import Swiper, { Mousewheel } from 'swiper';
-import Velocity from 'velocity-animate';
+// import Swiper, { Mousewheel } from 'swiper';
+// import Velocity from 'velocity-animate';
 import moment from 'moment';
-import { disableScroll, enableScroll, wheelEvent } from '../plugins/scroll-deactive';
+// import { disableScroll, enableScroll /* , wheelEvent */ } from '../plugins/scroll-deactive';
 // import Swiper styles
-import 'swiper/swiper-bundle.css';
+// import 'swiper/swiper-bundle.css';
 import Parallax from '../components/parallax.vue';
 
 // function getPosition(element) {
@@ -276,7 +273,7 @@ import Parallax from '../components/parallax.vue';
 //   return (window.scrollY || window.pageYOffset) + rect.top;
 // }
 
-Swiper.use([Mousewheel]);
+// Swiper.use([Mousewheel]);
 
 let moving = false;
 let locateInScroll = true;
@@ -317,7 +314,7 @@ export default {
       scrollSection: [], // {element: domObject, isVisible: bool}
       lastScrollTop: window.pageYOffset || document.documentElement.scrollTop,
       scrollProcessing: false,
-      swiper: null,
+      // swiper: null,
       // swiper 스크롤이 마지막 번째까지 완전히 끝났는지 테스트하는 도구.
       scrollEnded: false,
       windowHeight: 0,
@@ -416,60 +413,63 @@ export default {
     // adding events;
     // onScroll = onScrollImpl(this);
     // window.addEventListener('scroll', onScroll);
-    window.addEventListener(wheelEvent, this.onWheel, { passive: false });
-    window.addEventListener('resize', this.onResize);
-    window.addEventListener('cssVarsSuccessed', this.onCssVarsSuccessed);
+
+    // 스크롤 취소 ...
+    // window.addEventListener(wheelEvent, this.onWheel, { passive: false });
+    // window.addEventListener('resize', this.onResize);
+    // window.addEventListener('cssVarsSuccessed', this.onCssVarsSuccessed);
+
     this.$store.commit('setMenuTransparent', true);
 
     // swiper initializing
-    const swiper = new Swiper('.swiper-container', {
-      mousewheel: {
-        releaseOnEdges: true,
-      },
-      direction: 'vertical',
-      slidesPerView: 1,
-      speed: 500,
-    });
+    // const swiper = new Swiper('.swiper-container', {
+    //   mousewheel: {
+    //     releaseOnEdges: true,
+    //   },
+    //   direction: 'vertical',
+    //   slidesPerView: 1,
+    //   speed: 500,
+    // });
 
     // swiper addEventListener.
-    swiper.on('slideChange', (context) => {
-      const { previousIndex, realIndex } = context;
-      const topElement = this.$refs.homeStart;
+    // swiper.on('slideChange', (context) => {
+    //   const { previousIndex, realIndex } = context;
+    //   const topElement = this.$refs.homeStart;
 
-      // enableScroll(); 어차피 중복 addEventListener 안되므로 할 필요 없음.
-      disableScroll();
+    //   // enableScroll(); 어차피 중복 addEventListener 안되므로 할 필요 없음.
+    //   disableScroll();
 
-      // console.log(`preveious: ${previousIndex}, now: ${realIndex}`);
-      // 첫 번째에서 두 번째로 넘어갈 때
-      if (previousIndex === 0 && realIndex === 1) {
-        this.$scrollTo(topElement, 100, {
-          offset: 51,
-          cancelable: false,
-        });
-      } else if (previousIndex === 1 && realIndex === 0) {
-        // 두 번째에서 첫 번째로 넘어갈 때
-        this.$scrollTo(topElement, 100, {
-          cancelable: false,
-        });
-      } else if (previousIndex === 2 && realIndex === 1) {
-        // 세 번째에서 두 번째로 넘어갈 때
-        this.$scrollTo(topElement, 100, {
-          offset: 51,
-          cancelable: false,
-        });
-      }
-    });
-    swiper.on('slideChangeTransitionEnd', (context) => {
-      const { previousIndex, realIndex } = context;
+    //   // console.log(`preveious: ${previousIndex}, now: ${realIndex}`);
+    //   // 첫 번째에서 두 번째로 넘어갈 때
+    //   if (previousIndex === 0 && realIndex === 1) {
+    //     this.$scrollTo(topElement, 100, {
+    //       offset: 51,
+    //       cancelable: false,
+    //     });
+    //   } else if (previousIndex === 1 && realIndex === 0) {
+    //     // 두 번째에서 첫 번째로 넘어갈 때
+    //     this.$scrollTo(topElement, 100, {
+    //       cancelable: false,
+    //     });
+    //   } else if (previousIndex === 2 && realIndex === 1) {
+    //     // 세 번째에서 두 번째로 넘어갈 때
+    //     this.$scrollTo(topElement, 100, {
+    //       offset: 51,
+    //       cancelable: false,
+    //     });
+    //   }
+    // });
+    // swiper.on('slideChangeTransitionEnd', (context) => {
+    //   const { previousIndex, realIndex } = context;
 
-      console.log(`preveious: ${previousIndex}, now: ${realIndex}`);
-      // 두번째 에서 세번째로 넘어가고 완전히 끝났을 때
-      if (previousIndex === 1 && realIndex === 2) {
-        enableScroll();
-        this.scrollEnded = true;
-      }
-    });
-    this.swiper = swiper;
+    //   console.log(`preveious: ${previousIndex}, now: ${realIndex}`);
+    //   // 두번째 에서 세번째로 넘어가고 완전히 끝났을 때
+    //   if (previousIndex === 1 && realIndex === 2) {
+    //     enableScroll();
+    //     this.scrollEnded = true;
+    //   }
+    // });
+    // this.swiper = swiper;
 
     // 기본은 취소하도록 한다.
     // disableScroll();
@@ -513,9 +513,11 @@ export default {
 
   async beforeDestroy() {
     // window.removeEventListener('scroll', onScroll);
-    window.removeEventListener(wheelEvent, this.onWheel, { passive: false });
-    window.removeEventListener('resize', this.onResize);
-    window.removeEventListener('cssVarsSuccessed', this.onCssVarsSuccessed);
+
+    // 스크롤(휠) 취소
+    // window.removeEventListener(wheelEvent, this.onWheel, { passive: false });
+    // window.removeEventListener('resize', this.onResize);
+    // window.removeEventListener('cssVarsSuccessed', this.onCssVarsSuccessed);
     this.$store.commit('setMenuTransparent', false);
     this.$store.commit('setLogoWhite', false);
     this.$store.commit('setNavLinkWhite', false);
@@ -679,15 +681,15 @@ export default {
       // console.log(`visible! >> ${str}, ${e}`);
     },
     visibleA(isVisible) {
-      console.log(`visible! >> a, ${isVisible}`);
+      // console.log(`visible! >> a, ${isVisible}`);
       this.isVisibleA = isVisible;
     },
     visibleB(isVisible) {
-      console.log(`visible! >> b, ${isVisible}`);
+      // console.log(`visible! >> b, ${isVisible}`);
       this.isVisibleB = isVisible;
     },
     visibleC(isVisible) {
-      console.log(`visible! >> c, ${isVisible}`);
+      // console.log(`visible! >> c, ${isVisible}`);
       this.isVisibleC = isVisible;
     },
     isVisible(index) {
@@ -703,9 +705,10 @@ export default {
     beforeEnter0() {
       // remove next slide
       // this.remove1();
+
       ['img0-0', 'img0-1', 'img0-2', 'img0-3', 'sec0-text'].forEach((elstring) => {
         this.$refs[elstring].style.opacity = 0;
-        Velocity(this.$refs[elstring], 'stop');
+        // Velocity(this.$refs[elstring], 'stop');
       });
 
       // 물결 느낌 스스 나게 함.
@@ -733,28 +736,34 @@ export default {
       // });
     },
     async enter0() {
-      const transitionEnd = getTransitionEndEventName();
       // this.$refs['img0-1'].addEventListener('animationiteration', this.changeAnimation, false);
       // this.$refs['img0-1'].addEventListener(transitionEnd, this.transitionEnd);
       // this.$refs['img0-0'].classList.add('img0-0-wrapper');
-      this.$refs['img0-1'].classList.add('img0-1-wrapper');
-      this.$refs['img0-2'].classList.add('img0-2-wrapper');
-      this.$refs['img0-3'].classList.add('img0-3-wrapper');
-      // this.$refs['img0-0'].addEventListener(transitionEnd, this.transitionEnd);
+
+      this.$nextTick(() => {
+        console.log('classAdded!!!');
+        this.$refs['img0-0'].classList.add('img0-0-wrapper');
+        this.$refs['img0-1'].classList.add('img0-1-wrapper');
+        this.$refs['img0-2'].classList.add('img0-2-wrapper');
+        this.$refs['img0-3'].classList.add('img0-3-wrapper');
+      });
+
+      console.log('addEventListener!!');
+      const transitionEnd = getTransitionEndEventName();
       this.$refs['img0-1'].addEventListener(transitionEnd, this.transitionEnd);
       this.$refs['img0-2'].addEventListener(transitionEnd, this.transitionEnd);
       this.$refs['img0-3'].addEventListener(transitionEnd, this.transitionEnd);
 
-      Velocity(
-        this.$refs['img0-0'],
-        { opacity: 1, bottom: [0, -150] },
-        {
-          delay: 2000,
-          duration: 3000,
-          easing: 'easeInOutQuad',
-          queue: false,
-        },
-      );
+      // Velocity(
+      //   this.$refs['img0-0'],
+      //   { opacity: 1, bottom: [0, -150] },
+      //   {
+      //     delay: 2000,
+      //     duration: 3000,
+      //     easing: 'easeInOutQuad',
+      //     queue: false,
+      //   },
+      // );
 
       // Velocity(
       //   this.$refs['img0-1'],
@@ -793,78 +802,78 @@ export default {
       // );
       // Velocity(el, { fontSize: '1em' }, { complete: done });
     },
-    afterEnter0() {
-      // console.log('hello!');
-    },
+    afterEnter0() {},
     beforeLeave0() {},
+    // eslint-disable-next-line no-unused-vars
     leave0(el, done) {
-      ['img0-0', 'img0-1', 'img0-2', 'img0-3', 'sec0-text'].forEach((elstring) => {
-        Velocity(this.$refs[elstring], 'stop');
-        Velocity(
-          this.$refs[elstring],
-          { opacity: 0 },
-          {
-            duration: 1000,
-            easing: 'easeInOutQuad',
-            queue: false,
-            complete: done,
-          },
-        );
-      });
+      // ['img0-0', 'img0-1', 'img0-2', 'img0-3', 'sec0-text'].forEach((elstring) => {
+      //   Velocity(this.$refs[elstring], 'stop');
+      //   Velocity(
+      //     this.$refs[elstring],
+      //     { opacity: 0 },
+      //     {
+      //       duration: 1000,
+      //       easing: 'easeInOutQuad',
+      //       queue: false,
+      //       complete: done,
+      //     },
+      //   );
+      // });
     },
     beforeEnter1() {
-      [
-        'steel1-title',
-        'steel1-subtitle',
-        'steel1-open',
-        'steel1-synopsis',
-        'steel1-featured-more',
-        'black1',
-        'steel1',
-      ].forEach((elstring) => {
-        this.$refs[elstring].style.opacity = 0;
-        Velocity(this.$refs[elstring], 'stop');
-      });
+      // [
+      //   'steel1-title',
+      //   'steel1-subtitle',
+      //   'steel1-open',
+      //   'steel1-synopsis',
+      //   'steel1-featured-more',
+      //   'black1',
+      //   'steel1',
+      // ].forEach((elstring) => {
+      //   this.$refs[elstring].style.opacity = 0;
+      // Velocity(this.$refs[elstring], 'stop');
+      // });
     },
 
+    // eslint-disable-next-line no-unused-vars
     enter1(el, done) {
-      this.$store.commit('setLogoWhite', true);
-      this.$store.commit('setNavLinkWhite', true);
-      Velocity(
-        this.$refs.black1,
-        { opacity: 1 },
-        {
-          duration: 2000,
-          complete: done,
-        },
-      );
-      Velocity(
-        this.$refs.steel1,
-        { opacity: 1 },
-        {
-          delay: 700,
-          duration: 1000,
-        },
-      );
-      const opacities = [1, 0.6, 1, 1, 1];
-      [
-        'steel1-title',
-        'steel1-subtitle',
-        'steel1-open',
-        'steel1-synopsis',
-        'steel1-featured-more',
-      ].forEach((elstring, index) => {
-        Velocity(
-          this.$refs[elstring],
-          { opacity: opacities[index], translateY: [0, 20] },
-          {
-            delay: 200 + index * 200,
-            duration: 800,
-            easing: 'easeInOutQuad',
-            // complete: index === 4 ? done : null,
-          },
-        );
-      });
+      // this.$store.commit('setLogoWhite', true);
+      // this.$store.commit('setNavLinkWhite', true);
+      // Velocity(
+      //   this.$refs.black1,
+      //   { opacity: 1 },
+      //   {
+      //     duration: 2000,
+      //     complete: done,
+      //   },
+      // );
+      // Velocity(
+      //   this.$refs.steel1,
+      //   { opacity: 1 },
+      //   {
+      //     delay: 700,
+      //     duration: 1000,
+      //   },
+      // );
+      // const opacities = [1, 0.6, 1, 1, 1];
+      // [
+      //   'steel1-title',
+      //   'steel1-subtitle',
+      //   'steel1-open',
+      //   'steel1-synopsis',
+      //   'steel1-featured-more',
+      // ].forEach((elstring, index) => {
+      //   Velocity(
+      //     this.$refs[elstring],
+      //     { opacity: opacities[index], translateY: [0, 20] },
+      //     {
+      //       delay: 200 + index * 200,
+      //       duration: 800,
+      //       easing: 'easeInOutQuad',
+      //       // complete: index === 4 ? done : null,
+      //     },
+      //   );
+      // });
     },
 
     afterEnter1() {},
@@ -872,6 +881,7 @@ export default {
       // this.$refs.black1.style.opacity = 0;
     },
     beforeLeave1() {},
+    // eslint-disable-next-line no-unused-vars
     leave1(el, done) {
       this.$store.commit('setLogoWhite', false);
       this.$store.commit('setNavLinkWhite', false);
@@ -882,89 +892,91 @@ export default {
       //   };
       // };
 
-      [
-        'black1',
-        'steel1',
-        'steel1-title',
-        'steel1-subtitle',
-        'steel1-open',
-        'steel1-synopsis',
-        'steel1-featured-more',
-      ].forEach((elstring) => {
-        Velocity(this.$refs[elstring], 'stop');
-        Velocity(
-          this.$refs[elstring],
-          { opacity: 0 },
-          {
-            duration: 500,
-            easing: 'easeInOutQuad',
-            queue: false,
-            complete: done,
-          },
-        );
-      });
+      // [
+      //   'black1',
+      //   'steel1',
+      //   'steel1-title',
+      //   'steel1-subtitle',
+      //   'steel1-open',
+      //   'steel1-synopsis',
+      //   'steel1-featured-more',
+      // ].forEach((elstring) => {
+      //   Velocity(this.$refs[elstring], 'stop');
+      //   Velocity(
+      //     this.$refs[elstring],
+      //     { opacity: 0 },
+      //     {
+      //       duration: 500,
+      //       easing: 'easeInOutQuad',
+      //       queue: false,
+      //       complete: done,
+      //     },
+      //   );
+      // });
     },
     beforeEnter2() {
-      ['main-new-post-header', 'whiteboard'].forEach((elstring) => {
-        Velocity(this.$refs[elstring], 'stop');
-        this.$refs[elstring].style.opacity = 0;
-      });
-      this.$refs.news.forEach((el) => {
-        Velocity(el, 'stop');
-        // eslint-disable-next-line no-param-reassign
-        el.style.opacity = 0;
-        // eslint-disable-next-line no-param-reassign
-        // el.style.transform = 'translateY(50px)';
-      });
+      // ['main-new-post-header', 'whiteboard'].forEach((elstring) => {
+      //   Velocity(this.$refs[elstring], 'stop');
+      //   this.$refs[elstring].style.opacity = 0;
+      // });
+      // this.$refs.news.forEach((el) => {
+      //   Velocity(el, 'stop');
+      //   // eslint-disable-next-line no-param-reassign
+      //   el.style.opacity = 0;
+      //   // eslint-disable-next-line no-param-reassign
+      //   // el.style.transform = 'translateY(50px)';
+      // });
     },
+    // eslint-disable-next-line no-unused-vars
     enter2(_, done) {
-      ['main-new-post-header', 'whiteboard'].forEach((elstring) => {
-        Velocity(
-          this.$refs[elstring],
-          {
-            opacity: 1,
-          },
-          {
-            duration: 1000,
-            complete: done,
-          },
-        );
-      });
-      this.$refs.news.forEach((el, index) => {
-        Velocity(
-          el,
-          { opacity: 1, translateX: [0, 100] },
-          {
-            duration: 1000,
-            delay: index * 200,
-            easing: 'easeInOutQuad',
-          },
-        );
-      });
+      // ['main-new-post-header', 'whiteboard'].forEach((elstring) => {
+      //   Velocity(
+      //     this.$refs[elstring],
+      //     {
+      //       opacity: 1,
+      //     },
+      //     {
+      //       duration: 1000,
+      //       complete: done,
+      //     },
+      //   );
+      // });
+      // this.$refs.news.forEach((el, index) => {
+      //   Velocity(
+      //     el,
+      //     { opacity: 1, translateX: [0, 100] },
+      //     {
+      //       duration: 1000,
+      //       delay: index * 200,
+      //       easing: 'easeInOutQuad',
+      //     },
+      //   );
+      // });
     },
     beforeLeave2() {
-      Velocity(this.$refs['main-new-post-header'], 'stop');
-      Velocity(this.$refs.whiteboard, 'stop');
-      this.$refs.news.forEach((el) => {
-        Velocity(el, 'stop');
-      });
+      // Velocity(this.$refs['main-new-post-header'], 'stop');
+      // Velocity(this.$refs.whiteboard, 'stop');
+      // this.$refs.news.forEach((el) => {
+      //   Velocity(el, 'stop');
+      // });
     },
+    // eslint-disable-next-line no-unused-vars
     leave2(_, done) {
-      const array = this.$refs.news.slice();
-      array.push(this.$refs['main-new-post-header']);
-      array.push(this.$refs.whiteboard);
-      array.forEach((el) => {
-        Velocity(
-          el,
-          {
-            opacity: 0,
-          },
-          {
-            duration: 1000,
-            complete: done,
-          },
-        );
-      });
+      // const array = this.$refs.news.slice();
+      // array.push(this.$refs['main-new-post-header']);
+      // array.push(this.$refs.whiteboard);
+      // array.forEach((el) => {
+      //   Velocity(
+      //     el,
+      //     {
+      //       opacity: 0,
+      //     },
+      //     {
+      //       duration: 1000,
+      //       complete: done,
+      //     },
+      //   );
+      // });
     },
     afterEnter2() {},
 
@@ -1017,12 +1029,12 @@ export default {
 <style>
 .desktop #home {
   /* position: relative; */
-  margin-top: calc(-1 * 230px);
+  /* margin-top: calc(-1 * 230px); */
 }
 
 .mobile #home {
   /* position: relative; */
-  margin-top: calc(-1 * 80px);
+  /* margin-top: calc(-1 * 80px); */
 }
 
 .home-start {
@@ -1054,6 +1066,7 @@ export default {
 @keyframes slide-up {
   from {
     bottom: -150px;
+    opacity: 0;
   }
   to {
     bottom: 0;
@@ -1063,7 +1076,7 @@ export default {
 
 @keyframes slide-up-text {
   from {
-    transform: translateY(100px);
+    transform: translateY(30px);
   }
   to {
     opacity: 1;
@@ -1135,7 +1148,7 @@ export default {
 .page-scroll-section {
   width: 100vw;
   height: 100vh;
-  margin-bottom: 2px;
+  /* margin-bottom: 2px; */
   position: relative;
   /* background-color: #ddd; */
 }
@@ -1174,10 +1187,11 @@ export default {
 //   overflow: hidden;
 // }
 
-.swiper-container {
-  width: 100vw;
-  height: 100vh;
-}
+// .swiper-container {
+//   width: 100vw;
+//   height: 100vh;
+// }
+
 .abs-vertical-center {
   left: 50%;
   transform: translateX(-50%);
@@ -1197,8 +1211,8 @@ export default {
   width: 2200px;
   height: 1600px;
   bottom: -1400px;
-  background-repeat: repeat;
-  background-image: url('../assets/home/1-2.png');
+  // background-repeat: repeat;
+  // background-image: url('../assets/home/1-2.png');
 }
 .sec0-text {
   position: absolute;
@@ -1213,7 +1227,7 @@ export default {
   transform: translateX(-50%);
   // transform: rotateX(45deg);
   left: calc(50% + 220px);
-  bottom: -530px;
+  bottom: -590px;
 }
 .img0-2 {
   transform: translateX(-50%);

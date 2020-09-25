@@ -97,7 +97,7 @@
             </b-nav-item-dropdown>
           </b-navbar-nav>
         </b-navbar>
-        <div class="d-flex flex-column align-self-center justify-content-center fixed-top pt-4">
+        <div class="message-box d-flex flex-column align-self-center justify-content-center fixed-top pt-4">
           <!-- <h2>
             {{ messages }}
           </h2> -->
@@ -254,8 +254,8 @@ body {
   min-width: 175px;
 }
 
-.message-wrapper {
-  /* max-width: 500px; */
+.message-box {
+  z-index: 2000;
 }
 
 .router-link-exact-active {

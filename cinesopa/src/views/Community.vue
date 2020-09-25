@@ -2,8 +2,7 @@
   <div class="">
     <div class="guide">
       <p class="guide-main">
-        학교, 일터, 혹은 공동체에서 <span class="colored-strong">여럿이 함께 영화</span>를 보고자
-        하시는 분들을 위한 공동체 상영 신청 페이지입니다.<br />
+        여럿이 함께 영화를 보거나 아카이빙을 위한 상영 신청 페이지입니다.<br />
       </p>
       <p class="guide-main-sub">
         본 신청서를 작성하시면 <span class="colored-strong">3일 이내</span>에 메일 또는 전화로
@@ -11,11 +10,11 @@
       </p>
       <hr />
       <h2>
-        공동체상영 절차
+        상영 절차
       </h2>
       <ol>
         <li>
-          공동체 상영 신청서를 작성합니다
+          상영 신청서를 작성합니다
         </li>
         <li>
           담당자와 세부사항을 논의하고 확정합니다.
@@ -493,11 +492,11 @@
               :value="'세금계산서'"
               >세금계산서</b-form-checkbox
             >
-            <b-form-checkbox
+            <!-- <b-form-checkbox
               :disabled="form.additionalPapers.includes('세금계산서')"
               :value="'현금영수증'"
               >현금영수증</b-form-checkbox
-            >
+            > -->
             <b-form-checkbox :value="'견적서'">견적서</b-form-checkbox>
           </b-form-checkbox-group>
           <!-- {{ form.additionalPapers }} -->
@@ -564,7 +563,7 @@
             <!-- <span>{{ JSON.stringify(v_context) }}</span> -->
           </b-form-group>
         </validation-provider>
-        <b-button type="submit" variant="primary">신청서를 제출하겠습니다요!</b-button>
+        <b-button type="submit" variant="primary">신청서를 제출하겠습니다</b-button>
       </b-form>
     </validation-observer>
   </div>
@@ -584,7 +583,7 @@ import Privacy from '../components/Privacy.vue';
 extend('shouldCheck', (value) => value === true);
 
 export default {
-  title: '공동체상영 신청',
+  title: '상영 신청',
   name: 'Community',
   components: {
     privacy: Privacy,
@@ -792,6 +791,7 @@ export default {
   font-weight: 600;
   letter-spacing: -0.7px;
   max-width: 660px;
+  margin-bottom: 0;
 }
 
 .guide-main-sub {

@@ -24,19 +24,20 @@
       <div class="swiper-scrollbar"></div>
     </div>
     <div style="height: 500px"><parallax :speed="-200">Hello</parallax></div>
-    
+
     <b-form-input></b-form-input>
   </div>
 </template>
 
 <script>
-import Swiper, { Mousewheel } from 'swiper';
+// import Swiper, { Mousewheel } from 'swiper';
 // import Swiper styles
-import 'swiper/swiper-bundle.css';
+// import 'swiper/swiper-bundle.css';
 import Parallax from '../components/parallax.vue';
 // import Parallax from '../components/parallax.vue';
 
-Swiper.use([Mousewheel]);
+// Swiper.use([Mousewheel]);
+function Swiper() {}
 
 export default {
   components: {
@@ -87,7 +88,6 @@ export default {
     },
     onWheel(e) {
       // console.log(e);
-
       // e.preventDefault();
       // e.preventDefault();
     },

@@ -11,6 +11,10 @@
           class="flex-grow-1"
         ></b-form-input>
       </b-form-group>
+      <div class="toolbar">
+        <b-button @click="$bvModal.show('media-insert-modal')">파일/이미지 삽입</b-button>
+        <b-modal id="media-insert-modal">hello~!</b-modal>
+      </div>
       <div
         v-if="!state.editorLoaded"
         class="h-25 d-flex p-2 justify-content-center align-items-center"
@@ -18,7 +22,9 @@
         <b-spinner variant="secondary" class="m-2 small"></b-spinner>
         <p class="m-0">에디터 로딩중입니다.</p>
       </div>
+
       <editor
+        ref="editor"
         api-key="gt5higoqzglgrwcu9r7cdbmj408cva4csd4aj2y6qvcr5i5r"
         v-model="input.content"
         :init="editorInit"
@@ -75,7 +81,13 @@
           v-model="input.board"
           :options="options.board"
         ></b-form-select> -->
-        대표 이미지
+        <b-button @click="$bvModal.show('set-featured-image-modal')">새로 설정</b-button>
+        <b-modal size="xl" hide-footer id="set-featured-image-modal">
+          <file-manager
+            @file-manager-selected="test1"
+            :modalId="'set-featured-image-modal'"
+          ></file-manager>
+        </b-modal>
       </b-form-group>
     </template>
   </wrap-with-editor>
@@ -97,8 +109,12 @@
 import Editor from '@tinymce/tinymce-vue';
 import { mapActions } from 'vuex';
 import WrapWithEditor from '../layout/WrapWithEditor.vue';
+import FileManager from '../../components/FileManager.vue';
 import tinymceInit from '../../tinymce-configure';
 import { queryString, graphql } from '../../loader';
+
+/** @type {import('@types/tinymce')} */
+let editor = null;
 
 export default {
   name: 'PostEdit',
@@ -106,6 +122,7 @@ export default {
   components: {
     'wrap-with-editor': WrapWithEditor,
     editor: Editor,
+    'file-manager': FileManager,
   },
   props: ['belongs_to', 'mode'],
   data() {
@@ -147,7 +164,7 @@ export default {
     },
   },
 
-  async created() {
+  async mounted() {
     // 게시판 초기화 설정
     const res = await graphql(queryString.board.boardsQuery, {
       belongs_to: this.belongs_to,
@@ -183,11 +200,15 @@ export default {
       // this.input.conetent =
       // this.input.
     }
+
+    // tinymce 테스트
   },
   methods: {
     ...mapActions(['pushMessage']),
-    onEditorInit() {
+    onEditorInit(ev, tinymce) {
+      editor = tinymce;
       this.state.editorLoaded = true;
+      editor.execCommand('mceInsertContent', false, 'Hello, World!');
     },
     async confirm() {
       if (this.mode === 'new') {
@@ -210,6 +231,7 @@ export default {
       });
       this.$router.push({ name: 'PostEdit', params: { id } });
     },
+
     async update() {
       const { input } = this;
       // input.board = parseInt(input.board, 10);
@@ -232,6 +254,12 @@ export default {
             id: 'postUpdateFail',
           });
         });
+    },
+
+    async test1(event, values) {
+      editor.execCommand('mceInsertContent', true, '<div>하하하하 ~!!</div>');
+      console.log(event);
+      console.log(values);
     },
   },
 };

@@ -1,8 +1,10 @@
 <template>
   <div>
     <p class="main-summary">
-      씨네소파는 독립 장편, 단편, 애니메이션, 다큐멘터리 등<br />
-      장르 구분 없이 모든 영화의 배급문의를 받습니다.
+      작품 의뢰 주셔서 감사드립니다.
+    </p>
+    <p class="sub-summary">
+      본 신청서를 작성하시면 2주 이내 연락을 드리니, 잠시만 기다려주세요 :)
     </p>
 
     <!-- <hr /> -->
@@ -33,12 +35,12 @@
           label-size="md"
           label-for="user-name"
         >
+            <!-- placeholder="박소파" -->
           <b-form-input
             class="underlined-box"
             v-model="form.user.name"
             id="user-name"
             type="text"
-            placeholder="박소파"
             :required="required"
           ></b-form-input>
         </b-form-group>
@@ -50,12 +52,12 @@
           label-size="md"
           label-for="user-email"
         >
+            <!-- placeholder="cinesopa@example.com" -->
           <b-form-input
             class="underlined-box"
             v-model="form.user.email"
             id="user-email"
             type="email"
-            placeholder="cinesopa@example.com"
             :required="required"
           ></b-form-input>
         </b-form-group>
@@ -66,22 +68,44 @@
           label-align-sm="left"
           label-size="md"
           label-for="user-phone"
+          description="'-' 없이 숫자만 입력해주세요."
         >
-          <b-input-group>
             <b-form-input
               class="underlined-box"
               v-model="form.user.phone"
               type="text"
               id="user-phone"
-              placeholder="'-' 없이 숫자만 입력"
+              
               :required="required"
             ></b-form-input>
-          </b-input-group>
         </b-form-group>
+                <b-form-group
+          class="distribution-form-group"
+          label="역할"
+          label-cols-sm="3"
+          label-align-sm="left"
+          label-size="md"
+          label-for="user-role"
+        >
+         <b-form-select
+            class="rounded-box w-50"
+            v-model="form.user.role"
+            id="user-role"
+            placeholder=""
+            :required="required"
+          >
+            <!-- <template v-slot:first>
+              <option value="">-- 형식 --</option>
+            </template> -->
+            <!-- <option :value="''">선택</option> -->
+            <option :value="'감독'">감독</option>
+            <option :value="'프로듀서'">프로듀서</option>
+            <option :value="'기타'">기타</option>
+          </b-form-select>
+                </b-form-group>
 
-        <h2 class="d-flex align-items-center">
+        <!-- <h2 class="d-flex align-items-center">
           감독
-          <!-- <b-button @click="fillDirectorInfo">신청인 정보로 채워넣기</b-button> -->
           <b-form-checkbox
             @change="isUserSameWithDirectorChanged"
             v-model="form.isUserSameWithDirector"
@@ -139,7 +163,7 @@
             :placeholder="form.isUserSameWithDirector ? '' : '\'-\' 없이 숫자만 입력'"
             :disabled="form.isUserSameWithDirector"
           ></b-form-input>
-        </b-form-group>
+        </b-form-group> -->
 
         <h2>
           작품 정보
@@ -178,7 +202,24 @@
             :required="required"
           ></b-form-input>
         </b-form-group>
-        <b-form-group
+         <b-form-group
+          class="distribution-form-group"
+          label="감독 이름"
+          label-cols-sm="3"
+          label-align-sm="left"
+          label-size="md"
+          label-for="film-director_name"
+        >
+          <b-form-input
+            class="underlined-box"
+            v-model="form.film.director_name"
+            type="text"
+            id="film-director_name"
+            placeholder=""
+            :required="required"
+          ></b-form-input>
+        </b-form-group>
+        <!-- <b-form-group
           class="distribution-form-group"
           label="길이 구분"
           label-cols-sm="3"
@@ -193,16 +234,11 @@
             placeholder=""
             :required="required"
           >
-            <!-- <template v-slot:first>
-              <option value="">-- 장편 / 단편 --</option>
-            </template> -->
             <option :value="true">장편</option>
             <option :value="false">단편</option>
           </b-form-select>
           <b-form-text>60분보다 길면 장편, 짧으면 단편입니다.</b-form-text>
-          <!-- </b-col> -->
-          <!-- <b-col md="6"> -->
-        </b-form-group>
+        </b-form-group> -->
         <b-form-group
           class="distribution-form-group"
           label="형식"
@@ -230,13 +266,13 @@
         </b-form-group>
         <b-form-group
           class="distribution-form-group"
-          label="영화 길이"
+          label="러닝타임"
           label-cols-sm="3"
           label-align-sm="left"
           label-size="md"
           label-for="film-runningtime"
         >
-          <b-input-group class="align-items-center">
+          <div class="d-flex align-items-center">
             <b-form-input
               class="underlined-box"
               v-model="form.film.runningtime"
@@ -246,7 +282,7 @@
               :required="required"
             ></b-form-input>
             <div class="w-50">분</div>
-          </b-input-group>
+          </div>
         </b-form-group>
         <b-form-group
           class="distribution-form-group"
@@ -341,18 +377,52 @@
           label-align-sm="left"
           label-size="md"
           label-for="film-link"
+          description="비밀번호로 보호된, vimeo 및 youtube 등의 링크를 적어주세요."
         >
-          <b-input-group>
             <b-form-input
               class="underlined-box"
               v-model="form.film.link"
               type="text"
               id="film-link"
-              placeholder="비밀번호로 보호된 vimeo, youtube 링크"
               :required="required"
             ></b-form-input>
-          </b-input-group>
         </b-form-group>
+        <b-form-group
+          class="distribution-form-group"
+          label="비밀번호"
+          label-cols-sm="3"
+          label-align-sm="left"
+          label-size="md"
+          label-for="film-linkpw"
+        >
+          <b-form-input
+            class="underlined-box"
+            v-model="form.film.linkpw"
+            type="text"
+            id="film-linkpw"
+            placeholder=""
+            :required="required"
+          ></b-form-input>
+        </b-form-group>
+
+        <b-form-group
+          class="distribution-form-group wide"
+          label="기타 정보"
+          label-cols-sm="3"
+          label-align-sm="left"
+          label-size="md"
+          label-for="film-festival_list"
+          description="기타 참고할 만한 정보를 적어주세요."
+        >
+          <b-form-textarea
+            v-model="form.film.festival_list"
+            size="sm"
+            id="film-festival_list"
+            :required="required"
+            rows="5"
+          ></b-form-textarea>
+        </b-form-group>
+
         <validation-provider
           :rules="{ shouldCheck: true }"
           :customMessages="{ shouldCheck: '반드시 동의하여야 합니다.' }"
@@ -431,6 +501,7 @@ export default {
           name: null,
           email: null,
           phone: null,
+          role: '감독',
         },
         director: {
           name: null,
@@ -440,6 +511,7 @@ export default {
         film: {
           title: null,
           title_en: null,
+          director_name: '',
           islong: true,
           type: '극영화',
           runningtime: null,
@@ -448,6 +520,7 @@ export default {
           purpose: '',
           festival_list: '',
           link: '',
+          linkpw: '',
         },
       },
     };
@@ -504,7 +577,6 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-
 .distribution-form h2 {
   margin-top: 70px;
   color: #009eda;
@@ -552,6 +624,11 @@ export default {
   font-size: 22px;
   font-weight: 600;
   letter-spacing: -0.7px;
+  margin-bottom: 0;
+}
+.sub-summary {
+  font-size: 19px;
+  font-weight: 600;
 }
 
 // .distribution-form-group input::placeholder {

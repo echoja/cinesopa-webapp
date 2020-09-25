@@ -208,7 +208,7 @@
           :key="index"
           class="film-wrapper text-center"
         >
-          <!-- {{ film }} -->
+          <!-- {{ film }} -->`
           <!-- <b-link :style="{'background-image': `url(${film.posterLink})`}"
            class="poster-link w-100" href=""></b-link> -->
           <div class="poster-wrapper d-flex align-items-center justify-content-center">
@@ -217,7 +217,7 @@
               :to="{ name: 'IndividualFilm', params: { id: film.id } }"
               class="poster-link"
             >
-              <b-badge pill class="film-badge" v-if="film.badge">{{ film.badge }}</b-badge>
+              <span class="film-badge" v-if="film.badge">{{ film.badge }}</span>
               <img :src="film.posterLink" :alt="`${film.title} 포스터`" />
             </b-link>
           </div>
@@ -278,7 +278,7 @@
 <script>
 export default {
   name: 'FilmList',
-  title: '영화봐요',
+  title: '작품소개',
   data() {
     return {
       currentPage: 3,
@@ -597,6 +597,8 @@ export default {
     border-radius: 0 0 19px 0;
     padding: 10px;
     padding-right: 13px;
+    line-height: 1;
+    color: #fff;
   }
 
   & .poster-link {
@@ -713,7 +715,7 @@ export default {
 
 .filter .form-control::placeholder {
   color: #ddd;
-  font-weight: 700;
+  font-weight: 400;
 }
 
 .isopen-in-search {

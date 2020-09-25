@@ -6,9 +6,9 @@
         <h2>전체 메뉴</h2>
     <ul class="main">
       <li><b-link :to="{ name: 'Home' }">홈</b-link></li>
-      <li><b-link :to="{ name: 'About' }">인사해요</b-link></li>
-      <li><b-link :to="{ name: 'FilmList' }">영화봐요</b-link></li>
-      <li><b-link :to="{ name: 'BoardActivity' }">활동해요</b-link>
+      <li><b-link :to="{ name: 'About' }">회사소개</b-link></li>
+      <li><b-link :to="{ name: 'FilmList' }">작품소개</b-link></li>
+      <li><b-link :to="{ name: 'BoardActivity' }">아카이브</b-link>
         <ul class="sub">
           <li>
             <b-link :to="{ name: 'BoardActivity' }">커뮤니티</b-link>
@@ -21,7 +21,7 @@
           </li>
         </ul>
       </li>
-      <li><b-link :to="{ name: 'BoardNotice' }">공지해요</b-link>
+      <li><b-link :to="{ name: 'BoardNotice' }">공지사항</b-link>
         <ul class="sub">
           <li>
             <b-link :to="{ name: 'BoardNotice' }">프레스</b-link>
@@ -32,13 +32,13 @@
         </ul>
       </li>
       <li>
-        <b-link :to="{ name: 'Distribution' }">신청해요</b-link>
+        <b-link :to="{ name: 'Distribution' }">신청하기</b-link>
         <ul class="sub">
           <li>
             <b-link :to="{ name: 'Distribution' }">배급의뢰</b-link>
           </li>
           <li>
-            <b-link :to="{ name: 'Community' }">공동체상영 신청</b-link>
+            <b-link :to="{ name: 'Community' }">상영 신청</b-link>
           </li>
         </ul>
       </li>

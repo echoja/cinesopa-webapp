@@ -29,7 +29,7 @@
         >
       </div>
       <div class="toolbar-right">
-        <b-button size="sm" v-if="selectable" variant="primary">{{ selectMessage }}</b-button>
+        <b-button size="sm" v-if="selectable" variant="primary" @click="onSelect">{{ selectMessage }}</b-button>
         <!-- <b-button size="sm" variant="primary">새로 추가</b-button> -->
         <b-form-file
           class="d-inline-block w-auto"
@@ -380,8 +380,6 @@ export default {
       });
     },
     removeSelected() {
-      this.cancelDetail();
-      this.cancelSelected();
       const promises = [];
       this.selectedFiles.forEach((file) => {
         promises.push(
@@ -397,6 +395,8 @@ export default {
             msg: `${results.length} 개의 파일이 성공적으로 삭제되었습니다.`,
             id: 'fileRemoveSuccess',
           });
+          this.cancelDetail();
+          this.cancelSelected();
         })
         .catch((err) => {
           console.error(err);
@@ -433,6 +433,11 @@ export default {
     },
     pageChanged(page) {
       this.fetchFiles(page);
+    },
+
+    onSelect() {
+      this.$emit('file-manager-selected', this.selectedFiles);
+      this.$bvModal.hide(this.modalId);
     },
   },
 };

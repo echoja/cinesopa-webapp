@@ -2,6 +2,47 @@
   <div ref="about" class="container-fluid">
     <!-- big-title -->
     <h1 class="visually-hidden">씨네소파 소개</h1>
+
+    <div class="summary">
+      <div class="value-three-background">
+        <b-img
+          class="value-three-background-img unselectable"
+          src="../assets/about/values-bg.png"
+        ></b-img>
+      </div>
+      <div class="simple-about-wrapper">
+        <div class="simple-about">
+          <p class="reveal1-1">씨네 + 소파 =</p>
+          <p class="reveal1-2">
+            <span class="big">{</span> 씨네(<small>cine-</small>): 영화의
+            <span class="big">}</span> + <span class="big">{</span> 소파(<small>小波</small>) 작은
+            파도 <span class="big">}</span>
+          </p>
+          <p><br /></p>
+          <p class="reveal1-3">우리의 작은 파도는,</p>
+          <p class="reveal1-4">
+            <em>1.</em> 상영 기회가 없던 <span class="blue-circle-strong">좋은 영화</span>를
+            발견하여 관객과 만나게 합니다.
+          </p>
+          <p class="reveal1-5">
+            <em>2.</em> 영화를 재밌고 깊이 <span class="blue-circle-strong">향유</span>할 수 있는
+            방법을 고민합니다.
+          </p>
+          <p class="reveal1-6">
+            <em>3.</em> 다재다능한 친구들과 영화를 매개로
+            <span class="blue-circle-strong">함께</span>하고자 합니다.
+          </p>
+          <p><br /></p>
+          <p class="reveal1-7">
+            씨네소파는 시야를 확장시키는 영화를 통해
+          </p>
+          <p class="reveal1-8">
+            나 자신을 발견하고, 상대를 헤아리며, 세상을 이해하는 방법을 제시합니다.
+          </p>
+        </div>
+      </div>
+    </div>
+    <!-- 
     <div class="big-title d-flex justify-content-center">
       <div class="big-title-letter">
         <div class="big-title-letter-up">
@@ -22,13 +63,13 @@
       </div>
     </div>
 
-    <!-- excerpt -->
-    <div class="excerpt">
+    excerpt
+    <div class="excerpt d-none">
       씨네소파는 숨겨져 있던 영화를<br />
       관객에게 실어 보내는 파도입니다.
     </div>
 
-    <!-- value three -->
+    value three
     <div class="value-three">
       <div class="value-three-background">
         <b-img
@@ -44,22 +85,22 @@
             만나게 합니다.
           </p>
         </div>
-        <!-- <div class="blue-dots">
+        <div class="blue-dots">
           <div class="blue-dot"></div>
           <div class="blue-dot"></div>
           <div class="blue-dot"></div>
-        </div> -->
+        </div>
         <div class="blue-circle">
           <p>
             영화를 재밌고<br />깊이 <span class="blue-circle-strong">향유</span>할 수 있는<br />방법을
             고민합니다.
           </p>
         </div>
-        <!-- <div class="blue-dots">
+        <div class="blue-dots">
           <div class="blue-dot"></div>
           <div class="blue-dot"></div>
           <div class="blue-dot"></div>
-        </div> -->
+        </div>
         <div class="blue-circle">
           <p>
             다재다능한 친구들과<br />영화를 매개로<br /><span class="blue-circle-strong">함께</span
@@ -71,16 +112,18 @@
         <div class="value-three-affix-bg"></div>
         <div class="value-three-affix-sub">씨네소파는 시야를 확장시키는 영화를 통해</div>
         <div class="value-three-affix-main">
+          씨네소파는 시야를 확장시키는 영화를 통해<br />
           나 자신을 발견하고, 상대를 헤아리며,<br />
           세상을 이해하는 방법을 제시합니다.
         </div>
       </div>
-    </div>
+    </div> -->
+
     <!-- works -->
     <div class="big-heading-wrapper">
       <h2 class="big-heading">씨네소파가 하는 일</h2>
     </div>
-    <div class="works">
+    <div class="works" data-aos="fade-up" data-aos-duration="1000">
       <div class="works-bg"></div>
       <div class="works-circles">
         <div class="works-circle">영화<br />배급/마케팅</div>
@@ -94,7 +137,13 @@
       <h2 class="big-heading">함께하는 사람들</h2>
     </div>
     <div class="people row">
-      <div class="person col-12 col-md-6" v-for="(person, index) in people" :key="index">
+      <div
+        class="person col-12 col-md-6"
+        v-for="(person, index) in people"
+        :key="index"
+        data-aos="fade-up"
+        data-aos-duration="1000"
+      >
         <div class="person-sign">
           <b-img class="person-sign-image" :src="person.imageLink" alt=""></b-img>
         </div>
@@ -135,7 +184,13 @@
     </div>
     <div class="history">
       <div class="history-bg"></div>
-      <div class="history-year-row" v-for="(yearGroup, index) in formattedHistory" :key="index">
+      <div
+        class="history-year-row"
+        v-for="(yearGroup, index) in formattedHistory"
+        :key="index"
+        data-aos="fade-up"
+        data-aos-duration="1000"
+      >
         <div class="history-year">{{ yearGroup.year }}</div>
         <div class="history-events">
           <div class="history-event" v-for="(event, index) in yearGroup.events" :key="index">
@@ -148,9 +203,11 @@
 </template>
 
 <script>
+import AOS from 'aos';
+
 export default {
   name: 'About',
-  title: '인사해요',
+  title: '회사소개',
   data() {
     return {
       //       최예지(딩딩)
@@ -250,11 +307,58 @@ export default {
       return result;
     },
   },
+  mounted() {
+    // console.log(AOS);
+    AOS.init();
+  },
 };
 </script>
 
 <style lang="scss" scoped>
 @use '../util.scss';
+
+$total: 9;
+
+@for $i from 1 to $total {
+  .reveal1-#{$i} {
+    animation: 0.8s ease $i * 100ms slide-up both;
+  }
+}
+@keyframes slide-up {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.simple-about {
+  font-size: 18px;
+  font-weight: 500;
+  // max-width: 700px;
+  // margin: 0 auto;
+  position: relative;
+  z-index: 2;
+  & small {
+    font-size: 95%;
+  }
+  & .big {
+    font-size: 120%;
+    font-weight: 400;
+  }
+  & p {
+    position: relative;
+    z-index: 2;
+  }
+}
+
+.simple-about-wrapper {
+  display: flex;
+  justify-content: center;
+}
 
 .big-title {
   position: relative;
@@ -324,7 +428,7 @@ export default {
   position: absolute;
   left: 50%;
   transform: translateX(-50%);
-  top: -500px;
+  top: -300px;
 }
 .blue-circle {
   text-align: center;
@@ -460,7 +564,7 @@ export default {
 .person-name-position,
 .person-contact {
   // flex: 0 0 auto;
-  
+
   width: 50%;
 }
 
@@ -473,16 +577,12 @@ export default {
 }
 
 .person-name-position-wrapper {
-
 }
 .person-contact {
-
   display: flex;
   flex-direction: column;
   justify-content: center;
 }
-
-
 
 .person-real-name {
   font-size: 28px;
@@ -498,7 +598,8 @@ export default {
   margin-top: -5px;
   margin-left: 1px;
 }
-.person-phone, .person-email {
+.person-phone,
+.person-email {
   border-left: 1px solid util.$link-color;
   padding-left: 20px;
   font-size: 15px;
@@ -591,7 +692,7 @@ export default {
 }
 .history-events {
   padding-left: 30px;
-    margin-bottom: 30px;
+  margin-bottom: 30px;
 }
 .history-event {
   font-size: 20px;

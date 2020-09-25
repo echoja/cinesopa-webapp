@@ -8,7 +8,7 @@
     </div>
     <!-- 각종 신청 -->
     <div class="application text-center my-5">
-      <b-button pill>공동체상영 신청하기</b-button>
+      <b-button pill>상영 신청하기</b-button>
     </div>
     <!-- 기본 정보 -->
     <div class="basic-info">
@@ -223,9 +223,6 @@
       </div>
     </div>
   </div>
-  <!-- <b-nav>
-    <b-nav-item :to="{name:}"></b-nav-item>
-  </b-nav> -->
 </template>
 
 <script>

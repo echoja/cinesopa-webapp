@@ -22,7 +22,7 @@
         </li>
         <li class="request-menu-listitem">
           <b-link class="request-router-link smooth-hover" ref="link2" :to="{ name: 'Community' }"
-            >공동체상영신청</b-link
+            >상영신청</b-link
           >
         </li>
       </ol>

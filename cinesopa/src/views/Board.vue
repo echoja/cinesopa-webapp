@@ -123,7 +123,7 @@ export default {
   title: (context) => context.title,
   props: {
     title: String,
-    boardPermalinks: String,
+    boardPermalinks: Array,
     viewType: {
       // 'list' or 'gallery'
       type: String,
