@@ -26,7 +26,6 @@ const postsQuery = makeResolver(async (obj, args, context, info) => {
 
   let { search } = condition;
   search = search ? Hangul.disassembleToString(search) : null;
-
   return db.getPosts(
     {
       page,
@@ -61,6 +60,17 @@ const postsAdmin = makeResolver(async (obj, args, context, info) => {
     search,
   });
 }).only(ACCESS_ADMIN);
+
+const postsCount = makeResolver(async (obj, args, context, info) => {
+  const { condition } = args;
+
+  // const refined_input = db.importPostInput(input);
+  // // const { title, content, excerpt, status, board, c_date, meta } = input;
+  // const post = await db.createPost(refined_input);
+  // return db.exportPost(post);
+  const count = await db.getPostsCount(condition);
+  return count;
+}).only(ACCESS_ALL);
 
 const objWithoutNull = (obj) => {
   const keys = Object.keys(obj);
@@ -112,6 +122,7 @@ module.exports = {
     posts: postsQuery,
     postAdmin,
     postsAdmin,
+    postsCount,
   },
   Mutation: {
     createPost,

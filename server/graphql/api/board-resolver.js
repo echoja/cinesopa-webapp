@@ -29,8 +29,15 @@ const boardsResolver = makeResolver(async (obj, args, context, info) => {
   } else {
     result = await db.getBoards();
   }
-  console.log(result);
-  result.id = result._id;
+  // console.log(result);
+  // console.log(result[0]._id);
+  // result = result.map((value) => {
+  //   const o = { ...value };
+  //   o.id = value._id;
+  //   console.log(value._id);
+  //   return o;
+  // });
+  // result.id = result._id;
   return result;
 }).only(ACCESS_ADMIN);
 

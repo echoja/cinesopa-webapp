@@ -685,7 +685,9 @@ class DBManager {
       query = query.find({ search: new RegExp(`${search}`) });
     }
 
+    // todo 테스트 필요
     if (board_permalink && board_belongs_to) {
+      console.log('post finding -- board!!');
       const boardDoc = await model.Board.findOne({
         permalink: board_permalink,
         belongs_to: board_belongs_to,
@@ -693,14 +695,15 @@ class DBManager {
       if (!boardDoc) {
         return [];
       }
+      query = query.find({ board: boardDoc._id });
       // if (!boardDoc) throw Error(`${board_belongs_to}의 ${board_permalink} 게시판을 찾을 수 없습니다.`);
     }
 
     // query date
     if (date_lte || date_gte) {
-      console.log(
-        `getPosts: date lte or date gte!! date_lte: ${date_lte}, date_gte: ${date_gte}`,
-      );
+      // console.log(
+      //   `getPosts: date lte or date gte!! date_lte: ${date_lte}, date_gte: ${date_gte}`,
+      // );
       const c_date = {};
       if (date_lte) c_date.$lte = date_lte;
       if (date_gte) c_date.$gte = date_gte;
@@ -709,17 +712,63 @@ class DBManager {
 
     // status
     if (status) {
-      console.log(`getPosts: status: ${status}`);
+      // console.log(`getPosts: status: ${status}`);
       query = query.find({ status });
     }
 
+    // 페이지 하기 전의 포스트 총 개수 구하기
+    const total = (await query.exec()).length;
+
     // pagination
     if (page && perpage) {
-      console.log('getPosts: pagenation!!');
+      // console.log('getPosts: pagenation!!');
       query = query.limit(perpage).skip(perpage * page);
     }
 
-    return query.lean().exec();
+    return { total, posts: await query.lean().exec() };
+  }
+
+  /**
+   * @typedef getPostsCountParams
+   * @property {string[]} boards 보드들 permalink. or 연산됨.
+   * @property {string} belongs_to 어디에 속해 있는지.
+   * @property {string} status `public` 또는 `private`
+   */
+
+  /**
+   * 게시물의 개수를 알 수 있는 것
+   * @param {getPostsCountParams} param0
+   * @returns {Promise<number>} 게시물 개수
+   */
+  async getPostsCount({ boards, belongs_to, status } = {}) {
+    let query = model.Post.find();
+
+    // 만약 보드 permalinks들이 있다면, 각 보드에 해당하는
+    // id를 구하여 하나라도 포함될 수 있도록 $in 연산 먹임.
+    if (boards && boards.length !== 0 && belongs_to) {
+      // const promises = [];
+      // boards.forEach((permalink) => {
+      //   const promise = model.Board.findOne({
+      //     permalink,
+      //     belongs_to,
+      //   });
+      //   promises.push(promise);
+      // });
+      // const foundDocs = await Promise.allSettled(promises);
+
+      const foundDocs = await model.Board.find({
+        permalink: { $in: boards },
+        belongs_to,
+      }).exec();
+      const boardIds = foundDocs.map((doc) => doc?._id);
+      query = query.find({ board: { $in: boardIds } });
+    }
+
+    if (status) {
+      // console.log(`getPosts: status: ${status}`);
+      query = query.find({ status });
+    }
+    return (await query.exec()).length;
   }
 
   /**

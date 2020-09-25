@@ -101,18 +101,11 @@ const doLogin = async (agent, email, pwd) =>
     pwd,
   });
 
-const initTestServer = (hookFunctions) => {
-  // const model = require("../db/model").make(mongoose);
-  /** @type {MongoMemoryServer} */
+const testDatabaseServer = (hookFunctions) => {
   const mongod = new MongoMemoryServer({ binary: { version: '4.2.9' } });
-  /** @type {import("express").Express} */
-  const webapp = express();
-  /** @type {import("supertest").SuperAgentTest} */
-  const agent = makeAgent(webapp);
-  /** DB 세팅 */
-  // delete require.cache[require.resolve('passport')];
-  // this.timeout(10000);
-  hookFunctions.before('db 및 웹서버 초기화', async function () {
+
+  hookFunctions.before('db 초기화', async function () {
+    // console.log('testDatabaseServer - before!!');
     const uri = await mongod.getUri();
     const mongooseOpts = {
       useNewUrlParser: true,
@@ -124,6 +117,55 @@ const initTestServer = (hookFunctions) => {
       useFindAndModify: false,
     };
     await mongoose.connect(uri, mongooseOpts);
+  });
+
+  hookFunctions.beforeEach('유저 세팅', async function () {
+    // console.log('testDatabaseServer - beforeEach!!');
+    await db.createUser({
+      email: 'testAdmin',
+      pwd: 'abc',
+      role: 'ADMIN',
+    });
+    await db.createUser({
+      email: 'testGuest',
+      pwd: 'abc',
+      role: 'GUEST',
+    });
+  });
+
+  hookFunctions.afterEach('db 내용 초기화', async function () {
+    // console.log('testDatabaseServer - afterEach!!');
+    const { collections } = mongoose.connection;
+
+    const promises = [];
+    Object.keys(collections).forEach((key) => {
+      const collection = collections[key];
+      promises.push(collection.deleteMany());
+    });
+    await Promise.allSettled(promises);
+  });
+
+  hookFunctions.after('서버 및 db 종료', async function () {
+    // console.log('testDatabaseServer - after!!');
+    await mongoose.connection.dropDatabase();
+    await mongoose.connection.close();
+    await mongod.stop();
+  });
+
+  return mongod;
+};
+
+const initTestServer = (hookFunctions) => {
+  // const model = require("../db/model").make(mongoose);
+
+  /** @type {import("express").Express} */
+  const webapp = express();
+  /** @type {import("supertest").SuperAgentTest} */
+  const agent = makeAgent(webapp);
+  /** DB 세팅 */
+  // delete require.cache[require.resolve('passport')];
+  // this.timeout(10000);
+  hookFunctions.before('웹서버 초기화', async function () {
     // const autoIncrement = AutoIncrementFactory(mongoose);
     // autoIncrement.initialize(mongoose.connection);
     // setAutoIncrement(autoIncrement, 'Page', 'id');
@@ -200,38 +242,16 @@ const initTestServer = (hookFunctions) => {
       makeAuthMiddleware(validator, [enumAuthmap.ADMIN]),
       uploadMiddleware,
     );
-
     // 파일 get용.
     webapp.get('/upload/:filename', getFileMiddleware);
   });
-  hookFunctions.beforeEach('유저 세팅', async function () {
-    await db.createUser({
-      email: 'testAdmin',
-      pwd: 'abc',
-      role: 'ADMIN',
-    });
-    await db.createUser({
-      email: 'testGuest',
-      pwd: 'abc',
-      role: 'GUEST',
-    });
-  });
-  hookFunctions.afterEach('db 내용 및 세션 초기화', async function () {
+  hookFunctions.afterEach('세션 초기화', async function () {
+    // console.log('webapp - afterEach!!!');
     await agent.get('/logout');
-    const { collections } = mongoose.connection;
+  });
 
-    const promises = [];
-    Object.keys(collections).forEach((key) => {
-      const collection = collections[key];
-      promises.push(collection.deleteMany());
-    });
-    await Promise.allSettled(promises);
-  });
-  hookFunctions.after('서버 및 db 종료', async function () {
-    await mongoose.connection.dropDatabase();
-    await mongoose.connection.close();
-    await mongod.stop();
-  });
+  /** @type {MongoMemoryServer} */
+  const mongod = testDatabaseServer(hookFunctions);
 
   return { mongod, agent, webapp, uploadDest, fileService };
 };
@@ -246,6 +266,7 @@ const initTestServer = (hookFunctions) => {
 module.exports = {
   graphqlSuper,
   doLogin,
+  testDatabaseServer,
   initTestServer,
   /**
    * HTML File 객체를 만듭니다.

@@ -238,8 +238,8 @@
         </b-col>
 
         <b-col lg>
-          <!-- 사람들 
-              role_type: { type: String, enum: enumPeopleRoleType.raw_str_list },
+          <!-- 사람들
+    role_type: { type: String, enum: enumPeopleRoleType.raw_str_list },
     name: String,
     name_en: String,
     role: String,
@@ -301,10 +301,10 @@
               </tr>
             </table>
           </div>
-          <!-- 스틸컷 및 사진 -->
+          <!-- 포토 및 사진 -->
           <div id="edit-photos">
             <h2>
-              스틸컷 및 사진
+              포토
               <b-button size="sm" @click="addPhoto">
                 새로 추가
               </b-button>
@@ -390,6 +390,7 @@
 
 <script>
 import { mapActions } from 'vuex';
+// import moment from 'moment';
 import {
   graphql,
   filmQuery,
@@ -397,7 +398,6 @@ import {
   createFilmMutation,
 } from '../../api/graphql-client';
 import router from '../../router';
-import moment from 'moment';
 
 export default {
   name: 'FilmEdit',
@@ -522,7 +522,9 @@ export default {
         author: '',
       });
     },
-    async importReviewByLink() {},
+    async importReviewByLink() {
+      // todo
+    },
     async removeReview(index) {
       this.film.reviews.splice(index, 1);
     },
@@ -558,7 +560,7 @@ export default {
     },
     async confirmNew() {
       const input = await this.buildInput();
-      const result = await graphql(createFilmMutation, {
+      /* const result = */ await graphql(createFilmMutation, {
         input,
       });
       // console.log(result);
@@ -570,7 +572,7 @@ export default {
     },
     async confirmUpdate() {
       const input = await this.buildInput();
-      const result = await graphql(updateFilmMutation, {
+      /* const result = */ await graphql(updateFilmMutation, {
         id: this.id,
         input,
       });

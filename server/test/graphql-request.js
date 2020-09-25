@@ -210,16 +210,27 @@ query getPost($id: Int!) {
 }`;
 const postsQuery = `
 query getPosts($condition: PostSearch!) {
-  posts(condition: $condition) ${postResponse}
+  posts(condition: $condition) {
+    total
+    posts ${postResponse}
+  }
 }`;
 const postAdminQuery = `
 query getPostAdmin($id: Int!) {
   postAdmin(id: $id) ${postResponse}
 }
 `;
+
 const postsAdminQuery = `
 query getPostsAdmin($condition: PostSearch!) {
-  postsAdmin(condition: $condition) ${postResponse}
+  postsAdmin(condition: $condition) {
+    total
+    posts ${postResponse}
+  }
+}`;
+const postsCountQuery = `
+query getPostCount($condition: PostsCountParam) {
+  postsCount(condition: $condition)
 }`;
 const createPostMutation = `
 mutation createPost($input: PostInput!) {
@@ -242,6 +253,7 @@ const post = {
   postsQuery,
   postAdminQuery,
   postsAdminQuery,
+  postsCountQuery,
   createPostMutation,
   updatePostMutation,
   removePostMutation,

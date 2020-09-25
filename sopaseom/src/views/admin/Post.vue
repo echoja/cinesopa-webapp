@@ -3,7 +3,7 @@
     <header class="p-3">
       <h2>글 목록</h2>
     </header>
-    <b-table :items="items" :fields="fields" @row-clicked="rowClicked">
+    <b-table :items="items" :fields="fields">
       <template #cell(checkbox)="row">
         <b-form-checkbox v-model="row.item.checked"></b-form-checkbox>
       </template>
@@ -45,7 +45,7 @@
 <script>
 import { mapActions } from 'vuex';
 import moment from 'moment';
-import { store, queryString, graphql, router } from '../../loader';
+import { queryString, graphql } from '../../loader';
 
 moment.locale('ko');
 
@@ -54,11 +54,13 @@ export default {
 
   data() {
     return {
+      total: 0,
       state: {
         processing: {
           get: false,
         },
       },
+      boards: {},
       fields: [
         // {
         //   key: 'id',
@@ -77,8 +79,12 @@ export default {
           label: '내용',
         },
         {
+          key: 'boardTitle',
+          label: '게시판',
+        },
+        {
           key: 'c_date',
-          label: '날짜',
+          label: '생성일',
         },
         {
           key: 'm_date',
@@ -109,13 +115,23 @@ export default {
       return this.items.findIndex((item) => item.checked === true) !== -1;
     },
   },
-  async created() {
-    await this.setDataFromServer();
+  async mounted() {
+    await this.boardData();
+    this.setDataFromServer();
   },
   methods: {
     ...mapActions(['pushMessage']),
     formatDate(date) {
       return moment(date).format('YY-MM-DD hh:mm:ss');
+    },
+    async boardData() {
+      let boards = await graphql(queryString.board.boardsQuery);
+      boards = boards.data.boards;
+      // console.log(boards);
+      boards.forEach((value) => {
+        // eslint-disable-next-line no-underscore-dangle
+        this.boards[value._id] = value.title;
+      });
     },
     async setDataFromServer() {
       this.state.processing.get = true;
@@ -126,25 +142,27 @@ export default {
           perpage: 10,
         },
       });
-      const { postsAdmin } = res.data;
+
+      const {
+        postsAdmin: { total, posts },
+      } = res.data;
+
+      this.total = total;
+
       const items = [];
-      for (const post of postsAdmin) {
+      for (const post of posts) {
         items.push({
           ...post,
           checked: false,
+          boardTitle: this.boards[post.board],
         });
       }
       console.log(items);
       this.items = items;
       this.state.processing.get = false;
     },
-    rowClicked(item) {
-      // router.push();
-    },
     async removePost() {
-      const removing = this.items.filter((item) => {
-        return item.checked === true;
-      });
+      const removing = this.items.filter((item) => item.checked === true);
       console.log(removing);
       // this.pushMessage({
       //   type: 'info',
@@ -165,7 +183,7 @@ export default {
       if (completed) {
         this.pushMessage({
           type: 'success',
-          msg: `게시글 삭제가 성공했습니다.`,
+          msg: '게시글 삭제가 성공했습니다.',
           id: 'successRemovePost',
         });
       } else {
