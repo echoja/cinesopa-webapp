@@ -17,6 +17,7 @@ import App from './App.vue';
 import router from './router';
 import store from './store';
 import './util.scss';
+import 'aos/dist/aos.css';
 
 Vue.config.productionTip = false;
 

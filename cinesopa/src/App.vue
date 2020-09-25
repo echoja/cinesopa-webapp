@@ -1,16 +1,14 @@
 <template>
   <!-- bottom: isBottom, -->
   <!-- top: isTop, -->
-  <!-- ['route-' + $route.name]: true,/ -->
+  <!-- 
+      ['route-' + $route.name]: true, -->
+  <!--       mobile: isMobile,
+      desktop: isDesktop, -->
   <div
     id="app"
     ref="app"
-    :class="{
-      'noto-sans': true,
-      mobile: isMobile,
-      desktop: isDesktop,
-    }"
-    class="top"
+    class="top noto-sans"
   >
     <VueSkipTo to="#main" label="본문 바로가기" />
     <div class="loading" v-if="pageLoading">loading</div>
@@ -131,22 +129,22 @@
             :class="{ /*small: isMenuShouldSmall,*/ white: $store.state.navLinkWhite }"
           >
             <!-- :class="[isMenuShouldSmall ? 'px-3' : 'px-3', {}]" -->
-            <b-link :to="{ name: 'About' }">인사해요 </b-link>
+            <b-link :to="{ name: 'About' }">회사소개 </b-link>
             <!-- :class="[isMenuShouldSmall ? 'px-3' : 'px-3']"  -->
             <b-link :to="{ name: 'FilmList' }">
-              영화봐요
+              작품소개
             </b-link>
             <!-- :class="[isMenuShouldSmall ? 'px-3' : 'px-3']" -->
             <b-link :to="{ name: 'BoardActivity', params: { permalink: 'activity' } }"
-              >활동해요
+              >아카이브
             </b-link>
             <!-- :class="[isMenuShouldSmall ? 'px-3' : 'px-3']" -->
             <b-link :to="{ name: 'BoardNotice', params: { permalink: 'notice' } }"
-              >공지해요
+              >공지사항
             </b-link>
             <!-- :class="[isMenuShouldSmall ? 'px-3' : 'px-3']" -->
             <b-link :to="{ name: 'Distribution', params: { permalink: 'about' } }"
-              >신청해요
+              >신청하기
             </b-link>
             <!-- <router-link to="/">Home</router-link> |
           <router-link to="/about">About</router-link> -->
@@ -161,27 +159,27 @@
           <b-sidebar id="sidebar-menu" title="MENU" :backdrop-variant="'dark'" backdrop shadow>
             <div class="px-3 py-2">
               <p>
-                <b-link class="px-4" :to="{ name: 'About' }">인사해요 </b-link>
+                <b-link class="px-4" :to="{ name: 'About' }">회사소개 </b-link>
               </p>
               <p>
                 <b-link class="px-4" :to="{ name: 'FilmList' }">
-                  영화봐요
+                  작품소개
                 </b-link>
               </p>
               <p>
                 <b-link
                   class="px-4"
                   :to="{ name: 'BoardActivity', params: { permalink: 'activity' } }"
-                  >활동해요
+                  >아카이브
                 </b-link>
               </p>
               <p>
                 <b-link class="px-4" :to="{ name: 'BoardNotice', params: { permalink: 'notice' } }"
-                  >공지해요
+                  >공지사항
                 </b-link>
               </p>
               <p>
-                <b-link class="px-4" :to="{ name: 'Distribution' }">신청해요 </b-link>
+                <b-link class="px-4" :to="{ name: 'Distribution' }">신청하기 </b-link>
               </p>
             </div>
           </b-sidebar>
@@ -197,12 +195,13 @@
           mode="out-in"
           @beforeLeave="beforeLeave"
           @enter="enter"
+          @afterLeave="afterLeave"
           @afterEnter="afterEnter"
         >
           <router-view :key="$route.path.split('/')[1]" :style="{ overflow: 'visible' }" />
         </transition>
       </main>
-      <footer>
+      <footer class="body-footer">
         <div
           class="footer-sns-buttons mb-1 d-flex footer-link-color
           justify-content-center align-items-center"
@@ -300,6 +299,7 @@
 // import cssVars from 'css-vars-ponyfill';
 
 export default {
+  title: '영화배급협동조합 씨네소파',
   data() {
     return {
       prevHeight: 0,
@@ -358,14 +358,14 @@ export default {
     userStyle() {
       return this.cssVariables;
     },
-    isMobile() {
-      const isMobile = this.windowWidth < 768;
-      this.$store.commit('setIsMobile', isMobile);
-      return isMobile;
-    },
-    isDesktop() {
-      return this.windowWidth >= 768;
-    },
+    // isMobile() {
+    //   const isMobile = this.windowWidth < 768;
+    //   this.$store.commit('setIsMobile', isMobile);
+    //   return isMobile;
+    // },
+    // isDesktop() {
+    //   return this.windowWidth >= 768;
+    // },
     isMenuShouldSmall() {
       return this.windowWidth < 992;
     },
@@ -425,16 +425,23 @@ export default {
     },
     onResize() {
       this.setWindowSize();
-      console.log('resized!');
+      // console.log('resized!');
     },
     setWindowSize() {
-      this.windowHeight = window.innerHeight;
-      this.documentHeight = document.body.clientHeight;
-      this.windowWidth = window.innerWidth;
+      if (window.innerWidth < 768) {
+        this.$refs.app.classList.add('mobile');
+        this.$refs.app.classList.remove('desktop');
+      } else {
+        this.$refs.app.classList.remove('mobile');
+        this.$refs.app.classList.add('desktop');
+      }
+      // this.windowHeight = window.innerHeight;
+      // this.documentHeight = document.body.clientHeight;
+      // this.windowWidth = window.innerWidth;
     },
     updateThingsWhenScroll() {
       const scrollY = window.scrollY || window.pageYOffset;
-      console.log(`scrollY: ${scrollY}`);
+      // console.log(`scrollY: ${scrollY}`);
       const isTop = scrollY <= 50;
       if (isTop) {
         this.$refs.app.classList.add('top');
@@ -454,6 +461,8 @@ export default {
       // this.prevHeight = getComputedStyle(element).height;
     },
     enter(/* element */) {
+      console.log(this.$route.name);
+      if (this.$route.name === 'Home') this.$refs.app.classList.add('route-home');
       // const { height } = getComputedStyle(element);
       // // eslint-disable-next-line no-param-reassign
       // element.style.height = this.prevHeight;
@@ -461,6 +470,9 @@ export default {
       //   // eslint-disable-next-line no-param-reassign
       //   element.style.height = height;
       // });
+    },
+    afterLeave() {
+      if (this.$route.name !== 'Home') this.$refs.app.classList.remove('route-home');
     },
     afterEnter(/* element */) {
       // // eslint-disable-next-line no-param-reassign
@@ -481,6 +493,20 @@ export default {
   // text-align: center;
   color: #2b3e4a;
   overflow: hidden;
+}
+
+// #app.route-home {
+//   overflow: hidden;
+// }
+
+.route-home {
+  & footer,
+  & .h-header {
+    display: none;
+  }
+  & #main {
+    margin-bottom: 0;
+  }
 }
 
 #main {
@@ -571,7 +597,7 @@ header {
 }
 
 .logo a {
-  color:  #00a9e0;
+  color: #00a9e0;
   display: inline-block;
   padding: 10px;
   // transition: 1s;
@@ -598,7 +624,7 @@ header {
 
 .desktop .logo {
   left: 0;
-  margin-left: 20px;
+  margin-left: 0;
   margin-top: 20px;
   & img,
   & svg {
@@ -679,14 +705,14 @@ button:hover {
 
 /* footer !footer */
 
-footer {
+.body-footer {
   font-size: 14px;
   position: absolute;
   width: 100%;
   height: auto;
 }
 
-footer p {
+.body-footer p {
   margin: 0;
 }
 

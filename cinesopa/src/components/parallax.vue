@@ -26,14 +26,14 @@ export default {
   created() {},
   mounted() {
     window.addEventListener('scroll', this.onScroll, { passive: true });
-    console.log(`speed: ${this.speed}`);
+    // console.log(`speed: ${this.speed}`);
     const parent = this.$refs.parallax.parentElement;
     const scrollY = window.scrollY || window.pageYOffset;
     this.standard = Math.floor(
       parent.getBoundingClientRect().top + scrollY + parent.offsetHeight / 2,
     );
     this.windowInnerHeightHalf = window.innerHeight / 2;
-    console.log(parent.getBoundingClientRect());
+    // console.log(parent.getBoundingClientRect());
     // console.log(parent);
     // console.log(
     //   `parent-scrollHeight: ${
@@ -42,7 +42,7 @@ export default {
     //     parent.getBoundingClientRect().top
     //   }`,
     // );
-    console.log(`standard: ${this.standard}`);
+    // console.log(`standard: ${this.standard}`);
   },
   beforeDestroy() {
     window.removeEventListener('scroll', this.onScroll, { passive: true });
@@ -53,6 +53,7 @@ export default {
       const currentPoint = scrollY + this.windowInnerHeightHalf;
       const calculated = (this.standard - currentPoint) * this.realSpeed;
       this.$refs.parallax.style.transform = `translate3d(0px, ${calculated}px, 0px)`;
+      console.log('transform Changed!');
     },
   },
 };

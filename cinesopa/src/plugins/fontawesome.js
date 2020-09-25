@@ -1,5 +1,5 @@
 import Vue from 'vue';
-// import App from './App'
+
 import { library } from '@fortawesome/fontawesome-svg-core';
 import { faUserSecret, faBars, faSearch, faCalendar } from '@fortawesome/free-solid-svg-icons';
 import { faClock } from '@fortawesome/free-regular-svg-icons';

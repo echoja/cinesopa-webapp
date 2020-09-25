@@ -43,7 +43,7 @@ const routes = [
         name: 'BoardNotice',
         component: () => import('../views/Board.vue'),
         props: {
-          title: '공지해요',
+          title: '공지사항',
           boardPermalinks: ['press', 'cooperative'],
           viewType: 'list',
         },
@@ -53,7 +53,7 @@ const routes = [
         name: 'BoardActivity',
         component: () => import('../views/Board.vue'),
         props: {
-          title: '활동해요',
+          title: '아카이브',
           boardPermalinks: ['community', 'study', 'activity-etc'],
           viewType: 'gallery',
         },
