@@ -249,6 +249,11 @@ export default {
       return this.$route.params.permalink;
     },
   },
+  mounted() {
+    // 페이지 설정
+    const { page } = this.$route.params;
+    this.currentPage = !page ? 1 : parseInt(page, 10);
+  },
   methods: {
     async boardClicked(index) {
       this.boards.forEach((board) => {
@@ -398,7 +403,7 @@ $gallery-item-padding: 30px;
 // todo 갤러리 탭했을 때 그림이랑 제목링크랑 중복으로 되는 문제 수정해야 함.?? 평가때 보나?
 
 .gallery-thumbnail-img {
-  transition: .5s;
+  transition: 0.5s;
   height: 100%;
   width: auto;
 }

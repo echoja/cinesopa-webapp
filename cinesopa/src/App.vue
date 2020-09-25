@@ -857,6 +857,22 @@ button:hover {
   }
 }
 
+// carousel arrow style
+
+.featured-wrapper, .film-photos-wrapper {
+  .carousel-control-prev-icon,
+  .carousel-control-next-icon {
+    width: 80px;
+    height: 80px;
+  }
+  .carousel-control-prev-icon {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 50.3 97.78'%3E%3Cpolygon fill='%23fff' points='48.89 0 50.3 1.41 2.82 48.89 50.3 96.37 48.89 97.78 0 48.89 48.89 0' /%3E%3C/svg%3E");
+  }
+  .carousel-control-next-icon {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 50.51 98.2'%3E%3Cpolygon fill='%23fff' points='1.41 98.2 0 96.79 47.69 49.1 0 1.41 1.41 0 50.52 49.1 1.41 98.2' /%3E%3C/svg%3E");
+  }
+}
+
 // utility
 
 .visually-hidden {

@@ -7,6 +7,14 @@ import { getPageQuery, graphql } from '../graphql-client';
 
 Vue.use(VueRouter);
 
+const noPageOneBeforeEnter = (routeName) => (to, from, next) => {
+  if (to.params.page === '1') {
+    next({ name: routeName });
+  } else {
+    next();
+  }
+};
+
 const routes = [
   {
     path: '/',
@@ -39,24 +47,28 @@ const routes = [
     component: () => import('../views/BoardWrapper.vue'),
     children: [
       {
-        path: 'notice',
+        path: 'notice/:page?',
         name: 'BoardNotice',
         component: () => import('../views/Board.vue'),
         props: {
           title: '공지사항',
           boardPermalinks: ['press', 'cooperative'],
           viewType: 'list',
+          perpage: 7,
         },
+        beforeEnter: noPageOneBeforeEnter('BoardNotice'),
       },
       {
-        path: 'activity',
+        path: 'activity/:page?',
         name: 'BoardActivity',
         component: () => import('../views/Board.vue'),
         props: {
           title: '아카이브',
           boardPermalinks: ['community', 'study', 'activity-etc'],
           viewType: 'gallery',
+          perpage: 6,
         },
+        beforeEnter: noPageOneBeforeEnter('BoardActivity'),
       },
     ],
   },

@@ -100,7 +100,7 @@ export default {
   color: #767676;
   transition: 1s;
 
-  &.router-link-exact-active {
+  &.router-link-active {
     color: #009eda;
   }
   &:hover {

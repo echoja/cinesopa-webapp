@@ -236,6 +236,7 @@
             class="underlined-box"
             v-model="form.filmname"
             id="filmname"
+            ref="filmname"
             type="text"
             placeholder=""
             :required="required"
@@ -483,10 +484,7 @@
           label-size="md"
           label-for="additional-papers"
         >
-          <b-form-checkbox-group
-            id="additional-papers"
-            v-model="form.additionalPapers"
-          >
+          <b-form-checkbox-group id="additional-papers" v-model="form.additionalPapers">
             <b-form-checkbox
               :disabled="form.additionalPapers.includes('현금영수증')"
               :value="'세금계산서'"
@@ -510,12 +508,7 @@
           label-for="others"
           description="추가로 요청하실 사항이나 논의가 필요한 부분이 있다면, 자유롭게 적어주세요!"
         >
-          <b-form-textarea
-            v-model="form.others"
-            size="sm"
-            id="others"
-            rows="5"
-          ></b-form-textarea>
+          <b-form-textarea v-model="form.others" size="sm" id="others" rows="5"></b-form-textarea>
         </b-form-group>
 
         <!-- <p>상영료:</p> -->
@@ -524,45 +517,103 @@
           <option>Manual Option</option>
           <option v-for="(size, index) in sizes" :key="index">{{ size }}</option>
         </datalist> -->
-
-        <validation-provider
-          :rules="{ shouldCheck: true }"
-          :customMessages="{ shouldCheck: '반드시 동의하여야 합니다.' }"
-          v-slot="v_context"
-        >
-          <b-form-group id="check-privacy">
-            <div class="check-privacy-wrapper">
-              <b-checkbox
+        <div class="agreement">
+          <validation-provider
+            :rules="{ shouldCheck: true }"
+            :customMessages="{ shouldCheck: '반드시 동의하여야 합니다.' }"
+            v-slot="v_context"
+          >
+            <b-form-group id="check-privacy">
+              <div class="check-privacy-wrapper">
+                <b-checkbox
+                  :state="getValidationState(v_context)"
+                  v-model="checkPrivacy"
+                  v-bind="v_context.ariaInput"
+                  class="check-privacy d-flex align-items-center"
+                >
+                  <strong>개인정보처리방침에 동의합니다.</strong>
+                </b-checkbox>
+                <b-link
+                  class="privacy-button"
+                  size="sm"
+                  outlined
+                  v-b-modal.modal-privacy
+                  variant="outline-dark"
+                  >전문 보기</b-link
+                >
+                <b-modal
+                  id="modal-privacy"
+                  size="lg"
+                  scrollable
+                  hide-footer
+                  title="개인정보처리방침"
+                >
+                  <privacy></privacy>
+                </b-modal>
+              </div>
+              <b-form-invalid-feedback
                 :state="getValidationState(v_context)"
-                v-model="checkPrivacy"
-                v-bind="v_context.ariaInput"
-                class="check-privacy d-flex align-items-center"
+                id="check-prifacy-invalid-feedback"
+                >{{ v_context.errors[0] }}</b-form-invalid-feedback
               >
-                <strong>개인정보처리방침에 동의합니다.</strong>
-              </b-checkbox>
-              <b-link
-                class="privacy-button"
-                size="sm"
-                outlined
-                v-b-modal.modal-privacy
-                variant="outline-dark"
-                >전문 보기</b-link
+              <span class="invalid-feedback" v-bind="v_context.ariaMsg">{{
+                v_context.errors[0]
+              }}</span>
+              <!-- <span>{{ JSON.stringify(v_context) }}</span> -->
+            </b-form-group>
+          </validation-provider>
+
+          <validation-provider
+            :rules="{ shouldCheck: true }"
+            :customMessages="{ shouldCheck: '반드시 준수하여야 합니다.' }"
+            v-slot="v_context"
+          >
+            <b-form-group id="check-copyright">
+              <div class="check-copyright-wrapper">
+                <b-checkbox
+                  :state="getValidationState(v_context)"
+                  v-model="checkCopyright"
+                  v-bind="v_context.ariaInput"
+                  class="check-copyright d-flex align-items-center"
+                >
+                  <strong>저작물이용동의서를 준수합니다.</strong>
+                </b-checkbox>
+                <b-link
+                  class="privacy-button"
+                  size="sm"
+                  outlined
+                  v-b-modal.modal-copyright
+                  variant="outline-dark"
+                  >전문 보기</b-link
+                >
+                <b-modal
+                  id="modal-copyright"
+                  size="lg"
+                  scrollable
+                  hide-footer
+                  title="저작물이용동의서"
+                >
+                  <copyright-consent
+                    :film-name="form.filmname"
+                    :playdate="form.playdate"
+                    :playplace="form.playplace"
+                    :playtimes="form.playtimes"
+                    :user-name="form.username"
+                  ></copyright-consent>
+                </b-modal>
+              </div>
+              <b-form-invalid-feedback
+                :state="getValidationState(v_context)"
+                id="check-prifacy-invalid-feedback"
+                >{{ v_context.errors[0] }}</b-form-invalid-feedback
               >
-              <b-modal id="modal-privacy" size="lg" scrollable hide-footer title="개인정보처리방침">
-                <privacy></privacy>
-              </b-modal>
-            </div>
-            <b-form-invalid-feedback
-              :state="getValidationState(v_context)"
-              id="check-prifacy-invalid-feedback"
-              >{{ v_context.errors[0] }}</b-form-invalid-feedback
-            >
-            <span class="invalid-feedback" v-bind="v_context.ariaMsg">{{
-              v_context.errors[0]
-            }}</span>
-            <!-- <span>{{ JSON.stringify(v_context) }}</span> -->
-          </b-form-group>
-        </validation-provider>
+              <span class="invalid-feedback" v-bind="v_context.ariaMsg">{{
+                v_context.errors[0]
+              }}</span>
+              <!-- <span>{{ JSON.stringify(v_context) }}</span> -->
+            </b-form-group>
+          </validation-provider>
+        </div>
         <b-button type="submit" variant="primary">신청서를 제출하겠습니다</b-button>
       </b-form>
     </validation-observer>
@@ -579,6 +630,7 @@ import {
   // localize,
 } from 'vee-validate';
 import Privacy from '../components/Privacy.vue';
+import CopyrightConsent from '../components/CopyrightConsent.vue';
 
 extend('shouldCheck', (value) => value === true);
 
@@ -587,6 +639,7 @@ export default {
   name: 'Community',
   components: {
     privacy: Privacy,
+    'copyright-consent': CopyrightConsent,
     'validation-observer': ValidationObserver,
     'validation-provider': ValidationProvider,
   },
@@ -634,6 +687,7 @@ export default {
       ],
       required: true,
       checkPrivacy: false,
+      checkCopyright: false,
       mapLoader: null,
       addressNew: '',
       addressOld: '',
@@ -647,7 +701,7 @@ export default {
         username: null,
         userphone: null,
         useremail: null,
-        filnmane: null,
+        filmname: null,
         format: null,
         howToReceive: null,
         addressDetailed: '',
@@ -695,7 +749,7 @@ export default {
     },
   },
 
-  created() {
+  mounted() {
     this.$loadScript('https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js')
       .then((/* result */) => {
         // console.log(this);
@@ -719,6 +773,11 @@ export default {
         console.log(this);
         console.error(err);
       });
+    const { name } = this.$route.query;
+    if (name) {
+      this.form.filmname = name;
+      // this.$refs.filmname.focus();
+    }
   },
 
   methods: {
@@ -823,16 +882,26 @@ export default {
   margin: 0;
 }
 
-#check-privacy {
+.agreement {
   margin-top: 50px;
+  margin-bottom: 20px;
+  .invalid-feedback {
+    margin-bottom: 10px;
+  }
 }
 
-.check-privacy-wrapper {
+.check-privacy-wrapper,
+.check-copyright-wrapper {
   display: flex;
   align-items: center;
 }
+#check-privacy,
+#check-copyright {
+  margin-bottom: 5px;
+}
 
-.mobile .check-privacy-wrapper {
+.mobile .check-privacy-wrapper,
+.mobile .check-copyright-wrapper {
   margin: 0 -15px;
 }
 
@@ -892,5 +961,4 @@ export default {
 .guide-showing-fee tbody tr:last-child {
   border-bottom: 1px solid #dee2e6;
 }
-
 </style>

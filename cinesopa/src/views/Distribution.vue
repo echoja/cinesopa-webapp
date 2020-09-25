@@ -365,7 +365,6 @@
             size="sm"
             id="film-festival_list"
             placeholder="예) 2019 제24회 부산국제영화제 단편경쟁 수상(김감독)"
-            :required="required"
             rows="5"
           ></b-form-textarea>
         </b-form-group>
@@ -411,14 +410,13 @@
           label-cols-sm="3"
           label-align-sm="left"
           label-size="md"
-          label-for="film-festival_list"
+          label-for="film-etc"
           description="기타 참고할 만한 정보를 적어주세요."
         >
           <b-form-textarea
-            v-model="form.film.festival_list"
+            v-model="form.film.etc"
             size="sm"
-            id="film-festival_list"
-            :required="required"
+            id="film-etc"
             rows="5"
           ></b-form-textarea>
         </b-form-group>
@@ -521,6 +519,7 @@ export default {
           festival_list: '',
           link: '',
           linkpw: '',
+          etc: '',
         },
       },
     };

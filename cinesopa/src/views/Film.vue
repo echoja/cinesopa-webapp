@@ -2,13 +2,19 @@
   <div class="container-fluid">
     <!-- 메인 포스터 -->
     <div class="main-poster d-flex justify-content-center row-fullwidth">
-      <b-link class="zoom-link" alt="포스터 확대하기">
+      <b-link
+        class="zoom-link"
+        alt="포스터 자세히 보기 (새 창으로 이동)"
+        target="_blank"
+        :href="film.posterLink"
+      >
         <b-img :alt="`${film.title} 포스터`" :src="film.posterLink" class="shadow"></b-img>
+        <font-awesome-icon class="zoom-icon" :icon="['fas', 'search-plus']"></font-awesome-icon>
       </b-link>
     </div>
     <!-- 각종 신청 -->
     <div class="application text-center my-5">
-      <b-button pill>상영 신청하기</b-button>
+      <b-button pill @click="gotoCommunity">상영 신청하기</b-button>
     </div>
     <!-- 기본 정보 -->
     <div class="basic-info">
@@ -105,7 +111,7 @@
           <b-link href="#synopsis" class="scrollactive-item first">시놉시스</b-link>
           <b-link href="#people" class="scrollactive-item">배우/제작진</b-link>
           <b-link href="#awards" class="scrollactive-item">수상내역</b-link>
-          <b-link href="#steel" class="scrollactive-item">스틸컷</b-link>
+          <b-link href="#steel" class="scrollactive-item">포토</b-link>
           <b-link href="#reviews" class="scrollactive-item">리뷰</b-link>
           <b-link href="#note" class="scrollactive-item" v-if="film.note">제작노트</b-link>
         </scrollactive>
@@ -176,13 +182,13 @@
         </div>
         <div class="row"></div>
       </div>
-      <!-- 스틸컷 -->
+      <!-- 포토 -->
       <div class="detailed-info-item" id="steel">
         <h2 class="no-divider">
-          스틸컷
+          포토
         </h2>
         <b-carousel
-          class="row-fullwidth"
+          class="row-fullwidth film-photos-wrapper"
           id="carousel"
           :interval="0"
           label-prev="다음으로 이동"
@@ -434,33 +440,53 @@ export default {
     // console.log(`iframe.width: ${iframe.width}`);
     // console.log(`this.trailerRatio: ${this.trailerRatio}`);
   },
+  methods: {
+    gotoCommunity() {
+      this.$router.push({ name: 'Community', query: { name: this.film.title } });
+    },
+  },
 };
 </script>
 
 <style lang="scss" scoped>
 // 메인 포스터
+@use '../util';
 
 .main-poster {
   position: relative;
 
-  // & .zoom-link {
-  //   overflow:hidden;
-  // }
-  & img {
+  img {
     max-width: 500px;
     min-width: 1px;
     width: 100%;
   }
-  // & .zoom-link:hover img {
-  //   transform: scale(1.1);
-  // }
+  .zoom-link {
+    position:relative;
+    transition: 0.7s;
+  }
+  .zoom-link:hover {
+    transform: scale(1.07);
+    .zoom-icon {
+      opacity: 1;
+      transition: 0.5s;
+    }
+  }
 
-  & div.blank {
+  div.blank {
     margin-top: 10px;
     background-color: #ddd;
     min-height: 500px;
     border-top: 1px solid #aaa;
   }
+}
+
+.zoom-icon {
+  opacity: 0;
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+  color: util.$text-color;
+  font-size: 22px;
 }
 
 .application {
