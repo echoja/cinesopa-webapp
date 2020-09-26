@@ -6,6 +6,7 @@ type Post {
   status: String
   board: String # Board 에 대한 id
   featured_image: String # File 에 대한 id
+  featured_image_link: String
   c_date: DateTime
   m_date: DateTime
   meta: JSON
@@ -37,7 +38,7 @@ input PostSearch {
   date_gte: DateTime
   date_lte: DateTime
   search: String
-  board_permalink: String
+  board_permalinks: [String]
   board_belongs_to: String
 }
 

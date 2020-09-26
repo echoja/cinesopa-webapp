@@ -6,7 +6,20 @@ const {
   ACCESS_UNAUTH,
   makeResolver,
   db,
+  file,
+  uploadBaseUrl,
 } = require('../../loader');
+
+const addFeaturedImageLink = async (obj) => {
+  const result = { ...obj };
+  if (result.featured_image) {
+    const fileFound = await db.getFileById(result.featured_image);
+    if (fileFound) {
+      result.featured_image_link = `${uploadBaseUrl}${fileFound.filename}`;
+    }
+  }
+  return result;
+};
 
 const postQuery = makeResolver(async (obj, args, context, info) => {
   const { id } = args;
@@ -20,29 +33,46 @@ const postsQuery = makeResolver(async (obj, args, context, info) => {
     perpage,
     date_gte,
     date_lte,
-    board_permalink,
+    board_permalinks,
     board_belongs_to,
   } = condition;
 
   let { search } = condition;
+  // console.log(condition);
   search = search ? Hangul.disassembleToString(search) : null;
-  return db.getPosts(
+  const posts = await db.getPosts(
     {
       page,
       perpage,
       date_gte,
       date_lte,
       search,
-      board_permalink,
+      board_permalinks,
       board_belongs_to,
     },
     'public',
   );
+
+  // 파일 링크를 심어줌.
+  const jobs = [];
+  posts.posts.forEach((post, index) => {
+    if (post.featured_image) {
+      jobs.push(
+        (async () => {
+          const fileFound = await db.getFileById(post.featured_image);
+          posts.posts[index].featured_image_link = uploadBaseUrl + fileFound.filename;
+        })(),
+      );
+    }
+  });
+  await Promise.allSettled(jobs);
+  return posts;
 }).only(ACCESS_ALL);
 
 const postAdmin = makeResolver(async (obj, args, context, info) => {
   const { id } = args;
-  return db.getPost(id);
+  const post = await db.getPost(id);
+  return addFeaturedImageLink(post);
 }).only(ACCESS_ADMIN);
 
 const postsAdmin = makeResolver(async (obj, args, context, info) => {
@@ -103,11 +133,10 @@ const createPost = makeResolver(async (obj, args, context, info) => {
 
 const updatePost = makeResolver(async (obj, args, context, info) => {
   const { id, input } = args;
-  const { title, content, excerpt, status, board, c_date, meta } = input;
+  // const { title, content, excerpt, status, board, c_date, meta, featured_image } = input;
   const refined_input = objWithoutNull(input);
 
   // if (status) refined_input.status = status;
-
   return db.updatePost(id, refined_input);
 }).only(ACCESS_ADMIN);
 

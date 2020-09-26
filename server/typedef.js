@@ -185,7 +185,7 @@
  * @property {Date} date_gte
  * @property {Date} date_lte
  * @property {string} search
- * @property {string} board_permalink
+ * @property {string[]} board_permalinks
  * @property {string} board_belongs_to
  */
 

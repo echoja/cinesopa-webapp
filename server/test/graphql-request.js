@@ -313,6 +313,7 @@ const fileResponse = `
   encoding
   mimetype
   filename
+  fileurl
   origin
   description
   label

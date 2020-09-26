@@ -1,9 +1,11 @@
 type File {
   id: Int
+  _id: String
   c_date: DateTime
   encoding: String
   mimetype: String
   filename: String
+  fileurl: String
   origin: String
   description: String
   label: String

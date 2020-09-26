@@ -56,53 +56,84 @@ describe('Post', function () {
       });
     });
     describe('getPosts', function () {
-      describe('페이지네이션', function () {
-        it('제대로 동작해야 함.', async function () {
-          for (let i = 0; i < 15; i++) {
-            // eslint-disable-next-line no-await-in-loop
-            await model.Post.create({ title: `제목~${i}` });
-          }
-          const { posts: yes, total } = await db.getPosts({
-            page: 2,
-            perpage: 5,
-          });
-          expect(yes.length).to.equal(5);
-          expect(yes[0].id).to.equal(11);
-          expect(yes[1].id).to.equal(12);
-          expect(yes[2].id).to.equal(13);
-          expect(yes[3].id).to.equal(14);
-          expect(yes[4].id).to.equal(15);
-          expect(total).to.equal(16);
+      it('페이지네이션이 올바로 동작해야 함.', async function () {
+        for (let i = 0; i < 15; i++) {
+          // eslint-disable-next-line no-await-in-loop
+          await model.Post.create({ title: `제목~${i}` });
+        }
+        const { posts: yes, total } = await db.getPosts({
+          page: 2,
+          perpage: 5,
         });
+        expect(yes.length).to.equal(5);
+        expect(yes[0].id).to.equal(11);
+        expect(yes[1].id).to.equal(12);
+        expect(yes[2].id).to.equal(13);
+        expect(yes[3].id).to.equal(14);
+        expect(yes[4].id).to.equal(15);
+        expect(total).to.equal(16);
       });
-      describe('날짜', function () {
-        it('제대로 동작해야 함.', async function () {
-          const { posts: yes } = await db.getPosts({
-            date_gte: new Date('2019-12-24'),
-          });
-          expect(yes.length).to.equal(1);
+      it('날짜 검색이 제대로 동작해야 함.', async function () {
+        const { posts: yes } = await db.getPosts({
+          date_gte: new Date('2019-12-24'),
         });
+        expect(yes.length).to.equal(1);
       });
-      describe('검색', function () {
-        it('제대로 동작해야 함.', async function () {
-          const { posts: yes } = await db.getPosts({
-            search: 'ㅇㅏㄴㄴ',
-          });
-          expect(yes.length).to.equal(1);
+      it('검색이 제대로 동작해야 함.', async function () {
+        const { posts: yes } = await db.getPosts({
+          search: 'ㅇㅏㄴㄴ',
+        });
+        expect(yes.length).to.equal(1);
 
-          const { posts: no } = await db.getPosts({
-            search: 'common',
-          });
-          expect(no.length).to.equal(0);
+        const { posts: no } = await db.getPosts({
+          search: 'common',
         });
+        expect(no.length).to.equal(0);
       });
-      describe('status', function () {
-        it('제대로 동작해야 한다', async function () {
-          const { posts: yes } = await db.getPosts({}, 'public');
-          const { posts: no } = await db.getPosts({}, 'private');
-          expect(yes.length).to.equal(1);
-          expect(no.length).to.equal(0);
+      it('status가 제대로 동작해야 한다', async function () {
+        const { posts: yes } = await db.getPosts({}, 'public');
+        const { posts: no } = await db.getPosts({}, 'private');
+        expect(yes.length).to.equal(1);
+        expect(no.length).to.equal(0);
+      });
+      it.only('board 및 permalink 가 제대로 동작해야 함.', async function () {
+        const board1 = await model.Board.create({
+          permalink: 'board1',
+          belongs_to: 'cinesopa',
         });
+        const board2 = await model.Board.create({
+          permalink: 'board2',
+          belongs_to: 'cinesopa',
+        });
+        const board3 = await model.Board.create({
+          permalink: 'board3',
+          belongs_to: 'sopaseom',
+        });
+        const promises = [
+          model.Post.create({ title: 'post1', board: board1._id }),
+          model.Post.create({ title: 'post2', board: board2._id }),
+          model.Post.create({ title: 'post2-1', board: board2._id }),
+          model.Post.create({ title: 'post3', board: board3._id }),
+        ];
+        await Promise.allSettled(promises);
+
+        const result1 = await db.getPosts({
+          board_permalinks: ['board1', 'board2', 'board3'],
+          board_belongs_to: 'sopaseom',
+        });
+        expect(result1.posts.length).to.equal(1).equal(result1.total);
+
+        const result2 = await db.getPosts({
+          board_permalinks: ['board1', 'board2', 'board3'],
+          board_belongs_to: 'cinesopa',
+        });
+        expect(result2.posts.length).to.equal(3).equal(result2.total);
+
+        const result3 = await db.getPosts({
+          board_permalinks: ['board2'],
+          board_belongs_to: 'cinesopa',
+        });
+        expect(result3.posts.length).to.equal(2).equal(result3.total);
       });
     });
     describe('createPost', function () {
@@ -248,6 +279,38 @@ describe('Post', function () {
         const result = onlyManaged.body.data.posts;
         expect(result.posts.length).to.equal(3);
         expect(result.total).to.equal(21);
+      });
+      it.only('카테고리가 제대로 분리되어져야함.', async function () {
+        const board1 = await model.Board.create({
+          title: '',
+          description: '',
+          permalink: 'hi',
+          belongs_to: 'cinesopa',
+        });
+        const board2 = await model.Board.create({
+          title: '',
+          description: '',
+          permalink: 'hello',
+          belongs_to: 'sopaseom',
+        });
+        const board3 = await model.Board.create({
+          title: '',
+          description: '',
+          permalink: 'nice',
+          belongs_to: 'sopaseom',
+        });
+        await model.Post.create({ board: board1._id, status: 'public' });
+        await model.Post.create({ board: board2._id, status: 'public' });
+        await model.Post.create({ board: board3._id, status: 'private' });
+
+        const res = await graphqlSuper(agent, postsQuery, {
+          condition: {
+            board_permalinks: ['hello'],
+            board_belongs_to: 'sopaseom',
+          },
+        });
+        console.log(res.body);
+        expect(res.body.data.posts.posts.length).to.equal(1);
       });
     });
     describe('postAdmin', function () {

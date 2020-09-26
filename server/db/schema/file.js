@@ -10,6 +10,7 @@ module.exports = function (mongoose) {
     encoding: String,
     mimetype: String,
     filename: String, // 실제 저장되는 파일의 이름
+    fileurl: String,
     extension: String, // 원래 파일의 확장자 (변경되지 않음)
     origin: String, // 원래 이름 (확장자 포함, 변경되지 않음)
     description: String, // 설명 (관리자용)

@@ -414,6 +414,14 @@ class DBManager {
   }
 
   /**
+   * 파일을 id 기준으로 구합니다.
+   * @param {string} id
+   */
+  async getFileById(id) {
+    return model.File.findOne({ _id: id }).lean().exec();
+  }
+
+  /**
    * 모든 파일을 구합니다.
    */
   async getFiles() {
@@ -558,11 +566,11 @@ class DBManager {
   }
 
   /**
-   * id에 따라서 게시판을 얻습니다.
+   * id에 따라서 게시판을 얻습니다. (id는 mongodb id 입니다.)
    * @param {number} id
    */
   async getBoardById(id) {
-    return model.Board.findOne({ id }).lean().exec();
+    return model.Board.findOne({ _id: id }).lean().exec();
   }
 
   /**
@@ -674,28 +682,35 @@ class DBManager {
       date_gte,
       date_lte,
       search,
-      board_permalink,
+      board_permalinks,
       board_belongs_to,
     } = condition;
 
     let query = model.Post.find();
 
-    if (search) {
-      console.log('getPosts: search!!');
+    if (search && search !== '') {
+      // console.log('getPosts: search!!');
       query = query.find({ search: new RegExp(`${search}`) });
     }
 
     // todo 테스트 필요
-    if (board_permalink && board_belongs_to) {
-      console.log('post finding -- board!!');
-      const boardDoc = await model.Board.findOne({
-        permalink: board_permalink,
+    if (board_permalinks && board_permalinks.length !== 0 && board_belongs_to) {
+      // console.log('post finding -- board!!');
+      const foundDocs = await model.Board.find({
+        permalink: { $in: board_permalinks },
         belongs_to: board_belongs_to,
       }).exec();
-      if (!boardDoc) {
-        return [];
-      }
-      query = query.find({ board: boardDoc._id });
+      const boardIds = foundDocs.map((doc) => doc?._id);
+      query = query.find({ board: { $in: boardIds } });
+
+      // const boardDoc = await model.Board.findOne({
+      //   permalink: board_permalink,
+      //   belongs_to: board_belongs_to,
+      // }).exec();
+      // if (!boardDoc) {
+      //   return [];
+      // }
+      // query = query.find({ board: boardDoc._id });
       // if (!boardDoc) throw Error(`${board_belongs_to}의 ${board_permalink} 게시판을 찾을 수 없습니다.`);
     }
 

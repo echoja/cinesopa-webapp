@@ -101,6 +101,8 @@ const makeMulter = () => {
         // managed도 기본적으로 true 여야 함.
         fileinfo.managed = true;
 
+        fileinfo.fileurl = `/upload/${fileObj.filename}`;
+
         // 만약 이미지일 경우 사이즈 지정
         if (fileObj.mimetype.startsWith('image')) {
           const dimensions = sizeOf(fileObj.path);
