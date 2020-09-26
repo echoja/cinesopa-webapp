@@ -9,6 +9,8 @@ const postResponse = `{
   c_date
   m_date
   meta
+  featured_image
+  featured_image_link
 }`;
 const postQuery = `
 query getPost($id: Int!) {

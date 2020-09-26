@@ -29,7 +29,9 @@
         >
       </div>
       <div class="toolbar-right">
-        <b-button size="sm" v-if="selectable" variant="primary" @click="onSelect">{{ selectMessage }}</b-button>
+        <b-button size="sm" v-if="selectable" variant="primary" @click="onSelect">{{
+          selectMessage
+        }}</b-button>
         <!-- <b-button size="sm" variant="primary">새로 추가</b-button> -->
         <b-form-file
           class="d-inline-block w-auto"
@@ -223,14 +225,13 @@
 import prettyBytes from 'pretty-bytes';
 import moment from 'moment';
 import { mapActions } from 'vuex';
-import {
-  graphql,
-  filesQuery,
-  // eslint-disable-next-line no-unused-vars
-  fileQuery,
-  updateFileMutation,
-  removeFileMutation,
-} from '../api/graphql-client';
+// import // filesQuery,
+// // // eslint-disable-next-line no-unused-vars
+// // fileQuery,
+// // updateFileMutation,
+// // removeFileMutation,
+// '../api/graphql-client';
+import { queryString, graphql } from '../loader';
 import upload from '../upload-client';
 
 const detailFormInitValue = () => ({
@@ -334,7 +335,7 @@ export default {
         });
     },
     updateDetail() {
-      graphql(updateFileMutation, {
+      graphql(queryString.file.updateFileMutation, {
         filename: this.detailForm.filename,
         input: {
           description: this.detailForm.description,
@@ -363,7 +364,7 @@ export default {
     },
     async fetchFiles(page) {
       if (page) this.currentPage = page;
-      const result = await graphql(filesQuery, {
+      const result = await graphql(queryString.file.filesQuery, {
         page: this.currentPage - 1,
       });
       this.files = result.data.files;
@@ -383,7 +384,7 @@ export default {
       const promises = [];
       this.selectedFiles.forEach((file) => {
         promises.push(
-          graphql(removeFileMutation, {
+          graphql(queryString.file.removeFileMutation, {
             filename: file.filename,
           }),
         );

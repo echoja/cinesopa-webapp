@@ -1,14 +1,14 @@
 import axios from 'axios';
 import store from '../store';
+import { baseUrl } from '../constants';
 
 const headers = {
   'Content-Type': 'application/json',
   Accept: 'application/json',
 };
 
-const url = process.env.NODE_ENV === 'production'
-  ? 'https://graphql/sopaseom.com/graphql/'
-  : '/graphql';
+const url = `${baseUrl}/graphql`;
+
 export const graphql = async (query, variables) => {
   try {
     const received = await axios.post(
@@ -285,48 +285,5 @@ mutation updateFilm($id: Int!, $input: FilmInput!) {
 export const removeFilmMutation = `
 mutation removeFilm($id: Int!) {
   removeFilm(id: $id) ${filmResponse}
-}
-`;
-
-const fileResponse = `
-{
-  id
-  c_date
-  encoding
-  mimetype
-  filename
-  origin
-  description
-  label
-  alt
-  path
-  size
-  owner
-  public
-  managed
-  width
-  height
-}
-`;
-
-export const fileQuery = `
-query fileQuery($filename: String, $id: Int) {
-  file(filename: $filename, id: $id) ${fileResponse}
-}
-`;
-export const filesQuery = `
-query filesQuery($page: Int, $perpage:Int, $onlyManaged: Boolean) {
-  files(page: $page, perpage: $perpage, onlyManaged: $onlyManaged) ${fileResponse}
-}
-`;
-export const updateFileMutation = `
-mutation updateFileMutation($filename: String!, $input: FileInput!) {
-  updateFile(filename: $filename, input: $input) ${fileResponse}
-}
-`;
-
-export const removeFileMutation = `
-mutation removeFileMutation($filename: String!) {
-  removeFile(filename: $filename) ${fileResponse}
 }
 `;

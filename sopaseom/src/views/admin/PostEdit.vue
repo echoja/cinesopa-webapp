@@ -81,10 +81,15 @@
           v-model="input.board"
           :options="options.board"
         ></b-form-select> -->
-        <b-button @click="$bvModal.show('set-featured-image-modal')">새로 설정</b-button>
+        <!-- {{ input.featured_image }},
+        {{ featured_image_link }} -->
+        <div class="featured-image" v-if="featured_image_link && featured_image_link !== ''">
+          <b-img class="featured-image-content" :src="featured_image_link" alt=""></b-img>
+        </div>
+        <b-button size="sm" @click="$bvModal.show('set-featured-image-modal')">설정하기</b-button>
         <b-modal size="xl" hide-footer id="set-featured-image-modal">
           <file-manager
-            @file-manager-selected="test1"
+            @file-manager-selected="setFeaturedImage"
             :modalId="'set-featured-image-modal'"
           ></file-manager>
         </b-modal>
@@ -112,6 +117,7 @@ import WrapWithEditor from '../layout/WrapWithEditor.vue';
 import FileManager from '../../components/FileManager.vue';
 import tinymceInit from '../../tinymce-configure';
 import { queryString, graphql } from '../../loader';
+import { baseUrl } from '../../constants';
 
 /** @type {import('@types/tinymce')} */
 let editor = null;
@@ -127,6 +133,7 @@ export default {
   props: ['belongs_to', 'mode'],
   data() {
     return {
+      featured_image_link: '',
       state: {
         editorLoaded: false,
       },
@@ -137,7 +144,6 @@ export default {
         status: 'public',
         c_date: new Date(),
         board: 0,
-        featured_image: '',
       },
       options: {
         status: [
@@ -196,6 +202,7 @@ export default {
       ].forEach((key) => {
         if (post[key]) this.input[key] = post[key];
       });
+      this.featured_image_link = post.featured_image_link;
       // this.input.board = board.id;
       // this.input.conetent =
       // this.input.
@@ -208,7 +215,7 @@ export default {
     onEditorInit(ev, tinymce) {
       editor = tinymce;
       this.state.editorLoaded = true;
-      editor.execCommand('mceInsertContent', false, 'Hello, World!');
+      // editor.execCommand('mceInsertContent', false, 'Hello, World!');
     },
     async confirm() {
       if (this.mode === 'new') {
@@ -240,7 +247,8 @@ export default {
         id: parseInt(this.id, 10),
         input,
       })
-        .then(() => {
+        .then((result) => {
+          console.log(result);
           this.pushMessage({
             type: 'success',
             msg: '글이 성공적으로 수정되었습니다.',
@@ -256,13 +264,34 @@ export default {
         });
     },
 
-    async test1(event, values) {
-      editor.execCommand('mceInsertContent', true, '<div>하하하하 ~!!</div>');
-      console.log(event);
-      console.log(values);
+    async setFeaturedImage(files) {
+      // eslint-disable-next-line no-underscore-dangle
+      if (files.length >= 1) this.input.featured_image = files[0]._id;
+      console.log(files);
+      this.featured_image_link = `${baseUrl}${files[0].fileurl}`;
     },
+
+    // async test1(event, values) {
+    //   editor.execCommand('mceInsertContent', true, '<div>하하하하 ~!!</div>');
+    //   console.log(event);
+    //   console.log(values);
+    // },
   },
 };
 </script>
+
+<style lang="scss" scoped>
+.featured-image {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 300px;
+  border: 1px solid #ddd;
+}
+.featured-image-content {
+  max-width: 100%;
+  max-height: 100%;
+}
+</style>
 
 <style></style>

@@ -17,6 +17,8 @@ export default {
 
 <style>
 .sidebar2 {
-  min-width: 300px;
+  width: 300px;
+  flex-grow: 0;
+  flex-shrink: 0;
 }
 </style>
