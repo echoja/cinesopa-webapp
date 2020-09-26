@@ -45,9 +45,17 @@ const routes = [
     path: '/board',
     name: 'Board',
     component: () => import('../views/BoardWrapper.vue'),
+    beforeEnter: (to, from, next) => {
+      // if (/\/board\/?/.test(to.fullPath)) {
+      //   next({ name: '404' });
+      // } else {
+      //   next();
+      // }
+      next();
+    },
     children: [
       {
-        path: 'notice/:page?',
+        path: 'notice/:board/:page?',
         name: 'BoardNotice',
         component: () => import('../views/Board.vue'),
         props: {
@@ -59,16 +67,25 @@ const routes = [
         beforeEnter: noPageOneBeforeEnter('BoardNotice'),
       },
       {
-        path: 'activity/:page?',
-        name: 'BoardActivity',
+        path: 'archive/:board/:page?',
+        name: 'BoardArchive',
         component: () => import('../views/Board.vue'),
         props: {
           title: '아카이브',
-          boardPermalinks: ['community', 'study', 'activity-etc'],
+          boardPermalinks: ['community', 'study', 'archive-etc'],
           viewType: 'gallery',
           perpage: 6,
         },
-        beforeEnter: noPageOneBeforeEnter('BoardActivity'),
+        beforeEnter: noPageOneBeforeEnter('BoardArchive'),
+      },
+      {
+        path: ':notFound',
+        name: 'BoardNotFound',
+        component: () => import('../views/Board.vue'),
+        beforeEnter: (to, from, next) => {
+          console.log(to);
+          next({ name: '404' });
+        },
       },
     ],
   },
@@ -76,6 +93,7 @@ const routes = [
     path: '/post/:id',
     name: 'Post',
     component: () => import('../views/Post.vue'),
+    props: true,
   },
   {
     path: '/request',
@@ -116,11 +134,11 @@ const routes = [
       title: '이메일무단수집거부',
     },
   },
-  {
-    path: '/test',
-    name: 'Test',
-    component: () => import('../views/Test.vue'),
-  },
+  // {
+  //   path: '/test',
+  //   name: 'Test',
+  //   component: () => import('../views/Test.vue'),
+  // },
   {
     path: '/:permalink',
     name: 'Page',

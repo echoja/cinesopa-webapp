@@ -33,6 +33,7 @@
     "rellax": "^1.12.1",
     "vee-validate": "^3.4.0",
     "vue": "^2.6.12",
+    "vue-a11y-utils": "^0.7.0",
     "vue-affix": "^0.5.2",
     "vue-plugin-load-script": "^1.3.2",
     "vue-router": "^3.4.4",

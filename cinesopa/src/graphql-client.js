@@ -5,7 +5,8 @@ const headers = {
   Accept: 'application/json',
 };
 
-const url = process.env.NODE_ENV === 'production' ? 'https://graphql.sopaseom.com/graphql/' : '/graphql';
+const url =
+  process.env.NODE_ENV === 'production' ? 'https://graphql.sopaseom.com/graphql/' : '/graphql';
 
 export const graphql = async (query, variables) => {
   try {
@@ -103,6 +104,83 @@ mutation LogoutMe {
       role
     }
   }
+}
+`;
+
+const postResponse = `{
+  id
+  title
+  content
+  excerpt
+  permalink
+  status
+  board
+  c_date
+  m_date
+  meta
+}`;
+export const postQuery = `
+query getPost($id: Int!) {
+  post(id: $id) ${postResponse}
+}`;
+export const postsQuery = `
+query getPosts($condition: PostSearch!) {
+  posts(condition: $condition) {
+    total
+    posts ${postResponse}
+  }
+}`;
+
+export const postsInBoardQuery = `
+query getPosts($condition: PostSearch!) {
+  posts(condition: $condition) {
+    total
+    posts {
+      id
+      title
+      permalink
+      board
+      c_date
+      featured_image_link
+    }
+  }
+}`;
+
+export const post = {
+  postQuery,
+  postsQuery,
+};
+
+const boardResponse = `
+{
+  id
+  title
+  description
+  permalink
+  belongs_to
+  board_type
+  meta
+  _id
+}
+`;
+export const boardQuery = `
+query getBoard($condition: BoardSearch!) {
+  board(condition: $condition) ${boardResponse}
+}
+`;
+export const boardsQuery = `
+query getBoards($belongs_to: String) {
+  boards(belongs_to: $belongs_to) ${boardResponse}
+}
+`;
+
+export const initPostsOperation = `
+query initPosts($condition: PostSearch!, $belongs_to: String) {
+  posts(condition: $condition) {
+    total
+    posts ${postResponse}
+  }
+  boards(belongs_to: $belongs_to) ${boardResponse}
 }
 `;
 

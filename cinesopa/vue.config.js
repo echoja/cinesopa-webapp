@@ -10,6 +10,7 @@ module.exports = {
     config.plugins.push(new webpack.IgnorePlugin(/^\.\/locale$/, /moment$/));
     if (process.env.NODE_ENV === 'production') {
       // mutate config for production...
+      config.plugins.push(new BundleAnalyzerPlugin());
     } else {
       // mutate config for development or etc...
       config.plugins.push(new BundleAnalyzerPlugin());
@@ -22,11 +23,11 @@ module.exports = {
         ws: true,
         changeOrigin: true,
       },
-      // '^/upload': {
-      //   target: 'https://localhost:4000',
-      //   ws: true,
-      //   changeOrigin: true,
-      // },
+      '^/upload': {
+        target: 'http://localhost:4000',
+        ws: true,
+        changeOrigin: true,
+      },
       // '^/foo': {
       //   target: '<other_url>'
       // }

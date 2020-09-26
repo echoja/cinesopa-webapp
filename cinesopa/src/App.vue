@@ -5,11 +5,7 @@
       ['route-' + $route.name]: true, -->
   <!--       mobile: isMobile,
       desktop: isDesktop, -->
-  <div
-    id="app"
-    ref="app"
-    class="top noto-sans"
-  >
+  <div id="app" ref="app" class="top noto-sans">
     <VueSkipTo to="#main" label="본문 바로가기" />
     <div class="loading" v-if="pageLoading">loading</div>
     <div class="h-header"></div>
@@ -135,13 +131,9 @@
               작품소개
             </b-link>
             <!-- :class="[isMenuShouldSmall ? 'px-3' : 'px-3']" -->
-            <b-link :to="{ name: 'BoardActivity', params: { permalink: 'activity' } }"
-              >아카이브
-            </b-link>
+            <b-link :to="{ name: 'BoardArchive', params: { board: 'all' } }">아카이브 </b-link>
             <!-- :class="[isMenuShouldSmall ? 'px-3' : 'px-3']" -->
-            <b-link :to="{ name: 'BoardNotice', params: { permalink: 'notice' } }"
-              >공지사항
-            </b-link>
+            <b-link :to="{ name: 'BoardNotice', params: { board: 'all' } }">공지사항 </b-link>
             <!-- :class="[isMenuShouldSmall ? 'px-3' : 'px-3']" -->
             <b-link :to="{ name: 'Distribution', params: { permalink: 'about' } }"
               >신청하기
@@ -167,14 +159,12 @@
                 </b-link>
               </p>
               <p>
-                <b-link
-                  class="px-4"
-                  :to="{ name: 'BoardActivity', params: { permalink: 'activity' } }"
+                <b-link class="px-4" :to="{ name: 'BoardArchive', params: { board: 'all' } }"
                   >아카이브
                 </b-link>
               </p>
               <p>
-                <b-link class="px-4" :to="{ name: 'BoardNotice', params: { permalink: 'notice' } }"
+                <b-link class="px-4" :to="{ name: 'BoardNotice', params: { board: 'all' } }"
                   >공지사항
                 </b-link>
               </p>
@@ -198,7 +188,7 @@
           @afterLeave="afterLeave"
           @afterEnter="afterEnter"
         >
-          <router-view :key="$route.path.split('/')[1]" :style="{ overflow: 'visible' }" />
+          <router-view :key="$route.fullPath.split('/')[1]" :style="{ overflow: 'visible' }" />
         </transition>
       </main>
       <footer class="body-footer">
@@ -461,7 +451,8 @@ export default {
       // this.prevHeight = getComputedStyle(element).height;
     },
     enter(/* element */) {
-      console.log(this.$route.name);
+      // console.log(`route name: ${this.$route.name}`);
+      // console.log(`route full path split / [0]${this.$route.fullPath.split('/')[1]}`);
       if (this.$route.name === 'Home') this.$refs.app.classList.add('route-home');
       // const { height } = getComputedStyle(element);
       // // eslint-disable-next-line no-param-reassign
@@ -859,7 +850,8 @@ button:hover {
 
 // carousel arrow style
 
-.featured-wrapper, .film-photos-wrapper {
+.featured-wrapper,
+.film-photos-wrapper {
   .carousel-control-prev-icon,
   .carousel-control-next-icon {
     width: 80px;

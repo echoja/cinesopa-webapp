@@ -32,7 +32,12 @@
             img-src="https://picsum.photos/1024/480/?image=52"
           ></b-carousel-slide> -->
 
-          <b-carousel-slide img-blank class="carousel-item">
+          <b-carousel-slide
+            v-for="(film, index) in featured"
+            :key="index"
+            img-blank
+            class="carousel-item"
+          >
             <template #img>
               <div
                 class="carousel-item-content-bg"
@@ -56,18 +61,25 @@
                     class="featured-description text-left d-flex flex-column justify-content-center"
                     md="6"
                   >
-                    <p class="m-0"><span class="featured-badge">개봉예정</span></p>
+                    <p class="m-0">
+                      <span class="featured-badge">{{ film.badge_text }}</span>
+                    </p>
 
-                    <h2 class="featured-title">여름날</h2>
-                    <p class="featured-subtitle">Days in a Summer, 2020</p>
+                    <h2 class="featured-title">
+                      <b-link :to="{ name: 'IndividualFilm', params: { id: film.id } }">{{
+                        film.title
+                      }}</b-link>
+                    </h2>
+                    <p class="featured-subtitle">
+                      {{ film.title_en }}, {{ film.open_date.getFullYear() }}
+                    </p>
                     <p class="featured-synopsis">
-                      그들은 평범한 일상 속에서 자신처럼 고립되어 있는 폐왕성에 도착하고, 그곳에서
-                      누구나 언젠가 지나쳐야만 하는 유배된 시간과 만난다.
+                      {{ film.featured_excerpt }}
                     </p>
                     <p>
                       <b-link
                         class="d-flex align-items-center featured-more"
-                        :to="{ name: 'IndividualFilm', params: { id: 1 } }"
+                        :to="{ name: 'IndividualFilm', params: { id: film.id } }"
                       >
                         <span>더보기</span>
                         <!-- style="enable-background:new 0 0 1920 1080;"
@@ -291,6 +303,19 @@ export default {
       // eslint-disable-next-line global-require
       testBackgroundImage: require('../assets/test/steel23.jpg'),
       testTextColor: '#fff',
+      featured: [
+        {
+          id: 1,
+          title: '여름날',
+          // eslint-disable-next-line global-require
+          posterLink: require('../assets/test/test-poster.jpg'),
+          featured_excerpt: `그들은 평범한 일상 속에서 자신처럼 고립되어 있는 폐왕성에 도착하고,
+            그곳에서 누구나 언젠가 지나쳐야만 하는 유배된 시간과 만난다.`,
+          title_en: 'Days in a Summer',
+          open_date: new Date('2020-08-11'),
+          badge_text: '개봉예정',
+        },
+      ],
       tags: [
         {
           key: 1,
@@ -425,6 +450,8 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+@use '../util.scss';
+
 .fullwidth {
   width: 100vw;
   position: relative;
@@ -433,20 +460,20 @@ export default {
 }
 
 .desktop {
-  & .featured-height {
+  .featured-height {
     height: 600px;
   }
-  & .featured-poster {
+  .featured-poster {
     max-height: 600px;
     padding: 70px 0;
   }
-  & .carousel-item-content > div {
+  .carousel-item-content > div {
     height: 100%;
   }
-  & .featured-description {
+  .featured-description {
     padding: 48px;
   }
-  & .featured-badge {
+  .featured-badge {
     color: #fff;
     background: transparent;
     padding: 0;
@@ -455,20 +482,29 @@ export default {
     font-size: 23px;
     margin-bottom: 10px;
   }
-  & .featured-title {
-    font-size: 50px;
+  .featured-title {
     margin-bottom: 0;
   }
-  & .featured-subtitle {
+  .featured-title a {
+    color: #fff;
+    font-size: 50px;
+    // margin-bottom: 0;
+    @extend %smooth-hover;
+    &:hover {
+      color: #009eda,
+    }
+  }
+  .featured-subtitle {
     margin-top: 0px;
     margin-bottom: 25px;
   }
-  & .featured-synopsis {
+  .featured-synopsis {
     font-weight: 300;
     font-size: 18px;
     max-width: 380px;
   }
 }
+
 .desktop .featured-more {
   color: #fff;
   opacity: 60%;
@@ -763,5 +799,4 @@ export default {
     margin: 0;
   }
 }
-
 </style>
