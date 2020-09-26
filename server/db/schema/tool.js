@@ -16,7 +16,9 @@ const getFilmSearchStr = (FilmDoc) => {
     });
   }
 
-  const result = Hangul.disassembleToString(strArray.join('#').replace(/ /g, ''));
+  const result = Hangul.disassembleToString(
+    strArray.join('#').replace(/ /g, ''),
+  );
   // console.log(`getFilmSearchStr: ${result}`);
   return result;
 };
@@ -24,9 +26,13 @@ const getFilmSearchStr = (FilmDoc) => {
 const getPostSearchStr = (postDoc) => {
   // console.log(`getPostSearchStr called! title: ${postDoc.title}`);
   const strArray = [];
-  strArray.push(postDoc.title);
-  strArray.push(stripHtml(postDoc.content).result);
-  const result = Hangul.disassembleToString(strArray.join('#').replace(/ /g, ''));
+  const { title = '', content = '' } = postDoc;
+  strArray.push(title);
+  strArray.push(stripHtml(content).result);
+  const result = Hangul.disassembleToString(
+    strArray.join('#').replace(/ /g, ''),
+  );
+  // console.log(`result: ${result}`);
   return result;
 };
 
