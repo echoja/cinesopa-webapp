@@ -1,20 +1,13 @@
 const sinon = require('sinon');
-
-// const pug = require('pug');
 const path = require('path');
 const fs = require('fs');
-// const FormData = require('form-data');
-// const { inspect } = require('util');
-// const axios = require('axios');
 const express = require('express');
-// const e = require('express');
 const { expect } = require('chai');
-// const { connect } = require('http2');
 const makeAgent = require('supertest').agent;
 // const { upload, createFileFromMockFile } = require('./tool');
 const { fake } = require('sinon');
-const { db, model } = require('../loader');
-const fileService = require('../service/file');
+const { model } = require('../loader');
+const fileServiceFactory = require('../service/file');
 const fileManager = require('../manager/file');
 const {
   fileQuery,
@@ -22,11 +15,11 @@ const {
   updateFileMutation,
   removeFileMutation,
 } = require('./graphql-request');
-const { initTestServer, graphqlSuper, doLogin } = require('./tool');
+const { initTestServer, graphqlSuper, doLogin, doLogout } = require('./tool');
 
 const app = express();
 
-const dest = 'test/upload-middlewares';
+const dest = 'test/uploads';
 const field = 'bin';
 
 const removeFilesInDir = (destString, done) => {
@@ -78,7 +71,7 @@ describe('file', function () {
         createFile = fake();
         updateFile = fake();
         removeFile = fake();
-        const file = fileService.make(
+        const file = fileServiceFactory.make(
           {
             createFile,
             updateFile,
@@ -143,18 +136,18 @@ describe('file', function () {
       it('파일이 있을 시 올바르게 삭제', function (done) {
         const fullpath = path.join(dest, 'abcde');
         fs.writeFileSync(fullpath, 'hiho');
-        const db = {
+        const dbTest = {
           getFile: sinon.fake.returns({ filename: 'abcde', path: fullpath }),
           removeFile: sinon.fake(),
         };
         const fileMgr = {
           removeFile: sinon.fake(),
         };
-        const file = fileService.make(db, fileMgr, dest, field);
+        const file = fileServiceFactory.make(dbTest, fileMgr, dest, field);
         file
           .removeFile('abcde')
           .then((/* result */) => {
-            expect(db.removeFile.firstCall.args[0]).to.equal('abcde');
+            expect(dbTest.removeFile.firstCall.args[0]).to.equal('abcde');
             expect(fileMgr.removeFile.firstCall.args[0]).to.equal(fullpath);
             done();
           })
@@ -168,7 +161,7 @@ describe('file', function () {
       // eslint-disable-next-line mocha/no-setup-in-describe
       const fullpath = path.join(dest, filename);
 
-      const db = {
+      const dbTest = {
         // eslint-disable-next-line mocha/no-setup-in-describe
         createFile: sinon.fake.returns({ filename, path: fullpath }),
         // eslint-disable-next-line mocha/no-setup-in-describe
@@ -186,12 +179,12 @@ describe('file', function () {
         sinon.reset();
       });
       it('파일이 올바르게 대체', function (done) {
-        const file = fileService.make(db, fileMgr, dest, field);
+        const file = fileServiceFactory.make(dbTest, fileMgr, dest, field);
         file
           .replaceFile(filename, { filename: 'ho' }, 'ezkorry')
           .then(() => {
-            expect(db.createFile.calledOnce).to.be.true;
-            expect(db.removeFile.calledOnce).to.be.true;
+            expect(dbTest.createFile.calledOnce).to.be.true;
+            expect(dbTest.removeFile.calledOnce).to.be.true;
             expect(fileMgr.removeFile.calledOnce).to.be.true;
             done();
           })
@@ -200,14 +193,14 @@ describe('file', function () {
           });
       });
       it('파일이 없을 시 에러', function (done) {
-        const file = fileService.make(db, fileMgr, dest, field);
+        const file = fileServiceFactory.make(dbTest, fileMgr, dest, field);
         file
           .replaceFile('noexist', { filename: 'ho' }, 'ezkorry')
           .then(() => done(new Error('에러가 일어나야 합니다.')))
           .catch((err) => {
             expect(fileMgr.removeFile.threw()).to.be.true;
-            expect(db.createFile.called).to.be.false;
-            expect(db.removeFile.called).to.be.false;
+            expect(dbTest.createFile.called).to.be.false;
+            expect(dbTest.removeFile.called).to.be.false;
             return done();
           })
           .catch((err) => done(err));
@@ -215,7 +208,7 @@ describe('file', function () {
     });
     describe('.getUntrackedFiles', function () {
       it('올바르게 동작', function (done) {
-        const db = {
+        const dbTest = {
           getFiles: sinon.fake.returns([
             { filename: 'a' },
             { filename: 'b' },
@@ -227,7 +220,7 @@ describe('file', function () {
         };
         // fs.writeFileSync(path.join(dest, "test1"), "hiho");
         // fs.writeFileSync(path.join(dest, "test2"), "hiho");
-        const file = fileService.make(db, fm, dest, field);
+        const file = fileServiceFactory.make(dbTest, fm, dest, field);
         file
           .getUntrackedFiles()
           .then((result) => {
@@ -305,6 +298,7 @@ describe('file', function () {
       afterEach,
       after,
     });
+    // console.log(fileTestService);
     const adminLogin = async () => {
       await doLogin(agent, 'testAdmin', 'abc');
     };
@@ -324,14 +318,17 @@ describe('file', function () {
           .attach('bin', path.join(__dirname, 'tool.js'))
           .expect(200);
         const { filename } = res.body.file;
+        console.log(await model.File.find().lean().exec());
         const found = await model.File.find({ filename }).lean().exec();
+        console.log(found);
+        console.log(fs.readdirSync(uploadDest));
         expect(found.length).to.equal(1);
         expect(found[0].extension).to.equal('js');
         expect(found[0].origin).to.equal('tool.js');
         expect(found[0].label).to.equal('tool');
         expect(found[0].alt).to.equal('tool');
       });
-      it.only('업로드 시 public이 기본적으로 true 여야 함', async function () {
+      it('업로드 시 public이 기본적으로 true 여야 함', async function () {
         await doLogin(agent, 'testAdmin', 'abc');
         const res = await agent
           .post('/upload')
@@ -342,15 +339,20 @@ describe('file', function () {
         expect(found.public).to.equal(true);
       });
       it('/upload post 요청은 권한이 ADMIN 이 아니면 실패해야 함', async function () {
+        await doLogout(agent);
         const res = await agent
           .post('/upload')
-          .attach('bin', path.join(__dirname, 'tool.js'))
+          .attach('bin', path.join(__dirname, 'TestForUpload'))
           .expect(401);
+        // await doLogout(agent);
+        // await doLogin(agent, 'testGuest', 'abc');
         await doLogin(agent, 'testGuest', 'abc');
+        console.log(1);
         const res2 = await agent
           .post('/upload')
           .attach('bin', path.join(__dirname, 'tool.js'))
           .expect(401);
+        console.log(2);
       });
       it('여러개의 파일은 모두 제대로 저장되어야 함.', async function () {
         await doLogin(agent, 'testAdmin', 'abc');
@@ -405,7 +407,7 @@ describe('file', function () {
       });
 
       it('존재하지 않는 파일은 404여야 함', async function () {
-        const res2 = await agent.get(`/upload/hello`).expect(404);
+        const res2 = await agent.get('/upload/hello').expect(404);
         expect(res2.body).to.not.have.any.keys;
       });
     });
@@ -432,17 +434,17 @@ describe('file', function () {
       describe('file', function () {
         it('filename 만 넣었을 때 제대로 동작해야 함', async function () {
           // 일단 업로드
-          await adminLogin();
+          // await adminLogin();
           const res = await agent
             .post('/upload')
             .attach('bin', path.join(__dirname, 'tool.js'))
             .expect(200);
           const { filename } = res.body.file;
           // 요청하여 갖고 오기
-          const res2 = await graphqlSuper(agent, fileQuery, {
+          const res3 = await graphqlSuper(agent, fileQuery, {
             filename,
           });
-          expect(res2.body.data.file.origin).to.equal('tool.js');
+          expect(res3.body.data.file.origin).to.equal('tool.js');
         });
         // todo
         it('id를 넣었을 때 제대로 동작해야 함', function () {
@@ -460,14 +462,13 @@ describe('file', function () {
         });
         it('기본 값으로 관리되는 것만 불러와져야 함', async function () {
           await model.File.updateOne({ managed: false });
-
           const res = await graphqlSuper(agent, filesQuery);
           // console.log(res.body);
           expect(res.body.data.files.length).to.equal(1);
         });
       });
       describe('updateFile', function () {
-        it.only('제대로 동작해야 함', async function () {
+        it('제대로 동작해야 함', async function () {
           const { filename } = res2.body.file;
           await graphqlSuper(agent, updateFileMutation, {
             filename,
@@ -489,6 +490,8 @@ describe('file', function () {
           expect(found).to.be.null;
           const all = await model.File.find().lean().exec();
           expect(all.length).to.equal(1);
+          const files = fs.readdirSync(dest);
+          expect(files.length).to.equal(1, '파일 개수 - 파일이 하나만 남아있어야 합니다.');
         });
       });
     });
@@ -584,10 +587,10 @@ describe('file', function () {
       describe('getDangledFiles', function () {});
     });
 
-    it('그냥 성공해야 함', async function () {
-      const found = await model.User.find();
-      console.log(found);
-    });
-    it('그냥 성공해야 함2', async function () {});
+    // it('그냥 성공해야 함', async function () {
+    //   const found = await model.User.find();
+    //   console.log(found);
+    // });
+    // it('그냥 성공해야 함2', async function () {});
   });
 });

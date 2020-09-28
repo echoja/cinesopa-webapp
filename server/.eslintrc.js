@@ -1,6 +1,7 @@
 module.exports = {
+  parser: 'babel-eslint',
   parserOptions: {
-    ecmaVersion: 2020,
+    ecmaVersion: 12,
   },
   env: {
     browser: true,
@@ -8,9 +9,16 @@ module.exports = {
     node: true,
     jquery: true,
     mocha: true,
+    es2021: true,
   },
-  extends: ['airbnb-base', 'plugin:mocha/recommended', 'plugin:chai-friendly/recommended'],
+  extends: [
+    'eslint:recommended',
+    // 'airbnb-base',
+    'plugin:mocha/recommended',
+    'plugin:chai-friendly/recommended',
+  ],
   plugins: ['import', 'html'],
+  // 'classPrivateMethods', 'babel'
   rules: {
     // "off" or 0 - turn the rule off
     // "warn" or 1 - turn the rule on as a warning (doesn’t affect exit code)

@@ -195,7 +195,8 @@
               :disabled="state.processing"
             ></b-form-textarea>
           </b-form-group>
-          <h2>보기 설정</h2>
+
+          <h2>영화 리스트 보기 설정</h2>
 
           <!----- form group start --->
           <b-form-group
@@ -206,35 +207,81 @@
             label-size="md"
           >
             <b-form-checkbox v-model="film.is_featured" :value="true" :unchecked-value="false"
-              >특집(영화 목록 페이지 상단)에 걸어놓습니다.</b-form-checkbox
+              >영화 리스트의 상단 슬라이더에 노출시킵니다.</b-form-checkbox
             >
             <b-form-checkbox v-model="film.is_opened" :value="true" :unchecked-value="false"
               >개봉한 영화입니다. (필터 적용시 작동)</b-form-checkbox
             >
           </b-form-group>
           <b-form-group
-            id="input-note-group"
             label="뱃지 텍스트"
-            description="영화 목록 페이지에서 포스토 왼쪽 상단에 보이는 텍스트 설정. (예: 개봉예정)"
+            description="영화 목록 페이지에서 포스터 왼쪽 상단에 보이는 텍스트 설정. (예: 개봉예정)"
             label-cols-md="3"
             label-align-md="left"
             label-size="md"
-            label-for="input-note"
+            label-for="input-badge_text"
           >
             <b-form-input
               type="text"
               size="sm"
-              id="input-note"
-              name="input-note"
-              v-model="film.note"
+              id="input-badge_text"
+              name="input-badge_text"
+              v-model="film.badge_text"
               :disabled="state.processing"
             ></b-form-input>
           </b-form-group>
+          <b-form-group
+            label="뱃지 색상"
+            description="뱃지의 색깔"
+            label-cols-md="3"
+            label-align-md="left"
+            label-size="md"
+            label-for="input-badge_color"
+          >
+            <ColorPicker id="input-badge_color" v-model="input.badge_color"></ColorPicker>
+          </b-form-group>
+          <b-form-group
+            label="상단 노출 스틸컷"
+            description="영화 리스트에서 상단에 노출되었을 때 배경 스틸컷을 설정합니다"
+            label-cols-md="3"
+            label-align-md="left"
+            label-size="md"
+            label-for="input-featured_steel"
+          >
+            <b-button></b-button>
+          </b-form-group>
+          <b-form-group
+            label="상단 노출 시놉시스"
+            description="영화 리스트에서 상단에 노출되었을 때 시놉시스를 설정합니다"
+            label-cols-md="3"
+            label-align-md="left"
+            label-size="md"
+            label-for="input-featured_synopsis"
+          >
+            <b-form-input
+              type="text"
+              size="sm"
+              id="input-featured_synopsis"
+              name="input-featured_synopsis"
+              v-model="film.featured_synopsis"
+              :disabled="state.processing"
+            ></b-form-input>
+          </b-form-group>
+          <b-form-group
+            label="상단 노출 배경 색상"
+            description="영화 리스트에서 상단에 노출되었을 때 옅게 깔리는 색깔을 정합니다."
+            label-cols-md="3"
+            label-align-md="left"
+            label-size="md"
+            label-for="input-featured_color"
+          >
+            <ColorPicker id="input-featured_color" v-model="input.featured_color"></ColorPicker>
+          </b-form-group>
 
           <!-- 마지막! -->
-          <b-form-group id="input-email-group" label="이메일 주소" label-for="input-email">
+          <!-- <b-form-group id="input-email-group" label="이메일 주소" label-for="input-email">
             <b-form-input type="text" v-model="film.title"></b-form-input>
-          </b-form-group>
+          </b-form-group> -->
         </b-col>
 
         <b-col lg>
@@ -300,6 +347,24 @@
                 <td><b-button-close @click="removeCompany(index)"></b-button-close></td>
               </tr>
             </table>
+          </div>
+          <!-- 메인 포스터 -->
+          <div id="edit-poster">
+            <h2>메인 포스터</h2>
+            <p>
+              {{ film.poster_url }}
+            </p>
+            <p>
+              {{ film.poster }}
+            </p>
+            <b-button size="sm" @click="$bvModal.show('set-poster-modal')">설정</b-button>
+            <b-modal size="xl" hide-footer id="set-poster-modal">
+              <file-manager
+                @file-manager-selected="setPoster"
+                :modalId="'set-poster-modal'"
+                :selectOnlyOne="true"
+              ></file-manager>
+            </b-modal>
           </div>
           <!-- 포토 및 사진 -->
           <div id="edit-photos">
@@ -380,7 +445,7 @@
         </b-col>
       </b-row>
       <b-row>
-        <b-button type="submit">적용</b-button>
+        <b-button type="submit" variant="primary">변경 사항을 적용합니다.</b-button>
       </b-row>
     </b-form>
     <p>모드: {{ mode }}</p>
@@ -390,6 +455,7 @@
 
 <script>
 import { mapActions } from 'vuex';
+import { Chrome } from 'vue-color';
 // import moment from 'moment';
 import {
   graphql,
@@ -398,9 +464,14 @@ import {
   createFilmMutation,
 } from '../../api/graphql-client';
 import router from '../../router';
+import FileManager from '../../components/FileManager.vue';
 
 export default {
   name: 'FilmEdit',
+  components: {
+    ColorPicker: Chrome,
+    'file-manager': FileManager,
+  },
   props: ['mode'],
   async created() {
     if (this.mode !== 'new') {
@@ -419,6 +490,8 @@ export default {
       input: {
         show_time_minutes: 0,
         show_time_seconds: 0,
+        featured_color: {},
+        badge_color: {},
       },
       film: {
         title: '',
@@ -437,14 +510,19 @@ export default {
         star_daum: null,
         star_cine21: null,
         poster: null, // File에 대한 id
+        poster_url: '',
         photos: [], // File에 대한 ObjectId의 배열
         videos: [], // video
         synopsis: '',
         note: '',
         tags: [],
         is_featured: false,
-        is_opened: false,
-        badge: '',
+        is_opened: true,
+        featured_steel: '',
+        featured_color: {},
+        featured_synopsis: '',
+        badge_text: '',
+        badge_color: {},
         meta: {}, // Mixed
       },
     };
@@ -477,10 +555,21 @@ export default {
       Object.keys(this.film).forEach((key) => {
         this.film[key] = film[key] ? film[key] : this.film[key];
       });
+      await this.adaptToInput(film);
+    },
 
+    // 정보들을 input에 맞게 가공합니다.
+    async adaptToInput(film) {
       if (film.show_time) {
         this.input.show_time_minutes = Math.floor(film.show_time / 60);
         this.input.show_time_seconds = film.show_time % 60;
+      }
+
+      if (film.featured_color) {
+        this.input.featured_color = { hex: film.featured_color };
+      }
+      if (film.badge_color) {
+        this.input.badge_color = { hex: film.badge_color };
       }
     },
     async importFrom() {
@@ -540,14 +629,30 @@ export default {
         title: '',
       });
     },
-    // 확인 버튼을 눌렀을 때.
-    async confirm() {
-      // 결과값을 한번 처리합니다.
+    async setPoster(files) {
+      const poster = files[0];
+      // console.log(files[0]);
+      this.film.poster_url = poster.fileurl;
+      // eslint-disable-next-line no-underscore-dangle
+      this.film.poster = poster._id;
+      // this.film.poster = files[0]
+    },
+    // 결과값을 한번 처리합니다.
+    async refineInputValues() {
       this.film.prod_date = new Date(this.film.prod_date);
       this.film.open_date = new Date(this.film.open_date);
       const minutes = this.input.show_time_minutes;
       const seconds = this.input.show_time_seconds;
       this.film.show_time = parseInt(minutes * 60 + seconds, 10);
+
+      // 컬러 설정
+      this.film.badge_color = this.input.badge_color?.hex;
+      this.film.featured_color = this.input.featured_color?.hex;
+    },
+
+    // 확인 버튼을 눌렀을 때.
+    async confirm() {
+      await this.refineInputValues();
       try {
         if (this.mode === 'new') {
           return this.confirmNew();
@@ -615,5 +720,15 @@ span.after-input {
 
 img.preview {
   width: 200px;
+}
+
+.form-row {
+  max-width: 550px;
+}
+
+h2 {
+  font-size: 22px;
+  font-weight: bold;
+  margin-top: 80px;
 }
 </style>

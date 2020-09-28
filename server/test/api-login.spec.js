@@ -62,26 +62,27 @@ query checkAuth($redirectLink: String!, $role: Permission!) {
   }
 }
 `;
-const graphqlRequest = async (url, query, variables) => new Promise((resolve, reject) => {
-  axios
-    .post(
-      url,
-      JSON.stringify({
-        query,
-        variables,
-      }),
-      {
-        headers,
-        withCredentials: true,
-      },
-    )
-    .then((value) => {
-      const { data } = value;
-      if (data) return resolve(data);
-      return resolve(data);
-    })
-    .catch((error) => reject(error));
-});
+const graphqlRequest = async (url, query, variables) =>
+  new Promise((resolve, reject) => {
+    axios
+      .post(
+        url,
+        JSON.stringify({
+          query,
+          variables,
+        }),
+        {
+          headers,
+          withCredentials: true,
+        },
+      )
+      .then((value) => {
+        const { data } = value;
+        if (data) return resolve(data);
+        return resolve(data);
+      })
+      .catch((error) => reject(error));
+  });
 
 describe('로그인 및 로그아웃 (권한)', function () {
   this.timeout(10000);
@@ -184,13 +185,19 @@ describe('로그인 및 로그아웃 (권한)', function () {
     );
     expect(result?.body?.data?.login?.user?.name).to.equal('ok');
   });
-  it('로그인 실패 테스트', async function () {
-    const result = await graphqlSuper(agent, loginQuery, {
+  it('로그인 실패 테스트', function (done) {
+    graphqlSuper(agent, loginQuery, {
       email: 'eszqsc112@naver.como',
       pwd: '13241324',
-    });
+    })
+      .then((result) => {
+        done(`에러가 발생해야 합니다. ==> ${result}`);
+      })
+      .catch(() => {
+        done();
+      });
     // console.dir(result);
-    expect(result?.body?.data.login).to.equal(null);
+    // expect(result?.body?.data.login).to.equal(null);
   });
 
   it('로그인이 되어있는지 체크할 수 있어야함 (성공 케이스)', async function () {

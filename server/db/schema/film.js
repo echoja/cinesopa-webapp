@@ -71,6 +71,7 @@ module.exports = function (mongoose) {
     star_daum: Number,
     star_cine21: Number,
     poster: { type: mongoose.Schema.Types.ObjectId, ref: 'File' },
+    poster_url: String,
     photos: [{ type: mongoose.Schema.Types.ObjectId, ref: 'File' }],
     // id: Number, AutoIncrement 로 인해서 명시적으로 적어줄 필요 없음.
     videos: [Video],
@@ -81,7 +82,10 @@ module.exports = function (mongoose) {
     is_featured: Boolean,
     is_opened: Boolean,
     featured_steel: { type: mongoose.Schema.Types.ObjectId, ref: 'File' },
-    badge: String,
+    featured_color: String,
+    featured_synopsis: String,
+    badge_text: String,
+    badge_color: String,
     meta: mongoose.Schema.Types.Mixed,
     search: String,
   });

@@ -246,6 +246,7 @@ const filmResponse = `{
   star_daum
   star_cine21
   poster
+  poster_url
   photos
   id
   videos {
@@ -258,7 +259,10 @@ const filmResponse = `{
   is_featured
   is_opened
   featured_steel
-  badge
+  featured_color
+  featured_synopsis
+  badge_text
+  badge_color
   meta
 }
 `;

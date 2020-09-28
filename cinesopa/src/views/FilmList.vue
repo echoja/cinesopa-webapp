@@ -52,10 +52,12 @@
                     class="featured-poster d-flex align-items-center justify-content-center"
                     md="6"
                   >
-                    <b-img
-                      class="mw-100 mh-100"
-                      :src="require('../assets/test/test-poster.jpg')"
-                    ></b-img>
+                    <b-link class="d-block w-100 h-100" :to="{ name: 'IndividualFilm', params: { id: film.id } }">
+                      <b-img
+                        class="mw-100 mh-100"
+                        :src="require('../assets/test/test-poster.jpg')"
+                      ></b-img>
+                    </b-link>
                   </b-col>
                   <b-col
                     class="featured-description text-left d-flex flex-column justify-content-center"
@@ -491,7 +493,7 @@ export default {
     // margin-bottom: 0;
     @extend %smooth-hover;
     &:hover {
-      color: #009eda,
+      color: #009eda;
     }
   }
   .featured-subtitle {

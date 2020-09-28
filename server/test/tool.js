@@ -247,7 +247,7 @@ const initTestServer = (hookFunctions) => {
   });
   hookFunctions.afterEach('세션 초기화', async function () {
     // console.log('webapp - afterEach!!!');
-    await agent.get('/logout');
+    await doLogout(agent);
   });
 
   /** @type {MongoMemoryServer} */
@@ -255,6 +255,10 @@ const initTestServer = (hookFunctions) => {
 
   return { mongod, agent, webapp, uploadDest, fileService };
 };
+
+const doLogout = async (agent) => {
+  await agent.get('/logout');
+}
 
 /**
  * @typedef {object} MockFile
@@ -266,6 +270,7 @@ const initTestServer = (hookFunctions) => {
 module.exports = {
   graphqlSuper,
   doLogin,
+  doLogout,
   testDatabaseServer,
   initTestServer,
   /**

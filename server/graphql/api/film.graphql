@@ -41,6 +41,7 @@ type Film {
   star_daum: Int
   star_cine21: Int
   poster: String # File에 대한 ObjectId
+  poster_url: String
   photos: [String] # File에 대한 ObjectId의 배열
   id: Int
   videos: [Video]
@@ -50,7 +51,10 @@ type Film {
   is_featured: Boolean # 특집 칸에 올라가있는가?
   is_opened: Boolean # 개봉되었는지 여부 
   featured_steel: String # 특집 칸에 올라가있을 때의 이미지 File에 대한 ObjectId
-  badge: String # 뱃지에 들어갈 텍스트
+  featured_color: String
+  featured_synopsis: String
+  badge_text: String # 뱃지에 들어갈 텍스트
+  badge_color: String 
   meta: JSON # Mixed
 }
 
@@ -98,6 +102,7 @@ input FilmInput {
   star_daum: Int
   star_cine21: Int
   poster: String # File에 대한 ObjectId
+  poster_url: String
   photos: [String] # File에 대한 ObjectId의 배열
   videos: [VideoInput]
   synopsis: String
@@ -106,7 +111,10 @@ input FilmInput {
   is_featured: Boolean
   is_opened: Boolean 
   featured_steel: String 
-  badge: String 
+  featured_color: String
+  featured_synopsis: String
+  badge_text: String
+  badge_color: String
   meta: JSON # Mixed
 }
 

@@ -7,6 +7,7 @@ const {
   makeResolver,
   db,
   file,
+  fileManager,
 } = require('../../loader');
 
 // 관리자
@@ -55,7 +56,7 @@ const updateFile = makeResolver(async (obj, args, context, info) => {
 const removeFile = makeResolver(async (obj, args, context, info) => {
   const { filename } = args;
   const found = file.getFile(filename);
-  await db.removeFile(filename);
+  await file.removeFile(filename);
   return found;
 }).only(ACCESS_ADMIN);
 

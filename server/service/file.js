@@ -8,74 +8,20 @@ const { aw } = require('../util');
 
 // const sizeOf = promisify(sizeOfCallbackBased);
 
-/** @type {DBManager} */
-let db;
+class FileService {
+  /** @type {DBManager} */
+  #db;
+  /** @type {FileManager} */
+  #file;
+  /** @type {string} */
+  #dest;
+  /** @type {string} */
+  #uploadField;
 
-/** @type {FileManager} */
-let file;
+  uploadMiddleware;
 
-/** @type {string} */
-let dest;
-
-/** @type {string} */
-let uploadField;
-
-// const file = require("../manager/file");
-// /**
-//  * 파일을 새로 만듭니다.
-//  * @param {Express.Multer.File} fileinfo
-//  */
-// const newFile = async (fileinfo) => {};
-
-const getFile = async (filename) => db.getFile(filename);
-
-const getFiles = async () => db.getFiles();
-
-/**
- *
- * @param {string} filename 실제 저장되는 파일 이름
- * @throws 파일이 db상 존재하지 않을 때
- */
-const removeFile = async (filename) => {
-  const toRemove = await db.getFile(filename);
-  if (!toRemove) throw Error(`파일이 존재하지 않습니다: ${filename}`);
-  const fullpath = toRemove.path;
-  await db.removeFile(filename);
-  await file.removeFile(fullpath);
-};
-
-/**
- * 본래 있던 파일을 삭제하고 데이터베이스는 새로운 파일로 갱신합니다.
- * @param {string} origin 원래의 filename
- * @param {Fileinfo} replacement 바꿀 파일의 정보
- * @param {string} owner 소유자의 email
- */
-const replaceFile = async (origin, replacement, owner) => {
-  await file.removeFile(origin);
-  await db.createFile(replacement, owner);
-  await db.removeFile(replacement.filename);
-};
-
-/**
- * 실제 파일은 존재하지만 db에서 추적되지 않는 파일을 얻습니다.
- * @returns {Promise<string[]>} filename 의 배열
- */
-const getUntrackedFiles = async () => {
-  const dbFiles = await db.getFiles();
-  const actualFilenames = await file.getFiles(dest);
-  const untracked = actualFilenames.filter(
-    (actualFilename) =>
-      // eslint-disable-next-line implicit-arrow-linebreak
-      dbFiles.findIndex((dbFile) => dbFile.filename === actualFilename) === -1,
-  );
-  return untracked;
-};
-
-const makeMulter = () => {
-  const multerMiddleware = multer({ dest }).single(uploadField);
-  return [
-    multerMiddleware,
-    async (req, res, next) => {
+  #initCreateFileMiddleware = (db, file) => {
+    return async (req, res, next) => {
       let fullpath = '';
       try {
         // console.log('ho~~~~~~!~!~!~!~!~!~!~!~!');
@@ -118,63 +64,152 @@ const makeMulter = () => {
       } catch (error) {
         next(error);
         await file.removeFile(fullpath);
-        console.log('파일 업로드 중 에러로 인해 중단하고 업로드했던 파일을 삭제했습니다.');
+        console.log(
+          '파일 업로드 중 에러로 인해 중단하고 업로드했던 파일을 삭제했습니다.',
+        );
         console.error(error);
       }
-    },
-  ];
-};
+    };
+  };
 
-/**
- * db 상 존재하지만 실제 파일이 없는 파일을 얻습니다. (아직 구현 안함)
- * @returns {Promise<string[]>} filename 의 배열
- */
-const getDangledFiles = async () => {};
+  #initMulterMiddleware = (dest, uploadField) => {
+    return multer({ dest }).single(uploadField);
+  };
+
+  constructor(db, file, dest, uploadField) {
+    this.#db = db;
+    this.#file = file;
+    this.#dest = dest;
+    this.#uploadField = uploadField;
+    this.uploadMiddleware = [
+      this.#initMulterMiddleware(this.#dest, this.#uploadField),
+      this.#initCreateFileMiddleware(this.#db, this.#file),
+    ];
+  }
+
+  getFileMiddleware = aw(async (req, res, next) => {
+    // console.log(req.params.filename);
+    // 파일 이름이 주어지지 않을 경우 404
+    const { filename } = req.params;
+    if (!filename) return res.status(404).send();
+
+    // 파일이름으로 찾기 시도. 찾을시 바로 보냄.
+    const foundByFilename = await this.#db.getFile(filename);
+    // console.log(foundByFilename.path);
+    // console.log(__dirname);
+    if (foundByFilename) return res.sendFile(absPath(foundByFilename.path));
+
+    // 옵션 찾기 시도. 못찾을시 404
+    const optionName = filename;
+    const foundOption = await this.#db.getOption(optionName);
+    if (foundOption?.type !== 'file') return res.status(404).send();
+
+    // 옵션이 주어진다면, 해당하는 파일 보내기.
+    const fileByOption = await this.#db.getFile(foundOption.value);
+    if (fileByOption) return res.sendFile(absPath(foundByFilename.path));
+
+    // 해당하는 옵션의 파일도 존재하지 않는다면, 404
+    return res.status(404).send();
+  });
+
+  async getFile(filename) {
+    return this.#db.getFile(filename);
+  }
+  async getFiles() {
+    return this.#db.getFiles();
+  }
+
+  /**
+   *
+   * @param {string} filename 실제 저장되는 파일 이름
+   * @throws 파일이 db상 존재하지 않을 때
+   */
+  async removeFile(filename) {
+    const toRemove = await this.#db.getFile(filename);
+    if (!toRemove) throw Error(`파일이 존재하지 않습니다: ${filename}`);
+    const fullpath = toRemove.path;
+    await this.#db.removeFile(filename);
+    await this.#file.removeFile(fullpath);
+  }
+
+  /**
+   * 본래 있던 파일을 삭제하고 데이터베이스는 새로운 파일로 갱신합니다.
+   * @param {string} origin 원래의 filename
+   * @param {Fileinfo} replacement 바꿀 파일의 정보
+   * @param {string} owner 소유자의 email
+   */
+  async replaceFile(origin, replacement, owner) {
+    await this.#file.removeFile(origin);
+    await this.#db.createFile(replacement, owner);
+    await this.#db.removeFile(replacement.filename);
+  }
+  /**
+   * 실제 파일은 존재하지만 db에서 추적되지 않는 파일을 얻습니다.
+   * @returns {Promise<string[]>} filename 의 배열
+   */
+  async getUntrackedFiles() {
+    const dbFiles = await this.#db.getFiles();
+    const actualFilenames = await this.#file.getFiles(this.#dest);
+    const untracked = actualFilenames.filter(
+      (actualFilename) =>
+        // eslint-disable-next-line implicit-arrow-linebreak
+        dbFiles.findIndex((dbFile) => dbFile.filename === actualFilename) ===
+        -1,
+    );
+    return untracked;
+  }
+  /**
+   * db 상 존재하지만 실제 파일이 없는 파일을 얻습니다. (아직 구현 안함)
+   * @returns {Promise<string[]>} filename 의 배열
+   */
+
+  async getDangledFiles() {}
+}
+// /** @type {DBManager} */
+// let db;
+
+// /** @type {FileManager} */
+// let file;
+
+// /** @type {string} */
+// let dest;
+
+// /** @type {string} */
+// let uploadField;
+
+// const file = require("../manager/file");
+// /**
+//  * 파일을 새로 만듭니다.
+//  * @param {Express.Multer.File} fileinfo
+//  */
+// const newFile = async (fileinfo) => {};
+
+// const
+// const getFile = async (filename) => db.getFile(filename);
+
+// const
+// const getFiles = async () => db.getFiles();
+
+// const makeMulter = () => {
+//   return;
+// };
 
 const absPath = (relative) => path.join(__dirname, '../', relative);
 
-const getFileMiddleware = aw(async (req, res, next) => {
-  // console.log(req.params.filename);
-  // 파일 이름이 주어지지 않을 경우 404
-  const { filename } = req.params;
-  if (!filename) return res.status(404).send();
-
-  // 파일이름으로 찾기 시도. 찾을시 바로 보냄.
-  const foundByFilename = await db.getFile(filename);
-  // console.log(foundByFilename.path);
-  // console.log(__dirname);
-  if (foundByFilename) return res.sendFile(absPath(foundByFilename.path));
-
-  // 옵션 찾기 시도. 못찾을시 404
-  const optionName = filename;
-  const foundOption = await db.getOption(optionName);
-  if (foundOption?.type !== 'file') return res.status(404).send();
-
-  // 옵션이 주어진다면, 해당하는 파일 보내기.
-  const fileByOption = await db.getFile(foundOption.value);
-  if (fileByOption) return res.sendFile(absPath(foundByFilename.path));
-
-  // 해당하는 옵션의 파일도 존재하지 않는다면, 404
-  return res.status(404).send();
-});
-
 module.exports = {
   make(dbManager, fileManager, deststr, uploadFieldstr) {
-    db = dbManager;
-    file = fileManager;
-    dest = deststr;
-    uploadField = uploadFieldstr;
+    return new FileService(dbManager, fileManager, deststr, uploadFieldstr);
     // console.log(path.join(dest));
-    return {
-      getFile,
-      getFiles,
-      removeFile,
-      replaceFile,
-      getUntrackedFiles,
-      getDangledFiles,
-      uploadMiddleware: makeMulter(),
-      getFileMiddleware,
-    };
+    // return {
+    //   getFile,
+    //   getFiles,
+    //   removeFile,
+    //   replaceFile,
+    //   getUntrackedFiles,
+    //   getDangledFiles,
+    //   uploadMiddleware: makeMulter(),
+    //   getFileMiddleware,
+    // };
   },
 
   // req.user로 유저 데이터 접근 가능
