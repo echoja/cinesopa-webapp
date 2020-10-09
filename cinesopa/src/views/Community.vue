@@ -311,7 +311,7 @@
         >
           <b-button
             id="address"
-            variant="outline-primary"
+            variant="outline-dark"
             @click="openMap"
             aria-describedby="다음 주소창이 새 창으로 열립니다."
             >주소 검색</b-button
@@ -553,7 +553,7 @@
               </div>
               <b-form-invalid-feedback
                 :state="getValidationState(v_context)"
-                id="check-prifacy-invalid-feedback"
+                id="check-privacy-invalid-feedback"
                 >{{ v_context.errors[0] }}</b-form-invalid-feedback
               >
               <span class="invalid-feedback" v-bind="v_context.ariaMsg">{{
@@ -604,7 +604,7 @@
               </div>
               <b-form-invalid-feedback
                 :state="getValidationState(v_context)"
-                id="check-prifacy-invalid-feedback"
+                id="check-copyright-invalid-feedback"
                 >{{ v_context.errors[0] }}</b-form-invalid-feedback
               >
               <span class="invalid-feedback" v-bind="v_context.ariaMsg">{{
@@ -614,7 +614,7 @@
             </b-form-group>
           </validation-provider>
         </div>
-        <b-button type="submit" variant="primary">신청서를 제출하겠습니다</b-button>
+        <b-button class="submit" type="submit" variant="primary">신청서를 제출하겠습니다</b-button>
       </b-form>
     </validation-observer>
   </div>
@@ -758,10 +758,10 @@ export default {
         // eslint-disable-next-line no-undef
         this.mapLoader = new daum.Postcode({
           oncomplete(data) {
-            console.log(this);
-            console.log(data);
-            console.log(self);
-            self.addressNew = data.address;
+            // console.log(this);
+            // console.log(data);
+            // console.log(self);
+            self.addressNew = `${data.roadAddress} (${data.bname})`;
             self.addressOld = data.jibunAddress;
             self.form.addressDetailed = data.buildingName;
             // 팝업에서 검색결과 항목을 클릭했을때 실행할 코드를 작성하는 부분입니다.
@@ -770,7 +770,7 @@ export default {
         });
       })
       .catch((err) => {
-        console.log(this);
+        // console.log(this);
         console.error(err);
       });
     const { name } = this.$route.query;
@@ -784,7 +784,7 @@ export default {
     async submit(isValidPromise) {
       const isValid = await isValidPromise;
       if (isValid) {
-        console.log('success!');
+        // console.log('success!');
         // todo
         this.$router.push({ name: 'SuccessRequest' });
       } else {
@@ -806,7 +806,6 @@ export default {
       if (value !== 'MOV3') {
         this.form.howToReceive = '택배';
       }
-      console.log();
     },
     changedHowToReceive() {
       this.addressNew = '';
@@ -818,6 +817,10 @@ export default {
   },
 };
 </script>
+
+<!---------------------------------------------------------------->
+<!-----------------------    SCOPED SCSS    ---------------------->
+<!---------------------------------------------------------------->
 
 <style lang="scss" scoped>
 .guide {
@@ -929,7 +932,17 @@ export default {
     font-family: var(--font-family-monospace);
   }
 }
+.submit {
+  font-size: 18.7px;
+  font-weight: bold;
+  padding: 10px 20px;
+}
+
 </style>
+
+<!---------------------------------------------------------------->
+<!-----------------------    NORMAL SCSS    ---------------------->
+<!---------------------------------------------------------------->
 
 <style lang="scss">
 .community-form-group {

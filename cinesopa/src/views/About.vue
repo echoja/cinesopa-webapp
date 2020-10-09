@@ -6,6 +6,8 @@
     <div class="summary">
       <div class="value-three-background">
         <b-img
+          alt=""
+          aria-hidden="true"
           class="value-three-background-img unselectable"
           src="../assets/about/values-bg.png"
         ></b-img>
@@ -20,15 +22,15 @@
           </p>
           <p><br /></p>
           <p class="reveal1-3">우리의 작은 파도는,</p>
-          <p class="reveal1-4">
+          <p class="reveal1-4 simple-about-list">
             <em>1.</em> 상영 기회가 없던 <span class="blue-circle-strong">좋은 영화</span>를
             발견하여 관객과 만나게 합니다.
           </p>
-          <p class="reveal1-5">
+          <p class="reveal1-5 simple-about-list">
             <em>2.</em> 영화를 재밌고 깊이 <span class="blue-circle-strong">향유</span>할 수 있는
             방법을 고민합니다.
           </p>
-          <p class="reveal1-6">
+          <p class="reveal1-6 simple-about-list">
             <em>3.</em> 다재다능한 친구들과 영화를 매개로
             <span class="blue-circle-strong">함께</span>하고자 합니다.
           </p>
@@ -145,7 +147,7 @@
         data-aos-duration="1000"
       >
         <div class="person-sign">
-          <b-img class="person-sign-image" :src="person.imageLink" alt=""></b-img>
+          <b-img class="person-sign-image" :src="person.imageLink" :alt="person.imageAlt"></b-img>
         </div>
         <div class="person-info">
           <div class="person-name-position">
@@ -236,6 +238,7 @@ export default {
           phone: '010-3577-4970',
           // eslint-disable-next-line global-require
           imageLink: require('../assets/test/ss.png'),
+          imageAlt: '건강한 조직 손글씨',
         },
         {
           name: '최예지',
@@ -246,6 +249,7 @@ export default {
           phone: '010-3399-4668',
           // eslint-disable-next-line global-require
           imageLink: require('../assets/test/dd.png'),
+          imageAlt: '건강한 조직 손글씨',
         },
         {
           name: '최동녁',
@@ -256,6 +260,7 @@ export default {
           phone: '010-5295-9737',
           // eslint-disable-next-line global-require
           imageLink: require('../assets/test/nu.png'),
+          imageAlt: '건강한 조직 손글씨',
         },
         {
           name: '남유진',
@@ -266,6 +271,7 @@ export default {
           phone: '010-8425-9362',
           // eslint-disable-next-line global-require
           imageLink: require('../assets/test/nam.png'),
+          imageAlt: '건강한 조직 손글씨',
         },
       ],
       history: [
@@ -416,20 +422,34 @@ $total: 9;
   padding: 0 0 30px;
 }
 
+// .value-three-background {
+//   position: absolute;
+//   transform: translateX(min(calc((100vw - 1260px) / -2), 0.000000000000000001px));
+//   // background-color: #ddd;
+//   width: 100vw;
+//   height: 100%;
+// }
+
+// [data-v-039c5b43]
 .value-three-background {
-  position: absolute;
-  transform: translateX(min(calc((100vw - 1260px) / -2), 0.000000000000000001px));
-  // background-color: #ddd;
-  width: 100vw;
-  height: 100%;
+  height: 1px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
+// .value-three-background-img {
+//   position: absolute;
+//   left: 50%;
+//   transform: translateX(-50%);
+//   top: -300px;
+// }
+
 .value-three-background-img {
-  position: absolute;
-  left: 50%;
-  transform: translateX(-50%);
+  position: relative;
   top: -300px;
 }
+
 .blue-circle {
   text-align: center;
   color: util.$text-color;
@@ -507,6 +527,7 @@ $total: 9;
   display: flex;
   position: relative;
   justify-content: center;
+  flex-direction: column;
   margin-top: 100px;
 }
 .big-heading-wrapper::before {
@@ -528,6 +549,10 @@ $total: 9;
   font-size: 38px;
   // border-top: 1px solid #009eda;
 }
+
+.mobile .big-heading {
+  font-size: 30px;
+}
 /* PEOPLE */
 
 .people {
@@ -537,6 +562,9 @@ $total: 9;
 
 .person {
   padding: 50px;
+}
+.mobile .person {
+  padding: 25px 0;
 }
 
 .person-sign {
@@ -559,6 +587,10 @@ $total: 9;
 
 .person-info {
   display: flex;
+}
+.mobile .person-info {
+  font-size: 90%;
+  margin-left: -20px;
 }
 
 .person-name-position,
@@ -585,12 +617,14 @@ $total: 9;
 }
 
 .person-real-name {
-  font-size: 28px;
+  // font-size: 28px;
+  font-size: 1.75em;
   font-weight: 600;
 }
 
 .person-nickname {
-  font-size: 20px;
+  // font-size: 20px;
+  font-size: 1.25em;
   font-weight: 500;
 }
 
@@ -602,7 +636,11 @@ $total: 9;
 .person-email {
   border-left: 1px solid util.$link-color;
   padding-left: 20px;
-  font-size: 15px;
+  // font-size: 15px;
+  font-size: 0.875em;
+}
+.person-email {
+  font-size: 0.8em;
 }
 
 .person-phone {
@@ -641,6 +679,10 @@ $total: 9;
   position: relative;
   justify-content: center;
 }
+.mobile .works-circles {
+  flex-direction: column;
+  align-items: center;
+}
 
 .works-circle {
   // flex-shrink: 0;
@@ -652,6 +694,11 @@ $total: 9;
   color: #009eda;
   font-weight: 500;
   padding: 100px 0 150px;
+}
+
+.mobile .works-circle {
+  padding: 40px 0;
+  font-size: 22px;
 }
 
 // history
@@ -690,6 +737,9 @@ $total: 9;
   border-image-slice: 1;
   border-image-width: 0 1px 0 0;
 }
+.mobile .history-year {
+  font-size: 22px;
+}
 .history-events {
   padding-left: 30px;
   margin-bottom: 30px;
@@ -700,11 +750,28 @@ $total: 9;
   margin-bottom: 5px;
 }
 
+.mobile .history-event {
+  font-size: 14px;
+}
+
 .unselectable {
   user-select: none;
   pointer-events: none;
   // user-drag: none;
   // user-drag: none;
+}
+
+.mobile {
+  .simple-about {
+    font-size: 15px;
+  }
+
+  .big-heading-wrapper::before {
+    width: 200px;
+  }
+  .simple-about-list {
+    width: 244px;
+  }
 }
 </style>
 

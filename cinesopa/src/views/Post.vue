@@ -71,7 +71,7 @@ export default {
   },
   async mounted() {
     const res = await graphql(postQuery, { id: parseInt(this.id, 10) });
-    console.log(res);
+    // console.log(res);
     this.post = res?.data?.post;
     const boardId = this.post?.board;
     if (boardId) {
@@ -80,7 +80,7 @@ export default {
           id: boardId,
         },
       });
-      console.log(boardRes);
+      // console.log(boardRes);
       const { permalink: boardPermalink = null, title: boardTitle = null } = boardRes?.data?.board;
       this.boardTitle = boardTitle;
       this.boardPermalink = boardPermalink;

@@ -53,7 +53,7 @@ const postsQuery = makeResolver(async (obj, args, context, info) => {
     'public',
   );
 
-  // 파일 링크를 심어줌.
+  // 파일 링크 및 설명을 심어줌.
   const jobs = [];
   posts.posts.forEach((post, index) => {
     if (post.featured_image) {
@@ -61,6 +61,7 @@ const postsQuery = makeResolver(async (obj, args, context, info) => {
         (async () => {
           const fileFound = await db.getFileById(post.featured_image);
           posts.posts[index].featured_image_link = uploadBaseUrl + fileFound.filename;
+          posts.posts[index].featured_image_alt = fileFound.alt;
         })(),
       );
     }

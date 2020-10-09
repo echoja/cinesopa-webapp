@@ -106,6 +106,25 @@
           </b-form-group>
           <!----- form group start --->
           <b-form-group
+            id="input-type_name-group"
+            label="장르"
+            label-cols-md="3"
+            label-align-md="left"
+            label-size="md"
+            label-for="input-genres"
+          >
+            <b-form-tags
+              v-model="film.genres"
+              id="input-genres"
+              name="input-genres"
+              :disabled="state.processing"
+              placeholder="장르 입력 후 Enter"
+              add-button-text="추가"
+            >
+            </b-form-tags>
+          </b-form-group>
+          <!----- form group start --->
+          <b-form-group
             id="input-prod_date-group"
             label="제작 날짜"
             label-cols-md="3"
@@ -176,7 +195,11 @@
               name="input-synopsis"
               v-model="film.synopsis"
               :disabled="state.processing"
+              rows="6"
             ></b-form-textarea>
+            <!-- <p v-html="film.synopsis.replaceAll('\n','<br>')">
+              <!-- {{ film.synopsis }}
+            </p> -->
           </b-form-group>
           <!----- form group start --->
           <b-form-group
@@ -193,6 +216,7 @@
               name="input-note"
               v-model="film.note"
               :disabled="state.processing"
+              rows="6"
             ></b-form-textarea>
           </b-form-group>
 
@@ -248,7 +272,23 @@
             label-size="md"
             label-for="input-featured_steel"
           >
-            <b-button></b-button>
+            <b-button
+              size="sm"
+              @click="$bvModal.show('set-featured-steel-modal')"
+              variant="outline-secondary"
+            >
+              설정
+            </b-button>
+            <div class="preview-wrapper">
+              <b-img class="preview" :src="film.featured_steel"></b-img>
+            </div>
+            <b-modal size="xl" hide-footer id="set-featured-steel-modal">
+              <file-manager
+                @file-manager-selected="setFeaturedSteel"
+                :modalId="'set-featured-steel-modal'"
+                :selectOnlyOne="true"
+              ></file-manager>
+            </b-modal>
           </b-form-group>
           <b-form-group
             label="상단 노출 시놉시스"
@@ -258,14 +298,15 @@
             label-size="md"
             label-for="input-featured_synopsis"
           >
-            <b-form-input
+            <b-form-textarea
               type="text"
               size="sm"
               id="input-featured_synopsis"
               name="input-featured_synopsis"
               v-model="film.featured_synopsis"
               :disabled="state.processing"
-            ></b-form-input>
+              rows="5"
+            ></b-form-textarea>
           </b-form-group>
           <b-form-group
             label="상단 노출 배경 색상"
@@ -293,8 +334,8 @@
           -->
           <div id="edit-people">
             <h2>
-              사람들
-              <b-button size="sm" @click="addPerson">
+              배우/제작진
+              <b-button size="sm" @click="addPerson" variant="outline-secondary">
                 새로 추가
               </b-button>
             </h2>
@@ -306,7 +347,7 @@
                 <th>이름</th>
                 <th>영어 이름</th>
                 <th>역할</th>
-                <th>삭제</th>
+                <th></th>
               </tr>
 
               <tr v-for="(person, index) in film.people" :key="index">
@@ -324,11 +365,51 @@
               </tr>
             </table>
           </div>
+          <!-- 수상내역
+    role_type: { type: String, enum: enumPeopleRoleType.raw_str_list },
+    name: String,
+    name_en: String,
+    role: String,
+          -->
+          <div id="edit-awards">
+            <h2>
+              수상내역
+              <b-button size="sm" @click="addAward" variant="outline-secondary">
+                새로 추가
+              </b-button>
+            </h2>
+            <!-- festival_name: '제 8회 무주산골영화제',
+        //     year: 2020,
+        //     person_name: '오정석',
+        //     award_name: '영화 창(窓)',
+        //     award_type: '후보', -->
+            <table class="w-100">
+              <tr>
+                <th>연도</th>
+                <th>행사(영화제) 이름</th>
+                <th>수상자 이름</th>
+                <th>수상 부문</th>
+                <th>수상 결과</th>
+                <th></th>
+              </tr>
+
+              <tr v-for="(award, index) in film.awards" :key="index">
+                <td>
+                  <b-form-input size="sm" type="number" v-model="award.year" number> </b-form-input>
+                </td>
+                <td><b-form-input size="sm" v-model="award.festival_name"></b-form-input></td>
+                <td><b-form-input size="sm" v-model="award.person_name"></b-form-input></td>
+                <td><b-form-input size="sm" v-model="award.award_name"></b-form-input></td>
+                <td><b-form-input size="sm" v-model="award.award_type"></b-form-input></td>
+                <td><b-button-close @click="removeAward(index)"></b-button-close></td>
+              </tr>
+            </table>
+          </div>
           <!-- 회사들 -->
           <div id="edit-companies">
             <h2>
               영화사
-              <b-button size="sm" @click="addCompany">
+              <b-button size="sm" @click="addCompany" variant="outline-secondary">
                 새로 추가
               </b-button>
             </h2>
@@ -337,7 +418,7 @@
                 <th>이름</th>
                 <th>영어 이름</th>
                 <th>역할</th>
-                <th>삭제</th>
+                <th></th>
               </tr>
 
               <tr v-for="(company, index) in film.companies" :key="index">
@@ -350,14 +431,24 @@
           </div>
           <!-- 메인 포스터 -->
           <div id="edit-poster">
-            <h2>메인 포스터</h2>
-            <p>
-              {{ film.poster_url }}
-            </p>
-            <p>
+            <h2>
+              메인 포스터
+
+              <b-button
+                size="sm"
+                @click="$bvModal.show('set-poster-modal')"
+                variant="outline-secondary"
+              >
+                설정
+              </b-button>
+            </h2>
+            <div class="main-poster-wrapper">
+              <b-img class="main-poster" :src="film.poster_url"></b-img>
+            </div>
+            <!-- <p>
               {{ film.poster }}
-            </p>
-            <b-button size="sm" @click="$bvModal.show('set-poster-modal')">설정</b-button>
+            </p> -->
+
             <b-modal size="xl" hide-footer id="set-poster-modal">
               <file-manager
                 @file-manager-selected="setPoster"
@@ -370,46 +461,68 @@
           <div id="edit-photos">
             <h2>
               포토
-              <b-button size="sm" @click="addPhoto">
+              <b-button
+                size="sm"
+                @click="$bvModal.show('add-photo-modal')"
+                variant="outline-secondary"
+              >
                 새로 추가
               </b-button>
             </h2>
+            <b-modal size="xl" hide-footer id="add-photo-modal">
+              <file-manager
+                @file-manager-selected="addPhoto"
+                :modalId="'add-photo-modal'"
+              ></file-manager>
+            </b-modal>
             <table class="w-100">
               <tr>
                 <th>미리보기</th>
                 <th>제목</th>
-                <th>삭제</th>
+                <th>대체텍스트 <small>(접근성 필수)</small></th>
+                <th></th>
               </tr>
 
-              <tr v-for="(photo, index) in photosView" :key="index">
+              <tr v-for="(photo, index) in film.photos" :key="index">
                 <td class="text-center">
-                  <img class="preview" :src="photo.src" alt="" />
+                  <img class="photo-preview" :src="photo.preview_url" alt="" />
                 </td>
                 <td><b-form-input size="sm" v-model="photo.title"></b-form-input></td>
-                <td><b-button-close @click="removeReview(index)"></b-button-close></td>
+                <td><b-form-input size="sm" v-model="photo.alt"></b-form-input></td>
+                <td><b-button-close @click="removePhoto(index)"></b-button-close></td>
               </tr>
             </table>
           </div>
           <!-- 비디오들 -->
           <div id="edit-videos">
             <h2>
-              영상 자료
-              <b-button size="sm" @click="importVideoByLink">
-                Youtube 링크로 가져오기
+              비디오
+              <b-button size="sm" @click="importVideoByLink" variant="outline-secondary">
+                새로 추가
               </b-button>
             </h2>
-            <p>메인 예고편을 가장 위에 위치시키세요.</p>
+            <p>
+              메인 예고편은 <code>메인 에고편 여부</code>에 체크하세요. (영화 상세 페이지에서 우선
+              노출)
+            </p>
             <table class="w-100">
               <tr>
-                <th>Youtube 고유번호</th>
+                <th>
+                  메인<br />예고편<br />
+                  여부
+                </th>
                 <th>제목</th>
-                <th>삭제</th>
+                <th>Youtube 소스코드</th>
+                <th></th>
               </tr>
 
               <tr v-for="(video, index) in film.videos" :key="index">
-                <td><b-form-input size="sm" v-model="video.youtube_iframe"></b-form-input></td>
+                <td><b-checkbox v-model="video.is_main_trailer"></b-checkbox></td>
                 <td><b-form-input size="sm" v-model="video.title"></b-form-input></td>
-                <td><b-button-close @click="removeReview(index)"></b-button-close></td>
+                <td>
+                  <b-form-textarea size="sm" v-model="video.youtube_iframe"></b-form-textarea>
+                </td>
+                <td><b-button-close @click="removeVideo(index)"></b-button-close></td>
               </tr>
             </table>
           </div>
@@ -417,20 +530,20 @@
           <div id="edit-reviews">
             <h2>
               리뷰
-              <b-button size="sm" @click="addReview">
+              <b-button size="sm" @click="addReview" variant="outline-secondary">
                 새로 추가
               </b-button>
-              <b-button size="sm" @click="importReviewByLink">
+              <!-- <b-button size="sm" @click="importReviewByLink">
                 링크로 가져오기
-              </b-button>
+              </b-button> -->
             </h2>
             <table class="w-100">
               <tr>
                 <th>제목</th>
-                <th>url</th>
+                <th>url (링크)</th>
                 <th>출처</th>
                 <th>글쓴이</th>
-                <th>-</th>
+                <th></th>
               </tr>
 
               <tr v-for="(review, index) in film.reviews" :key="index">
@@ -445,11 +558,17 @@
         </b-col>
       </b-row>
       <b-row>
-        <b-button type="submit" variant="primary">변경 사항을 적용합니다.</b-button>
+        <div class="d-flex align-items-center">
+          <b-button type="submit" variant="primary">변경 사항을 적용합니다.</b-button>
+          <b-checkbox class="ml-4" v-model="film.status" value="public" unchecked-value="private"
+            >공개합니다.</b-checkbox
+          >
+        </div>
       </b-row>
     </b-form>
     <p>모드: {{ mode }}</p>
     <div>{{ film }}</div>
+    <div>{{ input }}</div>
   </div>
 </template>
 
@@ -503,6 +622,7 @@ export default {
         prod_date: null,
         open_date: null,
         people: [], // person
+        awards: [],
         companies: [], // company
         watch_grade: null,
         reviews: [], // review
@@ -523,6 +643,7 @@ export default {
         featured_synopsis: '',
         badge_text: '',
         badge_color: {},
+        status: 'public',
         meta: {}, // Mixed
       },
     };
@@ -551,9 +672,15 @@ export default {
     async initExist(id) {
       const result = await graphql(filmQuery, { id });
       const { film } = result.data;
-      console.log(film);
+      // console.log(this.film);
+      // this.film = Object.assign(this.film, film);
       Object.keys(this.film).forEach((key) => {
-        this.film[key] = film[key] ? film[key] : this.film[key];
+        // console.log(`key: ${key}`);
+        if (film[key] !== undefined) {
+          this.film[key] = film[key];
+        }
+        // this.film[key] = film[key] !== undefined ? film[key];
+        // this.film[key] = film[key] ? film[key] : this.film[key];
       });
       await this.adaptToInput(film);
     },
@@ -578,8 +705,9 @@ export default {
     async buildInput() {
       const input = {};
       Object.keys(this.film).forEach((key) => {
-        if (this.film[key]) input[key] = this.film[key];
+        if (this.film[key] !== null) input[key] = this.film[key];
       });
+      // console.log(input);
       return input;
     },
     async addPerson() {
@@ -593,6 +721,20 @@ export default {
     async removePerson(index) {
       this.film.people.splice(index, 1);
     },
+    // 수상내역
+    async addAward() {
+      this.film.awards.push({
+        year: 2020,
+        festival_name: '',
+        person_name: '',
+        award_name: '',
+        award_type: '',
+      });
+    },
+    async removeAward(index) {
+      this.film.awards.splice(index, 1);
+    },
+    // 회사
     async addCompany() {
       this.film.companies.push({
         name: '',
@@ -603,6 +745,13 @@ export default {
     async removeCompany(index) {
       this.film.companies.splice(index, 1);
     },
+    async removePhoto(index) {
+      this.film.photos.splice(index, 1);
+    },
+    async removeVideo(index) {
+      this.film.videos.splice(index, 1);
+    },
+    // 리뷰
     async addReview() {
       this.film.reviews.push({
         title: '',
@@ -620,12 +769,22 @@ export default {
     async importVideoByLink() {
       this.film.videos.push({
         youtube_iframe: '',
+        is_main_trailer: '',
         title: '',
       });
     },
-    async addPhoto() {
+    async addPhoto(files) {
+      files.forEach((image) => {
+        this.film.photos.push({
+          // eslint-disable-next-line no-underscore-dangle
+          mongo_file_id: image._id,
+          filename: image.filename,
+          preview_url: image.fileurl,
+          alt: image.alt,
+          title: image.label,
+        });
+      });
       this.film.photos.push({
-        youtube_iframe: '',
         title: '',
       });
     },
@@ -636,6 +795,10 @@ export default {
       // eslint-disable-next-line no-underscore-dangle
       this.film.poster = poster._id;
       // this.film.poster = files[0]
+    },
+    async setFeaturedSteel(files) {
+      const steel = files[0];
+      this.film.featured_steel = steel.fileurl;
     },
     // 결과값을 한번 처리합니다.
     async refineInputValues() {
@@ -665,7 +828,7 @@ export default {
     },
     async confirmNew() {
       const input = await this.buildInput();
-      /* const result = */ await graphql(createFilmMutation, {
+      const result = await graphql(createFilmMutation, {
         input,
       });
       // console.log(result);
@@ -674,6 +837,9 @@ export default {
         msg: '영화가 성공적으로 생성되었습니다.',
         id: 'filmUpdateSuccess',
       });
+      // console.log(result);
+      const { id } = result.data.createFilm;
+      this.$router.push({ name: 'FilmEdit', params: { id } });
     },
     async confirmUpdate() {
       const input = await this.buildInput();
@@ -718,8 +884,9 @@ span.after-input {
   margin-left: 5px;
 }
 
-img.preview {
-  width: 200px;
+.photo-preview {
+  max-height: 100px;
+  max-width: 200px;
 }
 
 .form-row {
@@ -730,5 +897,31 @@ h2 {
   font-size: 22px;
   font-weight: bold;
   margin-top: 80px;
+}
+
+.main-poster-wrapper {
+  height: 300px;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.main-poster {
+  max-width: 100%;
+  max-height: 100%;
+}
+
+.preview-wrapper {
+  height: 200px;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.preview {
+  max-width: 100%;
+  max-height: 100%;
 }
 </style>

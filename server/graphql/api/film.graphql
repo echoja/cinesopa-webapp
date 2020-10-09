@@ -1,4 +1,3 @@
-
 type Person {
   role_type: String
   name: String
@@ -20,7 +19,24 @@ type Review {
 }
 
 type Video {
+  is_main_trailer: Boolean
   youtube_iframe: String
+  title: String
+}
+
+type Award {
+  festival_name: String
+  year: Int
+  person_name: String
+  award_name: String
+  award_type: String
+}
+
+type Photo {
+  mongo_file_id: String
+  filename: String
+  preview_url: String
+  alt: String
   title: String
 }
 
@@ -42,20 +58,27 @@ type Film {
   star_cine21: Int
   poster: String # File에 대한 ObjectId
   poster_url: String
-  photos: [String] # File에 대한 ObjectId의 배열
+  photos: [Photo] # File에 대한 ObjectId의 배열
   id: Int
   videos: [Video]
+  awards: [Award]
   synopsis: String
   note: String
   tags: [String]
   is_featured: Boolean # 특집 칸에 올라가있는가?
-  is_opened: Boolean # 개봉되었는지 여부 
+  is_opened: Boolean # 개봉되었는지 여부
   featured_steel: String # 특집 칸에 올라가있을 때의 이미지 File에 대한 ObjectId
   featured_color: String
   featured_synopsis: String
   badge_text: String # 뱃지에 들어갈 텍스트
-  badge_color: String 
+  badge_color: String
+  status: String
   meta: JSON # Mixed
+}
+
+type Films {
+  total: Int
+  list: [Film]
 }
 
 # inputs
@@ -81,7 +104,24 @@ input ReviewInput {
 }
 
 input VideoInput {
+  is_main_trailer: Boolean
   youtube_iframe: String
+  title: String
+}
+
+input AwardInput {
+  festival_name: String
+  year: Int
+  person_name: String
+  award_name: String
+  award_type: String
+}
+
+input PhotoInput {
+  mongo_file_id: String
+  filename: String
+  preview_url: String
+  alt: String
   title: String
 }
 
@@ -103,18 +143,20 @@ input FilmInput {
   star_cine21: Int
   poster: String # File에 대한 ObjectId
   poster_url: String
-  photos: [String] # File에 대한 ObjectId의 배열
+  photos: [PhotoInput] 
   videos: [VideoInput]
+  awards: [AwardInput]
   synopsis: String
   note: String
   tags: [String]
   is_featured: Boolean
-  is_opened: Boolean 
-  featured_steel: String 
+  is_opened: Boolean
+  featured_steel: String
   featured_color: String
   featured_synopsis: String
   badge_text: String
   badge_color: String
+  status: String
   meta: JSON # Mixed
 }
 
@@ -132,7 +174,9 @@ input FilmSearch {
 
 extend type Query {
   film(id: Int!): Film
-  films(condition: FilmSearch!): [Film]
+  films(condition: FilmSearch!): Films
+  filmsAdmin(condition: FilmSearch!): Films
+  filmsFeatured: Films
 }
 
 extend type Mutation {

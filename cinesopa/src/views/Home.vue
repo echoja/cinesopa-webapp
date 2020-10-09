@@ -1,5 +1,6 @@
 <template>
   <div id="home" ref="home">
+    <h1 class="visually-hidden">홈</h1>
     <!-- <b-button @click="pageScrollMoveStart(0, 2)">테스트</b-button>
     <b-button @click="howv = !howv">테스트2</b-button>
     <div>{{ how('v') }}</div> -->
@@ -55,21 +56,36 @@
             <div class="position-absolute w-100 h-100 top0">
               <parallax :speed="-90" class="w-100 h-100 position-relative">
                 <div ref="img0-3" data-animation-number="3" class="position-relative w-100 h-100">
-                  <b-img class="img0-3 position-absolute" src="../assets/home/3.png"></b-img>
+                  <b-img
+                    alt=""
+                    aria-hidden="true"
+                    class="img0-3 position-absolute"
+                    src="../assets/home/3.png"
+                  ></b-img>
                 </div>
               </parallax>
             </div>
             <div class="position-absolute w-100 h-100 top0">
               <parallax :speed="-80" class="w-100 h-100 position-relative">
                 <div ref="img0-2" data-animation-number="2" class="position-relative w-100 h-100">
-                  <b-img class="img0-2 position-absolute" src="../assets/home/2.png"></b-img>
+                  <b-img
+                    alt=""
+                    aria-hidden="true"
+                    class="img0-2 position-absolute"
+                    src="../assets/home/2.png"
+                  ></b-img>
                 </div>
               </parallax>
             </div>
             <div class="position-absolute w-100 h-100 top0">
               <parallax :speed="-75" class="w-100 h-100 position-relative">
                 <div ref="img0-1" data-animation-number="1" class="position-relative w-100 h-100">
-                  <b-img class="img0-1 position-absolute" src="../assets/home/arch.png"></b-img>
+                  <b-img
+                    alt=""
+                    aria-hidden="true"
+                    class="img0-1 position-absolute"
+                    src="../assets/home/arch.png"
+                  ></b-img>
                 </div>
               </parallax>
             </div>
@@ -407,7 +423,7 @@ export default {
       });
     });
 
-    console.log(this.scrollSection);
+    // console.log(this.scrollSection);
     this.setScrollSectionX();
 
     // adding events;
@@ -416,8 +432,9 @@ export default {
 
     // 스크롤 취소 ...
     // window.addEventListener(wheelEvent, this.onWheel, { passive: false });
-    // window.addEventListener('resize', this.onResize);
+    window.addEventListener('resize', this.onResize);
     // window.addEventListener('cssVarsSuccessed', this.onCssVarsSuccessed);
+    document.addEventListener('touchmove', this.onTouchMove, { passive: false });
 
     this.$store.commit('setMenuTransparent', true);
 
@@ -516,8 +533,9 @@ export default {
 
     // 스크롤(휠) 취소
     // window.removeEventListener(wheelEvent, this.onWheel, { passive: false });
-    // window.removeEventListener('resize', this.onResize);
+    window.removeEventListener('resize', this.onResize);
     // window.removeEventListener('cssVarsSuccessed', this.onCssVarsSuccessed);
+    document.removeEventListener('touchmove', this.onTouchMove, { passive: false });
     this.$store.commit('setMenuTransparent', false);
     this.$store.commit('setLogoWhite', false);
     this.$store.commit('setNavLinkWhite', false);
@@ -559,6 +577,7 @@ export default {
 
     //   this.lastScrollTop = currentScrollTop;
     // },
+
     // 휠 이벤트
     /** @param {WheelEvent} event */
     onWheel(event) {
@@ -579,7 +598,7 @@ export default {
       //   `${currentScrollY + window.innerHeight + deltaY} <= ${container.offsetTop +
       //     container.offsetHeight}`,
       // );
-      console.log(`locateInScroll: ${locateInScroll}`);
+      // console.log(`locateInScroll: ${locateInScroll}`);
       if (!locateInScroll) {
         // 위에서 (처음상태에서) 스크롤 객체로 진입
         if (
@@ -587,7 +606,7 @@ export default {
           currentScrollY < container.offsetTop &&
           container.offsetTop + deltaY > 50
         ) {
-          console.log(event);
+          // console.log(event);
           // this.$scrollTo(this.$refs.container, 100, {
           //   cancelable: false,
           // });
@@ -596,7 +615,7 @@ export default {
             this.$scrollTo(container, 100, {
               cancelable: false,
               onDone() {
-                console.log('done!!');
+                // console.log('done!!');
                 moving = false;
                 locateInScroll = true;
               },
@@ -609,9 +628,9 @@ export default {
           currentScrollY + window.innerHeight + deltaY <=
           container.offsetTop + container.offsetHeight
         ) {
-          console.log('아래에서 위로 진입!');
+          // console.log('아래에서 위로 진입!');
           if (!moving) {
-            console.log('실제 움직여!');
+            // console.log('실제 움직여!');
             moving = true;
             passedScroll = false;
             this.$scrollTo(this.scrollSection[maxCount - 1].element, 1, {
@@ -640,7 +659,7 @@ export default {
         !moving &&
         deltaY > 0
       ) {
-        console.log('ended!11');
+        // console.log('ended!11');
         locateInScroll = false;
         passedScroll = true;
         return true;
@@ -652,7 +671,7 @@ export default {
 
       if (!moving) {
         moving = true;
-        console.log(`${currentLocation} >> ${dest}`);
+        // console.log(`${currentLocation} >> ${dest}`);
         currentLocation = dest;
         this.$scrollTo(this.scrollSection[dest].element, 700, {
           cancelable: false,
@@ -741,14 +760,14 @@ export default {
       // this.$refs['img0-0'].classList.add('img0-0-wrapper');
 
       this.$nextTick(() => {
-        console.log('classAdded!!!');
+        // console.log('classAdded!!!');
         this.$refs['img0-0'].classList.add('img0-0-wrapper');
         this.$refs['img0-1'].classList.add('img0-1-wrapper');
         this.$refs['img0-2'].classList.add('img0-2-wrapper');
         this.$refs['img0-3'].classList.add('img0-3-wrapper');
       });
 
-      console.log('addEventListener!!');
+      // console.log('addEventListener!!');
       const transitionEnd = getTransitionEndEventName();
       this.$refs['img0-1'].addEventListener(transitionEnd, this.transitionEnd);
       this.$refs['img0-2'].addEventListener(transitionEnd, this.transitionEnd);
@@ -1000,14 +1019,14 @@ export default {
       // })
     },
     onCssVarsSuccessed() {
-      console.log('cssVarsSuccessed!');
+      // console.log('cssVarsSuccessed!');
       this.setScrollSectionX();
     },
     /**
      * @param {Event} event
      */
     changeAnimation(event) {
-      console.log(`changeAnimation Called! > ${event.target.classList}`);
+      // console.log(`changeAnimation Called! > ${event.target.classList}`);
       const { target } = event;
       const animationNumber = target.getAttribute('data-animation-number');
 
@@ -1015,27 +1034,31 @@ export default {
       target.style.setProperty(`--r${animationNumber}-2`, `${Math.random() * 20 - 10}px`);
     },
     transitionEnd(event) {
-      console.log('`transitionEnd!`');
+      // console.log('`transitionEnd!`');
       const { target } = event;
       const animationNumber = target.getAttribute('data-animation-number');
       target.style.setProperty(`--r${animationNumber}-1`, `${Math.random() * 20 - 10}px`);
       target.style.setProperty(`--r${animationNumber}-2`, `${Math.random() * 20 - 10}px`);
       target.style.setProperty(`--r${animationNumber}-3`, `${Math.random() * 2 + 2}s`);
     },
+    onTouchMove(event) {
+      event.preventDefault();
+      // event.stopPropagate();
+    },
   },
 };
 </script>
 
 <style>
-.desktop #home {
-  /* position: relative; */
-  /* margin-top: calc(-1 * 230px); */
-}
+/* .desktop #home { */
+/* position: relative; */
+/* margin-top: calc(-1 * 230px); */
+/* } */
 
-.mobile #home {
-  /* position: relative; */
-  /* margin-top: calc(-1 * 80px); */
-}
+/* .mobile #home { */
+/* position: relative; */
+/* margin-top: calc(-1 * 80px); */
+/* } */
 
 .home-start {
   width: 100%;

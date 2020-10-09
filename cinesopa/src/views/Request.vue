@@ -94,6 +94,9 @@ export default {
   font-size: 50px;
   font-weight: 500;
 }
+.mobile .request-menu-listitem {
+  font-size: 30px;
+}
 
 .request-router-link {
   @extend %smooth-hover;

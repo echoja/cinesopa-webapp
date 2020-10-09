@@ -27,9 +27,10 @@ const routes = [
     component: () => import('../views/About.vue'),
   },
   {
-    path: '/film',
+    path: '/film-board/:type/:page?',
     name: 'FilmList',
     component: () => import('../views/FilmList.vue'),
+    props: true,
   },
   {
     path: '/film/:id',
@@ -83,7 +84,7 @@ const routes = [
         name: 'BoardNotFound',
         component: () => import('../views/Board.vue'),
         beforeEnter: (to, from, next) => {
-          console.log(to);
+          // console.log(to);
           next({ name: '404' });
         },
       },

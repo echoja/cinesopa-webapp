@@ -38,7 +38,7 @@ export default {
       return;
     }
     // this.content = res?.data?.page?.content;
-    console.log(res);
+    // console.log(res);
   },
 };
 </script>

@@ -121,13 +121,13 @@
         <div class="menu-desktop d-none d-md-block">
           <div
             id="nav"
-            class="font-weight-600 text-center transition-header d-flex justify-content-center"
+            class="text-center transition-header d-flex justify-content-center"
             :class="{ /*small: isMenuShouldSmall,*/ white: $store.state.navLinkWhite }"
           >
             <!-- :class="[isMenuShouldSmall ? 'px-3' : 'px-3', {}]" -->
             <b-link :to="{ name: 'About' }">회사소개 </b-link>
             <!-- :class="[isMenuShouldSmall ? 'px-3' : 'px-3']"  -->
-            <b-link :to="{ name: 'FilmList' }">
+            <b-link :to="{ name: 'FilmList', params: { type: 'all' } }">
               작품소개
             </b-link>
             <!-- :class="[isMenuShouldSmall ? 'px-3' : 'px-3']" -->
@@ -154,7 +154,7 @@
                 <b-link class="px-4" :to="{ name: 'About' }">회사소개 </b-link>
               </p>
               <p>
-                <b-link class="px-4" :to="{ name: 'FilmList' }">
+                <b-link class="px-4" :to="{ name: 'FilmList', params: { type: 'all' } }">
                   작품소개
                 </b-link>
               </p>
@@ -421,9 +421,11 @@ export default {
       if (window.innerWidth < 768) {
         this.$refs.app.classList.add('mobile');
         this.$refs.app.classList.remove('desktop');
+        this.$store.commit('setIsMobile', true);
       } else {
         this.$refs.app.classList.remove('mobile');
         this.$refs.app.classList.add('desktop');
+        this.$store.commit('setIsMobile', false);
       }
       // this.windowHeight = window.innerHeight;
       // this.documentHeight = document.body.clientHeight;
@@ -506,11 +508,11 @@ export default {
 }
 
 #nav {
-  font-size: 22px;
+  font-size: 24px;
   margin-top: 0;
   left: 100%;
   transform: translateX(-96%);
-  min-width: 612px;
+  min-width: 650px;
   position: absolute;
 
   &.small {
@@ -676,9 +678,9 @@ button:hover {
   color: #2b3e4a;
 }
 
-#body {
-  // overflow: hidden;
-}
+// #body {
+//   // overflow: hidden;
+// }
 
 #nav a.router-link-exact-active {
   color: #009eda;
@@ -758,7 +760,9 @@ button:hover {
 /** fonts !fonts */
 
 .noto-sans {
-  font-family: 'Noto Sans KR', var(--font-family-sans-serif);
+  font-family: 'Noto Sans KR', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
+    'Helvetica Neue', Arial, 'Noto Sans', sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
+    'Segoe UI Symbol', 'Noto Color Emoji';
 }
 
 .noto-serif {
@@ -912,5 +916,9 @@ button:hover {
 .fade-leave-to {
   transform: translateY(20px);
   opacity: 0;
+}
+
+.vue-skip-to {
+  z-index: 1000;
 }
 </style>

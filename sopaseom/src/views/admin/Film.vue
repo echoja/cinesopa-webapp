@@ -10,17 +10,18 @@
 </template>
 
 <script>
-import { graphql, filmsQuery /* removeFilmMutation */ } from '../../api/graphql-client';
+import { graphql, filmsQuery, filmsAdminQuery /* removeFilmMutation */ } from '../../api/graphql-client';
 import router from '../../router';
 import store from '../../store';
 
 export default {
   name: 'Film',
   async created() {
-    await this.getFilmList(0, 10);
+    await this.fetchFilms();
   },
   data() {
     return {
+      total: 0,
       fields: [
         {
           key: 'id',
@@ -45,11 +46,16 @@ export default {
       // router.
       // g호호
     },
-    async getFilmList(page, perpage) {
+    async fetchFilms() {
       const {
-        data: { films },
-      } = await graphql(filmsQuery, {
-        condition: { page, perpage },
+        data: {
+          filmsAdmin: { list: films, total },
+        },
+      } = await graphql(filmsAdminQuery, {
+        condition: {
+          page: 0,
+          perpage: 10,
+        },
       });
       // console.log(films);
       const list = films.map((value) => {
@@ -58,11 +64,12 @@ export default {
         return {
           id,
           title,
-          director: director.name,
+          director: director?.name,
         };
       });
       console.log(list);
       this.films = list;
+      this.total = total;
     },
   },
 };

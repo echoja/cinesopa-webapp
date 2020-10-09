@@ -3,7 +3,7 @@
     <h1>{{ title }}</h1>
     <div class="board-nav d-flex">
       <div
-        class="board-select d-flex justify-content-center flex-wrap"
+        class="board-select"
         role="listbox"
         aria-orientation="horizontal"
         aria-label="게시판 종류 선택"
@@ -44,86 +44,93 @@
       </div>
     </div>
     <!-- 게시글 목록 -->
-    <VueAria :aria="postListAria">
+    <!-- <VueAria :aria="postListAria"> -->
+    <div
+      v-if="viewType === 'list'"
+      class="post-list-wrapper"
+      :aria-label="listARIALabel"
+      :aria-busy="loading"
+    >
       <div
-        v-if="viewType === 'list'"
-        class="post-list-wrapper"
-        :aria-label="listARIALabel"
-        :aria-busy="loading"
+        v-if="loading"
+        class="position-absolute w-100 h-100 d-flex
+          text-center justify-content-center align-items-center"
       >
-        <div
-          v-if="loading"
-          class="position-absolute w-100 h-100 d-flex
-          text-center justify-content-center align-items-center"
-        >
-          불러오는 중입니다.
-        </div>
-        <div
-          v-if="posts.length === 0 && !loading"
-          class="position-absolute w-100 h-100 d-flex
-          text-center justify-content-center align-items-center"
-        >
-          게시글이 없습니다.
-        </div>
-        <transition name="post-list-item" mode="out-in">
-          <ul v-if="!loading" class="post-list">
-            <li
-              v-for="(post, index) in posts"
-              :key="index"
-              class="d-flex post-listitem justify-content-between"
-            >
-              <span class="cell-board flex-shrink-0 small">{{ post.board }}</span>
-              <span class="cell-title flex-fill">
-                <b-link :to="{ name: 'Post', params: { id: post.id } }">
-                  {{ post.title }}
-                </b-link>
-              </span>
-              <span class="cell-date flex-shrink-0 small">{{ formatDate(post.date) }}</span>
-            </li>
-          </ul>
-        </transition>
+        불러오는 중입니다.
       </div>
-    </VueAria>
-    <!-- 게시글 목록 (갤러리형) -->
-    <VueAria :aria="postListAria">
-      <div v-if="viewType === 'gallery'" class="gallery" :aria-label="listARIALabel">
-        <div
-          v-if="loading"
-          class="position-absolute w-100 h-100 d-flex
+      <div
+        v-if="posts.length === 0 && !loading"
+        class="position-absolute w-100 h-100 d-flex
           text-center justify-content-center align-items-center"
-        >
-          불러오는 중입니다.
-        </div>
-        <div
-          v-if="posts.length === 0 && !loading"
-          class="position-absolute w-100 h-100 d-flex
-          text-center justify-content-center align-items-center"
-        >
-          게시글이 없습니다.
-        </div>
-        <transition-group name="post-list-item" mode="out-in" tag="div" class="row">
-          <div
-            class="gallery-item col-12 col-sm-6 col-md-4"
+      >
+        게시글이 없습니다.
+      </div>
+      <transition name="post-list-item" mode="out-in">
+        <ul v-if="!loading" class="post-list">
+          <li
             v-for="(post, index) in posts"
             :key="index"
+            class="d-flex post-listitem justify-content-between"
           >
-            <div class="gallery-thumbnail">
-              <b-link :to="{ name: 'Post', params: { id: post.id } }" class="thumbnail-link">
-                <span class="visually-hidden">{{ post.title }}</span>
-                <img :src="post.featured_image_link" class="gallery-thumbnail-img" />
-                <!-- todo: 서버에서 alt 받아와서 처리해야 함. -->
-              </b-link>
-            </div>
-            <div class="gallery-title">
-              <b-link class="gallery-title-link" :to="{ name: 'Post', params: { id: post.id } }">
+            <span class="cell-board flex-shrink-0 small">{{ post.board }}</span>
+            <span class="cell-title flex-fill">
+              <b-link :to="{ name: 'Post', params: { id: post.id } }">
                 {{ post.title }}
               </b-link>
-            </div>
-            <div class="gallery-board">{{ post.board }}</div>
-          </div>
-        </transition-group>
+            </span>
+            <span class="cell-date flex-shrink-0 small">{{ formatDate(post.date) }}</span>
+          </li>
+        </ul>
+      </transition>
+    </div>
+    <!-- </VueAria> -->
+    <!-- 게시글 목록 (갤러리형) -->
+    <!-- <VueAria :aria="postListAria"> -->
+    <div v-if="viewType === 'gallery'" class="gallery" :aria-label="listARIALabel">
+      <div
+        v-if="loading"
+        class="position-absolute w-100 h-100 d-flex
+          text-center justify-content-center align-items-center"
+      >
+        불러오는 중입니다.
       </div>
-    </VueAria>
+      <div
+        v-if="posts.length === 0 && !loading"
+        class="position-absolute w-100 h-100 d-flex
+          text-center justify-content-center align-items-center"
+      >
+        게시글이 없습니다.
+      </div>
+      <transition-group name="post-list-item" mode="out-in" tag="div" class="row">
+        <div
+          class="gallery-item col-12 col-sm-6 col-md-4"
+          v-for="(post, index) in posts"
+          :key="index"
+        >
+          <div class="gallery-thumbnail">
+            <b-link :to="{ name: 'Post', params: { id: post.id } }" class="thumbnail-link">
+              <span class="visually-hidden">{{ post.title }}</span>
+
+              <img
+                v-if="post.featured_image_link"
+                :alt="post.featured_image_alt"
+                :src="post.featured_image_link"
+                class="gallery-thumbnail-img"
+              />
+              <span class="no-featured-image" v-else> 대표 사진이<br />없습니다. </span>
+              <!-- todo: 서버에서 alt 받아와서 처리해야 함. -->
+            </b-link>
+          </div>
+          <div class="gallery-title">
+            <b-link class="gallery-title-link" :to="{ name: 'Post', params: { id: post.id } }">
+              {{ post.title }}
+            </b-link>
+          </div>
+          <div class="gallery-board">{{ post.board }}</div>
+        </div>
+      </transition-group>
+    </div>
+    <!-- </VueAria> -->
 
     <!-- 페이지 옮기기 -->
     <div class="pagenav-wrapper d-flex justify-content-center">
@@ -161,7 +168,7 @@
 //   return result;
 // }
 import moment from 'moment';
-import { VueAria } from 'vue-a11y-utils';
+// import { VueAria } from 'vue-a11y-utils';
 import { boardsQuery, graphql, postsInBoardQuery } from '../graphql-client';
 
 function sleep(ms) {
@@ -172,7 +179,7 @@ export default {
   name: 'Board',
   title: (context) => context.title,
   components: {
-    VueAria,
+    // VueAria,
   },
   props: {
     title: String,
@@ -343,6 +350,8 @@ export default {
       title: '전체',
       selected: false,
     });
+    // console.log(this.boardPermalinks);
+    // console.log(res.data);
     this.boardPermalinks.forEach((value) => {
       const found = res.data.boards.find((board) => board.permalink === value);
       // console.log('`found!!!`');
@@ -358,9 +367,9 @@ export default {
     });
 
     // 보드를 맞추기
-    console.log('*&!(@&$*!@*&!@(&$#');
-    console.log(this.$route.params.board);
-    console.log(this.boards);
+    // console.log('*&!(@&$*!@*&!@(&$#');
+    // console.log(this.$route.params.board);
+    // console.log(this.boards);
 
     const foundIndex = this.boards.findIndex((item) => item.permalink === this.$route.params.board);
     if (foundIndex !== -1) this.boards[foundIndex].selected = true;
@@ -391,6 +400,7 @@ export default {
           board: this.boards[index].permalink,
         },
       });
+      this.currentPage = 1;
       this.startLoading();
       this.boards.forEach((board) => {
         // eslint-disable-next-line no-param-reassign
@@ -426,8 +436,8 @@ export default {
       const res = await graphql(postsInBoardQuery, {
         condition,
       });
-      console.log(condition);
-      console.log(res.data);
+      // console.log(condition);
+      // console.log(res.data);
       // 게시글들 설정
       const { posts } = res.data;
       this.posts = posts.posts.map((post) => ({
@@ -436,6 +446,7 @@ export default {
         title: post.title,
         date: post.c_date,
         featured_image_link: post.featured_image_link,
+        featured_image_alt: post.featured_image_alt,
       }));
       this.postTotal = posts.total;
       await minimum;
@@ -494,11 +505,33 @@ h1 {
   color: #009eda;
   margin-bottom: 20px;
 }
+
 .mobile h1 {
   font-size: 40px;
+  margin-top: 50px;
 }
 
 // 게시판 필터링
+.board-nav {
+  justify-content: space-between;
+  flex-wrap: wrap;
+}
+
+.mobile .board-nav {
+  // justify-content: center;
+  justify-content: flex-start;
+}
+
+.board-select {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.mobile .board-select {
+  justify-content: flex-start;
+}
+
 .board-select-item {
   font-size: 26px;
   font-weight: 500;
@@ -517,13 +550,10 @@ h1 {
 }
 .mobile .board-select-item {
   font-size: 20px;
-}
-.board-nav {
-  justify-content: space-between;
-  flex-wrap: wrap;
-}
-.mobile .board-nav {
-  justify-content: center;
+  padding: 10px;
+  &:first-child {
+    padding-left: 0;
+  }
 }
 
 .post-search {
@@ -587,6 +617,8 @@ $gallery-item-padding: 30px;
   margin-left: 15px - $gallery-item-padding;
   margin-right: 15px - $gallery-item-padding;
   min-height: 300px;
+  margin-top: 10px;
+  border-top: 1px solid #b0b6ba;
 }
 
 .gallery-item {
@@ -597,7 +629,9 @@ $gallery-item-padding: 30px;
 
 .thumbnail-link {
   position: absolute;
-  display: block;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
@@ -611,6 +645,7 @@ $gallery-item-padding: 30px;
 .gallery-thumbnail {
   position: relative;
   overflow: hidden;
+
   width: 100%;
 
   &::after {
@@ -618,6 +653,12 @@ $gallery-item-padding: 30px;
     display: block;
     padding-bottom: 100%;
   }
+}
+.no-featured-image {
+  line-height: 1.6;
+  text-align: center;
+  padding: 10px 20px;
+  border: 1px solid #ddd;
 }
 
 // todo 갤러리 탭했을 때 그림이랑 제목링크랑 중복으로 되는 문제 수정해야 함.?? 평가때 보나?

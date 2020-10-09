@@ -27,12 +27,6 @@
           >{{ selectedFiles.length }} 개의 파일을 정말로 삭제하시겠습니까? 이 파일들을 삭제하면
           복구할 수 없으며, 삽입된 페이지/게시물 내에서도 모두 찾을 수 없게 됩니다.</b-modal
         >
-      </div>
-      <div class="toolbar-right">
-        <b-button size="sm" v-if="selectable" variant="primary" @click="onSelect">{{
-          selectMessage
-        }}</b-button>
-        <!-- <b-button size="sm" variant="primary">새로 추가</b-button> -->
         <b-form-file
           class="d-inline-block w-auto"
           v-model="uploadingFile"
@@ -40,11 +34,22 @@
           @input="onFileInput"
           ref="fileUpload"
           multiple
-          browse-text="선택"
-          placeholder="클릭하여 파일/이미지 추가"
+          browse-text="업로드"
+          placeholder="클릭하여 파일/이미지 업로드"
           variant="primary"
-          >새로 추가</b-form-file
+          >파일 새롭게 업로드</b-form-file
         >
+      </div>
+      <div class="toolbar-right">
+        <b-button
+          v-if="selectable"
+          :disabled="selectedFiles.length === 0"
+          variant="primary"
+          @click="onSelect"
+        >
+          {{ selectMessage }}
+        </b-button>
+        <!-- <b-button size="sm" variant="primary">새로 추가</b-button> -->
       </div>
     </div>
     <hr />
@@ -77,7 +82,11 @@
               </div>
             </div>
             <div class="item-checkbox">
-              <b-form-checkbox size="lg" v-model="file.selected"></b-form-checkbox>
+              <b-form-checkbox
+                size="lg"
+                v-bind:checked="file.selected"
+                @change="itemChecked(index, $event)"
+              ></b-form-checkbox>
             </div>
             <!-- </b-link> -->
           </div>
@@ -200,7 +209,9 @@
             </b-form-radio-group>
           </b-form-group>
           <!--------------- b-form-broup ends ----------------->
-          <b-button type="submit" :disabled="!detailFormChanged">적용</b-button>
+          <b-button type="submit" size="sm" :disabled="!detailFormChanged"
+            >파일 세부정보 변경사항 적용
+          </b-button>
         </b-form>
         <div></div>
       </div>
@@ -263,6 +274,10 @@ export default {
       type: Boolean,
       default: true,
     },
+    selectOnlyOne: {
+      type: Boolean,
+      default: false,
+    },
   },
   data() {
     return {
@@ -283,9 +298,9 @@ export default {
     prettyCDate() {
       // eslint-disable-next-line camelcase
       const { c_date } = this.detailForm;
-      console.log(c_date);
+      // console.log(c_date);
       const d = moment(c_date);
-      console.log(d);
+      // console.log(d);
       // eslint-disable-next-line camelcase
       if (c_date) return moment(c_date).format('YYYY.MM.DD a HH:mm:ss');
       return null;
@@ -439,6 +454,36 @@ export default {
     onSelect() {
       this.$emit('file-manager-selected', this.selectedFiles);
       this.$bvModal.hide(this.modalId);
+    },
+    itemChecked(index, value) {
+      if (this.selectOnlyOne) {
+        console.log(`ho index:${index}`);
+        this.files = this.files.map((file, mapIndex) => {
+          const newFile = { ...file };
+          newFile.selected = false;
+          if (mapIndex === index) {
+            newFile.selected = true;
+          } else {
+            newFile.selected = false;
+          }
+          return newFile;
+        });
+
+        // this.files.forEach((file, forIndex) => {
+        //   if (forIndex === index) {
+        //     // eslint-disable-next-line no-param-reassign
+        //     file.selected = true;
+        //   } else {
+        //     // eslint-disable-next-line no-param-reassign
+        //     file.selected = false;
+        //   }
+        // });
+      } else {
+        // console.log(value);
+        const newFiles = [...this.files];
+        newFiles[index].selected = value;
+        this.files = newFiles;
+      }
     },
   },
 };

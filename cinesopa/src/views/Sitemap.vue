@@ -7,7 +7,7 @@
         <ul class="main">
           <li><b-link :to="{ name: 'Home' }">홈</b-link></li>
           <li><b-link :to="{ name: 'About' }">회사소개</b-link></li>
-          <li><b-link :to="{ name: 'FilmList' }">작품소개</b-link></li>
+          <li><b-link :to="{name: 'FilmList', params: {type: 'all'}}">작품소개</b-link></li>
           <li>
             <b-link :to="{ name: 'BoardArchive',params: {board: 'all'} }">아카이브</b-link>
             <ul class="sub">

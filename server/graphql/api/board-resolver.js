@@ -39,7 +39,7 @@ const boardsResolver = makeResolver(async (obj, args, context, info) => {
   // });
   // result.id = result._id;
   return result;
-}).only(ACCESS_ADMIN);
+}).only(ACCESS_ALL);
 
 const createBoard = makeResolver(async (obj, args, context, info) => {
   const { input } = args;

@@ -29,11 +29,26 @@ const filmResponse = `{
   star_daum
   star_cine21
   poster
-  photos
+  poster_url
+  photos {
+    mongo_file_id
+    filename
+    preview_url
+    title
+    alt
+  }
   id
   videos {
+    is_main_trailer
     youtube_iframe
     title
+  }
+  awards {
+    festival_name
+    year
+    person_name
+    award_name
+    award_type
   }
   synopsis 
   note 
@@ -174,8 +189,19 @@ query filmQuery($id: Int!) {
 }`;
 const filmsQuery = `
 query getFilms($condition: FilmSearch!) {
-  films(condition: $condition) ${filmResponse}
+  films(condition: $condition) {
+    total
+    list ${filmResponse}
+  }
 }`;
+const filmsFeaturedQuery = `
+query getFilmsFeatured {
+  filmsFeatured {
+    total
+    list ${filmResponse}
+  }
+}`;
+
 const createFilmMutation = `
 mutation createFilm($input: FilmInput!) {
   createFilm(input: $input) ${filmResponse}
@@ -191,6 +217,15 @@ mutation removeFilm($id: Int!) {
   removeFilm(id: $id) ${filmResponse}
 }
 `;
+
+const film = {
+  filmQuery,
+  filmsQuery,
+  filmsFeaturedQuery,
+  createFilmMutation,
+  updateFilmMutation,
+  removeFilmMutation,
+};
 
 const postResponse = `{
   id
@@ -305,7 +340,6 @@ const board = {
   removeBoardMutation,
 };
 
-
 const fileResponse = `
 {
   id
@@ -325,6 +359,7 @@ const fileResponse = `
   managed
   width
   height
+  _id
 }
 `;
 
@@ -366,11 +401,7 @@ module.exports = {
   createPageMutation,
   updatePageMutation,
   removePageMutation,
-  filmQuery,
-  filmsQuery,
-  createFilmMutation,
-  updateFilmMutation,
-  removeFilmMutation,
+  ...film,
   ...post,
   ...board,
   ...file,

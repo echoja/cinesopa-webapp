@@ -1,13 +1,14 @@
 import axios from 'axios';
 import store from '../store';
-import { baseUrl } from '../constants';
+// import { baseUrl } from '../constants';
 
 const headers = {
   'Content-Type': 'application/json',
   Accept: 'application/json',
 };
 
-const url = `${baseUrl}/graphql`;
+const url =
+  process.env.NODE_ENV === 'production' ? 'https://graphql.sopaseom.com/graphql/' : '/graphql';
 
 export const graphql = async (query, variables) => {
   try {
@@ -247,13 +248,26 @@ const filmResponse = `{
   star_cine21
   poster
   poster_url
-  photos
+  photos {
+    mongo_file_id
+    filename
+    preview_url
+    alt
+    title
+  }
   id
   videos {
+    is_main_trailer
     youtube_iframe
     title
   }
-  synopsis 
+  awards {
+    festival_name
+    year
+    person_name
+    award_name
+    award_type
+  }
   note 
   tags 
   is_featured
@@ -263,7 +277,9 @@ const filmResponse = `{
   featured_synopsis
   badge_text
   badge_color
-  meta
+  status
+  synopsis 
+  meta 
 }
 `;
 
@@ -273,7 +289,18 @@ query filmQuery($id: Int!) {
 }`;
 export const filmsQuery = `
 query getFilms($condition: FilmSearch!) {
-  films(condition: $condition) ${filmResponse}
+  films(condition: $condition) {
+    total
+    list ${filmResponse}
+  }
+}`;
+
+export const filmsAdminQuery = `
+query getFilmsAdmin($condition: FilmSearch!) {
+  filmsAdmin(condition: $condition) {
+    total
+    list ${filmResponse}
+  }
 }`;
 
 export const createFilmMutation = `

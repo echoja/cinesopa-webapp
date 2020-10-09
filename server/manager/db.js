@@ -482,9 +482,12 @@ class DBManager {
     perpage,
     { prod_gte = null, prod_lte = null, open_gte = null, open_lte = null } = {},
     tags,
-    search,
+    search = null,
+    is_opened = null,
+    status = null,
   ) {
-    let query = model.Film.find();
+    let query = model.Film.find().sort({ open_date: -1 });
+
     if (prod_lte || prod_gte) {
       console.log('getFilms: prod!!');
       const prod_date = {};
@@ -499,21 +502,48 @@ class DBManager {
       if (open_gte) open_date.$gte = open_gte;
       query = query.find({ open_date });
     }
-    if (search) {
+    if (search !== null && search.length > 0) {
       console.log(`getFilms: search: ${search}`);
       // query = query.find({ $text: { $search: search } }); // 단어 단위로 검색을 할 때 필요함. 검색 엔진 같은 느낌임.
       query = query.find({ search: new RegExp(`${search}`) });
     }
-    if (tags) {
+    if (tags && tags.length !== 0) {
       console.log('getFilms: tags!!');
       query = query.find({ tags: { $all: tags } });
     }
-    if (page && perpage) {
+
+    if (is_opened !== null) {
+      query = query.find({ is_opened });
+    }
+
+    if (status) {
+      query = query.find({ status });
+    }
+
+    // 페이지 하기 전의 영화 총 개수 구하기
+    const total = (await query.exec()).length;
+
+    // 페이지 설정
+    if (page !== null && perpage) {
       console.log('getFilms: page, perpage!!');
       query = query.limit(perpage).skip(perpage * page);
     }
-    return query.lean().exec();
-    // TODO
+
+    return {
+      total,
+      list: await query.lean().exec(),
+    };
+  }
+
+  /**
+   * 공개 상태의 Featured 인 모든 영화를 구합니다.
+   */
+  async getFeaturedFilms() {
+    const featureds = await model.Film.find({ status: 'public', is_featured: true});
+    return {
+      total: featureds.length,
+      list: featureds
+    };
   }
 
   /**
@@ -534,6 +564,7 @@ class DBManager {
    * @returns {Promise<Filminfo>}
    */
   async updateFilm(id, filminfo) {
+    console.log(filminfo);
     return model.Film.updateOne({ id }, filminfo).lean().exec();
   }
 

@@ -6,9 +6,15 @@
         class="zoom-link"
         alt="포스터 자세히 보기 (새 창으로 이동)"
         target="_blank"
-        :href="film.posterLink"
+        :href="film.poster_url"
       >
-        <b-img :alt="`${film.title} 포스터`" :src="film.posterLink" class="shadow"></b-img>
+        <b-img
+          v-if="film.poster_url"
+          :alt="`${film.title} 포스터`"
+          :src="film.poster_url"
+          class="shadow"
+        ></b-img>
+        <div v-else>메인 포스터를 준비 중입니다.</div>
         <font-awesome-icon class="zoom-icon" :icon="['fas', 'search-plus']"></font-awesome-icon>
       </b-link>
     </div>
@@ -20,7 +26,13 @@
     <div class="basic-info">
       <div class="head">
         <h1>{{ film.title }}</h1>
-        <p class="title-en">{{ film.title_en }}, {{ film.open_year }}</p>
+        <p class="title-en">
+          <span> {{ film.title_en }}</span
+          ><span class="head-seperator" v-if="film.title_en && filmProdYear">, </span
+          ><span v-if="filmProdYear">
+            {{ filmProdYear }}
+          </span>
+        </p>
       </div>
       <p id="basic-info-table-summary" class="visually-hidden">
         영화 {{ film.title }}의 장르, 상영시간, 감독, 출연진 등의 기본 정보입니다.
@@ -39,19 +51,29 @@
           </div>
         </div>
         <div role="rowgroup">
-          <div class="basic-body-row d-flex" role="row">
+          <div
+            v-if="filmGenres || filmShowMinutes || film.is_opened"
+            class="basic-body-row d-flex"
+            role="row"
+          >
             <span class="title" role="rowheader">
               개요
             </span>
-            <span class="content" role="cell"
-              >{{ filmGenres }}
-              <span class="seperator" role="separator">|</span>
-              {{ filmShowMinutes }}분
-              <span class="seperator" role="separator">|</span>
-              {{ filmOpenDate }} 개봉
+            <span class="content" role="cell">
+              <template v-for="(output, index) in filmSummary">
+                <span :key="`${index}0`">{{ output }}</span>
+                <span v-if="index !== filmSummary.length - 1" class="seperator" role="separator" :key="`${index}1`">|</span>
+              </template>
+              <!-- <span v-if="filmGenres">{{ filmGenres }}</span>
+              <span v-if="filmGenres && filmShowMinutes" class="seperator" role="separator">|</span>
+              <span v-if="filmShowMinutes > 0">{{ filmShowMinutes }}분</span>
+              <span v-if="filmShowMinutes && film.is_opened" class="seperator" role="separator"
+                >|</span
+              >
+              <span v-if="film.is_opened">{{ filmOpenDate }} 개봉</span> -->
             </span>
           </div>
-          <div class="basic-body-row d-flex" role="row">
+          <div v-if="filmDirector" class="basic-body-row d-flex" role="row">
             <span class="title" role="rowheader">
               감독
             </span>
@@ -59,7 +81,7 @@
               {{ filmDirector }}
             </span>
           </div>
-          <div class="basic-body-row d-flex" role="row">
+          <div v-if="filmActors.length > 0" class="basic-body-row d-flex" role="row">
             <span class="title" role="rowheader">
               출연
             </span>
@@ -67,7 +89,7 @@
               {{ filmActors }}
             </span>
           </div>
-          <div class="basic-body-row d-flex" role="row">
+          <div v-if="film.watch_grade" class="basic-body-row d-flex" role="row">
             <span class="title" role="rowheader">
               등급
             </span>
@@ -83,7 +105,7 @@
       class="trailer row-fullwidth"
       :style="{ 'padding-bottom': `${trailerRatio * 100}%` }"
       ref="trailer"
-      v-html="film.youtubeIframeCode"
+      v-html="mainTrailerIframe"
     >
       <!-- <iframe
         width="1245"
@@ -108,11 +130,11 @@
           bezier-easing-value=".5,0,.35,1"
           class="scrollactive d-flex justify-content-start align-items-center"
         >
-          <b-link href="#synopsis" class="scrollactive-item first">시놉시스</b-link>
-          <b-link href="#people" class="scrollactive-item">배우/제작진</b-link>
-          <b-link href="#awards" class="scrollactive-item">수상내역</b-link>
-          <b-link href="#steel" class="scrollactive-item">포토</b-link>
-          <b-link href="#reviews" class="scrollactive-item">리뷰</b-link>
+          <b-link href="#synopsis" class="scrollactive-item first" v-if="filmSynopsis">시놉시스</b-link>
+          <b-link href="#people" class="scrollactive-item" v-if="filmPeople.length !== 0">배우/제작진</b-link>
+          <b-link href="#awards" class="scrollactive-item" v-if="film.awards.length !== 0">수상내역</b-link>
+          <b-link href="#steel" class="scrollactive-item" v-if="film.photos.length !== 0">포토</b-link>
+          <b-link href="#reviews" class="scrollactive-item" v-if="film.reviews.length !== 0">리뷰</b-link>
           <b-link href="#note" class="scrollactive-item" v-if="film.note">제작노트</b-link>
         </scrollactive>
       </affix>
@@ -120,12 +142,12 @@
     <!-- 상세정보 -->
     <div id="detailed-info" class="detailed-info">
       <!-- 시놉시스 -->
-      <div class="detailed-info-item" id="synopsis">
+      <div v-if="filmSynopsis" class="detailed-info-item" id="synopsis">
         <h2>시놉시스</h2>
-        <div v-html="film.synopsis"></div>
+        <div v-html="filmSynopsis"></div>
       </div>
       <!-- 배우/제작진 -->
-      <div class="detailed-info-item" id="people">
+      <div class="detailed-info-item" id="people" v-if="filmPeople.length !== 0">
         <h2 id="people-caption">배우/제작진</h2>
         <p id="people-summar" class="visually-hidden">
           역할이나 직무에 따른 사람들을 소개합니다.
@@ -148,7 +170,7 @@
       </div>
 
       <!-- 수상내역 -->
-      <div class="detailed-info-item" id="awards">
+      <div class="detailed-info-item" id="awards" v-if="film.awards.length !== 0">
         <h2>
           수상내역
         </h2>
@@ -183,7 +205,7 @@
         <div class="row"></div>
       </div>
       <!-- 포토 -->
-      <div class="detailed-info-item" id="steel">
+      <div class="detailed-info-item" id="steel" v-if="film.photos.length !== 0">
         <h2 class="no-divider">
           포토
         </h2>
@@ -198,18 +220,23 @@
           controls
           indicators
         >
-          <b-carousel-slide v-for="(image, index) in film.photos" :key="index" :img-src="image">
+          <b-carousel-slide
+            v-for="(image, index) in film.photos"
+            :key="index"
+            :img-src="image.preview_url"
+            :img-alt="image.alt"
+          >
           </b-carousel-slide>
         </b-carousel>
       </div>
       <!-- 리뷰 -->
-      <div class="detailed-info-item" id="reviews">
+      <div class="detailed-info-item" id="reviews" v-if="film.reviews.length !== 0">
         <h2>
           리뷰
         </h2>
         <div class="row">
           <div
-            class="col-12 col-md-6 col-lg-4 review-card"
+            class="col-12 review-row"
             v-for="(review, index) in film.reviews"
             :key="index"
           >
@@ -233,6 +260,7 @@
 
 <script>
 import moment from 'moment';
+import { filmDetailQuery, graphql } from '../graphql-client';
 
 /**
  * @param {any[]} array
@@ -254,107 +282,130 @@ export default {
   data() {
     return {
       film: {
-        title: '여름날',
-        title_en: 'Days in a Summer',
-        open_year: '2020',
-        people: [
-          {
-            role_type: 'director',
-            name: '김여름',
-          },
-          {
-            role_type: 'actor',
-            name: '정유라',
-            role: '승희',
-          },
-          {
-            role_type: 'actor',
-            name: '김록경',
-            role: '거제청년',
-          },
-          {
-            role_type: 'staff',
-            name: '김여름',
-            role: '촬영',
-          },
-        ],
-        reviews: [
-          {
-            title: '그 뒤에는 아무 것도 없었다.',
-            url: 'http://naver.com',
-            source: '네이버 블로그',
-            author: '아이린',
-          },
-          {
-            title: '아름답지만 슬픈 이야기',
-            url: 'http://naver.com',
-            source: '티스토리 블로그',
-            author: '제시',
-          },
-          {
-            title: '고독 속에서 피어나는 한 송이 꽃',
-            url: 'http://naver.com',
-            source: '완경일보',
-            author: '아무개',
-          },
-        ],
-        awards: [
-          {
-            festival_name: '제 8회 무주산골영화제',
-            year: 2020,
-            person_name: '오정석',
-            award_name: '영화 창(窓)',
-            award_type: '후보',
-          },
-          {
-            festival_name: '제 24회 인디포럼',
-            year: 2020,
-            person_name: '오정석',
-            award_name: '폐막작',
-            award_type: '초청',
-          },
-          {
-            festival_name: '제 24회 인디포럼',
-            year: 2020,
-            person_name: '오정석',
-            award_name: '배회하는 시네마의 주체들',
-            award_type: '초청',
-          },
-
-          {
-            festival_name: '제 45회 서울독립영화제',
-            year: 2019,
-            person_name: '오정석',
-            award_name: '경쟁부문_장편',
-            award_type: '후보',
-          },
-        ],
+        title: '',
+        title_en: '',
+        people: [],
+        reviews: [],
+        videos: [],
+        awards: [],
         photos: [
-          // eslint-disable-next-line global-require
-          require('../assets/test/steel2.jpg'),
-          // eslint-disable-next-line global-require
-          require('../assets/test/steel23.jpg'),
-          // eslint-disable-next-line global-require
-          // require('../assets/test/test-poster.jpg'),
+          {
+            mongo_file_id: '',
+            filename: '',
+            preview_url: '',
+            title: '',
+          },
         ],
-        // eslint-disable-next-line global-require
-        posterLink: require('../assets/test/test-poster.jpg'),
+        poster_url: '',
         watch_grade: '전체관람가',
         show_time: 6491,
-        genres: ['드라마'],
+        genres: [],
         open_date: new Date('2020-08-20'),
-        synopsis: `<p>‘승희’(김유라)는 서울 생활을 정리하고 고향
-        거제도에 내려왔지만<br> 남겨진 것은 엄마의 빈 자리 뿐이다.<br>
-        의지할 곳 없이 마을을 서성이던 ‘승희’는 ‘거제 청년(김록경)’과
-        우연히 만난다.</p><p> 그들은 평범한 일상 속에서 자신처럼 고립되어 있는
-        폐왕성에 도착하고,<br>그곳에서 누구나 언젠가 지나쳐야만 하는 유배된
-        시간과 만난다.</p>`,
-        youtubeIframeCode: `<iframe width="1280" height="691" 
-        src="https://www.youtube.com/embed/OeuIAQnrbZo" 
-        frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-        allowfullscreen></iframe>`,
+        prod_date: new Date('2020-05-11'),
+        synopsis: '',
+        youtubeIframeCode: '',
+        // title: '여름날',
+        // title_en: 'Days in a Summer',
+        // open_year: '2020',
+        // people: [
+        //   {
+        //     role_type: 'director',
+        //     name: '김여름',
+        //   },
+        //   {
+        //     role_type: 'actor',
+        //     name: '정유라',
+        //     role: '승희',
+        //   },
+        //   {
+        //     role_type: 'actor',
+        //     name: '김록경',
+        //     role: '거제청년',
+        //   },
+        //   {
+        //     role_type: 'staff',
+        //     name: '김여름',
+        //     role: '촬영',
+        //   },
+        // ],
+        // reviews: [
+        //   {
+        //     title: '그 뒤에는 아무 것도 없었다.',
+        //     url: 'http://naver.com',
+        //     source: '네이버 블로그',
+        //     author: '아이린',
+        //   },
+        //   {
+        //     title: '아름답지만 슬픈 이야기',
+        //     url: 'http://naver.com',
+        //     source: '티스토리 블로그',
+        //     author: '제시',
+        //   },
+        //   {
+        //     title: '고독 속에서 피어나는 한 송이 꽃',
+        //     url: 'http://naver.com',
+        //     source: '완경일보',
+        //     author: '아무개',
+        //   },
+        // ],
+        // awards: [
+        //   {
+        //     festival_name: '제 8회 무주산골영화제',
+        //     year: 2020,
+        //     person_name: '오정석',
+        //     award_name: '영화 창(窓)',
+        //     award_type: '후보',
+        //   },
+        //   {
+        //     festival_name: '제 24회 인디포럼',
+        //     year: 2020,
+        //     person_name: '오정석',
+        //     award_name: '폐막작',
+        //     award_type: '초청',
+        //   },
+        //   {
+        //     festival_name: '제 24회 인디포럼',
+        //     year: 2020,
+        //     person_name: '오정석',
+        //     award_name: '배회하는 시네마의 주체들',
+        //     award_type: '초청',
+        //   },
+
+        //   {
+        //     festival_name: '제 45회 서울독립영화제',
+        //     year: 2019,
+        //     person_name: '오정석',
+        //     award_name: '경쟁부문_장편',
+        //     award_type: '후보',
+        //   },
+        // ],
+        // photos: [
+        //   // eslint-disable-next-line global-require
+        //   require('../assets/test/steel2.jpg'),
+        //   // eslint-disable-next-line global-require
+        //   require('../assets/test/steel23.jpg'),
+        //   // eslint-disable-next-line global-require
+        //   // require('../assets/test/test-poster.jpg'),
+        // ],
+        // // eslint-disable-next-line global-require
+        // poster_url: require('../assets/test/test-poster.jpg'),
+        // watch_grade: '전체관람가',
+        // show_time: 6491,
+        // genres: ['드라마'],
+        // open_date: new Date('2020-08-20'),
+        // synopsis: `<p>‘승희’(김유라)는 서울 생활을 정리하고 고향
+        // 거제도에 내려왔지만<br> 남겨진 것은 엄마의 빈 자리 뿐이다.<br>
+        // 의지할 곳 없이 마을을 서성이던 ‘승희’는 ‘거제 청년(김록경)’과
+        // 우연히 만난다.</p><p> 그들은 평범한 일상 속에서 자신처럼 고립되어 있는
+        // 폐왕성에 도착하고,<br>그곳에서 누구나 언젠가 지나쳐야만 하는 유배된
+        // 시간과 만난다.</p>`,
+        // youtubeIframeCode: `<iframe width="1280" height="691"
+        // src="https://www.youtube.com/embed/OeuIAQnrbZo"
+        // frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+        // allowfullscreen></iframe>`,
       },
       trailerRatio: 0,
+      filmSummary: [],
     };
   },
   computed: {
@@ -363,6 +414,27 @@ export default {
         .filter((person) => person.role_type === 'director')
         .map((person) => person.name)
         .join(', ');
+    },
+    filmOpenYear() {
+      // console.log(this.film.open_date);
+      if (this.film.open_date.getTime() > 0) {
+        return this.film.open_date.getFullYear();
+      }
+      return null;
+    },
+    filmProdYear() {
+      if (this.film.prod_date.getTime() > 0) {
+        return this.film.prod_date.getFullYear();
+      }
+      return null;
+    },
+    mainTrailerIframe() {
+      const main = this.film.videos.find((video) => video.is_main_trailer === true);
+      console.log(main);
+      if (main) {
+        return main.youtube_iframe;
+      }
+      return '';
     },
     filmActors() {
       return this.film.people
@@ -377,6 +449,9 @@ export default {
       return Math.floor(this.film.show_time / 60);
     },
     filmOpenDate() {
+      if (this.film.open_date.getTime() === 0) {
+        return null;
+      }
       return moment(this.film.open_date).format('yyyy.MM.DD');
     },
     filmPeople() {
@@ -400,6 +475,12 @@ export default {
       result.push(...refined.staff);
 
       return result;
+    },
+    filmSynopsis() {
+      if (this.film.synopsis) {
+        return this.film.synopsis.replace(/\n/gi, '<br>');
+      }
+      return null;
     },
     filmPeopleFields() {
       return [
@@ -430,12 +511,49 @@ export default {
   },
 
   created() {},
-  mounted() {
-    console.dir(this.$refs.trailer);
+  async mounted() {
+    // this.film = [];
+    // console.dir(this.$refs.trailer);
     /** @type {HTMLDivElement} */
-    const trailerDiv = this.$refs.trailer;
-    const iframe = trailerDiv.querySelector('iframe');
-    this.trailerRatio = iframe.height / iframe.width;
+
+    const res = await graphql(filmDetailQuery, {
+      id: parseInt(this.$route.params.id, 10),
+    });
+    const film = res?.data?.film;
+    if (!film || film.status === 'private') {
+      this.$router.push({ name: '404' });
+      return;
+    }
+
+    // console.log(film);
+    
+    // 영화 개봉일 설정
+    const newFilm = { ...film };
+    newFilm.open_date = new Date(newFilm.open_date);
+    newFilm.prod_date = new Date(newFilm.prod_date);
+    this.film = newFilm;
+
+    // 영화 개요 만들기
+    if (this.filmGenres) {
+      this.filmSummary.push(this.filmGenres);
+    }
+    if (this.filmShowMinutes > 0) {
+      this.filmSummary.push(`${this.filmShowMinutes}분`);
+    }
+    if (this.film.is_opened) {
+      this.filmSummary.push(`${this.filmOpenDate} 개봉`);
+    }
+
+    // 메인예고편 높이 계산 및 iframe title 속성 추가해주기
+    this.$nextTick(() => {
+      const trailerDiv = this.$refs.trailer;
+      const iframe = trailerDiv.querySelector('iframe');
+      if (iframe) {
+        this.trailerRatio = iframe.height / iframe.width;
+        iframe.setAttribute('title', `${this.film.title} 메인 예고편`);
+      }
+    });
+
     // console.log(`iframe.height: ${iframe.height}`);
     // console.log(`iframe.width: ${iframe.width}`);
     // console.log(`this.trailerRatio: ${this.trailerRatio}`);
@@ -461,7 +579,7 @@ export default {
     width: 100%;
   }
   .zoom-link {
-    position:relative;
+    position: relative;
     transition: 0.7s;
   }
   .zoom-link:hover {
@@ -494,6 +612,8 @@ export default {
     background-color: transparent;
     color: #009eda;
     border-color: #009eda;
+    font-size:19px;
+    font-weight:bold;
     &:hover {
       color: #fff;
       background-color: #009eda;
@@ -681,6 +801,17 @@ export default {
   text-align: center;
 }
 
+.review-row {
+    display: flex;
+    align-items: center;
+      // border: 1px soild #ddd;
+  border-top: 1px solid #ddd;
+  border-bottom: 1px solid #ddd;
+  // max-width: 700px;
+  padding: 20px 10px;
+  margin-top: -1px;
+}
+
 .review-title,
 .review-source {
   margin: 0;
@@ -688,15 +819,22 @@ export default {
 
 .review-title {
   text-decoration: underline;
+  padding-right: 10px;
+  white-space: nowrap;
+  flex: 1;
+  overflow: hidden;
+  text-overflow:ellipsis;
+
   & a {
-    color: #009eda;
+    color: #2b3e4a;
   }
   & a:hover {
-    color: #2b3e4a;
+    color: #009eda;
   }
 }
 
 .review-source {
+  // width: 100px;
   font-size: 80%;
   color: #767676;
 }

@@ -278,8 +278,8 @@
               v-model="form.film.runningtime"
               type="number"
               id="film-runningtime"
-              placeholder=""
               :required="required"
+              placeholder=""
             ></b-form-input>
             <div class="w-50">분</div>
           </div>
@@ -292,12 +292,12 @@
           label-size="md"
           label-for="film-prod_date"
         >
+            <!-- :required="required" -->
           <b-form-datepicker
             class="underlined-box"
             v-model="form.film.prod_date"
             id="film-prod_date"
             placeholder=""
-            :required="required"
             label-today-button="오늘 날짜"
             label-reset-button="재설정"
             label-close-button="닫기"
@@ -460,7 +460,7 @@
           </b-form-group>
         </validation-provider>
 
-        <b-button type="submit" variant="primary">의뢰서를 제출합니다</b-button>
+        <b-button class="submit" type="submit" variant="primary">의뢰서를 제출합니다</b-button>
         <!-- </b-col>
       </b-row> -->
       </b-form>
@@ -543,7 +543,7 @@ export default {
       const isValid = await isValidPromise;
       if (isValid) {
         // todo
-        console.log('hi!! success!');
+        // console.log('hi!! success!');
         this.$router.push({ name: 'SuccessRequest' });
       } else {
         // this.$scrollTo(this.$refs.observer.$el, 500);
@@ -552,10 +552,10 @@ export default {
     async log(any, errors) {
       any
         .then((result) => {
-          console.log(`result! ${result}`);
+          // console.log(`result! ${result}`);
         })
         .catch((err) => {
-          console.log(`err! ${err}`);
+          // console.log(`err! ${err}`);
         });
       // const result = await any;
       // console.log(result);
@@ -574,6 +574,10 @@ export default {
   },
 };
 </script>
+
+<!---------------------------------------------------------------->
+<!-----------------------    SCOPED SCSS    ---------------------->
+<!---------------------------------------------------------------->
 
 <style lang="scss" scoped>
 .distribution-form h2 {
@@ -625,16 +629,35 @@ export default {
   letter-spacing: -0.7px;
   margin-bottom: 0;
 }
+.mobile .main-summary {
+  font-size: 18px;
+}
 .sub-summary {
   font-size: 19px;
   font-weight: 600;
+}
+.mobile .sub-summary {
+  font-size: 16px;
 }
 
 // .distribution-form-group input::placeholder {
 //   font-weight:300;
 //   // color: #fff;
 // }
+
+.submit {
+  font-size: 18.7px;
+  font-weight: bold;
+  padding: 10px 20px;
+}
+
 </style>
+
+
+<!---------------------------------------------------------------->
+<!-----------------------    NORMAL SCSS    ---------------------->
+<!---------------------------------------------------------------->
+
 <style lang="scss">
 .distribution-form {
   & .custom-control-input:checked ~ .custom-control-label::before {

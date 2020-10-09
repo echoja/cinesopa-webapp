@@ -6,6 +6,7 @@ const {
   enumPeopleRoleType,
   enumFilmWatchGrade,
   enumFilmTypeName,
+  enumFilmStatus,
 } = require('./enum');
 
 const autoIdSetter = require('./auto-id-setter');
@@ -36,6 +37,7 @@ module.exports = function (mongoose) {
   });
 
   const Video = new mongoose.Schema({
+    is_main_trailer: Boolean,
     youtube_iframe: String,
     title: String,
   });
@@ -46,6 +48,14 @@ module.exports = function (mongoose) {
     person_name: String,
     award_name: String,
     award_type: String,
+  });
+
+  const Photo = new mongoose.Schema({
+    mongo_file_id: { type: mongoose.Schema.Types.ObjectId, ref: 'File' },
+    filename: String,
+    preview_url: String,
+    alt: String,
+    title: String,
   });
 
   const schema = new mongoose.Schema({
@@ -72,7 +82,7 @@ module.exports = function (mongoose) {
     star_cine21: Number,
     poster: { type: mongoose.Schema.Types.ObjectId, ref: 'File' },
     poster_url: String,
-    photos: [{ type: mongoose.Schema.Types.ObjectId, ref: 'File' }],
+    photos: [Photo],
     // id: Number, AutoIncrement 로 인해서 명시적으로 적어줄 필요 없음.
     videos: [Video],
     awards: [Award],
@@ -81,11 +91,16 @@ module.exports = function (mongoose) {
     tags: [String],
     is_featured: Boolean,
     is_opened: Boolean,
-    featured_steel: { type: mongoose.Schema.Types.ObjectId, ref: 'File' },
+    featured_steel: String, // 주소
     featured_color: String,
     featured_synopsis: String,
     badge_text: String,
     badge_color: String,
+    status: {
+      type: String,
+      enum: enumFilmStatus.raw_str_list,
+      default: 'public',
+    },
     meta: mongoose.Schema.Types.Mixed,
     search: String,
   });

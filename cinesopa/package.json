@@ -26,6 +26,7 @@
     "browserslist": "^4.14.5",
     "core-js": "^3.6.5",
     "form-data": "^3.0.0",
+    "hex-to-rgba": "^2.0.1",
     "intersection-observer": "^0.11.0",
     "moment": "^2.29.0",
     "mutationobserver-shim": "^0.3.7",
