@@ -27,6 +27,7 @@ services:
     volumes:
       - /etc/letsencrypt:/app/server/config/letsencrypt:ro
       - ./server/config/common:/app/server/config/common:ro
+      - ./server/uploads:/app/server/uploads
     environment:
       - COMPOSE_DOCKER_CLI_BUILD=1
       - DOCKER_BUILDKIT=1
