@@ -23,11 +23,15 @@ export const emailVerifyBeforeEnter = async (to, from, next) => {
   console.log(result);
   next('/');
 };
-
+/**
+ * 오직 로그인하지 않은 사람만 접근하도록 하는 router before 함수.
+ */
 export const onlyNoLoginBeforeEnter = async (to, from, next) => {
   const result = await graphql(checkAuthQuery, { redirectLink: '', role: 'GUEST' });
+  console.log('## onlyNoLoginBeforeEnter');
+  console.dir(result.data);
   const permissionStatus = result?.data?.checkAuth?.permissionStatus;
-  console.log(`permissionStatus : ${permissionStatus}`);
+  // console.log(`permissionStatus : ${permissionStatus}`);
   if (permissionStatus === 'OK' || permissionStatus === undefined) {
     next('/');
   } else {
@@ -44,8 +48,8 @@ export const requireAuth = (role) => async (to, from, next) => {
   const redirectLink = document.location.href;
   const result = await graphql(checkAuthQuery, { redirectLink, role });
   const permissionStatus = result?.data?.checkAuth?.permissionStatus;
-  console.log(permissionStatus);
-  console.log(result);
+  console.log('## requireAuth');
+  console.dir(result.data);
   if (permissionStatus === 'LOGIN_REQUIRED') {
     next({ name: 'Login' });
   } else if (permissionStatus === 'NO_PERMISSION') {

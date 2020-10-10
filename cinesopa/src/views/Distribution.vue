@@ -559,8 +559,8 @@ export default {
         });
       // const result = await any;
       // console.log(result);
-      console.dir(errors);
-      console.dir(await this.$refs.observer.validate());
+      // console.dir(errors);
+      // console.dir(await this.$refs.observer.validate());
       this.$scrollTo(this.$refs.observer.$el, 500);
     },
     getValidationState({ dirty, validated, valid = null }) {

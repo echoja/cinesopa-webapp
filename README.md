@@ -121,11 +121,13 @@ certbot/certbot renew --manual --preferred-challenges dns --server https://acme-
 ### 로컬에서 이미지 빌드 후 Docker Hub에 배포하기
 
 1. `docker build -t eszqsc112/cinesopa:latest .` 실행하여 이미지 빌드
+   - 버전을 매길려면 `docker build -t eszqsc112/cinesopa:latest -t eszqsc112/cinesopa:0.4.3 .` 등으로 버전을 매긴다.
+   - 그 후 빌드가 완료되면 특정 버전은 삭제하여도 된다. (`docker image rm eszqsc112/cinesopa:0.4.3`)
 2. `docker push eszqsc112/cinesopa` 실행하여 배포
 
 ### 서버 환경 세팅
 
-1. `git pull`로 최신 버전 소스 파일들로 땡겨오기. (서버를 실행시키는 `docker-compose.yml` 및 `refresh.sh` 파일을 받아와야 함)
+1. `git pull`로 최신 버전 소스 파일들로 땡겨오기. (서버를 실행시키는 `docker-compose.yml` 및 `refresh.sh` 파일을 받아와야 함. 프록시 설정도 git에 저장되어 있음.)
 1. `server/config/common/index.js` 파일 생성 (`server/config/common/index-example.js` 파일 참고하여 해당하는 파일 설정하기.)
 1. [프록시 설정 문서](proxy)를 참고하여 프록시 서버 설정하기.
 

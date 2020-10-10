@@ -156,9 +156,9 @@ const component = {
       // 데이터로부터 redirectLink가 오면 해당 리다이렉트 페이지로 이동
       const redirectLink = result?.data?.login?.redirectLink;
       if (redirectLink) {
+        console.dir(result.data);
         const parsed = url.parse(redirectLink);
         router.push(parsed.pathname);
-        // document.location = redirectLink;
       } else {
         console.log(result);
         router.push({ name: 'Home' });

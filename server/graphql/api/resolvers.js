@@ -57,9 +57,14 @@ const logoutMe = makeResolver(async (obj, args, context, info) => {
  * @param {string} redirectLink
  */
 const setRedirectLink = (context, redirectLink) => {
-  if (redirectLink !== undefined && redirectLink !== '') {
+  // if (redirectLink !== undefined && redirectLink !== '') {
+    // 클라이언트에서 곧바로 login 링크로 갔을 때, 이 코드가 실행되어야 클라이언트에도
+    // 세션이 살아있을 수 있다.
+    // 원인은 불명. 세션을 건드리면 그때서야 쿠키가 생성되어 클라이언트로
+    // 전달되는 모양. 그래서 조건문이 처음에는 있었는데, 없앴다.
+    // redirectLink가 설정되지 않은 상태라도 일단 session에 접근은 하도록.
     context.req.session.redirectLink = redirectLink;
-  }
+  // }
 };
 
 const checkAuth = makeResolver(async (obj, args, context, info) => {
