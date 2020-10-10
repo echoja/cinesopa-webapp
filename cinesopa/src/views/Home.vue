@@ -402,9 +402,9 @@ export default {
       if (rellaxInstance?.destroy) {
         rellaxInstance.destroy();
       }
-      rellaxInstance = new Rellax('.rellax', {
-        // center: true,
-      });
+      // rellaxInstance = new Rellax('.rellax', {
+      //   // center: true,
+      // });
       // console.log('first rellax init');
     });
 
