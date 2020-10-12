@@ -7,8 +7,9 @@ const headers = {
   Accept: 'application/json',
 };
 
+// URL 수정 주의!! url이 같지 않으면 사용자 쿠키가 저장이 안되어 세션이 살아남지 못함!
 const url =
-  process.env.NODE_ENV === 'production' ? 'https://graphql.sopaseom.com/graphql/' : '/graphql';
+  process.env.NODE_ENV === 'production' ? 'https://sopaseom.com/graphql/' : '/graphql';
 
 export const graphql = async (query, variables) => {
   try {

@@ -800,7 +800,7 @@ export default {
     },
 
     spaced(event) {
-      console.log(event.target);
+      // console.log(event.target);
     },
     formatSelected(value) {
       if (value !== 'MOV3') {

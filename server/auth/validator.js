@@ -28,6 +28,11 @@ class AuthValidator {
   async isOkContext(context, condition, enumAuthmap) {
     return new Promise((resolve, reject) => {
       try {
+        console.log("## isOkContext");
+        console.log(condition);
+        console.log(`--- isUnauthenticated: ${context.isUnauthenticated()}`);
+        console.log(`--- getUser:`);
+        // console.dir(context.getUser());
         const { isUnauthenticated, getUser } = context;
         const role = isUnauthenticated() ? enumAuthmap.ANYONE : enumAuthmap[getUser().role];
         const conditionSymbol = enumAuthmap[condition];

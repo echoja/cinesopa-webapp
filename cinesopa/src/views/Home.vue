@@ -376,7 +376,7 @@ export default {
         if (speed >= 10) speed = 10;
         else if (speed <= -10) speed = -10;
         const result = (speed / 10) * (height / 100);
-        console.log(`계산된 rellax speed!!! ${result}`);
+        // console.log(`계산된 rellax speed!!! ${result}`);
         return result;
       };
     },
@@ -402,10 +402,10 @@ export default {
       if (rellaxInstance?.destroy) {
         rellaxInstance.destroy();
       }
-      rellaxInstance = new Rellax('.rellax', {
-        // center: true,
-      });
-      console.log('first rellax init');
+      // rellaxInstance = new Rellax('.rellax', {
+      //   // center: true,
+      // });
+      // console.log('first rellax init');
     });
 
     // if (rellaxInstance?.refresh) {
@@ -545,7 +545,7 @@ export default {
       return window.scrollY || window.pageYOffset;
     },
     customAppearHook(e) {
-      console.log(`customAppearHook! >> ${e}`);
+      // console.log(`customAppearHook! >> ${e}`);
     },
 
     // onWheel2() {
@@ -717,7 +717,7 @@ export default {
     },
     setScrollSectionX() {
       const left = this.$refs.home.offsetLeft;
-      console.dir(this.$refs.home);
+      // console.dir(this.$refs.home);
       this.$refs.container.style.marginLeft = `-${left}px`;
       // this.$refs.swiperContainer.style.transform = `translateX(-${left}px)`;
     },

@@ -430,7 +430,7 @@ export default {
     },
     mainTrailerIframe() {
       const main = this.film.videos.find((video) => video.is_main_trailer === true);
-      console.log(main);
+      // console.log(main);
       if (main) {
         return main.youtube_iframe;
       }

@@ -74,7 +74,7 @@
             </b-form-group>
             <b-button-group>
               <b-button :disabled="!row.item.changed" type="submit" variant="success">{{
-                row.item.submitAction === 'new' ? '새로 추가' : '적용'
+                row.item.submitAction === 'new' ? '확인' : '적용'
               }}</b-button>
               <b-button @click="cancelForm(row)">취소</b-button>
             </b-button-group>

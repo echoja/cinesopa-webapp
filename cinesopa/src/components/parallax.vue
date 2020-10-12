@@ -53,7 +53,7 @@ export default {
       const currentPoint = scrollY + this.windowInnerHeightHalf;
       const calculated = (this.standard - currentPoint) * this.realSpeed;
       this.$refs.parallax.style.transform = `translate3d(0px, ${calculated}px, 0px)`;
-      console.log('transform Changed!');
+      // console.log('transform Changed!');
     },
   },
 };
