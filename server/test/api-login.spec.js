@@ -18,18 +18,12 @@
 const a = 10;
 const request = require('supertest');
 
-const makeAgent = request.agent;
 const session = require('express-session');
-const MemoryStore = require('memorystore')(session);
 const axios = require('axios');
-const express = require('express');
 const { expect } = require('chai');
-const uuidv4 = require('uuid').v4;
-const passport = require('passport');
 
-const { graphqlSuper } = require('./tool');
-const { graphQLServerMiddleware } = require('../graphql');
-const local = require('../auth/local');
+const { graphqlSuper, initTestServer } = require('./tool');
+const { db } = require('../loader');
 
 const headers = {
   'Content-Type': 'application/json',
@@ -88,137 +82,64 @@ describe('로그인 및 로그아웃 (권한)', function () {
   this.timeout(10000);
 
   /** @type {import("supertest").SuperAgentTest} */
-  let agent;
-
-  const webapp = express();
-
-  before('웹앱 세팅', async function () {
-    delete require.cache[require.resolve('passport')];
-    // session settings
-    webapp.use(
-      session({
-        genid: (req) => uuidv4(),
-        secret: 'test',
-        resave: false,
-        saveUninitialized: false,
-        store: new MemoryStore(),
-        expires: new Date(Date.now() + 30 * 86400 * 1000),
-      }),
-    );
-
-    const localAuthConfig = local.make(
-      async (email) => {
-        console.log('first version of localAuthConfig - userFinder called');
-        switch (email) {
-          case 'eszqsc112@naver.com':
-            // console.log("userFinder YES");
-            return {
-              email,
-              msg: 'ok',
-            };
-
-          default:
-            // console.log("userFinder NO");
-            // return {
-            //   email: "no...",
-            //   msg: "nomsg",
-            // };
-            return null;
-        }
-      },
-      async function (email, pwd) {
-        if (email === 'eszqsc112@naver.com' && pwd === '13241324') {
-          // console.log("getUserByAuth YES");
-          return { email, name: 'ok' };
-        }
-        // console.log("getUserBYAuth no..");
-        return null;
-        // {
-        //   return { email: "noemail", name: "no" };
-        // }
-      },
-    );
-    webapp.use(passport.initialize()); // passport 구동
-    webapp.use(passport.session());
-    localAuthConfig();
-    webapp.use('/graphql', graphQLServerMiddleware, (err, req, res, next) => {
-      if (err) res.status(500).send(err);
-      else {
-        next();
-      }
-    });
-    webapp.get('/logintest', (req, res, next) => {
-      if (req.isAuthenticated()) {
-        res.send({ result: 'authenticated!' });
-      } else {
-        res.send({ result: 'unauthenticated!' });
-      }
-      // res.send(req.user);
-    });
-    webapp.get('/session', (req, res) => {
-      // console.log(`/session - sessionID: ${req.sessionID}`);
-      // console.log(`cookies: ${req.cookies}`);
-      res.send(req.session);
-    });
-    webapp.get('/logout', (req, res, next) => {
-      req.logout();
-      res.send('yes');
-    });
-    agent = makeAgent(webapp);
-    // server = webapp.listen(parseInt(port));
+  // eslint-disable-next-line mocha/no-setup-in-describe
+  const { agent } = initTestServer({
+    before,
+    beforeEach,
+    after,
+    afterEach,
   });
-  after('웹앱 종료', function () {
-    // server.close();
-  });
-
-  afterEach('세션 초기화', async function () {
-    await agent.get('/logout');
-  });
-
-  it('로그인 성공 테스트', async function () {
-    const result = await graphqlSuper(agent, loginQuery, {
-      email: 'eszqsc112@naver.com',
-      pwd: '13241324',
-    });
-    expect(result?.body?.data?.login?.user?.email).to.equal(
-      'eszqsc112@naver.com',
-    );
-    expect(result?.body?.data?.login?.user?.name).to.equal('ok');
-  });
-  it('로그인 실패 테스트', function (done) {
-    graphqlSuper(agent, loginQuery, {
-      email: 'eszqsc112@naver.como',
-      pwd: '13241324',
-    })
-      .then((result) => {
-        done(`에러가 발생해야 합니다. ==> ${result}`);
-      })
-      .catch(() => {
-        done();
+  describe('login', function () {
+    beforeEach('기본 유저 생성', async function () {
+      await db.createUser({
+        email: 'eszqsc112@naver.com',
+        pwd: '13241324',
       });
-    // console.dir(result);
-    // expect(result?.body?.data.login).to.equal(null);
-  });
-
-  it('로그인이 되어있는지 체크할 수 있어야함 (성공 케이스)', async function () {
-    const result = await graphqlSuper(agent, loginQuery, {
-      email: 'eszqsc112@naver.com',
-      pwd: '13241324',
     });
-    const loginResult = await agent.get('/logintest');
-    expect(loginResult.body.result).to.equal('authenticated!');
-  });
-  it('로그인이 되어있는지 체크할 수 있어야함 (실패 케이스)', async function () {
-    const loginResult = await agent.get('/logintest');
-    expect(loginResult.body.result).to.equal('unauthenticated!');
-  });
-
-  it('supertest 로그인 후 세션 유지 테스트', async function () {
-    await graphqlSuper(agent, loginQuery, {
-      email: 'eszqsc112@naver.com',
-      pwd: '13241324',
+    it('로그인이 성공해야함 (createUser 사용)', async function () {
+      const result = await graphqlSuper(agent, loginQuery, {
+        email: 'eszqsc112@naver.com',
+        pwd: '13241324',
+      });
+      console.log(result.body.data);
+      expect(result?.body?.data?.login?.user?.email).to.equal(
+        'eszqsc112@naver.com',
+      );
     });
-    const result = await agent.get('/session');
-    expect(result.body?.passport?.user).to.equal('eszqsc112@naver.com');
+    it('로그인 실패 테스트', function (done) {
+      graphqlSuper(agent, loginQuery, {
+        email: 'eszqsc112@naver.como',
+        pwd: '13241324',
+      })
+        .then((result) => {
+          done(`에러가 발생해야 합니다. ==> ${result}`);
+        })
+        .catch(() => {
+          done();
+        });
+      // console.dir(result);
+      // expect(result?.body?.data.login).to.equal(null);
+    });
+
+    it('로그인이 되어있는지 체크할 수 있어야함 (성공 케이스)', async function () {
+      const result = await graphqlSuper(agent, loginQuery, {
+        email: 'eszqsc112@naver.com',
+        pwd: '13241324',
+      });
+      const loginResult = await agent.get('/logintest');
+      expect(loginResult.body.result).to.equal('authenticated!');
+    });
+    it('로그인이 되어있는지 체크할 수 있어야함 (실패 케이스)', async function () {
+      const loginResult = await agent.get('/logintest');
+      expect(loginResult.body.result).to.equal('unauthenticated!');
+    });
+    it('supertest 로그인 후 세션 유지 테스트', async function () {
+      await graphqlSuper(agent, loginQuery, {
+        email: 'eszqsc112@naver.com',
+        pwd: '13241324',
+      });
+      const result = await agent.get('/session');
+      expect(result.body.session.passport.user).to.equal('eszqsc112@naver.com');
+    });
   });
 });

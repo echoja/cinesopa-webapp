@@ -23,7 +23,7 @@ const {
 const fileManager = require('../manager/file');
 const fileServiceMaker = require('../service/file');
 const { graphQLServerMiddleware } = require('../graphql');
-const local = require('../auth/local');
+const local = require('../auth/passport');
 const { enumAuthmap } = require('../db/schema/enum');
 const { make: makeAuthMiddleware } = require('../auth/auth-middleware');
 const {
@@ -185,32 +185,26 @@ const initTestServer = (hookFunctions) => {
     );
     webapp.use(passport.initialize()); // passport 구동
     webapp.use(passport.session());
-    local.init(
-      async (email) => {
-        // console.log("--userFinder called--");
-        const result = await db.getUserByEmail(email);
-        // console.dir(result);
-        return result;
-      },
-      async (email, pwd) => {
-        if (await db.isCorrectPassword(email, pwd)) {
-          // console.log(`getUserByAuth successed: email: ${email}, pwd: ${pwd}`);
-          const result = await db.getUserByEmail(email);
-          // console.dir(result);
-          return result;
-        }
-        // console.log("getUserByAuth failed");
-        return null;
-      },
-    );
+    local.init(db);
     webapp.use('/graphql', graphQLServerMiddleware);
+
     webapp.get('/session', (req, res) => {
       res.send({ session: req.session, id: req.sessionID });
     });
+
     webapp.get('/logout', (req, res, next) => {
       req.logout();
       res.send();
     });
+
+    webapp.get('/logintest', (req, res, next) => {
+      if (req.isAuthenticated()) {
+        res.send({ result: 'authenticated!' });
+      } else {
+        res.send({ result: 'unauthenticated!' });
+      }
+    });
+
     webapp.get('/user', (req, res, next) => {
       res.send({ user: req.user, isAuthenticated: req.isAuthenticated() });
     });

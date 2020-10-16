@@ -1,9 +1,5 @@
-const sinon = require('sinon');
-const path = require('path');
-const fs = require('fs');
-const express = require('express');
+
 const { expect } = require('chai');
-const makeAgent = require('supertest').agent;
 // const { upload, createFileFromMockFile } = require('./tool');
 const { fake } = require('sinon');
 const { model, db } = require('../loader');
@@ -16,7 +12,6 @@ const {
   filmsFeaturedQuery,
 } = require('./graphql-request');
 const { initTestServer, graphqlSuper, doLogin, doLogout } = require('./tool');
-const { graphql } = require('graphql');
 
 describe('film', function () {
   // eslint-disable-next-line mocha/no-setup-in-describe
