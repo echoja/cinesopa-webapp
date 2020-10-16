@@ -1,16 +1,29 @@
-require("../typedef");
+require('../typedef');
 
-const passport = require("passport");
-const gp = require("graphql-passport");
+const passport = require('passport');
+const { useGraphQLLocalStrategy } = require('./strategy/graphql-local');
+const { useKakaoStrategy } = require('./strategy/kakao');
 
 module.exports = {
   /**
    *
-   * @param {UserFinder} userFinder
-   * @param {UserGetterByAuth} getUserByAuth
+   * @param {DBManager} db
    */
-  make(userFinder, getUserByAuth) {
-    if (typeof userFinder !== "function" || typeof getUserByAuth !== "function")
+  make(db) {
+
+    // 헬퍼 함수들.
+    const userFinder = db.getUserByEmail;
+    const getUserByAuth = async (email, pwd) => {
+        if (await db.isCorrectPassword(email, pwd)) {
+          console.log(`getUserByAuth successed: email: ${email}, pwd: ${pwd}`);
+          return db.getUserByEmail(email);
+        }
+        console.error('getUserByAuth failed');
+        return null;
+    };
+
+
+    if (typeof userFinder !== 'function' || typeof getUserByAuth !== 'function')
       throw `auth-lcoal: wrong userFinder or getUserByauth`;
     return () => {
       /**
@@ -31,19 +44,16 @@ module.exports = {
           done(null, userFound);
         } else {
           // throw "passport-deserializeUser-해당 유저를 찾을 수 없습니다.";
-          done(new Error(`passport-deserializeUser: ${email} 유저를 찾을 수 없습니다.`));
+          done(
+            new Error(
+              `passport-deserializeUser: ${email} 유저를 찾을 수 없습니다.`,
+            ),
+          );
         }
       });
 
-      passport.use(
-        new gp.GraphQLLocalStrategy(async (email, pwd, done) => {
-          const userFound = await getUserByAuth(email, pwd);
-          const error = userFound
-            ? null
-            : new Error(`GraphQLLocalStrategy: 비밀번호가 틀립니다: ${email}`);
-          done(error, userFound);
-        })
-      );
+      useGraphQLLocalStrategy(passport, getUserByAuth);
+      useKakaoStrategy(passport, db);
     };
   },
   /**
@@ -51,7 +61,7 @@ module.exports = {
    * @param {UserFinder} userFinder
    * @param {UserGetterByAuth} getUserByAuth
    */
-  init(userFinder, getUserByAuth) {
-    this.make(userFinder, getUserByAuth)();
+  init(db) {
+    this.make(db)();
   },
 };

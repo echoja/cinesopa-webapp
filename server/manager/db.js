@@ -146,15 +146,23 @@ class DBManager {
   }
 
   /**
-   * 새 유저를 생성합니다.
+   * 새 유저(비밀번호 기반)를 생성합니다. 카카오는 그냥 로그인만 하도록 합니다.
    * @param {Userinfo} userinfo 유저 정보
-   * @throws 이메일이 이미 존재할 때
+   * @throws 이메일이 이미 존재할 때, 비밀번호 정보가 없을 때.
    */
   async createUser(userinfo) {
     const { email, name, role, verified } = userinfo;
-    if (await model.User.findOne({ email })) {
+
+    // email이 겹친다면 에러
+    if (await model.User.findOne({ email }).exec()) {
       throw Error(`createUser: 이미 ${email}이 존재합니다.`);
     }
+    // 비밀번호가 없을 때에는 에러
+    if (!userinfo.pwd) {
+      throw Error('유저 비밀번호 정보가 없습니다.');
+    }
+
+    // 비밀번호가 있을 때에는 일반 계정 생성한다는 뜻.
     const { pwd, salt } = await pwd_encrypt(userinfo.pwd);
     const newUser = new model.User({
       email,
@@ -165,8 +173,37 @@ class DBManager {
     const newLogin = new model.Login({ email, pwd, salt });
     await newUser.save();
     await newLogin.save();
+
+    return;
   }
 
+  /**
+   * 카카오 유저를 새롭게 갱신하는 함수. 이미 이메일이 존재한다면 업데이트만 하고, 
+   * 아예 계정이 없다면 새롭게 유저를 만듭니다.
+   * @param {string} email 
+   * @param {Userinfo} userinfo 
+   */
+  async upsertKakaoUser(email, userinfo) {
+    if (email === undefined || userinfo === undefined) {
+      throw Error('upsertKakaoUser: 인수가 올바르지 않습니다.');
+    }
+    const { kakao_access_token, kakao_refresh_token, kakao_id, role, verified } = userinfo;
+    const found = await model.User.findOne({ email }).exec();
+    if (found) {
+      await model.User.updateOne({email}, userinfo);
+      return;
+    }
+
+    await model.User.create({
+      email,
+      role,
+      verified,
+      kakao_access_token,
+      kakao_refresh_token,
+      kakao_id,
+    });
+    return;
+  }
   /**
    * 이메일 기준 유저의 정보를 업데이트합니다.
    * @param {string} email 이메일
@@ -539,10 +576,13 @@ class DBManager {
    * 공개 상태의 Featured 인 모든 영화를 구합니다.
    */
   async getFeaturedFilms() {
-    const featureds = await model.Film.find({ status: 'public', is_featured: true});
+    const featureds = await model.Film.find({
+      status: 'public',
+      is_featured: true,
+    });
     return {
       total: featureds.length,
-      list: featureds
+      list: featureds,
     };
   }
 

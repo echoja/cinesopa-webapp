@@ -40,16 +40,18 @@ const validator = validatorInitializer.make(auth.authmapLevel);
 const makeAuthMiddleware = require('./auth/auth-middleware').make;
 
 /* passport graphql lodal strategy */
-const local = require('./auth/local');
+const local = require('./auth/passport');
 
-const localAuthConfig = local.make(db.getUserByEmail, async (email, pwd) => {
-  if (await db.isCorrectPassword(email, pwd)) {
-    console.log(`getUserByAuth successed: email: ${email}, pwd: ${pwd}`);
-    return db.getUserByEmail(email);
-  }
-  console.error('getUserByAuth failed');
-  return null;
-});
+const localAuthConfig = local.make(db);
+
+// const localAuthConfig = local.make(db.getUserByEmail, async (email, pwd) => {
+//   if (await db.isCorrectPassword(email, pwd)) {
+//     console.log(`getUserByAuth successed: email: ${email}, pwd: ${pwd}`);
+//     return db.getUserByEmail(email);
+//   }
+//   console.error('getUserByAuth failed');
+//   return null;
+// });
 
 /** resolver */
 const { enumAuthmap } = require('./db/schema/enum');

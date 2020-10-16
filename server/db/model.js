@@ -1,17 +1,17 @@
 const { MongooseDocument, Model, Mongoose } = require('mongoose');
 
 const schemaBuilder = {};
-schemaBuilder.Page = require('./schema/page.js');
-schemaBuilder.User = require('./schema/user.js');
-schemaBuilder.Login = require('./schema/login.js');
-schemaBuilder.File = require('./schema/file.js');
-schemaBuilder.Board = require('./schema/board.js');
-schemaBuilder.Film = require('./schema/film.js');
-schemaBuilder.Menu = require('./schema/menu.js');
-schemaBuilder.Order = require('./schema/order.js');
-schemaBuilder.Post = require('./schema/post.js');
-schemaBuilder.Product = require('./schema/product.js');
-schemaBuilder.Token = require('./schema/token.js');
+schemaBuilder.Page = require('./schema/page');
+schemaBuilder.User = require('./schema/user');
+schemaBuilder.Login = require('./schema/login');
+schemaBuilder.File = require('./schema/file');
+schemaBuilder.Board = require('./schema/board');
+schemaBuilder.Film = require('./schema/film');
+schemaBuilder.Menu = require('./schema/menu');
+schemaBuilder.Post = require('./schema/post');
+schemaBuilder.Product = require('./schema/product');
+schemaBuilder.Cartitem = require('./schema/cartitem')
+schemaBuilder.Token = require('./schema/token');
 
 /**
  * 모델을 만들어 반환합니다.

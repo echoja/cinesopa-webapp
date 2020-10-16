@@ -5,12 +5,18 @@
 /**
  * 유저 정보를 담는 객체
  * @typedef {Object} Userinfo
- * @property {string} email - 이메일
- * @property {string} pwd - 비밀번호
- * @property {string} name - 이름
- * @property {Date} c_date - 생성일
- * @property {string} role - 역할
- * @property {boolean} verified - 이메일이 인증되었는지 여부
+ * @property {string} email
+ * @property {Destinfo} default_dest
+ * @property {Date} c_date:
+ * @property {number} wrong_pwd_count
+ * @property {Date} blocked_date
+ * @property {number} blocked_count
+ * @property {string} role
+ * @property {Order[]} orders
+ * @property {string} kakao_access_token
+ * @property {string} kakao_refresh_token
+ * @property {string} kakao_id
+ * @property {boolean} verified
  */
 
 /**
@@ -218,6 +224,14 @@ api
  * @param {string} email
  * @param {string} pwd
  * @return {Promise<Userinfo>} 유저 정보
+ */
+
+ /**
+ * passport kakao 에서 새롭게 유저를 만드는 데 쓰는 함수
+ *
+ * @callback UserCreator
+ * @param {Userinfo} userinfo
+ * @return {Promise<void>} 유저 정보
  */
 
 // /**
