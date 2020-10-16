@@ -114,7 +114,7 @@
               <img
                 v-if="post.featured_image_link"
                 :alt="post.featured_image_alt"
-                :src="post.featured_image_link"
+                :src="parseUploadLink(post.featured_image_link)"
                 class="gallery-thumbnail-img"
               />
               <span class="no-featured-image" v-else> 대표 사진이<br />없습니다. </span>
@@ -170,6 +170,7 @@
 import moment from 'moment';
 // import { VueAria } from 'vue-a11y-utils';
 import { boardsQuery, graphql, postsInBoardQuery } from '../graphql-client';
+import { parseUploadLink } from '../util';
 
 function sleep(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
@@ -393,6 +394,7 @@ export default {
     this.finishLoading();
   },
   methods: {
+    parseUploadLink,
     async boardClicked(index) {
       this.$router.push({
         name: this.$route.name,

@@ -6,12 +6,12 @@
         class="zoom-link"
         alt="포스터 자세히 보기 (새 창으로 이동)"
         target="_blank"
-        :href="film.poster_url"
+        :href="parseUploadLink(film.poster_url)"
       >
         <b-img
           v-if="film.poster_url"
           :alt="`${film.title} 포스터`"
-          :src="film.poster_url"
+          :src="parseUploadLink(film.poster_url)"
           class="shadow"
         ></b-img>
         <div v-else>메인 포스터를 준비 중입니다.</div>
@@ -62,7 +62,13 @@
             <span class="content" role="cell">
               <template v-for="(output, index) in filmSummary">
                 <span :key="`${index}0`">{{ output }}</span>
-                <span v-if="index !== filmSummary.length - 1" class="seperator" role="separator" :key="`${index}1`">|</span>
+                <span
+                  v-if="index !== filmSummary.length - 1"
+                  class="seperator"
+                  role="separator"
+                  :key="`${index}1`"
+                  >|</span
+                >
               </template>
               <!-- <span v-if="filmGenres">{{ filmGenres }}</span>
               <span v-if="filmGenres && filmShowMinutes" class="seperator" role="separator">|</span>
@@ -130,11 +136,21 @@
           bezier-easing-value=".5,0,.35,1"
           class="scrollactive d-flex justify-content-start align-items-center"
         >
-          <b-link href="#synopsis" class="scrollactive-item first" v-if="filmSynopsis">시놉시스</b-link>
-          <b-link href="#people" class="scrollactive-item" v-if="filmPeople.length !== 0">배우/제작진</b-link>
-          <b-link href="#awards" class="scrollactive-item" v-if="film.awards.length !== 0">수상내역</b-link>
-          <b-link href="#steel" class="scrollactive-item" v-if="film.photos.length !== 0">포토</b-link>
-          <b-link href="#reviews" class="scrollactive-item" v-if="film.reviews.length !== 0">리뷰</b-link>
+          <b-link href="#synopsis" class="scrollactive-item first" v-if="filmSynopsis"
+            >시놉시스</b-link
+          >
+          <b-link href="#people" class="scrollactive-item" v-if="filmPeople.length !== 0"
+            >배우/제작진</b-link
+          >
+          <b-link href="#awards" class="scrollactive-item" v-if="film.awards.length !== 0"
+            >수상내역</b-link
+          >
+          <b-link href="#steel" class="scrollactive-item" v-if="film.photos.length !== 0"
+            >포토</b-link
+          >
+          <b-link href="#reviews" class="scrollactive-item" v-if="film.reviews.length !== 0"
+            >리뷰</b-link
+          >
           <b-link href="#note" class="scrollactive-item" v-if="film.note">제작노트</b-link>
         </scrollactive>
       </affix>
@@ -223,7 +239,7 @@
           <b-carousel-slide
             v-for="(image, index) in film.photos"
             :key="index"
-            :img-src="image.preview_url"
+            :img-src="parseUploadLink(image.preview_url)"
             :img-alt="image.alt"
           >
           </b-carousel-slide>
@@ -235,11 +251,7 @@
           리뷰
         </h2>
         <div class="row">
-          <div
-            class="col-12 review-row"
-            v-for="(review, index) in film.reviews"
-            :key="index"
-          >
+          <div class="col-12 review-row" v-for="(review, index) in film.reviews" :key="index">
             <p class="review-title">
               <b-link target="_blank" rel="external" :href="review.url">{{ review.title }}</b-link>
             </p>
@@ -261,7 +273,7 @@
 <script>
 import moment from 'moment';
 import { filmDetailQuery, graphql } from '../graphql-client';
-
+import { parseUploadLink } from '../util';
 /**
  * @param {any[]} array
  * @param {string} key
@@ -526,7 +538,7 @@ export default {
     }
 
     // console.log(film);
-    
+
     // 영화 개봉일 설정
     const newFilm = { ...film };
     newFilm.open_date = new Date(newFilm.open_date);
@@ -562,6 +574,7 @@ export default {
     gotoCommunity() {
       this.$router.push({ name: 'Community', query: { name: this.film.title } });
     },
+    parseUploadLink,
   },
 };
 </script>
@@ -612,8 +625,8 @@ export default {
     background-color: transparent;
     color: #009eda;
     border-color: #009eda;
-    font-size:19px;
-    font-weight:bold;
+    font-size: 19px;
+    font-weight: bold;
     &:hover {
       color: #fff;
       background-color: #009eda;
@@ -802,9 +815,9 @@ export default {
 }
 
 .review-row {
-    display: flex;
-    align-items: center;
-      // border: 1px soild #ddd;
+  display: flex;
+  align-items: center;
+  // border: 1px soild #ddd;
   border-top: 1px solid #ddd;
   border-bottom: 1px solid #ddd;
   // max-width: 700px;
@@ -823,7 +836,7 @@ export default {
   white-space: nowrap;
   flex: 1;
   overflow: hidden;
-  text-overflow:ellipsis;
+  text-overflow: ellipsis;
 
   & a {
     color: #2b3e4a;

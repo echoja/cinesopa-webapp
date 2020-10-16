@@ -41,7 +41,7 @@
             <template #img>
               <div
                 class="carousel-item-content-bg"
-                :style="{ 'background-image': `url(${film.featured_steel})` }"
+                :style="{ 'background-image': `url(${parseUploadLink(film.featured_steel)})` }"
               ></div>
               <div
                 class="carousel-item-content h-100"
@@ -56,7 +56,7 @@
                       class="d-block w-100 h-100"
                       :to="{ name: 'IndividualFilm', params: { id: film.id } }"
                     >
-                      <b-img class="mw-100 mh-100" :src="film.poster_url"></b-img>
+                      <b-img class="mw-100 mh-100" :src="parseUploadLink(film.poster_url)"></b-img>
                     </b-link>
                   </b-col>
                   <b-col
@@ -255,7 +255,7 @@
                 :style="{ 'background-color': film.badge_color }"
                 >{{ film.badge_text }}</span
               >
-              <img v-if="film.posterLink" :src="film.posterLink" :alt="`${film.title} 포스터`" />
+              <img v-if="film.posterLink" :src="parseUploadLink(film.posterLink)" :alt="`${film.title} 포스터`" />
               <span class="no-poster" v-else>포스터<br>준비 중입니다</span>
             </b-link>
           </div>
@@ -320,6 +320,7 @@
 import AOS from 'aos';
 import hexToRgba from 'hex-to-rgba';
 import { filmsFeaturedQuery, filmsNormalQuery, graphql } from '../graphql-client';
+import { parseUploadLink } from '../util';
 
 function sleep(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
@@ -500,6 +501,7 @@ export default {
   },
 
   methods: {
+    parseUploadLink,
     convertHexToRgba(hex, alpha) {
       return hexToRgba(hex, alpha);
     },
@@ -980,9 +982,6 @@ export default {
       transition: none;
       color: #009eda;
     }
-  }
-  .custom-control-label {
-    // font-size: 19px;
   }
   & .custom-radio .custom-control-input:checked ~ .custom-control-label {
     /*      background-color: #aaa; */

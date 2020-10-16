@@ -147,7 +147,7 @@
         data-aos-duration="1000"
       >
         <div class="person-sign">
-          <b-img class="person-sign-image" :src="person.imageLink" :alt="person.imageAlt"></b-img>
+          <b-img class="person-sign-image" :src="parseUploadLink(person.imageLink)" :alt="person.imageAlt"></b-img>
         </div>
         <div class="person-info">
           <div class="person-name-position">
@@ -206,6 +206,7 @@
 
 <script>
 import AOS from 'aos';
+import { parseUploadLink } from '../util';
 
 export default {
   name: 'About',
@@ -316,6 +317,9 @@ export default {
   mounted() {
     // console.log(AOS);
     AOS.init();
+  },
+  methods: {
+    parseUploadLink,
   },
 };
 </script>
