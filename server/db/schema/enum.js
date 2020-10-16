@@ -26,6 +26,7 @@ const enumOrderStatus = makeEnum([
 const enumOrderMethod = makeEnum([
   'card',
   'phone',
+  'nobank',
   'bank',
   'vbank',
   'auth',

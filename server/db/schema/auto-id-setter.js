@@ -5,7 +5,7 @@ const AutoIncrementFactory = require('mongoose-sequence');
  * 해당 스키마에 자동 증가 필드를 추가시켜줍니다.
  * @param {Schema} schema
  * @param {Mongoose} mongoose
- * @param {string} inc_field
+ * @param {string} name
  * @param {string} inc_field
  */
 module.exports = (schema, mongoose, name, inc_field) => {
