@@ -23,6 +23,7 @@ module.exports = function (mongoose) {
 
   const User = new mongoose.Schema({
     email: String,
+    has_pwd: Boolean,
     default_dest: Destinfo,
     c_date: { type: Date, default: Date.now },
     wrong_pwd_count: { type: Number, default: 0 },

@@ -61,7 +61,6 @@ const loginQuery = `
 mutation Login ($email: String!, $pwd: String!) {
   login(provider: {email:$email, pwd: $pwd}) {
     user {
-      name
       email
       role
       verified
@@ -73,7 +72,6 @@ mutation Login ($email: String!, $pwd: String!) {
 const logoutMeMutation = `
 mutation logoutMeMutation { 
   logoutMe { 
-    name
     email
     role
     c_date

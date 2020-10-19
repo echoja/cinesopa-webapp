@@ -120,7 +120,7 @@ class DBManager {
    * @param {string} email 이메일
    * @returns {boolean} 존재한다면 true, 존재하지 않는다면 false
    */
-  async isUserExist(email) {
+  async userExists(email) {
     if (await model.User.findOne({ email })) return true;
     return false;
   }
@@ -140,80 +140,110 @@ class DBManager {
   // @returns {?MongooseDocument[]} 유저 Mongoose Document
   /**
    * 모든 유저를 구합니다.
+   * @param {number} page 0 이 1페이지를 뜻함.
+   * @param {number} perpage 1페이지당 유저 개수
    */
-  async getAllUesrs() {
-    return model.User.find().lean().exec();
+  async getUsers(page, perpage) {
+    let query = model.User.find();
+    const count = (await query.lean().exec()).length;
+    // page와 perpage 가 동시에 있어야만 페이지네이션 가능
+    if (typeof page === 'number' && typeof perpage === 'number') {
+      query = query.limit(perpage).skip(perpage * page);
+    }
+    const list = await query.lean().exec();
+    return {
+      count,
+      list,
+    };
   }
 
   /**
    * 새 유저(비밀번호 기반)를 생성합니다. 카카오는 그냥 로그인만 하도록 합니다.
+   * @param {string} email 이메일
+   * @param {string} pwd 비밀번호 (아직 암호화 전)
    * @param {Userinfo} userinfo 유저 정보
    * @throws 이메일이 이미 존재할 때, 비밀번호 정보가 없을 때.
    */
-  async createUser(userinfo) {
-    const { email, name, role, verified } = userinfo;
-
+  async createUser(email, pwd, userinfo = {}) {
     // email이 겹친다면 에러
     if (await model.User.findOne({ email }).exec()) {
       throw Error(`createUser: 이미 ${email}이 존재합니다.`);
     }
     // 비밀번호가 없을 때에는 에러
-    if (!userinfo.pwd) {
+    if (!pwd) {
       throw Error('유저 비밀번호 정보가 없습니다.');
     }
 
     // 비밀번호가 있을 때에는 일반 계정 생성한다는 뜻.
-    const { pwd, salt } = await pwd_encrypt(userinfo.pwd);
-    const newUser = new model.User({
-      email,
-      name,
-      role,
-      verified,
-    });
-    const newLogin = new model.Login({ email, pwd, salt });
+    const { pwd: pwdEncrypted, salt } = await pwd_encrypt(pwd);
+    userinfo.email = email;
+    userinfo.has_pwd = true;
+    const newUser = new model.User(userinfo);
+    const newLogin = new model.Login({ email, pwd: pwdEncrypted, salt });
     await newUser.save();
     await newLogin.save();
 
-    return;
+    return ;
   }
 
   /**
-   * 카카오 유저를 새롭게 갱신하는 함수. 이미 이메일이 존재한다면 업데이트만 하고, 
+   * 카카오 유저를 새롭게 갱신하는 함수. 이미 이메일이 존재한다면 업데이트만 하고,
    * 아예 계정이 없다면 새롭게 유저를 만듭니다.
-   * @param {string} email 
-   * @param {Userinfo} userinfo 
+   * @param {string} email
+   * @param {Userinfo} userinfo
    */
   async upsertKakaoUser(email, userinfo) {
-    if (email === undefined || userinfo === undefined) {
+    if (
+      typeof email !== 'string' ||
+      typeof userinfo !== 'object' ||
+      typeof userinfo.kakao_id !== 'string'
+    ) {
       throw Error('upsertKakaoUser: 인수가 올바르지 않습니다.');
     }
-    const { kakao_access_token, kakao_refresh_token, kakao_id, role, verified } = userinfo;
-    const found = await model.User.findOne({ email }).exec();
-    if (found) {
-      await model.User.updateOne({email}, userinfo);
-      return;
-    }
-
-    await model.User.create({
-      email,
-      role,
-      verified,
+    const {
       kakao_access_token,
       kakao_refresh_token,
       kakao_id,
+      role,
+    } = userinfo;
+    const found = await model.User.findOne({ email }).exec();
+
+    // 만약 유저가 있다면 업데이트 시키고 종료
+    if (found) {
+      await model.User.updateOne(
+        { email },
+        {
+          kakao_access_token,
+          kakao_refresh_token,
+          kakao_id,
+          verified: true,
+        },
+      );
+      return ;
+    }
+
+    // 만약 유저가 없다면 새롭게 만듬.
+    await model.User.create({
+      email,
+      role,
+      kakao_access_token,
+      kakao_refresh_token,
+      kakao_id,
+      verified: true,
+      has_pwd: false,
     });
-    return;
+    return ;
   }
   /**
    * 이메일 기준 유저의 정보를 업데이트합니다.
    * @param {string} email 이메일
    * @param {Userinfo} userinfo 유저 정보
-   * @returns {Promise<Userinfo>} 해당 유저 정보. 해당하는 이메일이 없을 시 null
+   * @throws 이메일이 존재하지 않을 때.
    */
   async updateUser(email, userinfo) {
     const user = await model.User.findOne({ email }).exec();
     if (!user) throw Error(`updateUser: ${email}이 존재하지 않습니다`);
-    return user.updateOne(userinfo).lean();
+    return user.updateOne(userinfo).exec();
   }
 
   // @returns {?DocumentQuery} 삭제된 유저
@@ -276,8 +306,15 @@ class DBManager {
    * 새로운 이메일 생성용 토큰을 만듭니다.
    * @param {string} email
    * @param {Tokeninfo} token
+   * @param {string} purpose
    */
-  async createEmailVerificationToken(email, token) {
+  async createToken(email, token, purpose) {
+    const purposeFoundIndex = enumTokenPurpose.raw_str_list.findIndex(
+      (value) => value == purpose,
+    );
+    if (purposeFoundIndex === -1) {
+      throw Error(`createToken: 올바르지 않은 purpose입니다.: ${purpose}`);
+    }
     const tokenDoc = new model.Token({
       token,
       purpose: 'email_verification',
@@ -289,14 +326,16 @@ class DBManager {
 
   /**
    * 토큰을 얻습니다. ttl에 대한 계산을 하지는 않습니다.
+   * (ttl 계산은 service 단에서 하도록 함.)
    * @param {string} token
-   * @returns {Tokeninfo}
+   * @param {string} purpose
+   * @returns {Promise<Tokeninfo>}
    */
-  async getEmailVerificationToken(token) {
-    console.log(`db-getEmailVefificationToken-token: ${token}`);
+  async getToken(token, purpose) {
+    // console.log(`db-getEmailVefificationToken-token: ${token}`);
     const result = await model.Token.findOne({
       token,
-      purpose: 'email_verification',
+      purpose,
     })
       .lean()
       .exec();

@@ -57,7 +57,7 @@ const logoutMe = async (context) => {
 
 /**
  * 해당 콘텍스트에 유저를 로그인시킵니다.
- * 세션도 저장됩니다.
+ * 세션도 저장됩니다. verified 체크는 하지 않습니다.
  * @param {string} email 이메일
  * @param {string} pwd 비밀번호
  * @param {PassportContext} context 콘텍스트

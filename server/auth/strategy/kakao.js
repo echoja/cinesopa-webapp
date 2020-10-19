@@ -44,8 +44,7 @@ module.exports.useKakaoStrategy = (passport, db) => {
 
         // 카카오로 로그인했는데 기존의 로그인 정보가 없는 경우
         // 새롭게 유저를 만들어서 그 유저를 내보냄.
-        const newUser = await db.createUser({
-          email,
+        const newUser = await db.upsertKakaoUser(email, {
           kakao_access_token: accessToken,
           kakao_refresh_token: refreshToken,
           kakao_id: kakaoId,

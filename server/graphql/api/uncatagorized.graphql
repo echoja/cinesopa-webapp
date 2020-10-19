@@ -4,14 +4,7 @@ scalar Upload
 #           TYPE
 #############################
 
-type User {
-  # id: String
-  email: String
-  name: String
-  c_date: DateTime
-  role: UserRole
-  verified: Boolean
-}
+
 
 type Page {
   id: Int
@@ -32,56 +25,19 @@ type Page {
 # }
 
 # SignInUserPayload bundles information about the user and token
-type SignInUserPayload {
-  user: User
-  token: String
-}
 
-type CheckAuthResponse {
-  permissionStatus: PermissionStatus
-  user: User
-}
-
-type AuthPayload {
-  user: User
-  redirectLink: String
-}
 
 # ###########################
 #           ENUMS
 #############################
 
-enum UserRole {
-  ADMIN
-  GUEST
-}
 
-enum PermissionStatus {
-  OK
-  LOGIN_REQUIRED
-  NO_PERMISSION
-}
-
-enum Permission {
-  ADMIN
-  GUEST
-  ANYONE
-}
 
 # ###########################
 #           INPUT
 #############################
 
-input EmailAuthProvider {
-  email: String
-  pwd: String
-}
 
-input UserUpdateInfo {
-  pwd: String
-  name: String
-  role: UserRole
-}
 
 # input FileModInput {
 #   description: String
@@ -116,27 +72,13 @@ input PageInput {
 #############################
 
 type Query {
-  # uploads: [File]
-
-  ## USER
-  users: [User]
-  user(email: String!): User
-  currentUser: User
-  getUserByEmailNoAuth(email: String!): User # MUST DELETE WHEN DEPLOY!
   ## PAGE
   page(permalink: String!, belongs_to: String!): Page
   pages(belongs_to: String!, page: Int, perpage: Int): [Page]
   pageById(id: Int!): Page
-  checkAuth(redirectLink: String!, role: Permission!): CheckAuthResponse
+  
   getFilesManaged: [File]
   getFileByFilename(filename: String!): File
-}
-
-extend type Query {
-  hello: User
-}
-extend type Mutation {
-  hello2: User
 }
 
 # ###########################
@@ -144,15 +86,7 @@ extend type Mutation {
 #############################
 
 type Mutation {
-  ## login and logout
-  login(provider: EmailAuthProvider!, redirectLink: String): AuthPayload
-  # logout(email: String!): AuthPayload
-  logoutMe: User
 
-  # createAdmin(email: String!, pwd: String!, role: UserRole!): User
-  createGuest(email: String!, pwd: String!): User
-  verifyUserEmail(token: String!): User
-  updateUser(email: String!, userinfo: UserUpdateInfo): User
 
   # pages
   createPage(

@@ -27,83 +27,6 @@ const { auth } = require('../../service');
 //   return await validator.accessCheck(redirectLink, role, context);
 // };
 
-/**
- *
- * @type {LoginResolver}
- * @callback LoginResolver
- * @param {{provider: {email: string, pwd: string}}} args
- * @returns {Promise<{userinfo: Userinfo, rediretLink: string}>}
- */
-const login = makeResolver(async (obj, args, context, info) => {
-  const {
-    provider: { email, pwd },
-  } = args;
-  return auth.login(email, pwd, context);
-}).only(ACCESS_UNAUTH);
-
-// const logout = makeResolver(async (obj, args, context, info) => {
-// 수정 필요
-// }).only(ACCESS_ADMIN);
-
-const logoutMe = makeResolver(async (obj, args, context, info) => {
-  const Logedout = await auth.logoutMe(context);
-  const { userinfo, redirectLink } = Logedout;
-  return { user: userinfo };
-}).only(ACCESS_AUTH);
-
-/**
- *
- * @param {PassportContext} context
- * @param {string} redirectLink
- */
-const setRedirectLink = (context, redirectLink) => {
-  // if (redirectLink !== undefined && redirectLink !== '') {
-    // 클라이언트에서 곧바로 login 링크로 갔을 때, 이 코드가 실행되어야 클라이언트에도
-    // 세션이 살아있을 수 있다.
-    // 원인은 불명. 세션을 건드리면 그때서야 쿠키가 생성되어 클라이언트로
-    // 전달되는 모양. 그래서 조건문이 처음에는 있었는데, 없앴다.
-    // redirectLink가 설정되지 않은 상태라도 일단 session에 접근은 하도록.
-    context.req.session.redirectLink = redirectLink;
-  // }
-};
-
-const checkAuth = makeResolver(async (obj, args, context, info) => {
-  const { redirectLink, role } = args;
-  const contextUser = context.getUser();
-  // const roleSymbol = enumAuthmap[role];
-  const isOk = await validator.isOkContext(context, role, enumAuthmap);
-
-  if (isOk) return { permissionStatus: 'OK', user: contextUser };
-
-  setRedirectLink(context, redirectLink);
-  if (contextUser) {
-    return { permissionStatus: 'NO_PERMISSION', user: contextUser };
-  }
-  return { permissionStatus: 'LOGIN_REQUIRED' };
-
-  // return await validator.isOk(context, role);
-  // return await validator.accessCheck(
-  //   redirectLink,
-  //   [enumAuthmap[role]],
-  //   context,
-  // );
-}).only(ACCESS_ALL);
-
-const createGuest = makeResolver(async (obj, args, context, info) => {
-  const { email, pwd } = args;
-  return user.createGuest(email, pwd);
-}).only(ACCESS_ALL);
-
-const verifyUserEmail = makeResolver(async (obj, args, context, info) => {
-  const { token } = args;
-  console.log(`resolver-verifyUserEmail-token: ${token}`);
-  return user.verifyEmail(token);
-}).only(ACCESS_ALL);
-
-const updateUser = makeResolver(async (obj, args, context, info) => {
-  const { email, userinfo } = args;
-  return db.updateUser(email, userinfo);
-}).only(ACCESS_ADMIN);
 
 const createPage = makeResolver(async (obj, args, context, info) => {
   const { permalink, belongs_to, pageinfo } = args;
@@ -152,24 +75,6 @@ const removePage = makeResolver(async (obj, args, context, info) => {
 
 /** QUERY */
 
-const users = makeResolver(async (obj, args, context, info) => user.getAllUsers(args, context)).only(ACCESS_ADMIN);
-
-// *** this is secure version!!***
-const userResolver = makeResolver(async (obj, args, context, info) => {
-  const { email } = args;
-  return user.getUser(email, context);
-}).only(ACCESS_ADMIN);
-
-const currentUser = makeResolver(async (obj, args, context, info) => {
-  if (context.isUnauthenticated()) return null;
-  return context.getUser();
-}).only(ACCESS_ALL);
-
-const getUserByEmailNoAuth = makeResolver(async (obj, args, context, info) => {
-  const { email } = args;
-  return user.getUserByEmail(email, context);
-}).only(ACCESS_ALL);
-
 const pageResolver = makeResolver(async (obj, args, context, info) => {
   const { permalink, belongs_to } = args;
   console.log(
@@ -202,23 +107,13 @@ const pageById = makeResolver(async (obj, args, context, info) => {
 
 module.exports = {
   Mutation: {
-    login,
-    logoutMe,
-    createGuest,
-    verifyUserEmail,
-    updateUser,
     createPage,
     updatePage,
     removePage,
   },
   Query: {
-    users,
-    user: userResolver,
-    currentUser,
-    getUserByEmailNoAuth,
     page: pageResolver,
     pages,
     pageById,
-    checkAuth,
   },
 };

@@ -1,0 +1,28 @@
+type Destinfo {
+  name: String
+  address: String
+  address_detail: String
+  phone: String
+  request: String
+}
+
+input DestinfoInput {
+  name: String
+  address: String
+  address_detail: String
+  phone: String
+  request: String
+}
+
+type Order {
+    status: String
+    method: String
+    c_date: DateTime
+    expected_date: DateTime # 도착 예정일
+    cash_receipt: String # 현금영수증 번호
+    transport_number: String # 송장 번호
+    transport_company: String # 택배 회사
+    meta: JSON
+    items: [CartItem]
+    dest: Destinfo
+}

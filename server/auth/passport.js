@@ -10,15 +10,14 @@ module.exports = {
    * @param {DBManager} db
    */
   make(db) {
-
     // 헬퍼 함수들.
     const userFinder = db.getUserByEmail;
     const getUserByAuth = async (email, pwd) => {
         if (await db.isCorrectPassword(email, pwd)) {
-          console.log(`getUserByAuth successed: email: ${email}, pwd: ${pwd}`);
+          // console.log(`# getUserByAuth 접근이 승인되었습니다: email: ${email}`);
           return db.getUserByEmail(email);
         }
-        console.error('getUserByAuth failed');
+        console.error(`# getUserByAuth 접근이 거부되었습니다: email: ${email}`);
         return null;
     };
 

@@ -91,10 +91,7 @@ describe('로그인 및 로그아웃 (권한)', function () {
   });
   describe('login', function () {
     beforeEach('기본 유저 생성', async function () {
-      await db.createUser({
-        email: 'eszqsc112@naver.com',
-        pwd: '13241324',
-      });
+      await db.createUser('eszqsc112@naver.com', '13241324');
     });
     it('로그인이 성공해야함 (createUser 사용)', async function () {
       const result = await graphqlSuper(agent, loginQuery, {

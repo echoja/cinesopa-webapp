@@ -100,6 +100,16 @@ const doLogin = async (agent, email, pwd) =>
     email,
     pwd,
   });
+const doAdminLogin = async (agent) =>
+  graphqlSuper(agent, loginQuery, {
+    email: 'testAdmin',
+    pwd: 'abc',
+  });
+const doGuestLogin = async (agent) =>
+  graphqlSuper(agent, loginQuery, {
+    email: 'testGuest',
+    pwd: 'abc',
+  });
 
 const testDatabaseServer = (hookFunctions) => {
   const mongod = new MongoMemoryServer({ binary: { version: '4.2.9' } });
@@ -121,14 +131,10 @@ const testDatabaseServer = (hookFunctions) => {
 
   hookFunctions.beforeEach('유저 세팅', async function () {
     // console.log('testDatabaseServer - beforeEach!!');
-    await db.createUser({
-      email: 'testAdmin',
-      pwd: 'abc',
+    await db.createUser('testAdmin', 'abc', {
       role: 'ADMIN',
     });
-    await db.createUser({
-      email: 'testGuest',
-      pwd: 'abc',
+    await db.createUser('testGuest', 'abc', {
       role: 'GUEST',
     });
   });
@@ -252,7 +258,7 @@ const initTestServer = (hookFunctions) => {
 
 const doLogout = async (agent) => {
   await agent.get('/logout');
-}
+};
 
 /**
  * @typedef {object} MockFile
@@ -263,6 +269,8 @@ const doLogout = async (agent) => {
 
 module.exports = {
   graphqlSuper,
+  doAdminLogin,
+  doGuestLogin,
   doLogin,
   doLogout,
   testDatabaseServer,

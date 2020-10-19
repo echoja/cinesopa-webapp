@@ -1,0 +1,21 @@
+type CartItemProduct {
+  product_type: String
+  product_url_id: Int # 제품의 링크용
+  name: String
+  featured_image_url: String
+}
+
+type CartItemOption {
+  content: String
+  price: Int
+  count: Int
+}
+
+type CartItem {
+  user: String # 유저 이메일
+  added_date: DateTime
+  product_id: String
+  product: CartItemProduct
+  options: [CartItemOption]
+  meta: JSON
+}

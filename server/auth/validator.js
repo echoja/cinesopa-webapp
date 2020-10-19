@@ -28,10 +28,10 @@ class AuthValidator {
   async isOkContext(context, condition, enumAuthmap) {
     return new Promise((resolve, reject) => {
       try {
-        console.log("## isOkContext");
-        console.log(condition);
-        console.log(`--- isUnauthenticated: ${context.isUnauthenticated()}`);
-        console.log(`--- getUser:`);
+        // console.log("## isOkContext");
+        // console.log(condition);
+        // console.log(`--- isUnauthenticated: ${context.isUnauthenticated()}`);
+        // console.log(`--- getUser:`);
         // console.dir(context.getUser());
         const { isUnauthenticated, getUser } = context;
         const role = isUnauthenticated() ? enumAuthmap.ANYONE : enumAuthmap[getUser().role];
@@ -55,7 +55,7 @@ class AuthValidator {
     return new Promise((resolve, reject) => {
       let result = false;
       try {
-        console.log(this.authmapLevel);
+        // console.log(this.authmapLevel);
         console.log(`given: ${given.toString()}, condition: ${condition.toString()}`);
         result = this.authmapLevel[given] >= this.authmapLevel[condition];
         return resolve(result);

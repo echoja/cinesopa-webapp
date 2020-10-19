@@ -1,4 +1,5 @@
 require('../typedef');
+const { enumTokenPurpose } = require('../db/schema/enum');
 
 // const { enumAuthmap, enumTokenPurpose } = require('../db/schema/enum');
 const crypto = require('crypto');
@@ -20,14 +21,74 @@ class UserService {
   }
 
   /**
+   * 임시 ADMIN을 생성합니다.
+   */
+  async initAdmin() {
+    await this.#db.createUser('admin@admin.com', '13241324', {
+      role: 'ADMIN',
+      verified: true,
+    });
+  }
+
+  /**
    * 해당 이메일에 대해 새로운 토큰을 생성합니다.
    * @param {string} email 유저의 이메일
+   * @param {boolean} debug 디버그 모드. 켜면 메일을 안보냄.
    */
-  async startEmailVerifying(email) {
-    if (!this.#db.isUserExist(email))
+  async startEmailVerifying(email, debug = false) {
+    if (!this.#db.userExists(email))
       throw `startEmailVerifying: ${email} 을 찾을 수 없습니다.`;
     const token = crypto.randomBytes(20).toString('hex');
-    await this.#db.createEmailVerificationToken(email, token);
+    await this.#db.createToken(email, token, 'email_verification');
+    const mailGate = {
+      recipientEmail: email,
+      recipientName: '',
+      senderEmail: 'coop.cinesopa@gmail.com',
+      senderName: '영화배급협동조합 씨네소파',
+    };
+    if (!debug) {
+      await this.#mail.sendMail(
+        mailGate,
+        '[소파섬] 회원가입 - 이메일 인증',
+        `
+      <div>
+        <p>회원가입을 완료하려면 <a href="https://sopaseom.com/email_verify/${token}">링크를 클릭</a>하세요.
+      </div>`,
+      );
+    }
+  }
+
+  /**
+   * 일반 계정을 만들면서 동시에 email Verifying 과정을 시작함.
+   * @param {string} email 이메일
+   * @param {string} pwd 비밀번호
+   * @param {boolean} debug 디버그 모드. 켜면 메일을 안보냄.
+   * @param {context} context
+   */
+  async createGuest(email, pwd, debug) {
+    await this.#db.createUser(email, pwd, { role: 'GUEST' });
+    await this.startEmailVerifying(email, debug);
+  }
+  /**
+   * 계정에 대해 비밀번호 변경 링크를 만들어 계정에게 이메일을 보냄.
+   * 이때, 계정은 본인 소유인 게 확인이 완료된 상태임.
+   */
+  async requestChangePassword(email) {
+    // 이메일을 찾을 수 없는 경우 에러
+    const user = await this.#db.getUserByEmail(email);
+    if (!user) {
+      throw Error(`requestChangePassword: ${email} 유저를 찾을 수 없습니다.`);
+    }
+    // 이메일이 인증되지 않은 상태일 경우 에러
+    if (user.verified !== true) {
+      throw Error(
+        `requestChangePassword: ${email} 유저가 이메일 인증된 상태가 아닙니다.`,
+      );
+    }
+
+    const token = crypto.randomBytes(20).toString('hex');
+    await this.#db.createToken(email, token, 'change_password');
+
     const mailGate = {
       recipientEmail: email,
       recipientName: '',
@@ -36,41 +97,13 @@ class UserService {
     };
     await this.#mail.sendMail(
       mailGate,
-      '[소파섬] 회원가입 - 이메일 인증',
+      '[소파섬] 비밀번호 변경 링크',
       `
     <div>
-      <p>회원가입을 완료하려면 <a href="https://sopaseom.com/email_verify/${token}">링크를 클릭</a>하세요.
+      <p>비밀번호를 변경하려면, 아래 링크를 클릭하여 계속 진행해주세요.</p>
+      <p><a href="https://sopaseom.com/change-password/${token}">비밀번호 변경</a></p>
     </div>`,
     );
-  }
-
-  /**
-   * 임시 ADMIN을 생성합니다.
-   */
-  async initAdmin() {
-    await this.#db.createUser({
-      email: 'admin@admin.com',
-      name: 'SUPERMAN',
-      role: 'ADMIN',
-      pwd: '13241324',
-      verified: true,
-    });
-  }
-
-  /**
-   *
-   * @param {string} email 이메일
-   * @param {string} pwd 비밀번호
-   * @param {context} context
-   */
-  async createGuest(email, pwd) {
-    const args = { email, pwd };
-    args.role = 'GUEST';
-    args.verified = false;
-    const result = await this.#db.createUser(args);
-
-    await this.startEmailVerifying(email);
-    return result;
   }
 
   /**
@@ -79,7 +112,7 @@ class UserService {
    * @returns {Promise<Userinfo>}
    */
   async verifyEmail(token) {
-    const tokenDoc = await this.#db.getEmailVerificationToken(token); // 토큰을 찾지 못하면 에러.
+    const tokenDoc = await this.#db.getToken(token, 'email_verification'); // 토큰을 찾지 못하면 에러.
     const email = tokenDoc.email;
     const user = await this.#db.getUserByEmail(email);
     // console.log('--verifyEmail - user--');
@@ -91,13 +124,12 @@ class UserService {
     //   ttl: tokenDoc.ttl,
     // })
     if (Date.now() - tokenDoc.c_date > tokenDoc.ttl * 1000) {
-      throw 'verifyEmail: token expired';
+      throw Error('verifyEmail: token expired');
     }
     // 유효시간 올바름.
     await this.#db.updateUser(email, { verified: true });
     await this.#db.removeToken(token);
-    await this.#db.updateUser(email, { verified: true });
-    return user;
+    return this.#db.getUserByEmail(email);
   }
 
   async getUserByAuth(email, pwd) {
@@ -117,60 +149,4 @@ module.exports = {
   make(dbManager, mailManager) {
     return new UserService(dbManager, mailManager);
   },
-
-  // getUserByEmail: async (email) => {
-  //   return await model.User.findOne({ email }); // 없을땐 null
-  // },
-  // https://mongoosejs.com/docs/guide.html#id
-
-  // getMe: async (args, context) => {},
-
-  // getAllUsers: makeResolverWithUserRole(enumAuthmap.ADMIN, async (args, context) => {
-  //   return await model.User.find();
-  // }),
-
-  // updateUser: makeResolverWithUserRole(
-  //   enumAuthmap.ADMIN,
-  //   async ({ email, userinfo }, context) => {
-  //     const user = await model.User.findOne({ email });
-  //     if (!user) throw new Error("user not found");
-  //     for (let k in userinfo) {
-  //       if (userinfo[k] !== null) {
-  //         user[k] = userinfo[k];
-  //       }
-  //     }
-  //     await user.save();
-  //     return user;
-  //   }
-  // ),
 };
-
-// (function(){
-
-//   // https://mongoosejs.com/docs/guide.html#id
-//   async function getUser(email){
-//     return await model.User.findOne({email: email}); // 없을땐 null
-//   }
-
-//   async function getAllUsers(){
-//     return await model.User.find();
-//   }
-
-//   async function joinUser(email, name, pwd){
-//     if(await getUser(email)) throw "email is existed";
-
-//     const newUser = new model.User({email, name});
-//     const newLogin = new model.Login({email, pwd});
-//     const result = await newUser.save();
-//     await newLogin.save();
-
-//     return result;
-//   }
-
-//   return {
-//     getUser: getUser,
-//     getAllUsers: getAllUsers,
-//     joinUser: joinUser,
-//   };
-
-// })();

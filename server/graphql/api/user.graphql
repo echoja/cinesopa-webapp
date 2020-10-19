@@ -1,0 +1,103 @@
+type User {
+  email: String
+  has_pwd: Boolean
+  default_dest: Destinfo
+  c_date: DateTime
+  wrong_pwd_count: Int
+  blocked_date: DateTime
+  blocked_count: Int
+  role: String
+  orders: [Order]
+  kakao_access_token: String
+  kakao_refresh_token: String
+  kakao_id: String
+  verified: Boolean
+}
+
+type UsersResult {
+  count: Int
+  list: [User]
+}
+
+
+type CheckAuthResult {
+  permissionStatus: PermissionStatus
+  emailVerificationRequired: Boolean
+  user: User
+}
+
+type LoginResult {
+  user: User
+  redirectLink: String
+  emailVerificationRequired: Boolean
+}
+
+type UserExistsResult {
+  email: Boolean
+  kakao: Boolean
+  pwd: Boolean
+}
+
+type RequestChangePasswordResult {
+  success: Boolean
+}
+
+enum UserRole {
+  ADMIN
+  GUEST
+}
+
+enum PermissionStatus {
+  OK
+  LOGIN_REQUIRED
+  NO_PERMISSION
+}
+
+enum Permission {
+  ADMIN
+  GUEST
+  ANYONE
+}
+
+input EmailAuthProvider {
+  email: String
+  pwd: String
+}
+
+
+
+input UpdateUserAdminInput {
+  role: UserRole
+  default_dest: DestinfoInput
+  verified: Boolean
+  wrong_pwd_count: Int
+  blocked_date: DateTime
+  blocked_count: Int
+}
+
+input UpdateMeInput {
+  default_dest: DestinfoInput
+}
+
+extend type Query {
+  users: UsersResult
+  user(email: String!): User
+  currentUser: User
+  userExists(email: String!): UserExistsResult
+  # getUserByEmailNoAuth(email: String!): User # MUST DELETE WHEN DEPLOY!
+  checkAuth(redirectLink: String!, role: Permission!, should_verified: Boolean): CheckAuthResult
+}
+
+extend type Mutation {
+  # 카카오 로그인은 다른 endpoint 존재. (/graphql/login)
+  ## login and logout
+  login(provider: EmailAuthProvider!, redirectLink: String): LoginResult
+  # logout(email: String!): LoginResult
+  logoutMe: User
+  # createAdmin(email: String!, pwd: String!, role: UserRole!): User
+  createGuest(email: String!, pwd: String!, debug: Boolean): User # debug 라면 메일을 보내지 않음. 딱 그것뿐.
+  verifyUserEmail(token: String!): User
+  updateUserAdmin(email: String!, userinfo: UpdateUserAdminInput): User
+  updateMe(userinfo: UpdateMeInput): User
+  requestChangePassword: RequestChangePasswordResult
+}

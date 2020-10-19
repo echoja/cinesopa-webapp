@@ -6,6 +6,7 @@
  * 유저 정보를 담는 객체
  * @typedef {Object} Userinfo
  * @property {string} email
+ * @property {boolean} has_pwd
  * @property {Destinfo} default_dest
  * @property {Date} c_date:
  * @property {number} wrong_pwd_count

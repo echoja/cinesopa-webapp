@@ -34,7 +34,7 @@ const enumOrderMethod = makeEnum([
   'easy',
 ]);
 const enumProductType = makeEnum(['sopakit']);
-const enumTokenPurpose = makeEnum(['email_verification', 'find_password']);
+const enumTokenPurpose = makeEnum(['email_verification', 'change_password']);
 const enumPageRole = makeEnum(['cinesopa', 'sopaseom', 'sopakit']);
 const enumPageBelongsTo = makeEnum(['cinesopa', 'sopaseom']);
 const enumPostStatus = makeEnum(['public', 'private']);
