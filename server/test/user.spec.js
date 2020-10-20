@@ -11,6 +11,7 @@ const {
 } = require('./tool');
 
 const { model, db } = require('../loader');
+const passport = require('../auth/passport');
 
 const usersQuery = `
 query usersQuery {
@@ -129,6 +130,17 @@ mutation updateUserAdminMutation($email: String!, $userinfo: UpdateUserAdminInpu
 
 `;
 
+const makePwdForKakaoUserMutation = `
+mutation makePwdForKakaoUserMutation($pwd: String!) {
+  makePwdForKakaoUser(pwd: $pwd) {
+    email
+    role
+    verified
+    has_pwd
+  }
+}
+`;
+
 const updateMeMutation = `
 mutation updateMeMutation($userinfo: UpdateMeInput!) {
   updateMe(userinfo: $userinfo) {
@@ -155,6 +167,16 @@ mutation requestChangePasswordMutation($debug: Boolean) {
 }
 `;
 
+const forceLoginMutation = `
+mutation forceLoginMutation($email: String!) {
+  forceLogin(email: $email) {
+    email
+    role
+    verified
+  }
+}
+`;
+
 // createGuest(email: String!, pwd: String!): User
 // verifyUserEmail(token: String!): User
 // updateUser(email: String!, userinfo: UserUpdateInfo): User
@@ -164,6 +186,17 @@ describe('user', function () {
   const { agent } = initTestServer({ before, beforeEach, after, afterEach });
 
   describe('db', function () {
+    describe('createOnlyLogin', function () {
+      it('제대로 동작해야 함', async function () {
+        await db.createOnlyLogin('abc', 'def');
+        const login = await model.Login.findOne({ email: 'abc' });
+        expect(login.email).to.equal('abc');
+        expect(login.pwd).to.be.a('string');
+        expect(login.pwd.length).to.be.greaterThan(40);
+        expect(login.salt).to.be.a('string');
+        expect(login.salt.length).to.be.greaterThan(40);
+      });
+    });
     describe('createUser', function () {
       it('아이디 - 비번 생성이 잘 되어야 함.', async function () {
         const email = 'eszqsc112@naver.com';
@@ -243,6 +276,7 @@ describe('user', function () {
         expect(user.kakao_id).to.equal('abc');
         expect(user.kakao_access_token).to.equal('def');
         expect(user.kakao_refresh_token).to.equal('ghi');
+        expect(user.role).to.equal('GUEST');
       });
       it('계정이 이미 있는 상태에서 잘 갱신시켜야 함.', async function () {
         const email = 'testEmail';
@@ -261,7 +295,7 @@ describe('user', function () {
         expect(users[0].kakao_access_token).to.equal('456');
         expect(users[0].kakao_refresh_token).to.equal('789');
       });
-      it('호출 이후 verified가 True 되어야 함.', async function () {
+      it('이미 있는 계정이 인증했든 안했든, 이후 verified가 True 되어야 함.', async function () {
         const email1 = 'testEmail1';
         const email2 = 'testEmail2';
         await model.User.create({
@@ -381,7 +415,7 @@ describe('user', function () {
         db.userExists = sinon.fake.returns(true);
       });
 
-      it('잘 작동해야 함', async function () {
+      it('함수 호출이 잘 작동해야 함', async function () {
         const userserv = userCreator.make(db, mail);
         await userserv.createGuest('test', 'abc');
         const args = db.createUser.args[0];
@@ -742,10 +776,10 @@ describe('user', function () {
     });
     describe('Mutation', function () {
       describe('login', function () {
-        const wrongPasswd = async () =>{
+        const wrongPasswd = async () => {
           return graphqlSuper(agent, loginMutation, {
             email: 'eszqsc112@naver.com',
-            pwd: '13241325'
+            pwd: '13241325',
           });
         };
         beforeEach('기본 유저 생성', async function () {
@@ -818,7 +852,6 @@ describe('user', function () {
           );
         });
         it('wrong_pwd_count 제대로 나와야 함.', async function () {
-
           await wrongPasswd();
           await wrongPasswd();
           const res = await wrongPasswd();
@@ -910,6 +943,17 @@ describe('user', function () {
           );
         });
       });
+      describe('db.upsertKakaoUser > createGuest', function () {
+        // 이 테스트는 실제 메일을 씁니다!!!
+        it('카카오 계정이 있는 상태에서는 계정이 합병되어야 함.', async function () {
+          await db.upsertKakaoUser('eszqsc112@naver.com', {
+            kakao_access_token: '123',
+            kakao_refresh_token: '456',
+            kakao_id: '789',
+          });
+          const res = await graphqlSuper(agent, createGuestMutation, {});
+        });
+      });
       describe('verifyUserEmail', function () {
         it('유효기간이 될 경우 제대로 동작해야 함', async function () {
           await model.User.updateOne(
@@ -998,6 +1042,34 @@ describe('user', function () {
             errored = true;
           }
           expect(errored).to.be.true;
+        });
+      });
+      describe('db.upsertKakaoUser > makePwdForKakaoUser', function () {
+        it.only('잘 동작해야 함', async function () {
+          await db.upsertKakaoUser('eszqsc112@naver.com', {
+            kakao_id: 'hello',
+          });
+          // todo 어떻게 로그인시키지??
+          await graphqlSuper(agent, forceLoginMutation, {
+            email: 'eszqsc112@naver.com',
+          });
+          await graphqlSuper(agent, makePwdForKakaoUserMutation, {
+            pwd: '13241324',
+          });
+          const user = await model.User.findOne({
+            email: 'eszqsc112@naver.com',
+          })
+            .lean()
+            .exec();
+          const login = await model.Login.findOne({
+            email: 'eszqsc112@naver.com',
+          })
+            .lean()
+            .exec();
+          expect(user.has_pwd).to.be.true;
+          expect(user.verified).to.equal('true', '여전히 verified 는 true 여야 합니다.');
+          expect(login.pwd).to.be.a('string');
+          expect(login.salt).to.be.a('string');
         });
       });
       describe('updateMe', function () {

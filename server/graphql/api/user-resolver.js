@@ -43,7 +43,7 @@ const login = makeResolver(async (obj, args, context, info) => {
     provider: { email, pwd },
   } = args;
   const loginResult = await auth.login(email, pwd, context);
-  
+
   // 아직 인증된 상태가 아닐 경우
   if (loginResult.user && loginResult.user.verified !== true) {
     loginResult.emailVerificationRequired = true;
@@ -123,6 +123,13 @@ const updateUserAdmin = makeResolver(async (obj, args, context, info) => {
   return db.updateUser(email, userinfo);
 }).only(ACCESS_ADMIN);
 
+const makePwdForKakaoUser = makeResolver(async (obj, args, context, info) => {
+  const { pwd } = args;
+  const found = context.getUser();
+  if (!found || found.has_pwd) return null;
+  return user.makePwdForKakaoUser(found.email, pwd);
+}).only(ACCESS_AUTH);
+
 const updateMe = makeResolver(async (obj, args, context, info) => {
   if (context.isUnauthenticated()) return null;
   const { email } = context.getUser();
@@ -174,7 +181,7 @@ const requestVerifyEmail = makeResolver(async (obj, args, context, info) => {
 }).only(ACCESS_AUTH);
 
 const requestChangePassword = makeResolver(async (obj, args, context, info) => {
-  const {debug} = args;
+  const { debug } = args;
   const contextUser = context.getUser();
   if (!contextUser)
     throw Error(
@@ -186,18 +193,16 @@ const requestChangePassword = makeResolver(async (obj, args, context, info) => {
   };
 }).only(ACCESS_AUTH);
 
+// todo 나중에 productive 모드에서는 무조건 삭제해야 함.
+const forceLogin = makeResolver(async (obj, args, context, info) => {
+  const {email} = args;
+  const found = await db.getUserByEmail(email);
+  context.logout();
+  context.login(found);
+  return found;
+}).only(ACCESS_ALL);
 
 module.exports = {
-  Mutation: {
-    login,
-    logoutMe,
-    createGuest,
-    verifyUserEmail,
-    updateUserAdmin,
-    updateMe,
-    requestVerifyEmail,
-    requestChangePassword,
-  },
   Query: {
     users,
     user: userResolver,
@@ -205,5 +210,18 @@ module.exports = {
     userExists,
     // getUserByEmailNoAuth,
     checkAuth,
+    
+  },
+  Mutation: {
+    login,
+    logoutMe,
+    createGuest,
+    verifyUserEmail,
+    updateUserAdmin,
+    makePwdForKakaoUser,
+    updateMe,
+    requestVerifyEmail,
+    requestChangePassword,
+    forceLogin : process.env.NODE_ENV === 'production' ? () => null : forceLogin,
   },
 };

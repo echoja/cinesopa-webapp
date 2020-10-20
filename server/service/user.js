@@ -37,8 +37,6 @@ class UserService {
    * @throws 이메일을 찾을 수 없을 때
    */
   async startEmailVerifying(email, debug = false) {
-
-    
     // 이메일을 찾을 수 없을 경우 에러
     if (!this.#db.userExists(email))
       throw `startEmailVerifying: ${email} 을 찾을 수 없습니다.`;
@@ -101,7 +99,7 @@ class UserService {
       senderEmail: 'coop.cinesopa@gmail.com',
       senderName: '영화배급협동조합 씨네소파',
     };
-    if(!debug) {
+    if (!debug) {
       await this.#mail.sendMail(
         mailGate,
         '[소파섬] 비밀번호 변경 링크',
@@ -145,6 +143,14 @@ class UserService {
       return this.#db.getUserByEmail(email);
     }
     return null;
+  }
+  /**
+   * 카카오 유저에게 비밀번호를 만들어줍니다.
+   * @param {string} pwd
+   */
+  async makePwdForKakaoUser(email, pwd) {
+    await this.#db.updateUser(email, { has_pwd: true });
+    await this.#db.createOnlyLogin(email, pwd);
   }
 }
 

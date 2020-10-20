@@ -156,6 +156,21 @@ class DBManager {
       list,
     };
   }
+  /**
+   * 로그인 정보만 db에 기록합니다. 유저(User)는 일체 건드리지 않습니다.
+   * 반드시 다른 기능과 조합되어야 합니다!
+   * @param {string} email 해당 이메일
+   * @param {string} pwd 암호화되기 전
+   */
+  async createOnlyLogin(email, pwd) {
+    if (typeof email !== 'string' || typeof pwd !== 'string') {
+      throw Error('createOnlyLogin: 인수가 잘못되었습니다.');
+    }
+    // 패스워드 정보는 유일해야 하므로 혹시나 모를 사태에 대비해 관련된건 전부 삭제함.
+    await model.Login.deleteMany({ email });
+    const { pwd: pwdEncrypted, salt } = await pwd_encrypt(pwd);
+    await model.Login.create({ email, pwd: pwdEncrypted, salt });
+  }
 
   /**
    * 새 유저(비밀번호 기반)를 생성합니다. 카카오는 그냥 로그인만 하도록 합니다.
@@ -175,13 +190,11 @@ class DBManager {
     }
 
     // 비밀번호가 있을 때에는 일반 계정 생성한다는 뜻.
-    const { pwd: pwdEncrypted, salt } = await pwd_encrypt(pwd);
     userinfo.email = email;
     userinfo.has_pwd = true;
     const newUser = new model.User(userinfo);
-    const newLogin = new model.Login({ email, pwd: pwdEncrypted, salt });
     await newUser.save();
-    await newLogin.save();
+    await this.createOnlyLogin(email, pwd);
 
     return;
   }
@@ -189,6 +202,7 @@ class DBManager {
   /**
    * 카카오 유저를 새롭게 갱신하는 함수. 이미 이메일이 존재한다면 업데이트만 하고,
    * 아예 계정이 없다면 새롭게 유저를 만듭니다.
+   * 무조건 role은 guest 입니다.
    * @param {string} email
    * @param {Userinfo} userinfo
    */
@@ -200,12 +214,7 @@ class DBManager {
     ) {
       throw Error('upsertKakaoUser: 인수가 올바르지 않습니다.');
     }
-    const {
-      kakao_access_token,
-      kakao_refresh_token,
-      kakao_id,
-      role,
-    } = userinfo;
+    const { kakao_access_token, kakao_refresh_token, kakao_id } = userinfo;
     const found = await model.User.findOne({ email }).exec();
 
     // 만약 유저가 있다면 업데이트 시키고 종료
@@ -225,7 +234,7 @@ class DBManager {
     // 만약 유저가 없다면 새롭게 만듬.
     await model.User.create({
       email,
-      role,
+      role: 'GUEST',
       kakao_access_token,
       kakao_refresh_token,
       kakao_id,

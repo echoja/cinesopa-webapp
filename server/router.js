@@ -27,13 +27,13 @@ router.get('/upload/:filename', getFileMiddleware);
 
 router.get('/graphql/kakao/login/oauth', (req, res, next) => {
   passport.authenticate('kakao', function (err, user) {
+    // console.log('passport.authenticate(kakao) 실행됨');
     if (err) {
       console.log('graphql kakao login oauth 에러 발생!!!');
       console.error(err);
       req.logout();
       return res.redirect('/');
     }
-    console.log('passport.authenticate(kakao) 실행됨');
     if (!user) {
       console.error('graphql kakao login oauth 유저를 찾을 수 없습니다.');
       return res.redirect('/');

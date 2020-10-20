@@ -112,8 +112,11 @@ extend type Mutation {
   createGuest(email: String!, pwd: String!, debug: Boolean): User # debug 라면 메일을 보내지 않음. 딱 그것뿐.
   verifyUserEmail(token: String!): User
 
-  updateUserAdmin(email: String!, userinfo: UpdateUserAdminInput): User
+  updateUserAdmin(email: String!, userinfo: UpdateUserAdminInput): User 
+  makePwdForKakaoUser(pwd: String!): User # 실패시 user null
   updateMe(userinfo: UpdateMeInput!): User
   requestVerifyEmail(debug: Boolean): RequestVerifyEmailResult
   requestChangePassword(debug: Boolean): RequestChangePasswordResult
+
+  forceLogin(email: String!): User # 반드시 삭제해야 함. todo
 }

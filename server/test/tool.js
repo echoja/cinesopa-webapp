@@ -1,6 +1,5 @@
 const fs = require('fs');
 const axios = require('axios');
-const FormData = require('form-data');
 const path = require('path');
 const sanitizeFilename = require('sanitize-filename');
 // eslint-disable-next-line import/no-extraneous-dependencies
@@ -16,7 +15,6 @@ const request = require('supertest');
 const authValidatorMaker = require('../auth/validator');
 const {
   db,
-  model,
   auth,
   validator,
   // file: { uploadMiddleware },
