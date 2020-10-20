@@ -64,14 +64,23 @@ class UserService {
 
   /**
    * 일반 계정을 만들면서 동시에 email Verifying 과정을 시작함.
+   * 이미 카카오 계정이 있다면 합병하는 것만으로도 충분
    * @param {string} email 이메일
    * @param {string} pwd 비밀번호
    * @param {boolean} debug 디버그 모드. 켜면 메일을 안보냄.
    * @param {context} context
    */
   async createGuest(email, pwd, debug) {
-    await this.#db.createUser(email, pwd, { role: 'GUEST' });
-    await this.startEmailVerifying(email, debug);
+    const user = await this.#db.getUserByEmail(email);
+    if( !user) {
+      await this.#db.createUser(email, pwd, { role: 'GUEST' });
+      await this.startEmailVerifying(email, debug);
+    } else {
+      await this.#db.updateUser(email, {
+        has_pwd: true,
+      })
+      await this.#db.upsertOnlyLogin(email, pwd);
+    }
   }
   /**
    * 계정에 대해 비밀번호 변경 링크를 만들어 계정에게 이메일을 보냄.
@@ -83,7 +92,7 @@ class UserService {
     if (!user) {
       throw Error(`requestChangePassword: ${email} 유저를 찾을 수 없습니다.`);
     }
-    // 이메일이 인증되지 않은 상태일 경우 에러
+    // 이메일이 인증되지 않은 상태일 경우 에러.
     if (user.verified !== true) {
       throw Error(
         `requestChangePassword: ${email} 유저가 이메일 인증된 상태가 아닙니다.`,
@@ -110,6 +119,25 @@ class UserService {
       </div>`,
       );
     }
+  }
+
+  /**
+   * 비밀번호를 변경합니다. 토큰이 있어야 작동합니다.
+   * @param {string} token 비밀번호 변경 토큰
+   * @param {string} pwd 암호화 되기 전 패스워드
+   */
+  async changePassword(token, pwd) {
+    
+    /** @type {Tokeninfo} */
+    let tokenDoc = null;
+    try {
+      tokenDoc = await this.#db.getToken(token, 'change_password');
+    } catch (error) {
+      return { success: false };
+    }
+    if (!tokenDoc) return { success: false };
+    await this.#db.upsertOnlyLogin(tokenDoc.email, pwd);
+    return { success: true };
   }
 
   /**
@@ -150,7 +178,7 @@ class UserService {
    */
   async makePwdForKakaoUser(email, pwd) {
     await this.#db.updateUser(email, { has_pwd: true });
-    await this.#db.createOnlyLogin(email, pwd);
+    await this.#db.upsertOnlyLogin(email, pwd);
   }
 }
 

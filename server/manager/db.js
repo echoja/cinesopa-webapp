@@ -162,12 +162,13 @@ class DBManager {
    * @param {string} email 해당 이메일
    * @param {string} pwd 암호화되기 전
    */
-  async createOnlyLogin(email, pwd) {
+  async upsertOnlyLogin(email, pwd) {
     if (typeof email !== 'string' || typeof pwd !== 'string') {
-      throw Error('createOnlyLogin: 인수가 잘못되었습니다.');
+      throw Error('upsertOnlyLogin: 인수가 잘못되었습니다.');
     }
-    // 패스워드 정보는 유일해야 하므로 혹시나 모를 사태에 대비해 관련된건 전부 삭제함.
+    // 패스워드 정보는 유일해야 하므로 관련된건 전부 삭제함.
     await model.Login.deleteMany({ email });
+
     const { pwd: pwdEncrypted, salt } = await pwd_encrypt(pwd);
     await model.Login.create({ email, pwd: pwdEncrypted, salt });
   }
@@ -194,7 +195,7 @@ class DBManager {
     userinfo.has_pwd = true;
     const newUser = new model.User(userinfo);
     await newUser.save();
-    await this.createOnlyLogin(email, pwd);
+    await this.upsertOnlyLogin(email, pwd);
 
     return;
   }
@@ -340,6 +341,7 @@ class DBManager {
    * @param {string} token
    * @param {string} purpose
    * @returns {Promise<Tokeninfo>}
+   * @throws 토큰을 찾지 못했을 때
    */
   async getToken(token, purpose) {
     // console.log(`db-getEmailVefificationToken-token: ${token}`);

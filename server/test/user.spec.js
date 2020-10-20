@@ -166,6 +166,13 @@ mutation requestChangePasswordMutation($debug: Boolean) {
   }
 }
 `;
+const changePasswordMutation = `
+mutation changePasswordMutation($token: String!, $pwd: String!) {
+  changePassword(token: $token, pwd: $pwd) {
+    success
+  }
+}
+`;
 
 const forceLoginMutation = `
 mutation forceLoginMutation($email: String!) {
@@ -186,9 +193,9 @@ describe('user', function () {
   const { agent } = initTestServer({ before, beforeEach, after, afterEach });
 
   describe('db', function () {
-    describe('createOnlyLogin', function () {
+    describe('upsertOnlyLogin', function () {
       it('제대로 동작해야 함', async function () {
-        await db.createOnlyLogin('abc', 'def');
+        await db.upsertOnlyLogin('abc', 'def');
         const login = await model.Login.findOne({ email: 'abc' });
         expect(login.email).to.equal('abc');
         expect(login.pwd).to.be.a('string');
@@ -405,6 +412,7 @@ describe('user', function () {
     describe('.createGuest', function () {
       const db = {
         createUser: sinon.fake(),
+        getUserByEmail: sinon.fake(),
         userExists: sinon.fake(),
         createToken: sinon.fake(),
       };
@@ -802,7 +810,7 @@ describe('user', function () {
             pwd: '13241324',
           });
           const result = res.body.data.login;
-          console.log(result);
+          // console.log(result);
           expect(result.success).to.be.false;
           expect(result.user).to.be.null;
           expect(result.wrong_reason).to.equal('no_email');
@@ -944,14 +952,26 @@ describe('user', function () {
         });
       });
       describe('db.upsertKakaoUser > createGuest', function () {
-        // 이 테스트는 실제 메일을 씁니다!!!
         it('카카오 계정이 있는 상태에서는 계정이 합병되어야 함.', async function () {
           await db.upsertKakaoUser('eszqsc112@naver.com', {
             kakao_access_token: '123',
             kakao_refresh_token: '456',
             kakao_id: '789',
           });
-          const res = await graphqlSuper(agent, createGuestMutation, {});
+          const res = await graphqlSuper(agent, createGuestMutation, {
+            email: 'eszqsc112@naver.com',
+            pwd: '13241324',
+            debug: true,
+          });
+          const result = res.body.data.createGuest;
+          console.log(result);
+          const found = await model.User.findOne({email: 'eszqsc112@naver.com'}).lean().exec();
+          const login = await model.Login.findOne({email: 'eszqsc112@naver.com'}).lean().exec();
+          expect(login).to.not.be.null;
+          expect(login.pwd).to.be.a('string');
+          expect(login.salt).to.be.a('string');
+          expect(found.verified).to.be.true;
+          expect(found.has_pwd).to.be.true;
         });
       });
       describe('verifyUserEmail', function () {
@@ -1045,7 +1065,7 @@ describe('user', function () {
         });
       });
       describe('db.upsertKakaoUser > makePwdForKakaoUser', function () {
-        it.only('잘 동작해야 함', async function () {
+        it('잘 동작해야 함', async function () {
           await db.upsertKakaoUser('eszqsc112@naver.com', {
             kakao_id: 'hello',
           });
@@ -1067,7 +1087,10 @@ describe('user', function () {
             .lean()
             .exec();
           expect(user.has_pwd).to.be.true;
-          expect(user.verified).to.equal('true', '여전히 verified 는 true 여야 합니다.');
+          expect(user.verified).to.equal(
+            true,
+            '여전히 verified 는 true 여야 합니다.',
+          );
           expect(login.pwd).to.be.a('string');
           expect(login.salt).to.be.a('string');
         });
@@ -1104,6 +1127,10 @@ describe('user', function () {
       describe('requestChangePassword', function () {
         it('제대로 동작해야 함', async function () {
           await doGuestLogin(agent);
+          await model.User.updateOne(
+            { email: 'testGuest' },
+            { verified: true },
+          );
           const result = await graphqlSuper(
             agent,
             requestChangePasswordMutation,
@@ -1118,8 +1145,43 @@ describe('user', function () {
           expect(token.length).to.not.equal(0);
         });
       });
+      describe('changePassword', function () {
+        it('제대로 동작해야 함', async function () {
+          await model.Token.create({
+            token: '123',
+            email: 'testGuest',
+            purpose: 'change_password',
+          });
+          const prevLogin = await model.Login.find({ email: 'testGuest' })
+            .lean()
+            .exec();
+          const res = await graphqlSuper(agent, changePasswordMutation, {
+            token: '123',
+            pwd: 'helloMan',
+          });
+          const result = res.body.data.changePassword;
+          console.log(result);
+          expect(result.success).to.be.true;
+          const newLogin = await model.Login.find({ email: 'testGuest' })
+            .lean()
+            .exec();
+          console.log(prevLogin);
+          console.log(newLogin);
+          expect(newLogin.length).to.equal(1);
+          expect(newLogin[0].pwd).to.be.a('string');
+          expect(newLogin[0].salt).to.be.a('string');
+          expect(prevLogin[0].pwd).to.not.equal(newLogin[0].pwd);
+          expect(prevLogin[0].salt).to.not.equal(newLogin[0].salt);
+        });
+        it('토큰이 없을 때 실패해야 함', async function () {
+          const res = await graphqlSuper(agent, changePasswordMutation, {
+            token: '123',
+            pwd: 'helloMan',
+          });
+          const result = res.body.data.changePassword;
+          expect(result.success).to.equal(false);
+        });
+      });
     });
-
-    describe('', function () {});
   });
 });

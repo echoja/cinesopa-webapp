@@ -56,6 +56,10 @@ type RequestVerifyEmailResult {
   success: Boolean
 }
 
+type ChangePasswordResult {
+  success: Boolean
+}
+
 enum UserRole {
   ADMIN
   GUEST
@@ -117,6 +121,6 @@ extend type Mutation {
   updateMe(userinfo: UpdateMeInput!): User
   requestVerifyEmail(debug: Boolean): RequestVerifyEmailResult
   requestChangePassword(debug: Boolean): RequestChangePasswordResult
-
+  changePassword(token: String!, pwd: String!): ChangePasswordResult
   forceLogin(email: String!): User # 반드시 삭제해야 함. todo
 }

@@ -188,14 +188,17 @@ const requestChangePassword = makeResolver(async (obj, args, context, info) => {
       'requestChangePassword resolver: 현재 유저를 찾을 수 없습니다.',
     );
   await user.requestChangePassword(contextUser.email, debug);
-  return {
-    success: true,
-  };
+  return { success: true };
 }).only(ACCESS_AUTH);
+
+const changePassword = makeResolver(async (obj, args, context, info) => {
+  const { token, pwd } = args;
+  return user.changePassword(token, pwd);
+}).only(ACCESS_ALL);
 
 // todo 나중에 productive 모드에서는 무조건 삭제해야 함.
 const forceLogin = makeResolver(async (obj, args, context, info) => {
-  const {email} = args;
+  const { email } = args;
   const found = await db.getUserByEmail(email);
   context.logout();
   context.login(found);
@@ -210,7 +213,6 @@ module.exports = {
     userExists,
     // getUserByEmailNoAuth,
     checkAuth,
-    
   },
   Mutation: {
     login,
@@ -222,6 +224,7 @@ module.exports = {
     updateMe,
     requestVerifyEmail,
     requestChangePassword,
-    forceLogin : process.env.NODE_ENV === 'production' ? () => null : forceLogin,
+    changePassword,
+    forceLogin: process.env.NODE_ENV === 'production' ? () => null : forceLogin,
   },
 };
