@@ -25,11 +25,21 @@ type CheckAuthResult {
   emailVerificationRequired: Boolean
   user: User
 }
-
+# user가 null 이면 실패, 있으면 성공!
 type LoginResult {
   user: User
   redirectLink: String
+  success: Boolean
+  wrong_reason: LoginWrongReason
+  wrong_pwd_count: Int
   emailVerificationRequired: Boolean
+}
+
+enum LoginWrongReason {
+  no_email
+  only_kakao
+  wrong_pwd
+  too_much_attempt
 }
 
 type UserExistsResult {
@@ -39,6 +49,10 @@ type UserExistsResult {
 }
 
 type RequestChangePasswordResult {
+  success: Boolean
+}
+
+type RequestVerifyEmailResult {
   success: Boolean
 }
 
@@ -97,7 +111,9 @@ extend type Mutation {
   # createAdmin(email: String!, pwd: String!, role: UserRole!): User
   createGuest(email: String!, pwd: String!, debug: Boolean): User # debug 라면 메일을 보내지 않음. 딱 그것뿐.
   verifyUserEmail(token: String!): User
+
   updateUserAdmin(email: String!, userinfo: UpdateUserAdminInput): User
-  updateMe(userinfo: UpdateMeInput): User
-  requestChangePassword: RequestChangePasswordResult
+  updateMe(userinfo: UpdateMeInput!): User
+  requestVerifyEmail(debug: Boolean): RequestVerifyEmailResult
+  requestChangePassword(debug: Boolean): RequestChangePasswordResult
 }

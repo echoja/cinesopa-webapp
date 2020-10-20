@@ -183,7 +183,7 @@ class DBManager {
     await newUser.save();
     await newLogin.save();
 
-    return ;
+    return;
   }
 
   /**
@@ -219,7 +219,7 @@ class DBManager {
           verified: true,
         },
       );
-      return ;
+      return;
     }
 
     // 만약 유저가 없다면 새롭게 만듬.
@@ -232,7 +232,7 @@ class DBManager {
       verified: true,
       has_pwd: false,
     });
-    return ;
+    return;
   }
   /**
    * 이메일 기준 유저의 정보를 업데이트합니다.
@@ -303,7 +303,7 @@ class DBManager {
   ===================================== */
 
   /**
-   * 새로운 이메일 생성용 토큰을 만듭니다.
+   * 새로운 토큰을 만듭니다. 이전에 있던 토큰은 모두 삭제합니다.
    * @param {string} email
    * @param {Tokeninfo} token
    * @param {string} purpose
@@ -315,9 +315,10 @@ class DBManager {
     if (purposeFoundIndex === -1) {
       throw Error(`createToken: 올바르지 않은 purpose입니다.: ${purpose}`);
     }
+    await model.Token.deleteMany({ email, purpose });
     const tokenDoc = new model.Token({
       token,
-      purpose: 'email_verification',
+      purpose,
       email,
       ttl: 1800,
     });
@@ -344,7 +345,11 @@ class DBManager {
   }
 
   async removeToken(token) {
-    await model.Token.findOneAndDelete({ token });
+    await model.Token.deleteOne({ token });
+  }
+
+  async clearToken(email, purpose) {
+    await model.Token.deleteMany({ email, purpose });
   }
 
   /*= ====================================

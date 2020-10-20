@@ -12,11 +12,12 @@ const passport = require('passport');
 const uuidv4 = require('uuid').v4;
 const request = require('supertest');
 
-const auth = require('../service/auth');
+// const auth = require('../service/auth');
 const authValidatorMaker = require('../auth/validator');
 const {
   db,
   model,
+  auth,
   validator,
   // file: { uploadMiddleware },
 } = require('../loader');

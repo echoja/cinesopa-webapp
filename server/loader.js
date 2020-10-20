@@ -25,7 +25,7 @@ const page = require('./service/page').make(db);
 
 const fileManager = require('./manager/file');
 
-const auth = require('./service/auth');
+const auth = require('./service/auth').make(db);
 
 const dest = 'uploads/';
 const field = 'bin';
@@ -79,6 +79,7 @@ module.exports = {
   model,
   db,
   user,
+  auth,
   page,
   fileManager,
   validator,

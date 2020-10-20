@@ -71,6 +71,10 @@ query checkAuthQuery($redirectLink: String!, $role: Permission!, $should_verifie
 const loginMutation = `
 mutation Login ($email: String!, $pwd: String!) {
   login(provider: {email:$email, pwd: $pwd}) {
+    wrong_reason
+    wrong_pwd_count
+    success
+    emailVerificationRequired
     user {
       email
       role
@@ -124,6 +128,33 @@ mutation updateUserAdminMutation($email: String!, $userinfo: UpdateUserAdminInpu
 }
 
 `;
+
+const updateMeMutation = `
+mutation updateMeMutation($userinfo: UpdateMeInput!) {
+  updateMe(userinfo: $userinfo) {
+    email
+    role
+    verified
+  }
+}
+`;
+
+const requestVerifyEmailMutation = `
+mutation requestVerifyEmailMutation($debug: Boolean) {
+  requestVerifyEmail(debug: $debug) {
+    success
+  }
+}
+`;
+
+const requestChangePasswordMutation = `
+mutation requestChangePasswordMutation($debug: Boolean) {
+  requestChangePassword(debug: $debug) {
+    success
+  }
+}
+`;
+
 // createGuest(email: String!, pwd: String!): User
 // verifyUserEmail(token: String!): User
 // updateUser(email: String!, userinfo: UserUpdateInfo): User
@@ -156,7 +187,49 @@ describe('user', function () {
         expect(errored).to.be.true;
       });
     });
-
+    describe('createToken', function () {
+      it('제대로 동작해야 함', async function () {
+        await db.createToken('testGuest', 'abcd', 'email_verification');
+        const token = await model.Token.findOne().lean().exec();
+        expect(token.c_date).to.be.a('Date');
+        expect(token.ttl).to.be.a('number');
+        expect(token.email).to.be.a('string');
+        expect(token.token).to.be.a('string');
+        expect(token.purpose).to.be.a('string');
+      });
+      it('두번 이상 실행된다 하더라도 무조건 하나가 남겨져야 함.', async function () {
+        await db.createToken('testGuest', '1', 'email_verification');
+        await db.createToken('testGuest', '2', 'change_password');
+        await db.createToken('testGuest', '3', 'email_verification');
+        await db.createToken('testGuest', '4', 'change_password');
+        await db.createToken('testGuest', '5', 'email_verification');
+        await db.createToken('testAdmin', '6', 'email_verification');
+        const r1 = await model.Token.find({ purpose: 'change_password' })
+          .lean()
+          .exec();
+        const r2 = await model.Token.find({
+          email: 'testGuest',
+          purpose: 'email_verification',
+        })
+          .lean()
+          .exec();
+        const r3 = await model.Token.find({
+          email: 'testAdmin',
+          purpose: 'email_verification',
+        })
+          .lean()
+          .exec();
+        const rall = await model.Token.find().lean().exec();
+        // console.log(rall);
+        expect(rall.length).to.equal(3);
+        expect(r1.length).to.equal(1);
+        expect(r2.length).to.equal(1);
+        expect(r3.length).to.equal(1);
+        expect(r1[0].email).to.equal('testGuest');
+        expect(r2[0].email).to.equal('testGuest');
+        expect(r3[0].email).to.equal('testAdmin');
+      });
+    });
     describe('upsertKakaoUser', function () {
       it('카카오 계정 생성이 잘 되어야 함.', async function () {
         const email = 'eszqsc112@naver.com';
@@ -458,6 +531,16 @@ describe('user', function () {
         });
       });
       describe('userExists', function () {
+        it('계정이 없을 경우 제대로 동작해야 함', async function () {
+          const result = await graphqlSuper(agent, userExistsQuery, {
+            email: 'abcde',
+          });
+          const userExistsResult = result.body.data.userExists;
+          // console.log(userExistsResult);
+          expect(userExistsResult.email).to.be.false;
+          expect(userExistsResult.kakao).to.be.false;
+          expect(userExistsResult.pwd).to.be.false;
+        });
         it('일반 계정일 경우 제대로 동작해야 함', async function () {
           const result = await graphqlSuper(agent, userExistsQuery, {
             email: 'testAdmin',
@@ -659,32 +742,57 @@ describe('user', function () {
     });
     describe('Mutation', function () {
       describe('login', function () {
+        const wrongPasswd = async () =>{
+          return graphqlSuper(agent, loginMutation, {
+            email: 'eszqsc112@naver.com',
+            pwd: '13241325'
+          });
+        };
         beforeEach('기본 유저 생성', async function () {
           await db.createUser('eszqsc112@naver.com', '13241324');
         });
-        it('로그인이 성공해야함 (createUser 사용)', async function () {
-          const result = await graphqlSuper(agent, loginMutation, {
+        it('계정 정보가 올바를 때에는 로그인이 성공해야함 (createUser 사용)', async function () {
+          const res = await graphqlSuper(agent, loginMutation, {
             email: 'eszqsc112@naver.com',
             pwd: '13241324',
           });
-          console.log(result.body.data);
-          expect(result?.body?.data?.login?.user?.email).to.equal(
-            'eszqsc112@naver.com',
-          );
+          // console.log(res.body.data);
+          const result = res.body.data.login;
+          expect(result.user.email).to.equal('eszqsc112@naver.com');
+          expect(result.success).to.be.true;
+          expect(result.wrong_reason).to.be.null;
         });
-        it('로그인 실패 테스트', function (done) {
-          graphqlSuper(agent, loginMutation, {
+        it('이메일이 없을 때 적절하게 처리되어야 함.', async function () {
+          const res = await graphqlSuper(agent, loginMutation, {
             email: 'eszqsc112@naver.como',
             pwd: '13241324',
-          })
-            .then((result) => {
-              done(`에러가 발생해야 합니다. ==> ${result}`);
-            })
-            .catch(() => {
-              done();
-            });
-          // console.dir(result);
-          // expect(result?.body?.data.login).to.equal(null);
+          });
+          const result = res.body.data.login;
+          console.log(result);
+          expect(result.success).to.be.false;
+          expect(result.user).to.be.null;
+          expect(result.wrong_reason).to.equal('no_email');
+        });
+        it('비밀번호가 일치하지 않을 때 적절하게 처리되어야 함.', async function () {
+          const res = await graphqlSuper(agent, loginMutation, {
+            email: 'eszqsc112@naver.com',
+            pwd: '132413244',
+          });
+          const result = res.body.data.login;
+          expect(result.success).to.be.false;
+          expect(result.user).to.be.null;
+          expect(result.wrong_reason).to.equal('wrong_pwd');
+        });
+        it('카카오 계정만 있을 때 적절하게 처리되어야 함. (db.upsertKakaoUser 수행)', async function () {
+          await db.upsertKakaoUser('eszqsc123@naver.com', { kakao_id: 'ho' });
+          const res = await graphqlSuper(agent, loginMutation, {
+            email: 'eszqsc123@naver.com',
+            pwd: '123',
+          });
+          const result = res.body.data.login;
+          expect(result.success).to.be.false;
+          expect(result.user).to.be.null;
+          expect(result.wrong_reason).to.equal('only_kakao');
         });
 
         it('로그인이 되어있는지 체크할 수 있어야함 (성공 케이스)', async function () {
@@ -699,7 +807,7 @@ describe('user', function () {
           const loginResult = await agent.get('/logintest');
           expect(loginResult.body.result).to.equal('unauthenticated!');
         });
-        it('supertest 로그인 후 세션 유지 테스트', async function () {
+        it('supertest 로그인 후 세션 유지가 되어야 함', async function () {
           await graphqlSuper(agent, loginMutation, {
             email: 'eszqsc112@naver.com',
             pwd: '13241324',
@@ -708,6 +816,50 @@ describe('user', function () {
           expect(result.body.session.passport.user).to.equal(
             'eszqsc112@naver.com',
           );
+        });
+        it('wrong_pwd_count 제대로 나와야 함.', async function () {
+
+          await wrongPasswd();
+          await wrongPasswd();
+          const res = await wrongPasswd();
+          const result = res.body.data.login;
+          // console.log(result);
+          expect(result.wrong_pwd_count).to.equal(3);
+          expect(result.wrong_reason).to.equal('wrong_pwd');
+          expect(result.user).to.be.null;
+        });
+        it('비밀번호 딱 5번째 틀렸을 때 메세지가 제대로 나와야 함.', async function () {
+          await wrongPasswd();
+          await wrongPasswd();
+          await wrongPasswd();
+          await wrongPasswd();
+          const res = await wrongPasswd();
+          const result = res.body.data.login;
+          console.log(result);
+          expect(result.wrong_pwd_count).to.equal(5);
+          expect(result.wrong_reason).to.equal('too_much_attempt');
+          expect(result.user).to.be.null;
+        });
+        it('비밀번호 5번 틀린 뒤 비번이 맞다 하더라도 성공할 수 없음.', async function () {
+          await wrongPasswd();
+          await wrongPasswd();
+          await wrongPasswd();
+          await wrongPasswd();
+          await wrongPasswd();
+          const res = await graphqlSuper(agent, loginMutation, {
+            email: 'eszqsc112@naver.com',
+            pwd: '13241324',
+          });
+          const res2 = await wrongPasswd();
+          const result = res.body.data.login;
+          const result2 = res.body.data.login;
+          // console.log(result);
+          expect(result.wrong_pwd_count).to.equal(5);
+          expect(result.wrong_reason).to.equal('too_much_attempt');
+          expect(result.user).to.be.null;
+          expect(result2.wrong_pwd_count).to.equal(5);
+          expect(result2.wrong_reason).to.equal('too_much_attempt');
+          expect(result2.user).to.be.null;
         });
       });
       describe('logoutMe', function () {
@@ -746,7 +898,7 @@ describe('user', function () {
           expect(user.verified).to.equal(false);
           expect(user.has_pwd).to.equal(true);
         });
-        it.only('완료하고 나면 로그인 된 상태여야 함.', async function() {
+        it('완료하고 나면 로그인 된 상태여야 함.', async function () {
           await graphqlSuper(agent, createGuestMutation, {
             email: 'eszqsc112@naver.com',
             pwd: '13241324',
@@ -756,7 +908,7 @@ describe('user', function () {
           expect(result.body.session.passport.user).to.equal(
             'eszqsc112@naver.com',
           );
-        })
+        });
       });
       describe('verifyUserEmail', function () {
         it('유효기간이 될 경우 제대로 동작해야 함', async function () {
@@ -813,7 +965,7 @@ describe('user', function () {
               done(err);
             });
         });
-        it('성공했을 시 로그인 상태여야 함 - 불가!!', async function() {
+        it('성공했을 시 로그인 상태여야 함 - 불가!!', async function () {
           this.skip();
         });
       });
@@ -848,7 +1000,52 @@ describe('user', function () {
           expect(errored).to.be.true;
         });
       });
-      describe('loginKakao', function () {});
+      describe('updateMe', function () {
+        it('제대로 동작해야 함', async function () {
+          await doGuestLogin(agent);
+          const result = await graphqlSuper(agent, updateMeMutation, {
+            userinfo: {
+              default_dest: {
+                name: '홍길동',
+              },
+            },
+          });
+          const user = await model.User.findOne({ email: 'testGuest' });
+          expect(user.default_dest.name).to.equal('홍길동');
+        });
+      });
+      describe('requestVerifyEmail', function () {
+        it('제대로 동작해야 함', async function () {
+          await doGuestLogin(agent);
+          const result = await graphqlSuper(agent, requestVerifyEmailMutation, {
+            debug: true,
+          });
+          const token = await model.Token.find({
+            email: 'testGuest',
+            purpose: 'email_verification',
+          })
+            .lean()
+            .exec();
+          expect(token.length).to.not.equal(0);
+        });
+      });
+      describe('requestChangePassword', function () {
+        it('제대로 동작해야 함', async function () {
+          await doGuestLogin(agent);
+          const result = await graphqlSuper(
+            agent,
+            requestChangePasswordMutation,
+            {
+              debug: true,
+            },
+          );
+          const token = await model.Token.find({
+            email: 'testGuest',
+            purpose: 'change_password',
+          });
+          expect(token.length).to.not.equal(0);
+        });
+      });
     });
 
     describe('', function () {});

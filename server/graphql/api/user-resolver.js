@@ -5,6 +5,7 @@ const { getDateFromObj } = require('../../util');
 const {
   db,
   user,
+  auth,
   validator,
   ACCESS_ALL,
   ACCESS_ADMIN,
@@ -13,7 +14,6 @@ const {
   makeResolver,
 } = require('../../loader');
 const { enumAuthmap } = require('../../db/schema/enum');
-const { auth } = require('../../service');
 
 /**
  *
@@ -43,9 +43,9 @@ const login = makeResolver(async (obj, args, context, info) => {
     provider: { email, pwd },
   } = args;
   const loginResult = await auth.login(email, pwd, context);
-
+  
   // 아직 인증된 상태가 아닐 경우
-  if (loginResult.user.verified !== true) {
+  if (loginResult.user && loginResult.user.verified !== true) {
     loginResult.emailVerificationRequired = true;
   }
   return loginResult;
@@ -167,17 +167,26 @@ const userExists = makeResolver(async (obj, args, context, info) => {
   };
 }).only(ACCESS_ALL);
 
+const requestVerifyEmail = makeResolver(async (obj, args, context, info) => {
+  const { debug } = args;
+  const userFound = context.getUser();
+  await user.startEmailVerifying(userFound.email, debug);
+}).only(ACCESS_AUTH);
+
 const requestChangePassword = makeResolver(async (obj, args, context, info) => {
+  const {debug} = args;
   const contextUser = context.getUser();
   if (!contextUser)
     throw Error(
       'requestChangePassword resolver: 현재 유저를 찾을 수 없습니다.',
     );
-  await user.requestChangePassword(contextUser.email);
+  await user.requestChangePassword(contextUser.email, debug);
   return {
     success: true,
   };
 }).only(ACCESS_AUTH);
+
+
 module.exports = {
   Mutation: {
     login,
@@ -186,6 +195,7 @@ module.exports = {
     verifyUserEmail,
     updateUserAdmin,
     updateMe,
+    requestVerifyEmail,
     requestChangePassword,
   },
   Query: {

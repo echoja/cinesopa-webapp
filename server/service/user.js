@@ -34,10 +34,16 @@ class UserService {
    * 해당 이메일에 대해 새로운 토큰을 생성합니다.
    * @param {string} email 유저의 이메일
    * @param {boolean} debug 디버그 모드. 켜면 메일을 안보냄.
+   * @throws 이메일을 찾을 수 없을 때
    */
   async startEmailVerifying(email, debug = false) {
+
+    
+    // 이메일을 찾을 수 없을 경우 에러
     if (!this.#db.userExists(email))
       throw `startEmailVerifying: ${email} 을 찾을 수 없습니다.`;
+
+    // 토큰 생성
     const token = crypto.randomBytes(20).toString('hex');
     await this.#db.createToken(email, token, 'email_verification');
     const mailGate = {
@@ -52,7 +58,7 @@ class UserService {
         '[소파섬] 회원가입 - 이메일 인증',
         `
       <div>
-        <p>회원가입을 완료하려면 <a href="https://sopaseom.com/email_verify/${token}">링크를 클릭</a>하세요.
+        <p>회원가입을 완료하려면 <a href="https://sopaseom.com/verify-email?token=${token}">링크를 클릭</a>하세요.
       </div>`,
       );
     }
@@ -73,7 +79,7 @@ class UserService {
    * 계정에 대해 비밀번호 변경 링크를 만들어 계정에게 이메일을 보냄.
    * 이때, 계정은 본인 소유인 게 확인이 완료된 상태임.
    */
-  async requestChangePassword(email) {
+  async requestChangePassword(email, debug = false) {
     // 이메일을 찾을 수 없는 경우 에러
     const user = await this.#db.getUserByEmail(email);
     if (!user) {
@@ -95,15 +101,17 @@ class UserService {
       senderEmail: 'coop.cinesopa@gmail.com',
       senderName: '영화배급협동조합 씨네소파',
     };
-    await this.#mail.sendMail(
-      mailGate,
-      '[소파섬] 비밀번호 변경 링크',
-      `
-    <div>
-      <p>비밀번호를 변경하려면, 아래 링크를 클릭하여 계속 진행해주세요.</p>
-      <p><a href="https://sopaseom.com/change-password/${token}">비밀번호 변경</a></p>
-    </div>`,
-    );
+    if(!debug) {
+      await this.#mail.sendMail(
+        mailGate,
+        '[소파섬] 비밀번호 변경 링크',
+        `
+      <div>
+        <p>비밀번호를 변경하려면, 아래 링크를 클릭하여 계속 진행해주세요.</p>
+        <p><a href="https://sopaseom.com/change-password?token=${token}">비밀번호 변경</a></p>
+      </div>`,
+      );
+    }
   }
 
   /**

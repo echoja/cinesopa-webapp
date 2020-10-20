@@ -3,7 +3,6 @@
  */
 
 const _ = require('lodash');
-const { objectIdSymbol } = require('mongoose/lib/helpers/symbols');
 
 /** 권한 등을 검증하는 객체 */
 class AuthValidator {

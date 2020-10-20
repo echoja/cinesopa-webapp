@@ -29,6 +29,8 @@ module.exports = {
        * 유저의 email 을 세션 구분용 id로 사용한다
        */
       passport.serializeUser((user, done) => {
+        // console.log(`~~~serializing user`);
+        // console.dir(user);
         // console.log(`serializing: ${user.email}`);
         done(null, user.email);
       });
