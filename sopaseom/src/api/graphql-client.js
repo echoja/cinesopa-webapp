@@ -44,14 +44,15 @@ export const dataGraphql = async (query, variables) => {
 };
 
 export const checkAuthQuery = `
-query CheckAuth($redirectLink: String!, $role: Permission!) {
-  checkAuth(redirectLink:$redirectLink, role: $role) {
+query checkAuthQuery($redirectLink: String!, $role: Permission!, $should_verified: Boolean) {
+  checkAuth(redirectLink: $redirectLink, role: $role, should_verified: $should_verified) {
     permissionStatus
+    emailVerificationRequired
     user {
-      name
       email
       c_date
       role
+      verified
     }
   }
 }

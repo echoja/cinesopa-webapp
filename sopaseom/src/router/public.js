@@ -2,6 +2,7 @@ import {
   emailVerifyBeforeEnter,
   logoutBeforeEnter,
   onlyNoLoginBeforeEnter,
+  myBeforeEnter,
   requireAuth,
 } from './nav-guard';
 
@@ -12,49 +13,216 @@ export default [
     component: () => import('../views/client/Home.vue'),
   },
   {
-    path: '/about',
-    name: 'About',
-    // route level code-splitting
-    // this generates a separate chunk (about.[hash].js) for this route
-    // which is lazy-loaded when the route is visited.
-    component: () => import(/* webpackChunkName: "about" */ '@/views/client/About.vue'),
-  },
-  {
     path: '/logout',
     name: 'Logout',
-    component: () => import('@/views/client/Logout.vue'),
+    component: () => import('@/views/client/Blank.vue'),
     beforeEnter: logoutBeforeEnter,
   },
+  {
+    path: '/sopakit/items/:page?',
+    name: 'SopakitItems',
+    component: () => import('@/views/client/SopakitItems.vue'),
+  },
+  {
+    path: '/sopakit/search/:str/:page?',
+    name: 'SopakitSearch',
+    component: () => import('@/views/client/SopakitSearch.vue'),
+  },
+  {
+    path: '/sopakit/:id',
+    name: 'SopakitDetail',
+    component: () => import('@/views/client/SopakitDetail.vue'),
+  },
+  {
+    path: '/sopakit',
+    name: 'Sopakit',
+    component: () => import('@/views/client/Blank.vue'),
+    beforeEnter: (to, from, next) => {
+      next({ name: 'SopakitItems' });
+    },
+  },
+  {
+    path: '/sopameet',
+    name: 'Sopameet',
+    component: () => import('@/views/client/Sopameet.vue'),
+  },
+  {
+    path: '/product/sopakit/:page?',
+    name: 'SopakitAllItems',
+    component: () => import('@/views/client/ProductItems.vue'),
+    props: {
+      productType: 'sopakit',
+    },
+  },
+  {
+    path: '/product/:page?',
+    name: 'AllItems',
+    component: () => import('@/views/client/ProductItems.vue'),
+  },
+  {
+    path: '/privacy',
+    name: 'Privacy',
+    component: () => import('@/views/client/Privacy.vue'),
+  },
+  {
+    path: '/policy',
+    name: 'Policy',
+    component: () => import('@/views/client/Policy.vue'),
+  },
+  {
+    path: '/404',
+    name: '404',
+    component: () => import('@/views/client/404.vue'),
+  },
+  {
+    path: '/401',
+    name: '401',
+    component: () => import('@/views/client/401.vue'),
+  },
+  {
+    path: '/my',
+    name: 'My',
+    component: () => import('@/views/client/My.vue'),
+    beforeEnter: myBeforeEnter,
+    children: [
+      {
+        path: 'info',
+        name: 'MyInfo',
+        component: () => import('@/views/client/MyInfo.vue'),
+      },
+      {
+        path: 'ordered',
+        name: 'MyOrdered',
+        component: () => import('@/views/client/MyOrdered.vue'),
+      },
+      {
+        path: 'submission',
+        name: 'MySubmission',
+        component: () => import('@/views/client/MySubmission.vue'),
+      },
+    ],
+  },
+  {
+    path: '/order',
+    name: 'Order',
+    component: () => import('@/views/client/Order.vue'),
+    children: [
+      {
+        path: 'cart',
+        name: 'Cart',
+        component: () => import('@/views/client/OrderCart.vue'),
+        beforeEnter: requireAuth('GUEST'),
+      },
+      {
+        path: 'payment',
+        name: 'Payment',
+        component: () => import('@/views/client/OrderPayment.vue'),
+        beforeEnter: requireAuth('GUEST', true),
+      },
+      {
+        path: 'success',
+        name: 'PaymentSuccess',
+        component: () => import('@/views/client/OrderSuccess.vue'),
+        beforeEnter: requireAuth('GUEST', true),
+      },
+      {
+        path: 'fail',
+        name: 'PaymentFail',
+        component: () => import('@/views/client/OrderFail.vue'),
+        beforeEnter: requireAuth('GUEST', true),
+      },
+    ],
+  },
+
   {
     path: '/login',
     name: 'Login',
     component: () => import('@/views/client/Login.vue'),
+    // todo onlyNoLoginBeforeEnter 손댈 필요가 있음.
     beforeEnter: onlyNoLoginBeforeEnter,
   },
   {
     path: '/join',
-    name: 'CreateAccount',
-    component: () => import('@/views/client/CreateAccount.vue'),
+    name: 'Join',
+    component: () => import('@/views/client/Join.vue'),
+    beforeEnter: onlyNoLoginBeforeEnter,
+    children: [
+      {
+        path: 'policy',
+        name: 'JoinPolicy',
+        component: () => import('@/views/client/JoinPolicy.vue'),
+        beforeEnter: onlyNoLoginBeforeEnter,
+      },
+      {
+        path: 'info',
+        name: 'JoinInfo',
+        component: () => import('@/views/client/JoinInfo.vue'),
+        beforeEnter: onlyNoLoginBeforeEnter,
+      },
+      {
+        path: 'success',
+        name: 'JoinSuccess',
+        component: () => import('@/views/client/JoinSuccess.vue'),
+        beforeEnter: onlyNoLoginBeforeEnter,
+      },
+    ],
+  },
+  {
+    path: '/should-verify',
+    name: 'ShouldVerify',
+    component: () => import('@/views/client/ShouldVerify.vue'),
     beforeEnter: onlyNoLoginBeforeEnter,
   },
   {
-    path: '/join/needVerification',
-    name: 'CreateAccountNeedVerification',
-    component: () => import('@/views/client/CreateAccountNeedVerification.vue'),
-    beforeEnter: onlyNoLoginBeforeEnter,
+    path: '/verify-email',
+    name: 'VerifyEmail',
+    component: () => import('@/views/client/VerifyEmail.vue'),
+    children: [
+      {
+        path: 'auth',
+        name: 'VerifyEmailAuth',
+        component: () => import('@/views/client/VerifyEmailAuth.vue'),
+      },
+      {
+        path: 'success',
+        name: 'VerifyEmailSuccess',
+        component: () => import('@/views/client/VerifyEmailSuccess.vue'),
+      },
+      {
+        path: 'expired',
+        name: 'VerifyEmailExpired',
+        component: () => import('@/views/client/VerifyEmailExpired.vue'),
+      },
+    ],
   },
   {
-    path: '/email_verify/:token',
-    name: 'EmailVerify',
-    component: () => import('@/views/client/About.vue'),
-    beforeEnter: emailVerifyBeforeEnter,
+    path: '/continuous-fail',
+    name: 'ContinuousFail',
+    component: () => import('@/views/client/ContinuousFail.vue'),
   },
   {
-    path: '/me',
-    name: 'Me',
-    component: () => import('@/views/client/Me.vue'),
-    beforeEnter: requireAuth('GUEST'),
+    path: '/change-password',
+    name: 'ChangdPassword',
+    component: () => import('@/views/client/ChangdPassword.vue'),
+    children: [
+      {
+        path: 'auth',
+        name: 'ChangdPasswordAuth',
+        component: () => import('@/views/client/ChangdPasswordAuth.vue'),
+      },
+      {
+        path: 'success',
+        name: 'ChangdPasswordSuccess',
+        component: () => import('@/views/client/ChangdPasswordSuccess.vue'),
+      },
+      {
+        path: 'expired',
+        name: 'ChangdPasswordExpired',
+        component: () => import('@/views/client/ChangdPasswordExpired.vue'),
+      },
+    ],
   },
+
   // {
   //   path: '/admin/page/new',
   //   component: () => import('@/views/admin/PageNew.vue'),

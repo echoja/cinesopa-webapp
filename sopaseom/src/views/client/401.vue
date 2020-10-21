@@ -4,10 +4,9 @@
 
 <script>
 export default {
-  name: 'Logout',
+  title: '401',
+  name: 'NoPermission',
 };
 </script>
 
-<style>
-
-</style>
+<style></style>

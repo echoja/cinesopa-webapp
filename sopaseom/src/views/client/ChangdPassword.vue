@@ -3,9 +3,9 @@
 </template>
 
 <script>
-
 export default {
-  title: '홈',
-  name: 'Home',
+  title: '비밀번호 변경',
 };
 </script>
+
+<style></style>

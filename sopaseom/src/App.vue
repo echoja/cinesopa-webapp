@@ -6,8 +6,8 @@
   </div>
 </template>
 <script>
-import // BFormInput, BButton, BFormSelect, BFormCheckboxGroup, BFormCheckbox, BCard,
-'bootstrap-vue';
+import 'bootstrap-vue';
+// BFormInput, BButton, BFormSelect, BFormCheckboxGroup, BFormCheckbox, BCard,
 import LayoutClient from '@/views/layout/LayoutClient.vue';
 import LayoutAdmin from '@/views/layout/LayoutAdmin.vue';
 

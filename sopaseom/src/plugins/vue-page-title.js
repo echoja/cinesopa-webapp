@@ -9,7 +9,7 @@ import Vue from 'vue';
 //   router,
 // });
 
-const suffix = ' - 영화배급협동조합 씨네소파';
+const suffix = ' - 영화향유플랫폼 소파섬';
 const pageTitle = {
   created() {
     const { title } = this.$options;

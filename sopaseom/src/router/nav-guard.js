@@ -1,8 +1,6 @@
 import store from '../store';
 
-import {
-  graphql, checkAuthQuery, logoutMeQuery, emailVerifyMutation,
-} from '../api/graphql-client';
+import { graphql, checkAuthQuery, logoutMeQuery, emailVerifyMutation } from '../api/graphql-client';
 
 export const logoutBeforeEnter = async (to, from, next) => {
   await graphql(logoutMeQuery, {});
@@ -39,24 +37,48 @@ export const onlyNoLoginBeforeEnter = async (to, from, next) => {
   }
 };
 
+const requestCheckAuth = async (role, shouldVerified = false) => {
+  const redirectLink = document.location.href;
+  const res = await graphql(checkAuthQuery, { redirectLink, role, shouldVerified });
+  return res?.data?.checkAuth;
+};
+
+export const myBeforeEnter = async (to, from, next) => {
+  const result = await requestCheckAuth('GUEST');
+  console.log(result);
+  console.log(to.fullPath);
+  // tooo
+  next();
+};
+
 /**
  * 현재 사용자의 role 을 기반으로, 해당 페이지가
  * 접근가능한지 아닌지 판단하는 router before 함수 입니다.
  * @param {string} role 사용자의 role
+ * @param {string} shouldVerified 이메일이 인증되어야 하는지 여부를 체크
+ * @param {string} failRN 만약 실패했을 때 이동할 route 이름 (RN = Route Name)
  */
-export const requireAuth = (role) => async (to, from, next) => {
-  const redirectLink = document.location.href;
-  const result = await graphql(checkAuthQuery, { redirectLink, role });
-  const permissionStatus = result?.data?.checkAuth?.permissionStatus;
-  console.log('## requireAuth');
-  console.dir(result.data);
+export const requireAuth = (role, shouldVerified, failRN = {}) => async (to, from, next) => {
+  const result = await requestCheckAuth(role, shouldVerified);
+  const {
+    loginRequiredRN = 'Login',
+    noPermissionRN = '401',
+    emailVerificationRequiredRN = 'ShouldVerify',
+  } = failRN;
+  const { permissionStatus, user, emailVerificationRequired } = result;
+  // console.log('## requireAuth');
+  // console.dir(result);
   if (permissionStatus === 'LOGIN_REQUIRED') {
-    next({ name: 'Login' });
+    next({ name: loginRequiredRN });
   } else if (permissionStatus === 'NO_PERMISSION') {
-    next({ name: 'NoPermission' }); // make view required
+    if (emailVerificationRequired) {
+      next({ name: emailVerificationRequiredRN });
+    } else {
+      next({ name: noPermissionRN });
+    }
   } else {
     store.commit('setUser', {
-      user: result?.data?.checkAuth?.user,
+      user,
     });
     next();
   }

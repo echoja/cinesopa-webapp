@@ -3,9 +3,9 @@
 </template>
 
 <script>
-
 export default {
-  title: '홈',
-  name: 'Home',
+  name: 'BlankComponent',
 };
 </script>
+
+<style></style>

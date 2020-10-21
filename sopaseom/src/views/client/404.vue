@@ -3,9 +3,10 @@
 </template>
 
 <script>
-
 export default {
-  title: '홈',
-  name: 'Home',
+  title: '404',
+  name: 'NotFound',
 };
 </script>
+
+<style></style>
