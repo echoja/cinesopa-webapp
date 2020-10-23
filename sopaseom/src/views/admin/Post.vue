@@ -44,6 +44,7 @@
 
 <script>
 import { mapActions } from 'vuex';
+import { BButton, BFormCheckbox, BLink } from 'bootstrap-vue';
 import moment from 'moment';
 import { queryString, graphql } from '../../loader';
 
@@ -51,7 +52,9 @@ moment.locale('ko');
 
 export default {
   name: 'Post',
-
+  components: {
+    BButton, BFormCheckbox, BLink,
+  },
   data() {
     return {
       total: 0,

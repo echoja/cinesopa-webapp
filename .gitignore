@@ -19,8 +19,6 @@
 
 # Editor directories and files
 .idea
-.vscode
-!.vscode/snippets.code-snippets
 *.suo
 *.ntvs*
 *.njsproj

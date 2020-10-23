@@ -324,7 +324,7 @@ export default {
     onFileInput() {
       if (this.uploadingFile.length === 0) return;
 
-      console.log(`input! ${this.uploadingFile}`);
+      console.log(`OnFileInput!!! ${this.uploadingFile}`);
       const promises = [];
       // console.dir(this.uploadingFile[0]);
       this.uploadingFile.forEach((file) => {
@@ -428,7 +428,7 @@ export default {
     },
     cancelDetail() {
       if (this.detailedIndex !== null) {
-        console.log(this.detailedIndex);
+        // console.log(this.detailedIndex);
         this.files[this.detailedIndex].detailed = false;
       }
       this.detailedIndex = null;

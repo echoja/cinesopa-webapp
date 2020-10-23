@@ -1,5 +1,6 @@
 import store from '../store';
 
+// eslint-disable-next-line object-curly-newline
 import { graphql, checkAuthQuery, logoutMeQuery, emailVerifyMutation } from '../api/graphql-client';
 
 export const logoutBeforeEnter = async (to, from, next) => {
@@ -14,6 +15,7 @@ export const emailVerifyBeforeEnter = async (to, from, next) => {
     next('/');
     return;
   }
+  console.log('# emailVerifyBeforeEnter');
   console.log(token);
   const result = await graphql(emailVerifyMutation, { token });
   // const user = data.verifyUserEmail;
@@ -45,6 +47,7 @@ const requestCheckAuth = async (role, shouldVerified = false) => {
 
 export const myBeforeEnter = async (to, from, next) => {
   const result = await requestCheckAuth('GUEST');
+  console.log('# myBeofreEnter');
   console.log(result);
   console.log(to.fullPath);
   // tooo

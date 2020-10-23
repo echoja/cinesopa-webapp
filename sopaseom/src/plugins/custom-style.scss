@@ -23,6 +23,8 @@ $primary: #000;
 @import '../../node_modules/bootstrap/scss/bootstrap-grid.scss';
 @import '../../node_modules/bootstrap/scss/transitions';
 @import '../../node_modules/bootstrap/scss/pagination';
+@import '../../node_modules/bootstrap/scss/list-group';
+@import '../../node_modules/bootstrap/scss/navbar';
 
 // BootstrapVue essentials
 @import '../../node_modules/bootstrap-vue/src/variables';
@@ -30,11 +32,12 @@ $primary: #000;
 @import '../../node_modules/bootstrap-vue/src/custom-controls';
 
 // BootstrapVue components
-@import '../../node_modules/bootstrap-vue/src/components/calendar/index.scss';
-@import '../../node_modules/bootstrap-vue/src/components/form-checkbox/index.scss';
-@import '../../node_modules/bootstrap-vue/src/components/form-input/index.scss';
-@import '../../node_modules/bootstrap-vue/src/components/form-radio/index.scss';
-@import '../../node_modules/bootstrap-vue/src/components/modal/index.scss';
-@import '../../node_modules/bootstrap-vue/src/components/pagination-nav/index.scss';
-@import '../../node_modules/bootstrap-vue/src/components/sidebar/index.scss';
-@import '../../node_modules/bootstrap-vue/src/components/table/index.scss';
+@import '../../node_modules/bootstrap-vue/src/components/calendar';
+@import '../../node_modules/bootstrap-vue/src/components/form-checkbox';
+@import '../../node_modules/bootstrap-vue/src/components/form-input';
+@import '../../node_modules/bootstrap-vue/src/components/form-radio';
+@import '../../node_modules/bootstrap-vue/src/components/modal';
+@import '../../node_modules/bootstrap-vue/src/components/pagination-nav';
+@import '../../node_modules/bootstrap-vue/src/components/sidebar';
+@import '../../node_modules/bootstrap-vue/src/components/table';
+@import '../../node_modules/bootstrap-vue/src/components/dropdown';

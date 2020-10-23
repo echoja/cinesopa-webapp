@@ -10,11 +10,16 @@
 </template>
 
 <script>
-import { graphql, filmsQuery, filmsAdminQuery /* removeFilmMutation */ } from '../../api/graphql-client';
-import router from '../../router';
+import { BButton, BTable } from 'bootstrap-vue';
 import store from '../../store';
+import { graphql, filmsAdminQuery /* removeFilmMutation */ } from '../../api/graphql-client';
+import router from '../../router';
 
 export default {
+  components: {
+    BButton,
+    BTable,
+  },
   name: 'Film',
   async created() {
     await this.fetchFilms();

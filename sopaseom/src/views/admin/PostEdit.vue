@@ -12,8 +12,10 @@
         ></b-form-input>
       </b-form-group>
       <div class="toolbar">
-        <b-button @click="$bvModal.show('media-insert-modal')">파일/이미지 삽입</b-button>
-        <b-modal id="media-insert-modal">hello~!</b-modal>
+        <b-button @click="$bvModal.show('media-insert-modal')">
+          파일/이미지 삽입
+        </b-button>
+        <b-modal id="media-insert-modal"> hello~! </b-modal>
       </div>
       <div
         v-if="!state.editorLoaded"
@@ -37,14 +39,22 @@
         mode === 'new' ? '생성' : '업데이트'
       }}</b-button>
       <hr />
-      <b-form-group id="input-excerpt-group" label="요약" label-for="input-excerpt">
+      <b-form-group
+        id="input-excerpt-group"
+        label="요약"
+        label-for="input-excerpt"
+      >
         <b-form-textarea
           id="input-excerpt"
           name="input-excerpt"
           v-model="input.excerpt"
         ></b-form-textarea>
       </b-form-group>
-      <b-form-group id="input-status-group" label="글 상태" label-for="input-status">
+      <b-form-group
+        id="input-status-group"
+        label="글 상태"
+        label-for="input-status"
+      >
         <b-form-select
           id="input-status"
           name="input-status"
@@ -53,7 +63,11 @@
           :options="options.status"
         ></b-form-select>
       </b-form-group>
-      <b-form-group id="input-c_date-group" label="날짜" label-for="input-c_date">
+      <b-form-group
+        id="input-c_date-group"
+        label="날짜"
+        label-for="input-c_date"
+      >
         <b-form-datepicker
           value-as-date
           id="input-c_date"
@@ -62,7 +76,11 @@
           locale="ko"
         ></b-form-datepicker>
       </b-form-group>
-      <b-form-group id="input-board-group" label="게시판" label-for="input-board">
+      <b-form-group
+        id="input-board-group"
+        label="게시판"
+        label-for="input-board"
+      >
         <b-form-select
           id="input-board"
           name="input-board"
@@ -83,10 +101,19 @@
         ></b-form-select> -->
         <!-- {{ input.featured_image }},
         {{ featured_image_link }} -->
-        <div class="featured-image" v-if="featured_image_link && featured_image_link !== ''">
-          <b-img class="featured-image-content" :src="featured_image_link" alt=""></b-img>
+        <div
+          class="featured-image"
+          v-if="featured_image_link && featured_image_link !== ''"
+        >
+          <b-img
+            class="featured-image-content"
+            :src="featured_image_link"
+            alt=""
+          ></b-img>
         </div>
-        <b-button size="sm" @click="$bvModal.show('set-featured-image-modal')">설정하기</b-button>
+        <b-button size="sm" @click="$bvModal.show('set-featured-image-modal')"
+          >설정하기</b-button
+        >
         <b-modal size="xl" hide-footer id="set-featured-image-modal">
           <file-manager
             @file-manager-selected="setFeaturedImage"
@@ -112,6 +139,14 @@
 // }
 
 import Editor from '@tinymce/tinymce-vue';
+import {
+  BFormGroup,
+  BFormTextarea,
+  BFormSelect,
+  BFormDatepicker,
+  BButton,
+  BModal,
+} from 'bootstrap-vue';
 import { mapActions } from 'vuex';
 import WrapWithEditor from '../layout/WrapWithEditor.vue';
 import FileManager from '../../components/FileManager.vue';
@@ -126,9 +161,15 @@ export default {
   name: 'PostEdit',
 
   components: {
-    'wrap-with-editor': WrapWithEditor,
-    editor: Editor,
-    'file-manager': FileManager,
+    WrapWithEditor,
+    Editor,
+    FileManager,
+    BFormGroup,
+    BFormTextarea,
+    BFormSelect,
+    BFormDatepicker,
+    BButton,
+    BModal,
   },
   props: ['belongs_to', 'mode'],
   data() {
@@ -186,7 +227,9 @@ export default {
 
     // edit mode일 때 정보 초기화 설정
     if (this.mode !== 'new') {
-      const postRes = await graphql(queryString.post.postAdminQuery, { id: parseInt(this.id, 10) });
+      const postRes = await graphql(queryString.post.postAdminQuery, {
+        id: parseInt(this.id, 10),
+      });
       // console.log(postRes);
       const { postAdmin: post } = postRes.data;
       // console.log(post);
@@ -258,7 +301,9 @@ export default {
         .catch((err) => {
           this.pushMessage({
             type: 'danger',
-            msg: `글을 업데이트 하는 중 에러가 발생했습니다.>> ${JSON.stringify(err)}`,
+            msg: `글을 업데이트 하는 중 에러가 발생했습니다.>> ${JSON.stringify(
+              err,
+            )}`,
             id: 'postUpdateFail',
           });
         });

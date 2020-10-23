@@ -1,5 +1,5 @@
 import {
-  emailVerifyBeforeEnter,
+  // emailVerifyBeforeEnter,
   logoutBeforeEnter,
   onlyNoLoginBeforeEnter,
   myBeforeEnter,
@@ -96,9 +96,9 @@ export default [
         component: () => import('@/views/client/MyOrdered.vue'),
       },
       {
-        path: 'submission',
-        name: 'MySubmission',
-        component: () => import('@/views/client/MySubmission.vue'),
+        path: 'application',
+        name: 'MyApplication',
+        component: () => import('@/views/client/MyApplication.vue'),
       },
     ],
   },

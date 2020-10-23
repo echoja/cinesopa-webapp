@@ -16,7 +16,7 @@ routes = routes.concat(adminRoutes);
 routes = routes.concat(publicRoutes);
 
 const routesFinal = routes;
-console.dir(routesFinal);
+// console.dir(routesFinal);
 const router = new VueRouter({
   mode: 'history',
   base: process.env.BASE_URL,

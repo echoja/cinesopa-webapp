@@ -517,7 +517,7 @@
               </tr>
 
               <tr v-for="(video, index) in film.videos" :key="index">
-                <td><b-checkbox v-model="video.is_main_trailer"></b-checkbox></td>
+                <td><b-form-checkbox v-model="video.is_main_trailer"></b-form-checkbox></td>
                 <td><b-form-input size="sm" v-model="video.title"></b-form-input></td>
                 <td>
                   <b-form-textarea size="sm" v-model="video.youtube_iframe"></b-form-textarea>
@@ -560,8 +560,12 @@
       <b-row>
         <div class="d-flex align-items-center">
           <b-button type="submit" variant="primary">변경 사항을 적용합니다.</b-button>
-          <b-checkbox class="ml-4" v-model="film.status" value="public" unchecked-value="private"
-            >공개합니다.</b-checkbox
+          <b-form-checkbox
+            class="ml-4"
+            v-model="film.status"
+            value="public"
+            unchecked-value="private"
+            >공개합니다.</b-form-checkbox
           >
         </div>
       </b-row>
@@ -575,6 +579,21 @@
 <script>
 import { mapActions } from 'vuex';
 import { Chrome } from 'vue-color';
+import {
+  BButton,
+  BFormCheckbox,
+  BFormInput,
+  BFormGroup,
+  BButtonClose,
+  BRow,
+  BCol,
+  BFormRadio,
+  BFormRadioGroup,
+  BFormTags,
+  BFormDatepicker,
+  BFormTextarea,
+  BModal,
+} from 'bootstrap-vue';
 // import moment from 'moment';
 import {
   graphql,
@@ -589,7 +608,20 @@ export default {
   name: 'FilmEdit',
   components: {
     ColorPicker: Chrome,
-    'file-manager': FileManager,
+    FileManager,
+    BButton,
+    BFormCheckbox,
+    BFormInput,
+    BFormGroup,
+    BButtonClose,
+    BRow,
+    BCol,
+    BFormRadio,
+    BFormRadioGroup,
+    BFormTags,
+    BFormDatepicker,
+    BFormTextarea,
+    BModal,
   },
   props: ['mode'],
   async created() {

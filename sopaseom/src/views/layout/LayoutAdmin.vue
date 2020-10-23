@@ -97,7 +97,10 @@
             </b-nav-item-dropdown>
           </b-navbar-nav>
         </b-navbar>
-        <div class="message-box d-flex flex-column align-self-center justify-content-center fixed-top pt-4">
+        <div
+          class="message-box d-flex flex-column align-self-center
+          justify-content-center fixed-top pt-4"
+        >
           <!-- <h2>
             {{ messages }}
           </h2> -->
@@ -154,8 +157,21 @@
 <script>
 // import { BContainer, BCol, BRow, BListGroup, BListGroupItem } from 'bootstrap-vue';
 import { mapState, mapActions } from 'vuex';
+import {
+  BContainer,
+  BCol,
+  BRow,
+  BNavbar,
+  BNavbarBrand,
+  BNavbarNav,
+  BNavItemDropdown,
+  BDropdownItem,
+  BDropdownDivider,
+  BDropdownHeader,
+  BListGroup,
+  BListGroupItem,
+} from 'bootstrap-vue';
 import { store } from '../../loader';
-
 // const makeListItem = (to, label, color) => ({
 //   id: to,
 //   to,
@@ -166,11 +182,18 @@ import { store } from '../../loader';
 export default {
   name: 'LayoutAdmin',
   components: {
-    // 'b-container': BContainer,
-    // 'b-list-group': BListGroup,
-    // 'b-list-group-item': BListGroupItem,
-    // 'b-col': BCol,
-    // 'b-row': BRow,
+    BContainer,
+    BCol,
+    BRow,
+    BNavbar,
+    BNavbarBrand,
+    BNavbarNav,
+    BNavItemDropdown,
+    BDropdownItem,
+    BDropdownDivider,
+    BDropdownHeader,
+    BListGroup,
+    BListGroupItem,
   },
   computed: {
     ...mapState(['messages']),
@@ -184,7 +207,7 @@ export default {
     },
   },
   created() {
-    this.unsubscribe = store.subscribe((mutation, state) => {
+    this.unsubscribe = store.subscribe((mutation /* , state */) => {
       if (mutation.type === 'pushMessage') {
         setTimeout(() => {
           this.removeMessage({ id: mutation.payload.id });
@@ -213,32 +236,13 @@ export default {
       this.removeMessage({ id });
     },
     async messageChanged(a, b) {
+      console.log('mesageChanged');
       console.log(a);
       console.log(b);
     },
   },
   data: () => ({
     messageDuraton: 2000,
-    // sidebar: [
-    //   makeListItem('/admin', '대시보드'),
-    //   makeListItem('/admin/statistics', '통계'),
-    //   makeListItem(null, 'cinesopa.kr'),
-    //   makeListItem('/admin/cinesopa/site', '사이트 정보'),
-    //   makeListItem('/admin/cinesopa/page', '페이지'),
-    //   makeListItem('/admin/cinesopa/board', '게시판'),
-    //   makeListItem('/admin/cinesopa/post', '글'),
-    //   makeListItem('/admin/cinesopa/film', '영화'),
-    //   makeListItem('/admin/cinesopa/menu', '메뉴'),
-    //   makeListItem('/admin/cinesopa/design', '디자인'),
-    //   makeListItem(null, 'sopaseom.com'),
-    //   makeListItem('/admin/sopaseom/site', '사이트 정보'),
-    //   makeListItem('/admin/sopaseom/page', '페이지'),
-    //   makeListItem('/admin/sopaseom/product', '소파킷'),
-    //   makeListItem('/admin/sopaseom/application', '신청'),
-    //   makeListItem('/admin/sopaseom/user', '사용자'),
-    //   makeListItem('/admin/sopaseom/menu', '메뉴'),
-    //   makeListItem('/admin/sopaseom/design', '디자인'),
-    // ],
   }),
 };
 </script>

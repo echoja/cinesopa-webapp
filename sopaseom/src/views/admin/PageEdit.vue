@@ -31,6 +31,7 @@
 <script>
 import Editor from '@tinymce/tinymce-vue';
 import upload from '../../upload-client';
+import { BButton, BFormFile, BFormInput } from 'bootstrap-vue';
 import tinymceInit from '../../tinymce-configure';
 import {
   dataGraphql,
@@ -67,10 +68,11 @@ import WrapWithEditor from '../layout/WrapWithEditor.vue';
 export default {
   name: 'PageEdit',
   components: {
-    editor: Editor,
-    'wrap-with-editor': WrapWithEditor,
-    // 'b-form-file': BFormFile,
-    // 'b-button' :
+    Editor,
+    WrapWithEditor,
+    BButton,
+    BFormFile,
+    BFormInput,
   },
   data() {
     return {

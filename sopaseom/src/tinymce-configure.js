@@ -93,6 +93,7 @@ export default (/* content */) => ({
     // });
   },
   images_upload_handler(blobInfo, success, failure) {
+    console.log('# imagesUploadHandler');
     console.log(blobInfo);
     failure('no implementation');
   },

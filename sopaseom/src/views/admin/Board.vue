@@ -104,27 +104,54 @@
   </div>
 </template>
 <script>
+/* eslint-disable no-tabs */
+import {
+  BButton,
+  BButtonGroup,
+  BTable,
+  BSpinner,
+  BForm,
+  BFormGroup,
+  BFormInput,
+  BModal,
+} from 'bootstrap-vue';
 import { mapActions } from 'vuex';
-import { store, queryString, graphql } from '../../loader';
+import { queryString, graphql } from '../../loader';
+
 /**
  *
  *
 index	{Number}	The row's index (zero-based) with respect to the displayed rows
 item	Object	The row's item data object
-value	Any	The value for this key in the record (null or undefined if a virtual column), or the output of the field's formatter function
-unformatted	Any	The raw value for this key in the item record (null or undefined if a virtual column), before being passed to the field's formatter function
+value	Any	The value for this key in the record (null or undefined if a virtual column), or the
+output of the field's formatter function
+unformatted	Any	The raw value for this key in the item record (null or undefined if a virtual
+ column), before being passed to the field's formatter function
 field	Object	The field's normalized definition object (from the fields prop)
 detailsShowing	Boolean	Will be true if the row's row-details scoped slot is visible
 toggleDetails	Function	Can be called to toggle the visibility of the rows row-details scoped slot
-rowSelected	Boolean	Will be true if the row has been selected. Only applicable when table is in selectable mode
-selectRow v2.1.0+	Function	Can be called to select the current row. Only applicable when table is in selectable mode
-unselectRow v2.1.0+	Function	Can be called to unselect the current row. Only applicable when table is in selectable mode
+rowSelected	Boolean	Will be true if the row has been selected. Only applicable when table is in
+selectable mode
+selectRow v2.1.0+	Function	Can be called to select the current row. Only applicable when table
+ is in selectable mode
+unselectRow v2.1.0+	Function	Can be called to unselect the current row. Only applicable when
+ table is in selectable mode
  */
 // import { mapState } from 'vuex';
 
 export default {
   name: 'Board',
   props: ['belongs_to'],
+  components: {
+    BButton,
+    BButtonGroup,
+    BTable,
+    BSpinner,
+    BForm,
+    BFormGroup,
+    BFormInput,
+    BModal,
+  },
   data() {
     return {
       state: {
@@ -202,12 +229,14 @@ export default {
       for (const board of boards) {
         table.push(this.createBoardTableRow(board));
       }
+      console.log('TABLE!!!');
       console.log(table);
       this.boards = table;
       this.state.processing.get = false;
     },
 
     createBoardTableRow(board) {
+      console.log('TABLE!!!');
       console.log(board);
       const result = {
         ...board,
@@ -338,13 +367,11 @@ export default {
     async onInput(row) {
       // console.log('onchange!');
       // console.log(row);
-      const found = this.boards.find((board) => {
-        return board.id === row.item.id;
-      });
+      const found = this.boards.find((board) => board.id === row.item.id);
       if (found) found.changed = true;
       else console.log('찾지 못했습니다.. ');
     },
-    async onReset(row) {
+    async onReset() {
       //
     },
     async newForm() {
@@ -362,9 +389,7 @@ export default {
     },
     async editRow(row) {
       row.toggleDetails();
-      const found = this.boards.find((board) => {
-        return board.id === row.item.id;
-      });
+      const found = this.boards.find((board) => board.id === row.item.id);
       found.editForm.permalink = found.permalink;
       found.editForm.title = found.title;
       found.editForm.description = found.description;

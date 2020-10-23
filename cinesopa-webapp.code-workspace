@@ -1,0 +1,29 @@
+{
+  "folders": [
+    {
+      "name": "root",
+      "path": "."
+    },
+    {
+      "name": "server",
+      "path": "server"
+    },
+    {
+      "name": "cinesopa",
+      "path": "cinesopa"
+    },
+    {
+      "name": "sopaseom",
+      "path": "sopaseom"
+    }
+  ],
+  "settings": {
+    "eslint.alwaysShowStatus": true,
+    "mocha-snippets.quote-type": "double",
+    "mocha-snippets.function-type": "function",
+    "typescript.format.enable": false,
+    "javascript.validate.enable": false,
+    "javascript.implicitProjectConfig.checkJs": true,
+    "eslint.validate": ["javascript", "javascriptreact", "vue", "typescript"]
+  }
+}

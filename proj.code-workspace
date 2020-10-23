@@ -1,0 +1,25 @@
+{
+  "folders": [
+    {
+      "path": ".git"
+    },
+    {
+      "path": ".vscode"
+    },
+    {
+      "path": "cinesopa"
+    },
+    {
+      "path": "node_modules"
+    },
+    {
+      "path": "proxy"
+    },
+    {
+      "path": "server"
+    },
+    {
+      "path": "sopaseom"
+    }
+  ]
+}

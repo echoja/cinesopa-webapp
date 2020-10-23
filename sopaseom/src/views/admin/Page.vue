@@ -36,8 +36,8 @@ export default {
   },
   props: ['belongs_to'],
   components: {
-    'b-table': BTable,
-    'b-button': BButton,
+    BTable,
+    BButton,
   },
   computed: {
     newPageName() {

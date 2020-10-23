@@ -18,6 +18,8 @@ export default {
     LayoutAdmin,
   },
   computed: {
+    // 레이아웃 기본 값은 LayoutClient 임. 
+    // 어드민 같은 경우에는 헬퍼 함수를 통해 meta에 LayoutAdmin을 전달하고 있음.
     layout() {
       return this.$route.meta.layout || LayoutClient;
     },
