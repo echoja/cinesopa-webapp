@@ -116,7 +116,7 @@ import {
   BModal,
 } from 'bootstrap-vue';
 import { mapActions } from 'vuex';
-import { queryString, graphql } from '../../loader';
+import { queryString, graphql } from '@/loader';
 
 /**
  *

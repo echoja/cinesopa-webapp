@@ -30,16 +30,16 @@
 
 <script>
 import Editor from '@tinymce/tinymce-vue';
-import upload from '../../upload-client';
+import upload from '@/upload-client';
 import { BButton, BFormFile, BFormInput } from 'bootstrap-vue';
-import tinymceInit from '../../tinymce-configure';
+import tinymceInit from '@/tinymce-configure';
 import {
   dataGraphql,
   createPageMutation,
   updatePageMutation,
   getPageByIdQuery,
-} from '../../api/graphql-client';
-import router from '../../router';
+} from '@/api/graphql-client';
+import router from '@/router';
 import WrapWithEditor from '../layout/WrapWithEditor.vue';
 
 // const getPageByIdQuery = `

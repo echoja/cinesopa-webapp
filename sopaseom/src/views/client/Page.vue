@@ -7,7 +7,7 @@
 </template>
 
 <script>
-import { graphql, getPageQuery } from '../../api/graphql-client';
+import { graphql, getPageQuery } from '@/api/graphql-client';
 
 export default {
   name: 'Page',

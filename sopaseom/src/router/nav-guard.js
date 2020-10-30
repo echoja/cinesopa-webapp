@@ -1,5 +1,4 @@
 import store from '../store';
-
 // eslint-disable-next-line object-curly-newline
 import { graphql, checkAuthQuery, logoutMeQuery, emailVerifyMutation } from '../api/graphql-client';
 
@@ -86,3 +85,14 @@ export const requireAuth = (role, shouldVerified, failRN = {}) => async (to, fro
     next();
   }
 };
+
+// export const makeRouterScrollToTopIfSamePage = (router) => {
+//   console.log('ho1!');
+//   router.afterEach((to, from) => {
+//     console.log('ho2!');
+//     if (to.fullPath === from.fullPath) {
+//       console.log('ho3!');
+//       VueScrollTo.scrollTo('body', 300);
+//     }
+//   });
+// };

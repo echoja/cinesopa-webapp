@@ -4,7 +4,7 @@
 
 <script>
 import { BFormInput, BButton } from 'bootstrap-vue';
-// import { makeProcessingMixin } from '../../mixins/tool';
+// import { makeProcessingMixin } from '@/mixins/tool';
 
 const component = {
   name: 'Login',

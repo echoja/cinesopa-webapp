@@ -148,11 +148,11 @@ import {
   BModal,
 } from 'bootstrap-vue';
 import { mapActions } from 'vuex';
+import FileManager from '@/components/FileManager.vue';
+import tinymceInit from '@/tinymce-configure';
+import { queryString, graphql } from '@/loader';
+import { baseUrl } from '@/constants';
 import WrapWithEditor from '../layout/WrapWithEditor.vue';
-import FileManager from '../../components/FileManager.vue';
-import tinymceInit from '../../tinymce-configure';
-import { queryString, graphql } from '../../loader';
-import { baseUrl } from '../../constants';
 
 /** @type {import('@types/tinymce')} */
 let editor = null;

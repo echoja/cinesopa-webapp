@@ -4,6 +4,7 @@ import Vue from 'vue';
 // import './plugins/bootstrap-vue';
 import './plugins/veevalidate';
 import './plugins/vue-page-title';
+import './plugins/vue-bootstrap';
 import './plugins/custom-style.scss';
 import App from './App.vue';
 import router from './router';

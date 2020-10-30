@@ -11,6 +11,9 @@ export default [
     path: '/',
     name: 'Home',
     component: () => import('../views/client/Home.vue'),
+    meta: {
+      layout: () => import('@/views/layout/LayoutClientNoFooter.vue'),
+    },
   },
   {
     path: '/logout',
@@ -79,6 +82,22 @@ export default [
     name: '401',
     component: () => import('@/views/client/401.vue'),
   },
+  {
+    path: '/sitemap',
+    name: 'sitemap',
+    component: () => import('@/views/client/Sitemap.vue'),
+  },
+  {
+    path: '/email-refuse',
+    name: 'EmailRefuse',
+    component: () => import('@/views/client/EmailRefuse.vue'),
+  },
+  {
+    path: '/application',
+    name: 'Application',
+    component: () => import('@/views/client/Application.vue'),
+  },
+
   {
     path: '/my',
     name: 'My',

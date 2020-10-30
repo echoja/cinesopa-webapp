@@ -46,7 +46,7 @@
 import { mapActions } from 'vuex';
 import { BButton, BFormCheckbox, BLink } from 'bootstrap-vue';
 import moment from 'moment';
-import { queryString, graphql } from '../../loader';
+import { queryString, graphql } from '@/loader';
 
 moment.locale('ko');
 

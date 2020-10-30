@@ -18,11 +18,12 @@ const store = new Vuex.Store({
    * 값을 수정하려면 mutation 을 써야 함.
    */
   state: {
-    user: {},
+    currentUser: {},
     testString: '초기테스트 스토어',
     errorMsg: '',
     ...testStates,
     messages: [],
+    logoZoomed: false,
   },
   /**
    * 게터.
@@ -40,11 +41,14 @@ const store = new Vuex.Store({
    * 외부에서 store.commit('funcname', payload) 식으로 호출할 수 있음.
    */
   mutations: {
+    setLogoZoomed(state, logoZoomed) {
+      state.logoZoomed = logoZoomed;
+    },
     setErrorMsg(state, { message }) {
       state.errorMsg = message;
     },
-    setUser(state, { user }) {
-      state.user = user;
+    setCurrentUser(state, { currentUser }) {
+      state.currentUser = currentUser;
     },
     setTestString(state, { value }) {
       state.testString = value;
@@ -53,9 +57,7 @@ const store = new Vuex.Store({
       state.messages.push(msgObj);
     },
     removeMessage(state, { id }) {
-      const foundIndex = state.messages.findIndex((msg) => {
-        return msg.id === id;
-      });
+      const foundIndex = state.messages.findIndex((msg) => msg.id === id);
       if (foundIndex > -1) state.messages.splice(foundIndex, 1);
     },
   },

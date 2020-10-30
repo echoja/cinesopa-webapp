@@ -13,6 +13,7 @@
     "@babel/polyfill": "^7.11.5",
     "@tinymce/tinymce-vue": "^3.2.2",
     "axios": "^0.20.0",
+    "bezier-easing": "^2.1.0",
     "bootstrap": "^4.5.2",
     "bootstrap-vue": "^2.16.0",
     "core-js": "^3.6.5",
@@ -27,6 +28,7 @@
     "vue": "^2.6.12",
     "vue-color": "^2.7.1",
     "vue-router": "^3.4.3",
+    "vue-scrollto": "^2.20.0",
     "vuex": "^3.5.1"
   },
   "devDependencies": {

@@ -11,8 +11,8 @@
 
 <script>
 import { BButton, BTable } from 'bootstrap-vue';
-import { dataGraphql, getPagesQuery } from '../../api/graphql-client';
-import router from '../../router';
+import { dataGraphql, getPagesQuery } from '@/api/graphql-client';
+import router from '@/router';
 
 export default {
   name: 'Pages',

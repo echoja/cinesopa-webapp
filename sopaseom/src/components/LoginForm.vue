@@ -46,10 +46,12 @@ reset        () => void        A function that resets the validation state on th
 // });
 
 -->
-<template>
+
+<!-- old version -->
+<!--<template>
   <div>
     <validation-observer ref="observer" v-slot="{ handleSubmit }">
-      <!-- @reset="onReset" -->
+
       <b-form @submit.stop.prevent="handleSubmit(login)" v-if="show">
         <validation-provider
           name="Email"
@@ -69,7 +71,6 @@ reset        () => void        A function that resets the validation state on th
               :disabled="state.loginProcessing"
               @keyup.enter="handleSubmit(login)"
             ></b-form-input>
-            <!-- <p>{{ getValidationState(validationContext) }}</p> -->
             <b-form-invalid-feedback id="input-email-live-feedback">
               {{ validationContext.errors[0] }}
             </b-form-invalid-feedback>
@@ -96,13 +97,126 @@ reset        () => void        A function that resets the validation state on th
 
     <p>{{ text }}</p>
   </div>
+</template> -->
+
+<template>
+  <div class="login-component">
+    <div class="login-header">
+      <img class="logo-main" src="@/assets/sopaseom-logo.svg" alt="" />
+    </div>
+    <div class="login-body">
+      <validation-observer ref="observer" v-slot="{ handleSubmit }">
+        <!-- @reset="onReset" -->
+        <b-form
+          @submit.stop.prevent="handleSubmit(login)"
+          v-if="show"
+          class="login-form"
+        >
+          <validation-provider
+            name="Email"
+            :rules="{ required: true, email: true }"
+            v-slot="validationContext"
+          >
+            <b-form-input
+              ref="email"
+              id="input-email"
+              name="input-email"
+              :state="getValidationState(validationContext)"
+              trim
+              type="email"
+              v-model="email"
+              placeholder="이메일"
+              :disabled="state.loginProcessing"
+              @keyup.enter="handleSubmit(login)"
+            ></b-form-input>
+            <!-- <p>{{ getValidationState(validationContext) }}</p> -->
+            <!-- <b-form-invalid-feedback id="input-email-live-feedback">
+                {{ validationContext.errors[0] }}
+              </b-form-invalid-feedback> -->
+          </validation-provider>
+          <validation-provider
+            name="Password"
+            :rules="{ required: true }"
+            v-slot="validationContext"
+          >
+            <b-form-input
+              type="password"
+              class="password-input"
+              v-model="pwd"
+              placeholder="패스워드"
+              @keyup.enter="handleSubmit(login)"
+              :disabled="state.loginProcessing"
+            ></b-form-input>
+            <!-- <b-form-invalid-feedback id="input-pwd-live-feedback">{{
+                validationContext.errors[0]
+              }}</b-form-invalid-feedback> -->
+          </validation-provider>
+          <p class="error-msg" v-if="loginFailReason.length > 0">
+            {{ loginFailReason }}
+          </p>
+          <div class="login-button-wrapper">
+            <b-button type="submit" class="login-button">로그인</b-button>
+          </div>
+          <div class="login-sub-menu">
+            <div>
+              <b-form-checkbox>자동 로그인</b-form-checkbox>
+            </div>
+            <div>
+              <b-link :to="{ name: 'SopakitItems' }"> 아이디 찾기 </b-link>
+              <span class="seperator">|</span>
+              <b-link>비밀번호 찾기</b-link>
+            </div>
+          </div>
+          <div class="kakao-login-button-wrapper">
+            <b-button class="kakao-login-button">
+              <svg
+                class="kakaotalk-logo"
+                width="17.67"
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 17.67 16.4"
+              >
+                <path
+                  fill="#381e1f"
+                  d="M17.67,7.26c0,4-4,7.26-8.83,7.26A10.18,10.18,0,0,1,4,13.35,7,7,0,0,1,0,7.26C0,3.25,4,0,8.84,0S17.67,3.25,17.67,7.26Z"
+                />
+                <polygon
+                  fill="#381e1f"
+                  points="3.14 16.4 7.46 14.43 4.03 13.35 3.14 16.4"
+                />
+              </svg>
+              <span class="kakao-login-button-text"
+                ><span class="bold">카카오</span>로 로그인</span
+              ></b-button
+            >
+          </div>
+          <div class="join-guide">
+            <p class="join-guide-text">아직 회원이 아니신가요?</p>
+            <b-button :to="{ name: 'Join' }" class="join-button"
+              >소파섬 회원가입</b-button
+            >
+          </div>
+        </b-form>
+      </validation-observer>
+    </div>
+    <div class="login-footer">
+      <p>Copyright © 2020 Cinesopa All Rights Reserved</p>
+    </div>
+  </div>
 </template>
 
 <script>
 import url from 'url';
 import { graphql } from '@/api/graphql-client';
 import router from '@/router';
-import { BForm, BFormGroup, BFormInvalidFeedback, BFormInput, BButton } from 'bootstrap-vue';
+import {
+  BForm,
+  BFormGroup,
+  BFormInvalidFeedback,
+  BFormInput,
+  BButton,
+  BFormCheckbox,
+  BLink,
+} from 'bootstrap-vue';
 
 const loginMutation = `
 mutation Login ($email: String!, $pwd: String!) {
@@ -126,8 +240,16 @@ export default {
     BForm,
     BFormGroup,
     BFormInvalidFeedback,
+    BFormCheckbox,
     BFormInput,
+    BLink,
     BButton,
+  },
+  props: {
+    'modal-id': {
+      type: String,
+      default: '',
+    },
   },
   data() {
     return {
@@ -198,4 +320,124 @@ export default {
 };
 </script>
 
-<style></style>
+<style lang="scss" scoped>
+.login-component {
+  max-width: 360px;
+  margin: 0 auto;
+}
+
+.login-header {
+  text-align: center;
+  margin-top: -10px;
+}
+
+.logo-main {
+  width: 113px;
+}
+
+.login-body {
+  margin-top: 20px;
+}
+.password-input {
+  margin-top: -1px;
+}
+
+.login-form input {
+  border-radius: 0;
+  border-color: #000;
+  height: 50px;
+  position: relative;
+  // :focus {
+  // }
+}
+.login-form input:focus {
+  z-index: 1;
+}
+
+.seperator {
+  padding: 0 5px;
+}
+
+.login-sub-menu {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 12px;
+}
+
+.login-button {
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #000;
+  border: 0;
+  border-radius: 0;
+  width: 100%;
+  height: 50px;
+  font-weight: 500;
+  font-size: 16px;
+}
+
+.kakao-login-button-wrapper {
+  margin-top: 27px;
+}
+.kakao-login-button {
+  // background-color: #FFCD00;
+  background-color: #f9e332;
+  border: 0;
+  border-radius: 0;
+  display: flex;
+  width: 100%;
+  color: #381e1f;
+  align-items: center;
+  justify-content: center;
+  height: 50px;
+}
+
+.kakaotalk-logo {
+  margin-right: 10px;
+}
+
+.kakao-login-button-text {
+  margin-top: -2px;
+  font-size: 16px;
+  font-weight: 500;
+  .bold {
+    font-weight: bold;
+  }
+}
+
+.join-guide {
+  margin-top: 40px;
+  text-align: center;
+}
+
+.join-guide-text {
+  margin-bottom: 8px;
+  font-size: 14px;
+}
+
+.join-button {
+  background-color: #fff;
+  border-radius: 0;
+  // border-width: 2px;
+  color: #000;
+  border-color: #000;
+  padding: 8px 20px;
+  font-weight: 500;
+  font-size: 16px;
+}
+
+.login-footer {
+  margin: 60px 0 0;
+}
+
+.login-footer p {
+  font-size: 9px;
+  text-align: center;
+  margin: 0;
+}
+</style>
+
+<style>
+</style>

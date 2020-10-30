@@ -171,7 +171,7 @@ import {
   BListGroup,
   BListGroupItem,
 } from 'bootstrap-vue';
-import { store } from '../../loader';
+import { store } from '@/loader';
 // const makeListItem = (to, label, color) => ({
 //   id: to,
 //   to,

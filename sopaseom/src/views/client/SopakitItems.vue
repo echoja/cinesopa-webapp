@@ -1,5 +1,17 @@
 <template>
-  <div></div>
+  <div>
+    <div>소파킷 아이템</div>
+    <div>소파킷 아이템</div>
+    <div>소파킷 아이템</div>
+    <div>소파킷 아이템</div>
+    <div>소파킷 아이템</div>
+    <div>소파킷 아이템</div>
+    <div>소파킷 아이템</div>
+    <div>소파킷 아이템</div>
+    <div>소파킷 아이템</div>
+    <div>소파킷 아이템</div>
+    <div>소파킷 아이템</div>
+  </div>
 </template>
 
 <script>

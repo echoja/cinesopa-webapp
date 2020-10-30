@@ -1,15 +1,9 @@
 <template>
-  <div class="layout layout-client">
-    <nav-menu></nav-menu>
-
-    <div class="layout-main-wrapper">
-      <slot></slot>
-    </div>
-
-    <div class="layout-footer-wrapper">
-
+  <div class="layout layout-client layout-client-fixed-footer">
+    <nav-menu>
+    </nav-menu>
+    <router-view></router-view>
     <footer-component></footer-component>
-    </div>
   </div>
 </template>
 
@@ -22,7 +16,6 @@
 // } from 'bootstrap-vue';
 
 export default {
-  name: 'LayoutClient',
   components: {
     FooterComponent: () => import('@/components/FooterComponent.vue'),
     NavMenu: () => import('@/components/NavMenu.vue'),
@@ -31,15 +24,9 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import '@/common';
 
-.layout {
-  position: relative;
-}
 
-.layout-main-wrapper {
-  margin-top: $desktop-header-height;
-  min-height: calc(100vh - #{$desktop-footer-height} - #{$desktop-footer-height});
-  padding: 30px $desktop-min-x-margin;
-}
+
 </style>
+
+<style></style>
