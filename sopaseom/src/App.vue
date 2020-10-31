@@ -1,19 +1,20 @@
 <template>
   <div id="app" ref="app">
+    <!-- <nav-menu></nav-menu> -->
     <transition :name="transitionName" mode="out-in">
       <component :is="layout">
         <!-- @beforeLeave="beforeLeave"
         @enter="enter"
         @afterLeave="afterLeave"
         @afterEnter="afterEnter" -->
-        <transition :name="transitionName" mode="out-in">
+        <!-- <transition :name="transitionName" mode="out-in"> -->
           <!-- <router-view :key="$route.fullPath" /> -->
-          <router-view
+          <!-- <router-view
             id="main"
             :key="$route.fullPath.split('/')[1]"
             :style="{ overflow: 'visible' }"
-          />
-        </transition>
+          /> -->
+        <!-- </transition> -->
       </component>
     </transition>
   </div>
@@ -23,12 +24,14 @@ import 'bootstrap-vue';
 // BFormInput, BButton, BFormSelect, BFormCheckboxGroup, BFormCheckbox, BCard,
 import LayoutClient from '@/views/layout/LayoutClient.vue';
 import LayoutAdmin from '@/views/layout/LayoutAdmin.vue';
+import NavMenu from './components/NavMenu.vue';
 
 export default {
   name: 'LayoutWrapper',
   components: {
     LayoutClient,
     LayoutAdmin,
+    NavMenu,
   },
   computed: {
     // 레이아웃 기본 값은 LayoutClient 임.

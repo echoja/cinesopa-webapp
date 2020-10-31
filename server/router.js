@@ -50,7 +50,7 @@ router.get('/graphql/kakao/login', passport.authenticate('kakao'));
 // graphiql
 router.post('/graphql', graphQLServerMiddleware);
 router.get('/graphql', (req, res, next) => {
-  res.send(404);
+  res.sendStatus(404);
 });
 
 router.get('/test/remove-user/:email', (req, res, next) => {
@@ -64,6 +64,7 @@ router.get('/test/remove-user/:email', (req, res, next) => {
     });
 });
 
+// todo 나중에 삭제해야 함.
 router.get('/test/make-super-user', (req, res, next) => {
   user
     .initAdmin()

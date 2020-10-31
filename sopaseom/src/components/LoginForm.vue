@@ -105,98 +105,129 @@ reset        () => void        A function that resets the validation state on th
       <img class="logo-main" src="@/assets/sopaseom-logo.svg" alt="" />
     </div>
     <div class="login-body">
-      <validation-observer ref="observer" v-slot="{ handleSubmit }">
-        <!-- @reset="onReset" -->
-        <b-form
-          @submit.stop.prevent="handleSubmit(login)"
-          v-if="show"
-          class="login-form"
+      <!-- v-slot="{ handleSubmit, invalid }" -->
+      <!-- <validation-observer ref="observer"> -->
+      <!-- @reset="onReset" -->
+      <!-- @submit.stop.prevent="handleSubmit(login)" -->
+      <b-form v-if="show" class="login-form" ref="form">
+        <validation-provider
+          ref="emailProvider"
+          name="Email"
+          :rules="{ required: true, email: true }"
+          v-slot="vcon"
         >
-          <validation-provider
-            name="Email"
-            :rules="{ required: true, email: true }"
-            v-slot="validationContext"
+          <!-- :state="getValidationState(vcon)" -->
+          <b-form-input
+            ref="email"
+            id="input-email"
+            name="input-email"
+            debounce="300"
+            trim
+            type="email"
+            v-model="email"
+            placeholder="이메일"
+            :disabled="state.loginProcessing"
+            @keyup.enter="loginButtonClicked"
+            @input="inputted('email')"
+          ></b-form-input>
+          <b-tooltip
+            target="input-email"
+            triggers="manual"
+            placement="right"
+            :show="validate.email.showTooltip"
           >
-            <b-form-input
-              ref="email"
-              id="input-email"
-              name="input-email"
-              :state="getValidationState(validationContext)"
-              trim
-              type="email"
-              v-model="email"
-              placeholder="이메일"
-              :disabled="state.loginProcessing"
-              @keyup.enter="handleSubmit(login)"
-            ></b-form-input>
-            <!-- <p>{{ getValidationState(validationContext) }}</p> -->
-            <!-- <b-form-invalid-feedback id="input-email-live-feedback">
+            {{ vcon.errors[0] }}
+          </b-tooltip>
+          <!-- <p>{{ getValidationState(validationContext) }}</p> -->
+          <!-- <b-form-invalid-feedback id="input-email-live-feedback">
                 {{ validationContext.errors[0] }}
               </b-form-invalid-feedback> -->
-          </validation-provider>
-          <validation-provider
-            name="Password"
-            :rules="{ required: true }"
-            v-slot="validationContext"
+        </validation-provider>
+        <validation-provider
+          name="Password"
+          ref="passwordProvider"
+          :rules="{ required: true }"
+          v-slot="vcon"
+        >
+          <b-form-input
+            type="password"
+            id="input-password"
+            class="input-password"
+            v-model="pwd"
+            placeholder="패스워드"
+            @keyup.enter="loginButtonClicked"
+            :disabled="state.loginProcessing"
+            @input="inputted('password')"
+          ></b-form-input>
+          <b-tooltip
+            target="input-password"
+            triggers="manual"
+            placement="right"
+            :show="validate.password.showTooltip"
           >
-            <b-form-input
-              type="password"
-              class="password-input"
-              v-model="pwd"
-              placeholder="패스워드"
-              @keyup.enter="handleSubmit(login)"
-              :disabled="state.loginProcessing"
-            ></b-form-input>
-            <!-- <b-form-invalid-feedback id="input-pwd-live-feedback">{{
+            {{ vcon.errors[0] }}
+          </b-tooltip>
+          <!-- <b-form-invalid-feedback id="input-pwd-live-feedback">{{
                 validationContext.errors[0]
               }}</b-form-invalid-feedback> -->
-          </validation-provider>
-          <p class="error-msg" v-if="loginFailReason.length > 0">
-            {{ loginFailReason }}
-          </p>
-          <div class="login-button-wrapper">
-            <b-button type="submit" class="login-button">로그인</b-button>
+        </validation-provider>
+
+        <div class="login-button-wrapper">
+          <b-button @click="loginButtonClicked" class="login-button"
+            >로그인</b-button
+          >
+        </div>
+
+        <div class="login-sub-menu">
+          <div>
+            <b-form-checkbox v-model="autoLogin">자동 로그인</b-form-checkbox>
           </div>
-          <div class="login-sub-menu">
-            <div>
-              <b-form-checkbox>자동 로그인</b-form-checkbox>
-            </div>
-            <div>
-              <b-link :to="{ name: 'SopakitItems' }"> 아이디 찾기 </b-link>
-              <span class="seperator">|</span>
-              <b-link>비밀번호 찾기</b-link>
-            </div>
-          </div>
-          <div class="kakao-login-button-wrapper">
-            <b-button class="kakao-login-button">
-              <svg
-                class="kakaotalk-logo"
-                width="17.67"
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 17.67 16.4"
-              >
-                <path
-                  fill="#381e1f"
-                  d="M17.67,7.26c0,4-4,7.26-8.83,7.26A10.18,10.18,0,0,1,4,13.35,7,7,0,0,1,0,7.26C0,3.25,4,0,8.84,0S17.67,3.25,17.67,7.26Z"
-                />
-                <polygon
-                  fill="#381e1f"
-                  points="3.14 16.4 7.46 14.43 4.03 13.35 3.14 16.4"
-                />
-              </svg>
-              <span class="kakao-login-button-text"
-                ><span class="bold">카카오</span>로 로그인</span
-              ></b-button
+          <div>
+            <b-link :to="{ name: 'SopakitItems' }" @click="closeModal"
+              >비밀번호 초기화</b-link
             >
+            <!-- <span class="seperator">|</span>
+              <b-link>비밀번호 찾기</b-link> -->
           </div>
-          <div class="join-guide">
-            <p class="join-guide-text">아직 회원이 아니신가요?</p>
-            <b-button :to="{ name: 'Join' }" class="join-button"
-              >소파섬 회원가입</b-button
+        </div>
+        <p class="error-msg" v-if="loginFailReason.length > 0">
+          <font-awesome-icon
+            class="exclamation-icon"
+            :icon="['fas', 'exclamation-circle']"
+          >
+          </font-awesome-icon>
+          {{ loginFailReason }}
+        </p>
+        <div class="kakao-login-button-wrapper">
+          <b-button class="kakao-login-button">
+            <svg
+              class="kakaotalk-logo"
+              width="17.67"
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 17.67 16.4"
             >
-          </div>
-        </b-form>
-      </validation-observer>
+              <path
+                fill="#381e1f"
+                d="M17.67,7.26c0,4-4,7.26-8.83,7.26A10.18,10.18,0,0,1,4,13.35,7,7,0,0,1,0,7.26C0,3.25,4,0,8.84,0S17.67,3.25,17.67,7.26Z"
+              />
+              <polygon
+                fill="#381e1f"
+                points="3.14 16.4 7.46 14.43 4.03 13.35 3.14 16.4"
+              />
+            </svg>
+            <span class="kakao-login-button-text"
+              ><span class="bold">카카오</span>로 로그인</span
+            ></b-button
+          >
+        </div>
+        <div class="join-guide">
+          <p class="join-guide-text">아직 회원이 아니신가요?</p>
+          <b-button :to="{ name: 'Join' }" class="join-button"
+            >소파섬 회원가입</b-button
+          >
+        </div>
+      </b-form>
+      <!-- </validation-observer> -->
     </div>
     <div class="login-footer">
       <p>Copyright © 2020 Cinesopa All Rights Reserved</p>
@@ -210,12 +241,13 @@ import { graphql } from '@/api/graphql-client';
 import router from '@/router';
 import {
   BForm,
-  BFormGroup,
-  BFormInvalidFeedback,
+  // BFormGroup,
+  // BFormInvalidFeedback,
   BFormInput,
   BButton,
   BFormCheckbox,
   BLink,
+  BTooltip,
 } from 'bootstrap-vue';
 
 const loginMutation = `
@@ -238,15 +270,16 @@ mutation Login ($email: String!, $pwd: String!) {
 export default {
   components: {
     BForm,
-    BFormGroup,
-    BFormInvalidFeedback,
+    // BFormGroup,
+    // BFormInvalidFeedback,
     BFormCheckbox,
     BFormInput,
     BLink,
     BButton,
+    BTooltip,
   },
   props: {
-    'modal-id': {
+    modalId: {
       type: String,
       default: '',
     },
@@ -260,20 +293,30 @@ export default {
       pwd: '',
       text: '',
       show: true,
-      loginFailReason: '',
+      loginFailReason: '테스트',
+      autoLogin: false,
+      validate: {
+        email: {
+          provider: 'emailProvider',
+          showTooltip: false,
+          tooltipText: '',
+          tooltipTimer: 0,
+        },
+        password: {
+          provider: 'passwordProvider',
+          showTooltip: false,
+          tooltipText: '',
+          tooltipTimer: 0,
+        },
+      },
     };
   },
   methods: {
-    async wrongPassword() {
+    async initWhenLoginFail() {
       this.email = '';
       this.pwd = '';
-      this.show = false;
       this.$nextTick(() => {
-        this.$refs.observer.reset();
-        this.show = true;
-        this.$nextTick(() => {
-          this.$refs.email.focus();
-        });
+        this.$refs.email.focus();
       });
     },
 
@@ -289,28 +332,127 @@ export default {
       const result = await graphql(loginMutation, { email, pwd });
       this.text = result;
 
-      // 로그인 실패
-      if (result.errors) {
-        this.loginFailReason = '이메일과 비밀번호가 일치하지 않습니다.';
-        await this.wrongPassword();
+      // 권한 자체가 잘못된 문제.
+      if (!result.data.login) {
+        this.closeModal();
+        router.go();
         return;
       }
+
+      const {
+        redirectLink,
+        user,
+        success,
+        wrong_reason,
+        wrong_pwd_count,
+      } = result.data.login;
+
+      console.log(`wrong_reason: ${wrong_reason}`);
+      // 로그인 실패
+      if (!success) {
+        if (wrong_reason === 'too_much_attempt') {
+          this.loginFailReason =
+            '로그인 시도 허용횟수를 초과했습니다. 비밀번호를 초기화 해주세요.';
+        } else if (wrong_reason === 'no_email') {
+          this.loginFailReason =
+            '이메일이 존재하지 않습니다. 회원가입 하거나 카카오로 로그인 해주세요.';
+        } else if (wrong_reason === 'wrong_pwd') {
+          this.loginFailReason = '비밀번호가 일치하지 않아요.';
+          if (wrong_pwd_count >= 2 && wrong_pwd_count <= 4) {
+            this.loginFailReason += ` 로그인을 연속해서 실패하면 비밀번호를 초기화해야 합니다. (${wrong_pwd_count} / 5)`;
+          }
+        }
+        await this.initWhenLoginFail();
+        return;
+      }
+
       // 데이터로부터 redirectLink가 오면 해당 리다이렉트 페이지로 이동
-      const redirectLink = result?.data?.login?.redirectLink;
-      if (redirectLink) {
-        console.log('#loginProcess');
-        console.dir(result.data);
-        const parsed = url.parse(redirectLink);
-        router.push(parsed.pathname);
+      let redirectPath = '';
+      console.dir(result.data);
+      console.log(this.$route.fullPath);
+
+      if (redirectLink === '') {
+        redirectPath = '/';
       } else {
-        console.log('#loginProcess');
-        console.log(result);
-        router.push({ name: 'Home' });
+        const parsed = url.parse(redirectLink);
+        redirectPath = parsed.pathname;
+      }
+      console.log(redirectLink);
+
+      // 경로가 같지 않을 때에만 페이지로 이동
+      if (this.$route.fullPath !== redirectPath) router.push(redirectPath);
+      else {
+        router.go();
+      }
+
+      // 로그인 창 없애기
+      this.closeModal();
+
+      // 로그인 성공한 유저를 현재 상태에 저장
+      this.$store.commit('setCurrentUser', { currentUser: user });
+    },
+    loginButtonClicked() {
+      // validation 실시
+      const providerJobs = [];
+      Object.keys(this.validate).forEach((name) => {
+        const item = this.validate[name];
+        const provider = this.$refs[item.provider];
+        // validation 작업이 비동기로 이루어지기 때문에
+        // Promise 를 이용하여 다 넣음.
+        providerJobs.push(
+          new Promise((resolve, reject) => {
+            provider
+              .validate()
+              .then((result) => {
+                const { valid } = result;
+                // validation 을 통과하지 못했다면, 툴팁을 나타나도록 함.
+                if (!valid) {
+                  item.showTooltip = true;
+                  // 3초 뒤에 툴팁이 사라지도록 함.
+                  // 만약 사라지는 timeout 이 이미 존재한다면, 그것을 삭제함.
+                  if (item.tooltipTimer !== 0) {
+                    clearTimeout(item.tooltipTimer);
+                  }
+                  item.tooltipTimer = setTimeout(() => {
+                    item.showTooltip = false;
+                  }, 3000);
+                }
+                return resolve(result);
+              })
+              .catch((err) => reject(err));
+          }),
+        );
+      });
+      // 모든 validation 작업이 완료되었을 때
+      Promise.allSettled(providerJobs)
+        .then((proms) => {
+          if (proms.every((prom) => prom.value.valid)) {
+            this.login();
+          }
+        })
+        .catch((error) => {});
+
+      // 모든 validation 이 만족하는지 체크
+    },
+
+    closeModal() {
+      if (this.modalId !== '') {
+        this.$bvModal.hide(this.modalId);
       }
     },
 
     getValidationState({ dirty, validated, valid = null }) {
       return dirty || validated ? valid : null;
+    },
+
+    inputted(refname) {
+      if (this.validate[refname].showTooltip !== false) {
+        this.validate[refname].showTooltip = false;
+      }
+    },
+    print(a) {
+      console.dir(a);
+      return true;
     },
   },
   created() {
@@ -338,7 +480,7 @@ export default {
 .login-body {
   margin-top: 20px;
 }
-.password-input {
+.input-password {
   margin-top: -1px;
 }
 
@@ -436,6 +578,17 @@ export default {
   font-size: 9px;
   text-align: center;
   margin: 0;
+}
+
+/** error */
+.exclamation-icon {
+  margin-right: 5px;
+}
+
+.error-msg {
+  padding: 10px;
+  background-color: #fff;
+  font-weight: bold;
 }
 </style>
 

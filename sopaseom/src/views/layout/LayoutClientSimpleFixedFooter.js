@@ -1,9 +1,8 @@
-<template>
-  <div class="layout layout-client layout-client-fixed-footer">
-    <nav-menu>
-    </nav-menu>
+{/* <template>
+  <div class="layout layout-client layout-client-simple-fixed-footer">
+    <nav-menu></nav-menu>
     <router-view></router-view>
-    <footer-component></footer-component>
+    <footer-simple-component></footer-simple-component>
   </div>
 </template>
 
@@ -17,16 +16,14 @@
 
 export default {
   components: {
-    FooterComponent: () => import('@/components/FooterComponent.vue'),
+    FooterSimpleComponent: () =>
+      import('@/components/FooterSimpleComponent.vue'),
     NavMenu: () => import('@/components/NavMenu.vue'),
   },
 };
 </script>
 
 <style lang="scss" scoped>
-
-
-
 </style>
 
-<style></style>
+<style></style> */}

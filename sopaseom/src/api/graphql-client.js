@@ -107,7 +107,6 @@ export const logoutMeQuery = `
 mutation LogoutMe {
   logoutMe {
     email
-    name
     c_date
     role
     verified

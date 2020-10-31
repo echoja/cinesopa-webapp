@@ -12,7 +12,8 @@ export default [
     name: 'Home',
     component: () => import('../views/client/Home.vue'),
     meta: {
-      layout: () => import('@/views/layout/LayoutClientNoFooter.vue'),
+      layout: () => import('@/views/layout/LayoutClient.vue'),
+      footerStyle: () => import('@/views/layout/BodyNoFooter.vue'),
     },
   },
   {
@@ -164,7 +165,13 @@ export default [
     path: '/join',
     name: 'Join',
     component: () => import('@/views/client/Join.vue'),
-    beforeEnter: onlyNoLoginBeforeEnter,
+    beforeEnter: (to, from, next) => {
+      if (to.fullPath == '/join') {
+        next({ name: 'JoinPolicy' });
+      } else {
+        next();
+      }
+    },
     children: [
       {
         path: 'policy',

@@ -18,7 +18,8 @@ const store = new Vuex.Store({
    * 값을 수정하려면 mutation 을 써야 함.
    */
   state: {
-    currentUser: {},
+    userInitialized: false,
+    currentUser: null,
     testString: '초기테스트 스토어',
     errorMsg: '',
     ...testStates,
@@ -50,6 +51,9 @@ const store = new Vuex.Store({
     setCurrentUser(state, { currentUser }) {
       state.currentUser = currentUser;
     },
+    setUserInitialized(state, userInitialized) {
+      state.userInitialized = userInitialized;
+    },
     setTestString(state, { value }) {
       state.testString = value;
     },
@@ -68,6 +72,9 @@ const store = new Vuex.Store({
    * 액션 내부에서
    */
   actions: {
+    async setCurrentUser(state, { user }) {
+      state.commit('setCurrentUser', { currentUser: user });
+    },
     async changeTestString(state, { text }) {
       state.commit('setTestString', { value: text });
     },

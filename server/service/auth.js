@@ -101,6 +101,8 @@ class AuthService {
     // console.log("-- session in login --");
     // console.dir(context.req.session);
     // console.log(context.req.sessionID);
+    // 로그인에 성공했다면, wrong_pwd_count 초기화
+    this.#db.updateUser(email, { wrong_pwd_count: 0 });
 
     // 본래 있던 redirectLink 삭제
     if (redirectLink) {

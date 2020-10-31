@@ -3,7 +3,7 @@ import Vue from 'vue';
 import VueRouter from 'vue-router';
 import adminRoutes from './admin';
 import publicRoutes from './public';
-// import { makeRouterScrollToTopIfSamePage } from './nav-guard';
+import { checkAuthFor } from './nav-guard';
 
 Vue.use(VueRouter);
 
@@ -23,6 +23,8 @@ const router = new VueRouter({
   base: process.env.BASE_URL,
   routes: routesFinal,
 });
+
+checkAuthFor(router);
 
 // makeRouterScrollToTopIfSamePage(router);
 

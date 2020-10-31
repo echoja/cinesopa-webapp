@@ -121,7 +121,7 @@
         </div>
 
         <main>
-          <slot @successMsg="onSuccessMsg" />
+          <router-view @successMsg="onSuccessMsg"></router-view>
         </main>
       </div>
     </div>
@@ -227,18 +227,18 @@ export default {
   methods: {
     ...mapActions(['removeMessage']),
     async someMethod() {
-      alert('hi');
+      // alert('hi');
     },
     async onSuccessMsg(msg) {
-      alert(msg);
+      // alert(msg);
     },
     async messageDismissed(id) {
       this.removeMessage({ id });
     },
     async messageChanged(a, b) {
-      console.log('mesageChanged');
-      console.log(a);
-      console.log(b);
+      // console.log('mesageChanged');
+      // console.log(a);
+      // console.log(b);
     },
   },
   data: () => ({
@@ -248,6 +248,7 @@ export default {
 </script>
 
 <style>
+
 body {
   font-size: 14px;
 }

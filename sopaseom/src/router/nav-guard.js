@@ -2,8 +2,22 @@ import store from '../store';
 // eslint-disable-next-line object-curly-newline
 import { graphql, checkAuthQuery, logoutMeQuery, emailVerifyMutation } from '../api/graphql-client';
 
+export const currentUserQuery = `
+query currentUserQuery {
+  currentUser {
+    email
+    c_date
+    role
+    verified
+  }
+}
+`;
+
+export const getCurrentUser = async () => {};
+
 export const logoutBeforeEnter = async (to, from, next) => {
   await graphql(logoutMeQuery, {});
+  store.commit('setCurrentUser', { currentUser: null });
   next('/');
 };
 
@@ -49,7 +63,7 @@ export const myBeforeEnter = async (to, from, next) => {
   console.log('# myBeofreEnter');
   console.log(result);
   console.log(to.fullPath);
-  // tooo
+  // todo
   next();
 };
 
@@ -79,8 +93,8 @@ export const requireAuth = (role, shouldVerified, failRN = {}) => async (to, fro
       next({ name: noPermissionRN });
     }
   } else {
-    store.commit('setUser', {
-      user,
+    store.commit('setCurrentUser', {
+      currentUser: user,
     });
     next();
   }
@@ -96,3 +110,19 @@ export const requireAuth = (role, shouldVerified, failRN = {}) => async (to, fro
 //     }
 //   });
 // };
+
+export const checkAuthFor = (router) => {
+  // eslint-disable-next-line no-param-reassign
+  router.beforeEach(async (to, from, next) => {
+    if (store.state.userInitialized === false) {
+      const result = await graphql(currentUserQuery, {});
+      let { currentUser } = result.data;
+      if (!currentUser) currentUser = {};
+      console.log('currentUser every beforeEach ho~!');
+      console.dir(currentUser);
+      store.commit('setUserInitialized', true);
+      store.commit('setCurrentUser', { currentUser });
+    }
+    next();
+  });
+};

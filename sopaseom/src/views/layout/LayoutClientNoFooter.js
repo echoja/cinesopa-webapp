@@ -1,4 +1,4 @@
-<template>
+{/* <template>
   <div class="layout layout-client layout-client-no-footer">
     <nav-menu>
     </nav-menu>
@@ -22,4 +22,4 @@ export default {
 };
 </script>
 
-<style></style>
+<style></style> */}

@@ -12,6 +12,7 @@ const {
 
 const { model, db } = require('../loader');
 const passport = require('../auth/passport');
+const { resetBehavior } = require('sinon');
 
 const usersQuery = `
 query usersQuery {
@@ -901,6 +902,19 @@ describe('user', function () {
           expect(result2.wrong_pwd_count).to.equal(5);
           expect(result2.wrong_reason).to.equal('too_much_attempt');
           expect(result2.user).to.be.null;
+        });
+        it.only('로그인 성공 시 비밀번호 틀린 횟수가 초기화되어야 함', async function() {
+          await wrongPasswd();
+          await wrongPasswd();
+          await wrongPasswd();
+          await graphqlSuper(agent, loginMutation, {
+            email: 'eszqsc112@naver.com',
+            pwd: '13241324',
+          });
+          await agent.get('/logout');
+          const res = await wrongPasswd();
+          const result = res.body.data.login;
+          expect(result.wrong_pwd_count).to.equal(1);
         });
       });
       describe('logoutMe', function () {

@@ -1,7 +1,7 @@
 <template>
-  <footer class="site-footer-wrapper">
+  <footer class="site-footer-wrapper" :class="{simple: isSimple}">
     <div class="site-footer container-fluid">
-      <div class="row">
+      <div v-if="!isSimple" class="row">
         <div class="left col-12 col-md-6">
           <div class="name">영화배급협동조합 씨네소파</div>
           <div class="copyright">
@@ -25,7 +25,7 @@
             </span>
           </div>
         </div>
-        <div class="right col-12 col-md-6">
+        <div v-if="!isSimple" class="right col-12 col-md-6">
           <div>
             <div class="right-block">개인정보관리책임자 : 성송이</div>
             <div class="right-block">사업자번호 : 159-87-00749</div>
@@ -57,9 +57,18 @@
 import { BLink } from 'bootstrap-vue';
 
 export default {
+  props: ['simple'],
   components: {
     BLink,
     CinesopaLogo: () => import('../components/CinesopaLogo.vue'),
+  },
+  computed: {
+    isSimple() {
+      return this.simple === '' || this.simple === true;
+    },
+  },
+  mounted() {
+    console.log({ msg: 'Footer-simple!!', simple: this.simple });
   },
 };
 </script>
@@ -76,6 +85,12 @@ $gray-c2: #7a7a7a;
   background-color: #fff;
 }
 
+@include max-with(sm) {
+  .site-footer-wrapper {
+    padding: 0 $mobile-min-x-margin;
+  }
+}
+
 // @include max-with(md) {
 //   .site-footer-wrapper {
 //     margin-bottom: 30px;
@@ -85,12 +100,16 @@ $gray-c2: #7a7a7a;
 .site-footer {
   z-index: 1;
   position: relative;
-
   width: 100%;
   height: $desktop-footer-height;
   border-top: 2px solid black;
   padding: 30px 0 30px;
   color: $gray-c1;
+}
+
+.simple .site-footer {
+  height: 100px;
+  
 }
 
 @include max-with(md) {

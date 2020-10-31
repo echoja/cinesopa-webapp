@@ -15,6 +15,7 @@ module.exports = {
     'object-curly-newline': 'off',
     'brace-style': 'off',
     'operator-linebreak': 'off',
-    'camelcase': 'off',
+    camelcase: 'off',
+    'implicit-arrow-linebreak': 'off',
   },
 };

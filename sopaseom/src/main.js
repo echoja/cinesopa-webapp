@@ -6,6 +6,7 @@ import './plugins/veevalidate';
 import './plugins/vue-page-title';
 import './plugins/vue-bootstrap';
 import './plugins/custom-style.scss';
+import './plugins/vue-fontawesome';
 import App from './App.vue';
 import router from './router';
 import store from './store';

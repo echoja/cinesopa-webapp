@@ -9,9 +9,21 @@
         </div>
         <div class="scdown" ref="scdown">
           <!-- <img src="@/assets/scroll-down.svg" /> -->
-          <svg class="scdown-icon" width="82.91" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 82.91 22.78">
+          <svg
+            class="scdown-icon"
+            width="82.91"
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 82.91 22.78"
+          >
             <g opacity="0.5" class="scdown-a">
-              <polyline fill="none" stroke="#000" stroke-miterlimit="10" stroke-width="1.7" class="scdown-b" points="82.52 0.76 41.45 21.82 0.39 0.76" />
+              <polyline
+                fill="none"
+                stroke="#000"
+                stroke-miterlimit="10"
+                stroke-width="1.7"
+                class="scdown-b"
+                points="82.52 0.76 41.45 21.82 0.39 0.76"
+              />
             </g>
           </svg>
         </div>
@@ -21,7 +33,7 @@
             <p>어딘가 외로운 이름.</p>
           </div>
         </div>
-        <div class="slide" ref="sl3">
+        <div class="slide sl3" ref="sl3">
           <div class="slide-big-text">
             <p>
               <span ref="sl3-tl" class="d-inline-block">당신과</span> 독립영화
@@ -39,13 +51,17 @@
             </div>
             <div class="slide-small-text">
               <p>
-                상영 기회가 없던, 작지만 본연의 가치를 지닌 영화들을 발굴합니다.
+                상영 기회가 없던, 작지만 본연의 <br class="small" />가치를 지닌
+                영화들을 발굴합니다.
               </p>
               <p>
-                당신이 영화를 좀 더 깊이있게 누릴 수 있는 영화의 시간을
-                준비합니다.
+                당신이 영화를 좀 더 깊이있게 <br class="small" />누릴 수 있는
+                영화의 시간을 준비합니다.
               </p>
-              <p>당신과 영화의 다양한 만남과 가능성을 제안합니다.</p>
+              <p>
+                당신과 영화의 다양한 만남과 <br class="small" />가능성을
+                제안합니다.
+              </p>
             </div>
           </div>
         </div>
@@ -60,7 +76,7 @@
           ></div>
         </div>
 
-        <div class="slide slide-left" ref="sl5">
+        <div class="slide slide-left sl5" ref="sl5">
           <div class="slide-big-text">
             <p>영화향유플랫폼 소파섬은</p>
             <p>당신의 풍요롭고</p>
@@ -689,12 +705,34 @@ export default {
   font-size: 20px;
   margin: 0;
 }
+
+br.small {
+  display: none;
+}
+
 @include max-with(md) {
   .slide-big-text p {
     font-size: 36px;
   }
+
+  .sl3 .slide-big-text p,
+  .sl5 .slide-big-text p {
+    letter-spacing: -1px;
+    word-spacing: 1px;
+  }
+  .sl3 .slide-big-text p {
+    font-size: 26px;
+  }
+  .sl5 .slide-big-text p {
+    font-size: 30px;
+  }
   .slide-small-text p {
     font-size: 16px;
+    line-height: 1.4;
+    margin-bottom: 7px;
+  }
+  br.small {
+    display: inline;
   }
 }
 
@@ -714,7 +752,7 @@ export default {
   bottom: 0;
 }
 .scdown-icon {
-  animation: 5s ease infinite scdown
+  animation: 5s ease infinite scdown;
 }
 
 @keyframes scdown {
@@ -734,6 +772,11 @@ export default {
 
 .sl4-content {
   transform: translateY(-50px);
+}
+@include max-with(sm) {
+  .sl4-content {
+    transform: translateY(0);
+  }
 }
 
 .wave {

@@ -25,7 +25,7 @@
           <b-link
             class="nav-main-menu-link"
             @click="$bvModal.show('modal-login')"
-            v-if="typeof currentUser.email !== 'string'"
+            v-if="!currentUser"
           >
             로그인
           </b-link>
@@ -37,7 +37,7 @@
             >
               <close-figure></close-figure>
             </b-link>
-            <login-form></login-form>
+            <login-form modal-id="modal-login"></login-form>
             <!-- <template #modal-header-close>
               <b-img
                 class="close-button"
@@ -53,23 +53,22 @@
 
           <b-link
             class="nav-main-menu-link"
-            v-if="typeof currentUser.email !== 'string'"
+            :to="{ name: 'Join' }"
+            v-if="!currentUser"
           >
             회원가입
           </b-link>
-          <b-link
-            class="nav-main-menu-link"
-            v-if="typeof currentUser.email === 'string'"
-          >
+          <b-link class="nav-main-menu-link" v-if="currentUser">
             마이페이지
           </b-link>
           <b-link
+            :to="{ name: 'Logout' }"
             class="nav-main-menu-link"
-            v-if="typeof currentUser.email === 'string'"
+            v-if="currentUser"
           >
             로그아웃
           </b-link>
-          <b-button @click="zoomed = !zoomed"></b-button>
+          <!-- <b-button @click="zoomed = !zoomed"></b-button> -->
         </div>
       </div>
     </header>
@@ -94,9 +93,6 @@ export default {
     BLink,
     BButton,
     BModal,
-    BImg,
-    BForm,
-    BFormInput,
     CloseFigure: () => import('@/components/CloseFigure'),
     LoginForm: () => import('@/components/LoginForm'),
   },
@@ -132,6 +128,13 @@ export default {
   top: 0;
   background-color: #fff;
 }
+
+@include max-with(sm) {
+  .nav-main-menu-wrapper {
+    padding: 0 $mobile-min-x-margin;
+  }
+}
+
 
 .nav-main-menu {
   position: relative;
@@ -204,7 +207,10 @@ export default {
   }
 }
 
-.mobile .zoomed .logo-abs {
+@include max-with(sm) {
+  .zoomed .logo-abs img {
+    width: 200px;
+  }
 }
 
 .logo-tag {
