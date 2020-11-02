@@ -98,12 +98,17 @@ mutation logoutMeMutation {
 `;
 
 const createGuestMutation = `
-mutation createGuestMutation($email: String!, $pwd: String!, $debug: Boolean) {
-  createGuest(email: $email, pwd: $pwd, debug: $debug) {
+mutation createGuestMutation($email: String!, $pwd: String!, $user_agreed: UserAgreedInput, $debug: Boolean) {
+  createGuest(email: $email, pwd: $pwd, user_agreed: $user_agreed, debug: $debug) {
     email
     role
     verified
     has_pwd
+    user_agreed {
+      privacy
+      policy
+      advertisement
+    }
   }
 }
 `;
@@ -903,7 +908,7 @@ describe('user', function () {
           expect(result2.wrong_reason).to.equal('too_much_attempt');
           expect(result2.user).to.be.null;
         });
-        it.only('로그인 성공 시 비밀번호 틀린 횟수가 초기화되어야 함', async function() {
+        it('로그인 성공 시 비밀번호 틀린 횟수가 초기화되어야 함', async function() {
           await wrongPasswd();
           await wrongPasswd();
           await wrongPasswd();
@@ -936,11 +941,15 @@ describe('user', function () {
       });
 
       describe('createGuest', function () {
-        // 이 테스트는 실제 메일을 씁니다!!!
         it('제대로 동작해야 함', async function () {
           await graphqlSuper(agent, createGuestMutation, {
             email: 'eszqsc112@naver.com',
             pwd: '13241324',
+            user_agreed: {
+              privacy: true,
+              policy: true,
+              advertisement: false,
+            },
             debug: true,
           });
           const user = await model.User.findOne({
@@ -949,9 +958,13 @@ describe('user', function () {
             .lean()
             .exec();
           // expect(user.email).to.equal('eszqsc112@naver.com');
+          console.log(user);
           expect(user.role).to.equal('GUEST');
           expect(user.verified).to.equal(false);
           expect(user.has_pwd).to.equal(true);
+          expect(user.user_agreed.privacy).to.equal(true);
+          expect(user.user_agreed.policy).to.equal(true);
+          expect(user.user_agreed.advertisement).to.equal(false);
         });
         it('완료하고 나면 로그인 된 상태여야 함.', async function () {
           await graphqlSuper(agent, createGuestMutation, {
@@ -966,7 +979,7 @@ describe('user', function () {
         });
       });
       describe('db.upsertKakaoUser > createGuest', function () {
-        it('카카오 계정이 있는 상태에서는 계정이 합병되어야 함.', async function () {
+        it('카카오 계정이 있는 상태에서는 계정이 합병되어야 함. (실제 기능으로는 악용의 소지가 있으므로 넣지 않아야 함)', async function () {
           await db.upsertKakaoUser('eszqsc112@naver.com', {
             kakao_access_token: '123',
             kakao_refresh_token: '456',

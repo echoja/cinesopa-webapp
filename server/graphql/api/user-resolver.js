@@ -107,8 +107,8 @@ const checkAuth = makeResolver(async (obj, args, context, info) => {
 }).only(ACCESS_ALL);
 
 const createGuest = makeResolver(async (obj, args, context, info) => {
-  const { email, pwd, debug } = args;
-  await user.createGuest(email, pwd, debug);
+  const { email, pwd, user_agreed, debug } = args;
+  await user.createGuest(email, pwd, user_agreed, debug);
   const loginResult = await auth.login(email, pwd, context);
 }).only(ACCESS_ALL);
 

@@ -50,6 +50,8 @@ class UserService {
       senderEmail: 'coop.cinesopa@gmail.com',
       senderName: '영화배급협동조합 씨네소파',
     };
+
+    // 디버그 모드가 아닐 때에만 메일 발송!
     if (!debug) {
       await this.#mail.sendMail(
         mailGate,
@@ -67,13 +69,14 @@ class UserService {
    * 이미 카카오 계정이 있다면 합병하는 것만으로도 충분
    * @param {string} email 이메일
    * @param {string} pwd 비밀번호
+   * @param {UserAgreedinfo} user_agreed 약관 동의 정보
    * @param {boolean} debug 디버그 모드. 켜면 메일을 안보냄.
    * @param {context} context
    */
-  async createGuest(email, pwd, debug) {
+  async createGuest(email, pwd, user_agreed, debug) {
     const user = await this.#db.getUserByEmail(email);
     if( !user) {
-      await this.#db.createUser(email, pwd, { role: 'GUEST' });
+      await this.#db.createUser(email, pwd, { role: 'GUEST', user_agreed });
       await this.startEmailVerifying(email, debug);
     } else {
       await this.#db.updateUser(email, {

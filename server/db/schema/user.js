@@ -7,7 +7,11 @@ const role = enumAuthmap.raw_str_list.slice(0, -1);
 module.exports = function (mongoose) {
   const CartItem = makeCartItem(mongoose);
   const Destinfo = makeDestinfo(mongoose);
-
+  const UserAgreed = new mongoose.Schema({
+    privacy: Boolean,
+    policy: Boolean,
+    advertisement: Boolean,
+  });
   const Order = new mongoose.Schema({
     status: { type: String, enum: enumOrderStatus.raw_str_list },
     method: { type: String, enum: enumOrderMethod.raw_str_list },
@@ -38,6 +42,7 @@ module.exports = function (mongoose) {
     kakao_refresh_token: String,
     kakao_id: String,
     verified: { type: Boolean, default: false },
+    user_agreed: UserAgreed,
   });
 
   User.methods.isCorrectPassword = async (pwd) => {

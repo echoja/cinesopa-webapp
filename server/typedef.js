@@ -3,6 +3,67 @@
 ===================================== */
 
 /**
+ * 목적지 정보를 담는 객체
+ * @typedef {Object} Destinfo
+ *  @property {string}  name
+ *  @property {string} address
+ *  @property {string} address_detail
+ *  @property {string} phone
+ *  @property {string} request
+ */
+
+/**
+ * 카트의 제품 정보를 담는 객체
+ * @typedef {Object} CartItemProductinfo
+ * @property {string}  product_type : { type: String, enum: enumProductType.raw_str_list },
+ * @property {number}  product_url_id : Number, // 제품의 링크용
+ * @property {string}  name : String,
+ * @property {string}  featured_image_url : String,
+ */
+
+/**
+ * 카트의 옵션을 담는 객체
+ * @typedef {Object} CartItemOptioninfo
+ * @property {string} content : String,
+ * @property {number} price : Number,
+ * @property {number} count : Number,
+ *
+ */
+
+/**
+ * 카트 아이템을 담는 객체
+ * @typedef {Object} CartIteminfo
+ * @property {string}  user : String, // 유저 이메일
+ * @property {Date}  added_date : { type: Date, default: Date.now },
+ * @property {string}  product_id : { type: mongoose.Schema.Types.ObjectId, ref: 'Product' },
+ * @property {CartItemProductinfo}  product : CartItemProduct,
+ * @property {CartItemOptioninfo[]}  options : [CartItemOption],
+ * @property {object}  meta : mongoose.Schema.Types.Mixed,
+ */
+
+/**
+ * 주문 정보를 담는 객체
+ * @typedef {Object} Orderinfo
+ # @property {string}   status
+ # @property {string}   method
+ # @property {Date}   c_date
+ # @property {Date}   expected_date
+ # @property {string}   cash_receipt
+ # @property {string}   transport_number
+ # @property {string}   transport_company
+ # @property {object}   meta
+ # @property {CartIteminfo[]}   items
+ # @property {string}   dest
+ */
+
+/**
+ * @typedef {Object} UserAgreedinfo
+ * @property {boolean} privacy : Boolean,
+ * @property {boolean} policy : Boolean,
+ * @property {boolean} advertisement : Boolean,
+ */
+
+/**
  * 유저 정보를 담는 객체
  * @typedef {Object} Userinfo
  * @property {string} email
@@ -13,11 +74,12 @@
  * @property {Date} blocked_date
  * @property {number} blocked_count
  * @property {string} role
- * @property {Order[]} orders
+ * @property {Orderinfo[]} orders
  * @property {string} kakao_access_token
  * @property {string} kakao_refresh_token
  * @property {string} kakao_id
  * @property {boolean} verified
+ * @property {UserAgreedinfo} user_agreed
  */
 
 /**
@@ -227,7 +289,7 @@ api
  * @return {Promise<Userinfo>} 유저 정보
  */
 
- /**
+/**
  * passport kakao 에서 새롭게 유저를 만드는 데 쓰는 함수
  *
  * @callback UserCreator

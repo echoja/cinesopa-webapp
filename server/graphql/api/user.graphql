@@ -12,6 +12,7 @@ type User {
   kakao_refresh_token: String
   kakao_id: String
   verified: Boolean
+  user_agreed: UserAgreed
 }
 
 type UsersResult {
@@ -60,6 +61,12 @@ type ChangePasswordResult {
   success: Boolean
 }
 
+type UserAgreed {
+  privacy: Boolean
+  policy: Boolean
+  advertisement: Boolean
+}
+
 enum UserRole {
   ADMIN
   GUEST
@@ -97,6 +104,12 @@ input UpdateMeInput {
   default_dest: DestinfoInput
 }
 
+input UserAgreedInput {
+  privacy: Boolean
+  policy: Boolean
+  advertisement: Boolean
+}
+
 extend type Query {
   users: UsersResult
   user(email: String!): User
@@ -113,7 +126,7 @@ extend type Mutation {
   # logout(email: String!): LoginResult
   logoutMe: User
   # createAdmin(email: String!, pwd: String!, role: UserRole!): User
-  createGuest(email: String!, pwd: String!, debug: Boolean): User # debug 라면 메일을 보내지 않음. 딱 그것뿐.
+  createGuest(email: String!, pwd: String!, user_agreed: UserAgreedInput, debug: Boolean): User # debug 라면 메일을 보내지 않음. 딱 그것뿐.
   verifyUserEmail(token: String!): User
 
   updateUserAdmin(email: String!, userinfo: UpdateUserAdminInput): User 
