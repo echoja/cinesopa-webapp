@@ -154,7 +154,7 @@ reset        () => void        A function that resets the validation state on th
             id="input-password"
             class="input-password"
             v-model="pwd"
-            placeholder="패스워드"
+            placeholder="비밀번호"
             @keyup.enter="loginButtonClicked"
             :disabled="state.loginProcessing"
             @input="inputted('password')"
@@ -184,7 +184,7 @@ reset        () => void        A function that resets the validation state on th
           </div>
           <div>
             <b-link :to="{ name: 'SopakitItems' }" @click="closeModal"
-              >비밀번호 초기화</b-link
+              >비밀번호 재설정</b-link
             >
             <!-- <span class="seperator">|</span>
               <b-link>비밀번호 찾기</b-link> -->
@@ -237,7 +237,7 @@ reset        () => void        A function that resets the validation state on th
 
 <script>
 import url from 'url';
-import { graphql } from '@/api/graphql-client';
+import { graphql, loginMutation } from '@/api/graphql-client';
 import router from '@/router';
 import {
   BForm,
@@ -249,23 +249,7 @@ import {
   BLink,
   BTooltip,
 } from 'bootstrap-vue';
-
-const loginMutation = `
-mutation Login ($email: String!, $pwd: String!) {
-  login(provider: {email:$email, pwd: $pwd}) {
-    wrong_reason
-    wrong_pwd_count
-    success
-    emailVerificationRequired
-    user {
-      email
-      role
-      verified
-    }
-    redirectLink
-  }
-}
-`;
+import { mapActions } from 'vuex';
 
 export default {
   components: {
@@ -293,7 +277,7 @@ export default {
       pwd: '',
       text: '',
       show: true,
-      loginFailReason: '테스트',
+      loginFailReason: '',
       autoLogin: false,
       validate: {
         email: {
@@ -312,6 +296,7 @@ export default {
     };
   },
   methods: {
+    ...mapActions(['pushMessage']),
     async initWhenLoginFail() {
       this.email = '';
       this.pwd = '';
@@ -321,7 +306,7 @@ export default {
     },
 
     async login() {
-      this.loginFailReason = '';
+      // this.loginFailReason = '';
       this.state.loginProcessing = true;
       await this.loginProcess();
       this.state.loginProcessing = false;
@@ -332,9 +317,10 @@ export default {
       const result = await graphql(loginMutation, { email, pwd });
       this.text = result;
 
-      // 권한 자체가 잘못된 문제.
+      // 권한 자체가 잘못된 문제. 이미 로그인된 상태인데 로그인 창이 떠있는 거였음.
       if (!result.data.login) {
         this.closeModal();
+        // 현재 페이지를 새로고침.
         router.go();
         return;
       }
@@ -352,14 +338,14 @@ export default {
       if (!success) {
         if (wrong_reason === 'too_much_attempt') {
           this.loginFailReason =
-            '로그인 시도 허용횟수를 초과했습니다. 비밀번호를 초기화 해주세요.';
+            '로그인 시도 허용횟수를 초과했습니다. 비밀번호를 재설정해주세요.';
         } else if (wrong_reason === 'no_email') {
           this.loginFailReason =
             '이메일이 존재하지 않습니다. 회원가입 하거나 카카오로 로그인 해주세요.';
         } else if (wrong_reason === 'wrong_pwd') {
           this.loginFailReason = '비밀번호가 일치하지 않아요.';
           if (wrong_pwd_count >= 2 && wrong_pwd_count <= 4) {
-            this.loginFailReason += ` 로그인을 연속해서 실패하면 비밀번호를 초기화해야 합니다. (${wrong_pwd_count} / 5)`;
+            this.loginFailReason += ` 로그인을 연속해서 실패하면 비밀번호를 재설정해야 합니다. (${wrong_pwd_count} / 5)`;
           }
         }
         await this.initWhenLoginFail();
@@ -381,15 +367,19 @@ export default {
 
       // 경로가 같지 않을 때에만 페이지로 이동
       if (this.$route.fullPath !== redirectPath) router.push(redirectPath);
-      else {
-        router.go();
-      }
 
       // 로그인 창 없애기
       this.closeModal();
 
       // 로그인 성공한 유저를 현재 상태에 저장
       this.$store.commit('setCurrentUser', { currentUser: user });
+
+      // 성공했다는 메시지 띄우기
+      this.pushMessage({
+        type: 'success',
+        msg: '성공적으로 로그인 되었습니다.',
+        id: 'loginSuccess',
+      });
     },
     loginButtonClicked() {
       // validation 실시
@@ -449,10 +439,6 @@ export default {
       if (this.validate[refname].showTooltip !== false) {
         this.validate[refname].showTooltip = false;
       }
-    },
-    print(a) {
-      console.dir(a);
-      return true;
     },
   },
   created() {

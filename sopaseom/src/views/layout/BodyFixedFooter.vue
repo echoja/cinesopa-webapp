@@ -12,7 +12,8 @@
 <script>
 export default {
   components: {
-    FooterSimpleComponent: () => import('@/components/FooterSimpleComponent.vue'),
+    FooterSimpleComponent: () =>
+      import('@/components/FooterSimpleComponent.vue'),
   },
 };
 </script>
@@ -22,11 +23,11 @@ export default {
 
 .body {
   width: 100%;
-  height: 100vh;
-  overflow: hidden;
+  // height: 100vh;
 }
 .main-wrapper {
   margin-top: $desktop-header-height;
+  margin-bottom: 100px;
   padding: 0 $desktop-min-x-margin 30px;
 }
 
@@ -36,11 +37,8 @@ export default {
   }
 }
 
-
-
-
 .fixed-footer {
-  position: absolute;
+  position: fixed;
   bottom: 0;
   width: 100%;
 }

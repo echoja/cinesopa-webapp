@@ -6,13 +6,19 @@ import {
   requireAuth,
 } from './nav-guard';
 
+const BodyFixedFooterMeta = {
+  footerStyle: () => import('@/views/layout/BodyFixedFooter.vue'),
+};
+const BodyFooterMeta = {
+  footerStyle: () => import('@/views/layout/BodyFooter.vue'),
+};
+
 export default [
   {
     path: '/',
     name: 'Home',
     component: () => import('../views/client/Home.vue'),
     meta: {
-      layout: () => import('@/views/layout/LayoutClient.vue'),
       footerStyle: () => import('@/views/layout/BodyNoFooter.vue'),
     },
   },
@@ -26,6 +32,7 @@ export default [
     path: '/sopakit/items/:page?',
     name: 'SopakitItems',
     component: () => import('@/views/client/SopakitItems.vue'),
+    meta: BodyFixedFooterMeta,
   },
   {
     path: '/sopakit/search/:str/:page?',
@@ -166,30 +173,35 @@ export default [
     name: 'Join',
     component: () => import('@/views/client/Join.vue'),
     beforeEnter: (to, from, next) => {
-      if (to.fullPath == '/join') {
+      console.log(to.fullPath);
+      if (to.fullPath === '/join') {
         next({ name: 'JoinPolicy' });
       } else {
         next();
       }
     },
+    meta: BodyFixedFooterMeta,
     children: [
       {
         path: 'policy',
         name: 'JoinPolicy',
         component: () => import('@/views/client/JoinPolicy.vue'),
         beforeEnter: onlyNoLoginBeforeEnter,
+        meta: BodyFixedFooterMeta,
       },
       {
         path: 'info',
         name: 'JoinInfo',
         component: () => import('@/views/client/JoinInfo.vue'),
         beforeEnter: onlyNoLoginBeforeEnter,
+        meta: BodyFixedFooterMeta,
       },
       {
         path: 'success',
         name: 'JoinSuccess',
         component: () => import('@/views/client/JoinSuccess.vue'),
-        beforeEnter: onlyNoLoginBeforeEnter,
+        // beforeEnter: onlyNoLoginBeforeEnter,
+        meta: BodyFixedFooterMeta,
       },
     ],
   },

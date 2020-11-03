@@ -8,8 +8,7 @@ const headers = {
 };
 
 // URL 수정 주의!! url이 같지 않으면 사용자 쿠키가 저장이 안되어 세션이 살아남지 못함!
-const url =
-  process.env.NODE_ENV === 'production' ? 'https://sopaseom.com/graphql/' : '/graphql';
+const url = process.env.NODE_ENV === 'production' ? 'https://sopaseom.com/graphql/' : '/graphql';
 
 export const graphql = async (query, variables) => {
   try {
@@ -43,6 +42,17 @@ export const dataGraphql = async (query, variables) => {
   return res?.data;
 };
 
+export const currentUserQuery = `
+query currentUserQuery {
+  currentUser {
+    email
+    c_date
+    role
+    verified
+  }
+}
+`;
+
 export const checkAuthQuery = `
 query checkAuthQuery($redirectLink: String!, $role: Permission!, $should_verified: Boolean) {
   checkAuth(redirectLink: $redirectLink, role: $role, should_verified: $should_verified) {
@@ -58,6 +68,7 @@ query checkAuthQuery($redirectLink: String!, $role: Permission!, $should_verifie
 }
 `;
 
+/** @deprecated */
 export const loginQuery = `
 mutation Login ($email: String!, $pwd: String!) {
   login(provider: {email:$email, pwd: $pwd}) {
@@ -73,19 +84,36 @@ mutation Login ($email: String!, $pwd: String!) {
 }
 `;
 
-const createGuestMutation = `
-mutation createGuest($email: String!, $pwd: String!) {
-  createGuest (email: $email, pwd: $pwd) {
-    id
-    email
-    name
-    role
-    c_date
-    verified
+export const loginMutation = `
+mutation Login ($email: String!, $pwd: String!) {
+  login(provider: {email:$email, pwd: $pwd}) {
+    wrong_reason
+    wrong_pwd_count
+    success
+    emailVerificationRequired
+    user {
+      email
+      role
+      verified
+    }
+    redirectLink
   }
 }
 `;
-export const createGuest = (variables) => graphql(createGuestMutation, variables);
+
+// const createGuestMutation = `
+// mutation createGuest($email: String!, $pwd: String!) {
+//   createGuest (email: $email, pwd: $pwd) {
+//     id
+//     email
+//     name
+//     role
+//     c_date
+//     verified
+//   }
+// }
+// `;
+// export const createGuest = async (variables) => graphql(createGuestMutation, variables);
 
 export const emailVerifyMutation = `
 mutation emailVerify($token: String!)
@@ -319,3 +347,25 @@ mutation removeFilm($id: Int!) {
   removeFilm(id: $id) ${filmResponse}
 }
 `;
+
+export const checkAuth = async () => {
+  if (store.state.userInitialized === false) {
+    const result = await graphql(currentUserQuery, {});
+    let { currentUser } = result.data;
+    if (!currentUser) currentUser = null;
+    console.log('currentUser every beforeEach ho~!');
+    console.dir(currentUser);
+    store.commit('setUserInitialized', true);
+    store.commit('setCurrentUser', { currentUser });
+  }
+};
+
+export const manualCheckAuth = async () => {
+  store.commit('setUserInitialized', false);
+  await checkAuth();
+};
+
+export const doLogout = async () => {
+  store.commit('setCurrentUser', { currentUser: null });
+  await graphql(logoutMeQuery, {});
+};

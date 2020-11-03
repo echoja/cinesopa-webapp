@@ -1,13 +1,36 @@
 @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@100;300;400;500;700;900&family=Noto+Serif+KR:wght@200;300;400;500;600;700;900&display=swap');
 
 $primary: #000;
-$font-family-sans-serif: "Noto Sans KR", -apple-system, system-ui, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+$success: #000;
+$font-family-sans-serif: 'Noto Sans KR', -apple-system, system-ui,
+  BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
 $modal-backdrop-bg: white;
 $modal-backdrop-opacity: 0.85;
-$modal-content-border-color:        black;
-$modal-content-border-width:        2px;
-$modal-content-border-radius:       0;
+$modal-content-border-color: black;
+$modal-content-border-width: 2px;
+$modal-content-border-radius: 0px;
 $input-placeholder-color: #c8c8c8;
+// $input-placeholder-color: #00f;
+
+$border-radius: 0;
+$border-radius-lg: 0;
+$border-radius-sm: 0;
+
+$input-border-radius: 0;
+$input-border-radius-lg: 0;
+$input-border-radius-sm: 0;
+
+$custom-control-indicator-border-color: #000;
+$custom-control-indicator-active-border-color: #000;
+$custom-control-indicator-checked-border-color: #000;
+
+$form-feedback-valid-color: #000;
+// $form-feedback-invalid-color: #000;
+
+$custom-checkbox-indicator-border-radius: 0px;
+
+$btn-disabled-opacity: 1;
+
 // $success:
 // $danger:
 
@@ -35,6 +58,8 @@ $input-placeholder-color: #c8c8c8;
 @import '../../node_modules/bootstrap/scss/list-group';
 @import '../../node_modules/bootstrap/scss/navbar';
 @import '../../node_modules/bootstrap/scss/tooltip';
+@import '../../node_modules/bootstrap/scss/spinners';
+@import '../../node_modules/bootstrap/scss/alert';
 
 // BootstrapVue essentials
 @import '../../node_modules/bootstrap-vue/src/variables';
@@ -52,3 +77,33 @@ $input-placeholder-color: #c8c8c8;
 @import '../../node_modules/bootstrap-vue/src/components/table';
 @import '../../node_modules/bootstrap-vue/src/components/dropdown';
 @import '../../node_modules/bootstrap-vue/src/components/tooltip';
+
+// buttons
+
+.btn-secondary {
+  color: #000;
+  background-color: #fff;
+  border-color: #000;
+  border-width: 1px;
+}
+
+.btn-secondary:hover,
+.btn-secondary:focus,
+.btn-secondary.focus {
+  color: #fff;
+  background-color: #000;
+  border-color: #000;
+}
+
+.btn-secondary.disabled,
+.btn-secondary:disabled {
+  color: #999999;
+  background-color: #eaeaea;
+  border-color: #eaeaea;
+}
+
+.btn-secondary:not(:disabled):not(.disabled):active,
+.btn-secondary:not(:disabled):not(.disabled).active,
+.show > .btn-secondary.dropdown-toggle {
+  background-color: #000;
+}

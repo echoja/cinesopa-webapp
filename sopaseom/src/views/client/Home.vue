@@ -105,7 +105,6 @@ import BezierEasing from 'bezier-easing';
 import { BLink } from 'bootstrap-vue';
 import { store } from '@/loader';
 
-let isTop = false;
 const ease = BezierEasing(0.25, 0.1, 0.25, 1.0);
 const easeIn = BezierEasing(0.38, 0.01, 0.78, 0.13);
 const midSlow = BezierEasing(0, 0.7, 1, 0.3);
@@ -456,6 +455,21 @@ export default {
     FooterComponent: () => import('@/components/FooterComponent.vue'),
     BLink,
   },
+  data() {
+    return {
+      isTop: false,
+    };
+  },
+  watch: {
+    $route(to, from) {
+      // 페이지가 달라질 경우에만 this.init 실행.
+      // if (to.fullPath !== from.fullPath) {
+      console.log(`watch route - from: ${from.fullpath} to: ${to.fullPath}`);
+      console.log('route changed!! from Home component');
+      this.init();
+      // }
+    },
+  },
   mounted() {
     this.init();
     window.addEventListener('scroll', this.onScroll);
@@ -463,14 +477,15 @@ export default {
   beforeDestroy() {
     window.removeEventListener('scroll', this.onScroll);
   },
-  beforeRouteLeave(to, from, next) {
-    store.commit('setLogoZoomed', false);
+  beforeRouteEnter(to, from, next) {
+    console.log('home - beforeRouteEnter!!!');
+    store.commit('setLogoZoomed', true);
     next();
   },
-  watch: {
-    $route() {
-      this.init();
-    },
+  beforeRouteLeave(to, from, next) {
+    console.log('home - beforeRouteLeave!!!');
+    store.commit('setLogoZoomed', false);
+    next();
   },
   methods: {
     // 상태 초기화'
@@ -511,8 +526,8 @@ export default {
         });
       });
       enabled = {};
-      // this.onScroll();
-      window.scrollTo(0, 0);
+      // window.scrollTo(0, 0);
+      this.onScroll();
     },
     applyStyles(currentPos, refname, styles, r, unit = 'px') {
       for (const style of Object.keys(styles)) {
@@ -559,15 +574,19 @@ export default {
     onScroll() {
       // 현재 스크롤 위치 파악
       const scrollTop = window.scrollY || window.pageYOffset;
+      // console.log(
+      //   `window.scrollY> ${window.scrollY}, window.pageYOffset> ${window.pageYOffset}, `,
+      // );
       const currentPos = scrollTop + window.innerHeight / 2;
       // console.log(currentPos);
 
-      if (scrollTop >= 10 && isTop) {
+      if (scrollTop >= 20 && this.isTop) {
+        console.log(`onscroll top, set Logo Zoomed to false >> ${scrollTop}`);
         store.commit('setLogoZoomed', false);
-        isTop = false;
-      } else if (scrollTop < 10 && !isTop) {
+        this.isTop = false;
+      } else if (scrollTop < 20 && !this.isTop) {
         store.commit('setLogoZoomed', true);
-        isTop = true;
+        this.isTop = true;
       }
 
       // disabled 순회하며 활성화할 요소 찾기.
@@ -786,6 +805,12 @@ br.small {
   height: 200px;
   bottom: 0;
   overflow: hidden;
+}
+
+@include max-with(sm) {
+  .wave {
+    height: 120px;
+  }
 }
 
 .wave-animation {

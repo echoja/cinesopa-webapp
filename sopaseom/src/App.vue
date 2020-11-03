@@ -1,22 +1,22 @@
 <template>
   <div id="app" ref="app">
     <!-- <nav-menu></nav-menu> -->
-    <transition :name="transitionName" mode="out-in">
-      <component :is="layout">
-        <!-- @beforeLeave="beforeLeave"
+    <!-- <transition :name="transitionName" mode="out-in"> -->
+    <component :is="layout">
+      <!-- @beforeLeave="beforeLeave"
         @enter="enter"
         @afterLeave="afterLeave"
         @afterEnter="afterEnter" -->
-        <!-- <transition :name="transitionName" mode="out-in"> -->
-          <!-- <router-view :key="$route.fullPath" /> -->
-          <!-- <router-view
+      <!-- <transition :name="transitionName" mode="out-in"> -->
+      <!-- <router-view :key="$route.fullPath" /> -->
+      <!-- <router-view
             id="main"
             :key="$route.fullPath.split('/')[1]"
             :style="{ overflow: 'visible' }"
           /> -->
-        <!-- </transition> -->
-      </component>
-    </transition>
+      <!-- </transition> -->
+    </component>
+    <!-- </transition> -->
   </div>
 </template>
 <script>
@@ -101,7 +101,7 @@ export default {
 /* *********************** */
 
 .router-link-exact-active {
-    background-color: transparent;
+  background-color: transparent;
 }
 
 /* *********************** */

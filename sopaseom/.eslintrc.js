@@ -17,5 +17,6 @@ module.exports = {
     'operator-linebreak': 'off',
     camelcase: 'off',
     'implicit-arrow-linebreak': 'off',
+    'no-param-reassign': 'off',
   },
 };

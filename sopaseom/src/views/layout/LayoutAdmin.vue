@@ -4,15 +4,9 @@
     <div class="d-flex bd-highlight mb-3">
       <div class="p-2 sidebar bd-highlight">
         <b-list-group>
-          <b-list-group-item to="/admin">
-            대시보드
-          </b-list-group-item>
-          <b-list-group-item to="/admin/statistics">
-            통계
-          </b-list-group-item>
-          <b-list-group-item to="/admin/file">
-            파일
-          </b-list-group-item>
+          <b-list-group-item to="/admin"> 대시보드 </b-list-group-item>
+          <b-list-group-item to="/admin/statistics"> 통계 </b-list-group-item>
+          <b-list-group-item to="/admin/file"> 파일 </b-list-group-item>
           <b-list-group-item class="py-1 bg-light">
             cinesopa.kr
           </b-list-group-item>
@@ -25,9 +19,7 @@
           <b-list-group-item to="/admin/cinesopa/board">
             게시판
           </b-list-group-item>
-          <b-list-group-item to="/admin/cinesopa/post">
-            글
-          </b-list-group-item>
+          <b-list-group-item to="/admin/cinesopa/post">글</b-list-group-item>
           <b-list-group-item to="/admin/cinesopa/film">
             영화
           </b-list-group-item>
@@ -87,19 +79,26 @@
           <b-navbar-nav>
             <b-nav-item-dropdown text="새로 추가" right>
               <b-dropdown-header>cinesopa.kr</b-dropdown-header>
-              <b-dropdown-item :to="{ name: 'CinesopaNewPage' }">페이지</b-dropdown-item>
-              <b-dropdown-item :to="{ name: 'PostNew' }">게시글</b-dropdown-item>
+              <b-dropdown-item :to="{ name: 'CinesopaNewPage' }"
+                >페이지</b-dropdown-item
+              >
+              <b-dropdown-item :to="{ name: 'PostNew' }"
+                >게시글</b-dropdown-item
+              >
               <b-dropdown-item :to="{ name: 'FilmNew' }">영화</b-dropdown-item>
               <b-dropdown-divider />
               <b-dropdown-header>sopaseom.com</b-dropdown-header>
-              <b-dropdown-item :to="{ name: 'SopaseomNewPage' }">페이지</b-dropdown-item>
-              <b-dropdown-item :to="{ name: 'AdminProductNew' }">소파킷</b-dropdown-item>
+              <b-dropdown-item :to="{ name: 'SopaseomNewPage' }"
+                >페이지</b-dropdown-item
+              >
+              <b-dropdown-item :to="{ name: 'AdminProductNew' }"
+                >소파킷</b-dropdown-item
+              >
             </b-nav-item-dropdown>
           </b-navbar-nav>
         </b-navbar>
         <div
-          class="message-box d-flex flex-column align-self-center
-          justify-content-center fixed-top pt-4"
+          class="message-box fixed-top"
         >
           <!-- <h2>
             {{ messages }}
@@ -107,17 +106,17 @@
           <!-- @dismissed="messageDismissed(msgObj.id)"
           @dismiss-count-down="countDownChanged" -->
           <transition-group name="fade">
-            <div class="message-wrapper mx-auto w-50" v-for="(msgObj, key) in messages" :key="key">
-              <b-alert
-                :show="true"
-                :variant="msgObj.type"
-                dismissible
-                @input="messageChanged($event, msgObj)"
-              >
+            <div
+              class="message-wrapper mx-auto w-50"
+              v-for="(msgObj) in messages"
+              :key="msgObj.id"
+            >
+              <b-alert :show="true" :variant="msgObj.type" dismissible>
                 {{ msgObj.msg }}
               </b-alert>
             </div>
           </transition-group>
+          <!-- @input="messageChanged($event, msgObj)" -->
         </div>
 
         <main>
@@ -207,19 +206,19 @@ export default {
     },
   },
   created() {
-    this.unsubscribe = store.subscribe((mutation /* , state */) => {
-      if (mutation.type === 'pushMessage') {
-        setTimeout(() => {
-          this.removeMessage({ id: mutation.payload.id });
-        }, this.messageDuraton);
-        // // Do whatever makes sense now
-        // if (state.status === 'success') {
-        //   this.complex = {
-        //     deep: 'some deep object',
-        //   };
-        // }
-      }
-    });
+    // this.unsubscribe = store.subscribe((mutation /* , state */) => {
+    //   if (mutation.type === 'pushMessage') {
+    //     setTimeout(() => {
+    //       this.removeMessage({ id: mutation.payload.id });
+    //     }, this.messageDuraton);
+    //     // // Do whatever makes sense now
+    //     // if (state.status === 'success') {
+    //     //   this.complex = {
+    //     //     deep: 'some deep object',
+    //     //   };
+    //     // }
+    //   }
+    // });
   },
   beforeDestroy() {
     this.unsubscribe();
@@ -248,7 +247,6 @@ export default {
 </script>
 
 <style>
-
 body {
   font-size: 14px;
 }
@@ -258,9 +256,13 @@ body {
 .sidebar {
   min-width: 175px;
 }
-
 .message-box {
   z-index: 2000;
+  display: flex;
+  flex-direction: column;
+  align-self: center;
+  justify-content: center;
+  padding-top: 20px;
 }
 
 .router-link-exact-active {

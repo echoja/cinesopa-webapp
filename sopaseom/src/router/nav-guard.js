@@ -1,17 +1,12 @@
 import store from '../store';
 // eslint-disable-next-line object-curly-newline
-import { graphql, checkAuthQuery, logoutMeQuery, emailVerifyMutation } from '../api/graphql-client';
-
-export const currentUserQuery = `
-query currentUserQuery {
-  currentUser {
-    email
-    c_date
-    role
-    verified
-  }
-}
-`;
+import {
+  graphql,
+  checkAuthQuery,
+  logoutMeQuery,
+  emailVerifyMutation,
+  checkAuth,
+} from '../api/graphql-client';
 
 export const getCurrentUser = async () => {};
 
@@ -40,16 +35,25 @@ export const emailVerifyBeforeEnter = async (to, from, next) => {
  * 오직 로그인하지 않은 사람만 접근하도록 하는 router before 함수.
  */
 export const onlyNoLoginBeforeEnter = async (to, from, next) => {
-  const result = await graphql(checkAuthQuery, { redirectLink: '', role: 'GUEST' });
-  console.log('## onlyNoLoginBeforeEnter');
-  console.dir(result.data);
-  const permissionStatus = result?.data?.checkAuth?.permissionStatus;
-  // console.log(`permissionStatus : ${permissionStatus}`);
-  if (permissionStatus === 'OK' || permissionStatus === undefined) {
-    next('/');
-  } else {
-    next();
+  if (!store.state.userInitialized) {
+    await checkAuth();
   }
+  // const result = await graphql(checkAuthQuery, { redirectLink: '', role: 'GUEST' });
+  // console.log('## onlyNoLoginBeforeEnter');
+  if (store.state.currentUser === null) {
+    next();
+  } else {
+    next('/');
+  }
+
+  // console.dir(result.data);
+  // const permissionStatus = result?.data?.checkAuth?.permissionStatus;
+  // // console.log(`permissionStatus : ${permissionStatus}`);
+  // if (permissionStatus === 'OK' || permissionStatus === undefined) {
+  //   next('/');
+  // } else {
+  //   next();
+  // }
 };
 
 const requestCheckAuth = async (role, shouldVerified = false) => {
@@ -114,15 +118,7 @@ export const requireAuth = (role, shouldVerified, failRN = {}) => async (to, fro
 export const checkAuthFor = (router) => {
   // eslint-disable-next-line no-param-reassign
   router.beforeEach(async (to, from, next) => {
-    if (store.state.userInitialized === false) {
-      const result = await graphql(currentUserQuery, {});
-      let { currentUser } = result.data;
-      if (!currentUser) currentUser = {};
-      console.log('currentUser every beforeEach ho~!');
-      console.dir(currentUser);
-      store.commit('setUserInitialized', true);
-      store.commit('setCurrentUser', { currentUser });
-    }
+    checkAuth();
     next();
   });
 };

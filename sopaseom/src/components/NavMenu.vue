@@ -53,7 +53,7 @@
 
           <b-link
             class="nav-main-menu-link"
-            :to="{ name: 'Join' }"
+            :to="{ name: 'JoinPolicy' }"
             v-if="!currentUser"
           >
             회원가입
@@ -61,14 +61,74 @@
           <b-link class="nav-main-menu-link" v-if="currentUser">
             마이페이지
           </b-link>
-          <b-link
-            :to="{ name: 'Logout' }"
-            class="nav-main-menu-link"
-            v-if="currentUser"
-          >
-            로그아웃
-          </b-link>
+          <!-- :to="{ name: 'Logout' }" -->
+          <logout-link class="nav-main-menu-link" v-if="currentUser">
+          </logout-link>
           <!-- <b-button @click="zoomed = !zoomed"></b-button> -->
+        </div>
+        <div
+          class="menu-mobile d-block d-sm-none h-100 d-flex align-items-center"
+        >
+          <b-link v-b-toggle.sidebar-menu class="menu-button">
+            <font-awesome-icon size="2x" :icon="['fas', 'bars']" />
+          </b-link>
+          <b-sidebar
+            id="sidebar-menu"
+            title="MENU"
+            backdrop-variant="dark"
+            backdrop
+            shadow
+          >
+            <ul class="mobile-menu-link-list">
+              <li>
+                <b-link class="mobile-menu-link" :to="{ name: 'SopakitItems' }"
+                  >소파섬</b-link
+                >
+              </li>
+              <li>
+                <b-link class="mobile-menu-link" :to="{ name: 'Application' }">
+                  상영
+                </b-link>
+              </li>
+              <li>
+                <b-link href="#" class="mobile-menu-link coming-soon"
+                  >소파밋
+                </b-link>
+              </li>
+              <hr />
+              <li>
+                <b-link
+                  class="mobile-menu-link"
+                  v-if="!currentUser"
+                  :to="{ name: 'Login', params: { board: 'Login' } }"
+                  >로그인
+                </b-link>
+              </li>
+              <li>
+                <b-link
+                  class="mobile-menu-link"
+                  :to="{ name: 'JoinPolicy' }"
+                  v-if="!currentUser"
+                  >회원가입
+                </b-link>
+              </li>
+              <li>
+                <b-link
+                  class="mobile-menu-link"
+                  :to="{ name: 'My' }"
+                  v-if="currentUser"
+                  >마이페이지
+                </b-link>
+              </li>
+              <li>
+                <!-- :to="{ name: 'Logout' }" -->
+                <logout-link
+                  class="mobile-menu-link"
+                  v-if="currentUser"
+                ></logout-link>
+              </li>
+            </ul>
+          </b-sidebar>
         </div>
       </div>
     </header>
@@ -84,17 +144,18 @@
 </template>
 
 <script>
-import { BLink, BButton, BModal, BImg, BForm, BFormInput } from 'bootstrap-vue';
+import { BLink, BModal, BSidebar } from 'bootstrap-vue';
 import { mapState } from 'vuex';
 import VueScrollTo from 'vue-scrollto';
 
 export default {
   components: {
     BLink,
-    BButton,
     BModal,
+    BSidebar,
     CloseFigure: () => import('@/components/CloseFigure'),
     LoginForm: () => import('@/components/LoginForm'),
+    LogoutLink: () => import('@/components/LogoutLink'),
   },
   data() {
     return {
@@ -135,14 +196,18 @@ export default {
   }
 }
 
-
 .nav-main-menu {
   position: relative;
   top: 0;
   left: 0;
   width: 100%;
-
   border-bottom: 2px solid black;
+}
+
+@include max-with(sm) {
+  .nav-main-menu {
+    border-bottom: 0;
+  }
 }
 
 .flex-items {
@@ -150,6 +215,12 @@ export default {
   justify-content: space-between;
   align-items: center;
   height: $desktop-header-height;
+}
+
+@include max-with(sm) {
+  .flex-items {
+    height: $mobile-header-height;
+  }
 }
 
 .nav-main-menu-link {
@@ -161,25 +232,31 @@ export default {
   border-radius: 100px;
 }
 
-.logo-wrapper {
-  height: 100%;
-}
+// .logo-wrapper {
+//   height: 100%;
+// }
 
-.logo {
-  position: relative;
-  width: 113px;
-  height: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
+// .logo {
+//   position: relative;
+//   width: 113px;
+//   height: 100%;
+//   display: flex;
+//   align-items: center;
+//   justify-content: center;
+// }
 
-.logo img {
-  box-sizing: content-box;
-  border: 10px solid transparent;
-  position: absolute;
-  width: 100%;
-}
+// @include max-with(sm) {
+//   .logo {
+//     width: 70px;
+//   }
+// }
+
+// .logo img {
+//   box-sizing: content-box;
+//   border: 10px solid transparent;
+//   position: absolute;
+//   width: 100%;
+// }
 
 .logo-abs {
   width: 113px;
@@ -191,16 +268,38 @@ export default {
   top: 0;
   left: 0;
   margin: 0 auto;
-  transition: 1.5s ease;
+  // transition: 1.5s ease;
+  img {
+    transition: 1.5s ease;
+    top: 0;
+    box-sizing: content-box;
+    border: 10px solid transparent;
+    position: absolute;
+    width: 100%;
+  }
+}
+
+@include max-with(sm) {
+  .logo-abs {
+    width: 70px;
+    img {
+      border-width: 3px 10px;
+    }
+  }
+}
+
+.logo-tag {
+  opacity: 0;
 }
 
 .zoomed .logo-abs {
-  width: 411px;
+  // width: 411px;
   position: absolute;
   // transform: translate(calc(50vw - 50%), calc(50vh - 50%));1
   margin: 0 auto;
   img {
-    transform: translate(0, max(#{$desktop-header-height}, calc(50vh - 50%)));
+    // transform: translate(0, max(#{$desktop-header-height}, calc(50vh - 50%)));
+    transform: translate(0, calc(50vh - 50%)) scale(3.5);
   }
   .logo-tag {
     opacity: 1;
@@ -209,22 +308,18 @@ export default {
 
 @include max-with(sm) {
   .zoomed .logo-abs img {
-    width: 200px;
+    transform: translate(0, calc(50vh - 50%)) scale(2);
   }
 }
 
-.logo-tag {
-  opacity: 0;
+// menu button
+.menu-button {
+  padding: 0;
+  margin: 0;
+  border: 10px solid transparent;
 }
 
-.logo-abs img {
-  transition: 1.5s ease;
-  top: 0;
-  box-sizing: content-box;
-  border: 10px solid transparent;
-  position: absolute;
-  width: 100%;
-}
+// left right
 
 .left .nav-main-menu-link:first-child {
   border-left: 0;
@@ -243,9 +338,24 @@ export default {
 }
 
 @include max-with(sm) {
-  .nav-main-menu-link {
+  .left,
+  .right {
     display: none;
   }
+}
+
+// mobile menu
+
+.mobile-menu-link-list {
+  list-style: none;
+  padding-left: 0;
+  margin-left: 10px;
+}
+
+.mobile-menu-link {
+  display: inline-block;
+  padding: 5px;
+  font-size: 16px;
 }
 
 // modal!

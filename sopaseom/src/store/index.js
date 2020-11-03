@@ -12,7 +12,7 @@ const testStates = {
 /**
  * store는 F5 할때마다 초기화된다.
  */
-const store = new Vuex.Store({
+const s = new Vuex.Store({
   /**
    * store.state.name 으로 접근할 수 있음.
    * 값을 수정하려면 mutation 을 써야 함.
@@ -20,11 +20,18 @@ const store = new Vuex.Store({
   state: {
     userInitialized: false,
     currentUser: null,
+    createUserAgreed: {
+      policy: null,
+      privacy: null,
+      advertisement: null,
+    },
     testString: '초기테스트 스토어',
     errorMsg: '',
     ...testStates,
     messages: [],
     logoZoomed: false,
+    joinProcessing: false,
+    joinFinished: false,
   },
   /**
    * 게터.
@@ -33,6 +40,15 @@ const store = new Vuex.Store({
   getters: {
     doubleCount(state) {
       return state.count * 2;
+    },
+
+    // 회원가입 동의 제대로 했는지 체크.
+    // 회원가입 정보 적을 때 사용.
+    isValidUserAgreed(state) {
+      const {
+        createUserAgreed: { advertisement, policy, privacy },
+      } = state;
+      return policy !== null && advertisement !== null && privacy !== null;
     },
   },
 
@@ -57,12 +73,23 @@ const store = new Vuex.Store({
     setTestString(state, { value }) {
       state.testString = value;
     },
-    pushMessage(state, msgObj) {
+    addMessage(state, msgObj) {
       state.messages.push(msgObj);
     },
     removeMessage(state, { id }) {
       const foundIndex = state.messages.findIndex((msg) => msg.id === id);
       if (foundIndex > -1) state.messages.splice(foundIndex, 1);
+    },
+    setUserAgreed(state, { policy, privacy, advertisement }) {
+      state.createUserAgreed.policy = policy;
+      state.createUserAgreed.privacy = privacy;
+      state.createUserAgreed.advertisement = advertisement;
+    },
+    setJoinProcessing(state, joinProcessing) {
+      state.joinProcessing = joinProcessing;
+    },
+    setJoinFinished(state, joinFinished) {
+      state.joinFinished = joinFinished;
     },
   },
   /**
@@ -72,20 +99,25 @@ const store = new Vuex.Store({
    * 액션 내부에서
    */
   actions: {
-    async setCurrentUser(state, { user }) {
-      state.commit('setCurrentUser', { currentUser: user });
+    async setCurrentUser(store, { user }) {
+      store.commit('setCurrentUser', { currentUser: user });
     },
-    async changeTestString(state, { text }) {
-      state.commit('setTestString', { value: text });
+    async changeTestString(store, { text }) {
+      store.commit('setTestString', { value: text });
     },
-    async pushMessage(state, { type, id, msg }) {
-      state.commit('pushMessage', { type, id, msg });
+    async pushMessage(store, { type, id, msg }) {
+      if (store.state.messages.findIndex((value) => value.id === id) === -1) {
+        store.commit('addMessage', { type, id, msg });
+        setTimeout(() => {
+          store.commit('removeMessage', { id });
+        }, 2000);
+      }
     },
-    async removeMessage(state, { id }) {
-      state.commit('removeMessage', { id });
+    async removeMessage(store, { id }) {
+      store.commit('removeMessage', { id });
     },
   },
   modules: {},
 });
 
-export default store;
+export default s;
