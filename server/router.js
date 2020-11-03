@@ -54,9 +54,10 @@ router.get('/graphql', (req, res, next) => {
 });
 
 router.get('/test/remove-user/:email', (req, res, next) => {
+  const { email } = req.params;
   db.removeUserByEmail(req.params.email)
-    .then((userReceived) => {
-      res.send(userReceived);
+    .then(() => {
+      res.send(`success deleting ${email}`);
     })
     .catch((error) => {
       // console.error(error);

@@ -45,11 +45,14 @@ module.exports = {
           done(null, userFound);
         } else {
           // throw "passport-deserializeUser-해당 유저를 찾을 수 없습니다.";
-          done(
-            new Error(
-              `passport-deserializeUser: ${email} 유저를 찾을 수 없습니다.`,
-            ),
-          );
+          // 로그인이 되어 있는 상태이지만 유저를 찾을 수 없을 때.
+          console.log(`passport-deserializeUser: ${email} 유저를 찾을 수 없습니다.`);
+          done(null, null);
+          // done(
+          //   new Error(
+          //     `passport-deserializeUser: ${email} 유저를 찾을 수 없습니다.`,
+          //   ),
+          // );
         }
       });
 
