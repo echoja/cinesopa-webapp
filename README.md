@@ -122,8 +122,8 @@ certbot/certbot renew --manual --preferred-challenges dns --server https://acme-
 
 1. `docker build -t eszqsc112/cinesopa:latest .` 실행하여 이미지 빌드
    - 버전을 매길려면 `docker build -t eszqsc112/cinesopa:latest -t eszqsc112/cinesopa:0.4.3 .` 등으로 버전을 매긴다.
-   - 그 후 빌드가 완료되면 특정 버전은 삭제하여도 된다. (`docker image rm eszqsc112/cinesopa:0.4.3`)
 2. `docker push eszqsc112/cinesopa` 실행하여 배포
+3.  배포가 완료되면 특정 버전은 삭제하여도 된다. (`docker image rm eszqsc112/cinesopa:0.4.3`)
 
 ### 서버 환경 세팅
 

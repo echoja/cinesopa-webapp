@@ -23,17 +23,35 @@ export default {
 
 .body {
   width: 100%;
-  // height: 100vh;
+  // min-height: calc(
+  //   100vh - #{$desktop-header-height} - #{$desktop-simple-footer-height}
+  // );
 }
+// @include max-with(sm) {
+//   .body {
+//     min-height: calc(
+//       100vh - #{$mobile-header-height} - #{$mobile-simple-footer-height}
+//     );
+//   }
+// }
 .main-wrapper {
   margin-top: $desktop-header-height;
-  margin-bottom: 100px;
+  // margin-bottom: 100px;
   padding: 0 $desktop-min-x-margin 30px;
+  height: calc(
+    100vh - #{$desktop-header-height} - #{$desktop-simple-footer-height}
+  );
+  display: flex;
+  flex-direction: column;
 }
 
 @include max-with(sm) {
   .main-wrapper {
+    margin-top: $mobile-header-height;
     padding: 0 $mobile-min-x-margin 30px;
+    height: calc(
+      100vh - #{$mobile-header-height} - #{$mobile-simple-footer-height}
+    );
   }
 }
 

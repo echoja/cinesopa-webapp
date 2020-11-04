@@ -28,6 +28,7 @@ export default {
 
 @include max-with(sm) {
   .main-wrapper {
+    margin-top: $mobile-header-height;
     padding: 0 $desktop-min-x-margin 30px;
   }
 }

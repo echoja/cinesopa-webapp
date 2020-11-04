@@ -46,6 +46,7 @@ $gray-c2: #7a7a7a;
   margin-top: -10px;
   padding: 10px 0;
   pointer-events: none;
+  height: $desktop-simple-footer-height;
 }
 
 .center {
