@@ -43,7 +43,6 @@ $gray-c2: #7a7a7a;
   display: flex;
   justify-content: center;
   align-items: center;
-  margin-top: -10px;
   padding: 10px 0;
   pointer-events: none;
   height: $desktop-simple-footer-height;
@@ -57,15 +56,16 @@ $gray-c2: #7a7a7a;
 
 .by {
   display: block;
-  font-size: 17px;
+  font-size: 14px;
   font-weight: 500;
-  margin: 6px 10px 0 -20px;
+  margin-right:5px;
+  // margin: 6px 10px 0 -20px;
 }
 
 .cineesopa-logo {
-  width: 80px;
+  width: 55px;
   display: block;
-  transform: translateY(-4px);
+  transform: translateY(-2px);
 }
 </style>
 

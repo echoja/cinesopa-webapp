@@ -32,6 +32,7 @@ const s = new Vuex.Store({
     logoZoomed: false,
     joinProcessing: false,
     joinFinished: false,
+    additionalFooterPaddingBottom: 0,
   },
   /**
    * 게터.
@@ -91,6 +92,9 @@ const s = new Vuex.Store({
     setJoinFinished(state, joinFinished) {
       state.joinFinished = joinFinished;
     },
+    setAdditionalFooterPaddingBottom(state, additionalFooterPaddingBottom) {
+      state.additionalFooterPaddingBottom = additionalFooterPaddingBottom;
+    }
   },
   /**
    * 비동기 작업들. 내부 함수는 async 가능

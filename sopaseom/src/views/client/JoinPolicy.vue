@@ -17,27 +17,12 @@
           <span class="checkbox-text">{{ item.label }}</span></b-form-checkbox
         >
         <b-link @click="buttonClicked" class="show-more"
-          ><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 9.7 18.97">
-            <!-- <defs>
-    <style>.a{fill:none;stroke:#000;stroke-miterlimit:10;stroke-width:0.29px;}</style>
-  </defs> -->
-            <polyline
-              fill="none"
-              stroke="currentColor"
-              stroke-width="1px"
-              stroke-miterlimit="10"
-              class="a"
-              points="0.1 0.1 9.49 9.49 0.1 18.87"
-            /></svg
+          ><svg-next></svg-next
         ></b-link>
       </div>
       <div class="button-box">
         <b-button :to="{ name: 'Home' }">취소</b-button>
-        <b-button
-          :disabled="!canNext"
-          @click="nextClicked"
-          >다음</b-button
-        >
+        <b-button :disabled="!canNext" @click="nextClicked">다음</b-button>
       </div>
       <div class="notice">
         <p>
@@ -62,6 +47,7 @@ export default {
     BFormCheckbox,
     BLink,
     BButton,
+    SvgNext: () => import('@/components/SvgNext'),
   },
   data() {
     return {

@@ -1,11 +1,21 @@
 @import 'plugins/custom-style.scss';
 
-$desktop-header-height: 100px;
+$desktop-max-width: 100%;
+
+$desktop-header-height: 80px;
 $desktop-min-x-margin: 40px;
 $desktop-footer-height: 150px;
 
 $mobile-min-x-margin: 20px;
 $mobile-header-height: 60px;
+
+/* subheader */
+$desktop-subheader-font-size: 22px;
+$mobile-subheader-font-size: 20px;
+$desktop-subheader-height: 58px;
+$mobile-subheader-height: 48px;
+
+$mobile-sopakit-slide-padding: 70px;
 
 $simple-footer-height: 55px;
 $desktop-simple-footer-height: $simple-footer-height;

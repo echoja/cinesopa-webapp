@@ -1,5 +1,5 @@
 <template>
-  <footer class="site-footer-wrapper" :class="{simple: isSimple}">
+  <footer class="site-footer-wrapper" :class="{simple: isSimple}" :style="{'padding-bottom': `${additionalFooterPaddingBottom}px`}">
     <div class="site-footer container-fluid">
       <div v-if="!isSimple" class="row">
         <div class="left col-12 col-md-6">
@@ -55,6 +55,7 @@
 
 <script>
 import { BLink } from 'bootstrap-vue';
+import { mapState } from 'vuex';
 
 export default {
   props: ['simple'],
@@ -63,6 +64,7 @@ export default {
     CinesopaLogo: () => import('../components/CinesopaLogo.vue'),
   },
   computed: {
+    ...mapState(['additionalFooterPaddingBottom']),
     isSimple() {
       return this.simple === '' || this.simple === true;
     },
@@ -165,7 +167,6 @@ $gray-c2: #7a7a7a;
   display: flex;
   justify-content: center;
   align-items: center;
-  margin-top: -10px;
   pointer-events: none;
 }
 

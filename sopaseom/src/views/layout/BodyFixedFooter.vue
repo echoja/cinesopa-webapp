@@ -3,6 +3,7 @@
     <div class="main-wrapper">
       <slot></slot>
     </div>
+    <!-- <div class="fixed-footer-placeholder"></div> -->
     <div class="fixed-footer">
       <footer-simple-component></footer-simple-component>
     </div>
@@ -23,47 +24,52 @@ export default {
 
 .body {
   width: 100%;
-  // min-height: calc(
-  //   100vh - #{$desktop-header-height} - #{$desktop-simple-footer-height}
-  // );
+  // height: 100vh;
 }
-// @include max-with(sm) {
-//   .body {
-//     min-height: calc(
-//       100vh - #{$mobile-header-height} - #{$mobile-simple-footer-height}
-//     );
-//   }
-// }
+
 .main-wrapper {
-  margin-top: $desktop-header-height;
-  // margin-bottom: 100px;
+  // margin-top: $desktop-header-height;
   padding: 0 $desktop-min-x-margin 30px;
-  height: calc(
-    100vh - #{$desktop-header-height} - #{$desktop-simple-footer-height}
+  min-height: calc(
+    100vh - #{$desktop-header-height + $desktop-simple-footer-height + 2px}
   );
+  // margin-bottom: $desktop-simple-footer-height;
   display: flex;
   flex-direction: column;
 }
 
 @include max-with(sm) {
   .main-wrapper {
-    margin-top: $mobile-header-height;
+    // margin-top: $mobile-header-height;
     padding: 0 $mobile-min-x-margin 30px;
-    height: calc(
-      100vh - #{$mobile-header-height} - #{$mobile-simple-footer-height}
-    );
+    margin-bottom: auto;
+    min-height: auto;
+    // margin-bottom: $mobile-simple-footer-height;
   }
 }
 
 .fixed-footer {
-  position: fixed;
+  position: sticky;
   bottom: 0;
   width: 100%;
+  max-width: $desktop-max-width;
+  z-index: 20;
 }
 
 @include max-with(sm) {
   .fixed-footer {
     position: relative;
+  }
+}
+
+.fixed-footer-placeholder {
+  display: block;
+  width: 100%;
+  height: $desktop-simple-footer-height;
+}
+@include max-with(sm) {
+  .fixed-footer-placeholder {
+    height: $mobile-simple-footer-height;
   }
 }
 </style>

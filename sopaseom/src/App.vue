@@ -104,6 +104,16 @@ export default {
   background-color: transparent;
 }
 
+:focus {
+  outline: black solid 2px;
+  outline-offset: 1px;
+}
+
+div:focus,
+a:focus {
+  outline: none;
+}
+
 /* *********************** */
 /* **** AMINATION!!! ***** */
 /* *********************** */

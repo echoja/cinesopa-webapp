@@ -88,6 +88,10 @@ export default {
 
 .layout {
   position: relative;
+  max-width: $desktop-max-width;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
 }
 .alert-success {
   background-color: #fff;
@@ -106,6 +110,14 @@ export default {
 //   );
 //   padding: 30px $desktop-min-x-margin;
 // }
+
+.left-right-enter-active {
+  transition-duration: 1s;
+}
+.left-right-leave-active {
+  transition-duration: 0.3s;
+}
+
 </style>
 
 <style scoped>
@@ -163,12 +175,7 @@ export default {
   overflow: hidden;
 }
 
-.left-right-enter-active {
-  transition-duration: 1s;
-}
-.left-right-leave-active {
-  transition-duration: 0.3s;
-}
+
 .left-right-enter {
   transform: translateX(-20px);
   opacity: 0;
@@ -176,5 +183,13 @@ export default {
 .left-right-leave-to {
   transform: translateX(20px);
   opacity: 0;
+}
+</style>
+
+
+<style>
+.left-right-enter-active .page-header,
+.left-right-leave-active .page-header {
+  top: 0;
 }
 </style>

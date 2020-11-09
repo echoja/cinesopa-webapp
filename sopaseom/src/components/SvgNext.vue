@@ -1,0 +1,19 @@
+<template>
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 9.7 18.97">
+    <polyline
+      fill="none"
+      stroke="currentColor"
+      stroke-width="1px"
+      stroke-miterlimit="10"
+      class="a"
+      points="0.1 0.1 9.49 9.49 0.1 18.87"
+    />
+  </svg>
+</template>
+
+<script>
+export default {};
+</script>
+
+<style>
+</style>

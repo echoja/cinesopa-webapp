@@ -87,6 +87,7 @@ export default {
 hr {
   border-color: #000;
 }
+
 </style>
 
 

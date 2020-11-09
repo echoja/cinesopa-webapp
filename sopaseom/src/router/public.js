@@ -43,6 +43,7 @@ export default [
     path: '/sopakit/:id',
     name: 'SopakitDetail',
     component: () => import('@/views/client/SopakitDetail.vue'),
+    meta: BodyFooterMeta,
   },
   {
     path: '/sopakit',

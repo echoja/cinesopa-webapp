@@ -19,17 +19,17 @@ export default {
 @import '@/common';
 
 .main-wrapper {
-  margin-top: $desktop-header-height;
+  // margin-top: $desktop-header-height;
   min-height: calc(
-    100vh - #{$desktop-footer-height} - #{$desktop-footer-height}
+    100vh - #{$desktop-footer-height + $desktop-footer-height}
   );
   padding: 0 $desktop-min-x-margin 30px;
 }
 
 @include max-with(sm) {
   .main-wrapper {
-    margin-top: $mobile-header-height;
-    padding: 0 $desktop-min-x-margin 30px;
+    // margin-top: $mobile-header-height;
+    padding: 0 $mobile-min-x-margin 30px;
   }
 }
 </style>

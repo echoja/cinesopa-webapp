@@ -1,5 +1,60 @@
 <template>
   <div class="nav-main-menu-wrapper" :class="{ zoomed: logoZoomed }">
+    <b-sidebar
+      id="sidebar-menu"
+      title="MENU"
+      backdrop-variant="dark"
+      backdrop
+      shadow
+    >
+      <ul class="mobile-menu-link-list">
+        <li>
+          <b-link class="mobile-menu-link" :to="{ name: 'SopakitItems' }"
+            >소파킷</b-link
+          >
+        </li>
+        <li>
+          <b-link class="mobile-menu-link" :to="{ name: 'Application' }">
+            상영
+          </b-link>
+        </li>
+        <li>
+          <b-link href="#" class="mobile-menu-link coming-soon">소파밋 </b-link>
+        </li>
+        <hr />
+        <li>
+          <b-link
+            class="mobile-menu-link"
+            v-if="!currentUser"
+            :to="{ name: 'Login', params: { board: 'Login' } }"
+            >로그인
+          </b-link>
+        </li>
+        <li>
+          <b-link
+            class="mobile-menu-link"
+            :to="{ name: 'JoinPolicy' }"
+            v-if="!currentUser"
+            >회원가입
+          </b-link>
+        </li>
+        <li>
+          <b-link
+            class="mobile-menu-link"
+            :to="{ name: 'My' }"
+            v-if="currentUser"
+            >마이페이지
+          </b-link>
+        </li>
+        <li>
+          <!-- :to="{ name: 'Logout' }" -->
+          <logout-link
+            class="mobile-menu-link"
+            v-if="currentUser"
+          ></logout-link>
+        </li>
+      </ul>
+    </b-sidebar>
     <header class="nav-main-menu">
       <div class="flex-items">
         <div class="left">
@@ -72,63 +127,6 @@
           <b-link v-b-toggle.sidebar-menu class="menu-button">
             <font-awesome-icon size="2x" :icon="['fas', 'bars']" />
           </b-link>
-          <b-sidebar
-            id="sidebar-menu"
-            title="MENU"
-            backdrop-variant="dark"
-            backdrop
-            shadow
-          >
-            <ul class="mobile-menu-link-list">
-              <li>
-                <b-link class="mobile-menu-link" :to="{ name: 'SopakitItems' }"
-                  >소파섬</b-link
-                >
-              </li>
-              <li>
-                <b-link class="mobile-menu-link" :to="{ name: 'Application' }">
-                  상영
-                </b-link>
-              </li>
-              <li>
-                <b-link href="#" class="mobile-menu-link coming-soon"
-                  >소파밋
-                </b-link>
-              </li>
-              <hr />
-              <li>
-                <b-link
-                  class="mobile-menu-link"
-                  v-if="!currentUser"
-                  :to="{ name: 'Login', params: { board: 'Login' } }"
-                  >로그인
-                </b-link>
-              </li>
-              <li>
-                <b-link
-                  class="mobile-menu-link"
-                  :to="{ name: 'JoinPolicy' }"
-                  v-if="!currentUser"
-                  >회원가입
-                </b-link>
-              </li>
-              <li>
-                <b-link
-                  class="mobile-menu-link"
-                  :to="{ name: 'My' }"
-                  v-if="currentUser"
-                  >마이페이지
-                </b-link>
-              </li>
-              <li>
-                <!-- :to="{ name: 'Logout' }" -->
-                <logout-link
-                  class="mobile-menu-link"
-                  v-if="currentUser"
-                ></logout-link>
-              </li>
-            </ul>
-          </b-sidebar>
         </div>
       </div>
     </header>
@@ -182,11 +180,16 @@ export default {
 @import '../common';
 
 .nav-main-menu-wrapper {
-  padding: 0 $desktop-min-x-margin;
-  position: fixed;
-  width: 100%;
-  z-index: 1;
+  position: sticky;
   top: 0;
+  // left: 50%;
+  // width: 100%;
+  padding: 0 $desktop-min-x-margin;
+  max-width: $desktop-max-width;
+  // z-index: 1;
+  // transform: translateX(-50%);
+  // top: 0;
+  z-index: 30;
   background-color: #fff;
 }
 
@@ -201,6 +204,8 @@ export default {
   top: 0;
   left: 0;
   width: 100%;
+  // max-width: $desktop-max-width;
+  margin: 0 auto;
   border-bottom: 2px solid black;
 }
 
@@ -225,10 +230,10 @@ export default {
 
 .nav-main-menu-link {
   display: inline-block;
-  font-size: 18px;
+  font-size: 17px;
   font-weight: bold;
   border: 20px solid transparent;
-  border-width: 20px 13px;
+  border-width: 20px 10px;
   border-radius: 100px;
 }
 
@@ -259,21 +264,25 @@ export default {
 // }
 
 .logo-abs {
-  width: 113px;
+  // width: 113px;
+  // height: $desktop-header-height;
+  width: $desktop-header-height * 1.1;
   display: flex;
   align-items: center;
   justify-content: center;
   position: absolute;
-  transform: translate(calc(50vw - 50%), 0);
+  left: 50%;
+  transform: translateX(-50%);
   top: 0;
-  left: 0;
   margin: 0 auto;
   // transition: 1.5s ease;
   img {
     transition: 1.5s ease;
     top: 0;
     box-sizing: content-box;
-    border: 10px solid transparent;
+    border-width: 5px 10px 10px 10px;
+    border-style: solid;
+    border-color: transparent;
     position: absolute;
     width: 100%;
   }

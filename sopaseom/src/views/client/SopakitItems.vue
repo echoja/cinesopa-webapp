@@ -1,15 +1,18 @@
 <template>
   <div class="sopakit-items">
-    <div class="page-header-wrapper">
-      <page-header>
-        <div class="page-header-inner-wrapper mobile">
+    <!-- <div class="page-header-wrapper"> -->
+    <page-header>
+      <div class="mobile">
+        <div class="page-header-inner-wrapper">
           <h1>소파킷</h1>
           <span class="seperator">|</span>
           <b-link class="list" :to="{ name: 'SopakitAllItems' }">
             상품 목록
           </b-link>
         </div>
-        <div class="page-header-inner-wrapper desktop">
+      </div>
+      <div class="desktop">
+        <div class="page-header-inner-wrapper">
           <h1>소파킷</h1>
           <span class="seperator">|</span>
           <b-link class="list" :to="{ name: 'SopakitAllItems' }">
@@ -17,9 +20,10 @@
           </b-link>
           <div class="search-box"></div>
         </div>
-      </page-header>
-      <!-- <div v-for="index in 100" :key="index">소파킷 아이템 {{ index }}</div> -->
-    </div>
+      </div>
+    </page-header>
+    <!-- <div v-for="index in 100" :key="index">소파킷 아이템 {{ index }}</div> -->
+    <!-- </div> -->
     <div class="content-wrapper">
       <div class="content">
         <div class="summary">
@@ -34,6 +38,9 @@
             />
             소개합니다.
           </p>
+          <p class="go-detail">
+            <b-link>자세히 보기 <svg-next></svg-next></b-link>
+          </p>
         </div>
         <div class="items">
           <div class="swiper-container">
@@ -43,47 +50,81 @@
                 v-for="(keyword, index) in keywords"
                 :key="index"
               >
-                <div class="title-section">
-                  <div class="title-number">{{ keyword.number }}</div>
-                  <div class="title-seperator">
-                    <!-- | -->
+                <div class="swiper-slide-inner-wrapper">
+                  <div class="mobile-main-mock">
+                    <div class="image-resizer">
+                      <div
+                        class="inner"
+                        :style="{
+                          'background-image': `url('${keyword.mock_url}')`,
+                        }"
+                      ></div>
+                    </div>
                   </div>
-                  <div class="title-text">{{ keyword.title }}</div>
-                  <div class="title-films">
+                  <div class="title-section">
+                    <div class="title-number">{{ keyword.number }}</div>
+                    <div class="title-seperator">
+                      <!-- | -->
+                    </div>
+                    <div class="title-text">{{ keyword.title }}</div>
+                    <div class="title-films">
+                      {{ keyword.films.map((film) => film.title).join(', ') }}
+                    </div>
+                    <div class="title-year">{{ keyword.year }}.</div>
+                  </div>
+                  <div class="mobile-title-films">
                     {{ keyword.films.map((film) => film.title).join(', ') }}
                   </div>
-                  <div class="title-year">{{ keyword.year }}.</div>
-                </div>
-                <div class="mobile-title-films">
-                  {{ keyword.films.map((film) => film.title).join(', ') }}
-                </div>
-                <div class="content-section">
-                  <div class="content-main">
-                    <div class="main-mock">
-                      <b-img :src="keyword.mock_url"></b-img>
-                    </div>
-                    <div
-                      class="main-text"
-                      v-html="keyword.explain.replace(/\n/g, '<br />')"
-                    ></div>
-                  </div>
-                  <div class="content-product">
-                    <div class="product-title">상품 보기</div>
-                    <div class="product-items">
+                  <div class="content-section">
+                    <div class="content-main">
+                      <div class="main-mock">
+                        <b-img :src="keyword.mock_url"></b-img>
+                      </div>
                       <div
-                        class="product-item"
-                        v-for="(film, filmIndex) in keyword.films"
-                        :key="filmIndex"
-                      >
-                        <div class="product-img">
-                          <b-img :src="film.img_url"></b-img>
+                        class="main-text"
+                        v-html="keyword.explain.replace(/\n/g, '<br />')"
+                      ></div>
+                    </div>
+                    <div class="content-product">
+                      <div class="product-title">상품 보기</div>
+                      <div class="product-items">
+                        <div
+                          class="product-item"
+                          v-for="(film, filmIndex) in keyword.films"
+                          :key="filmIndex"
+                        >
+                          <b-link
+                            class="product-img-link"
+                            :to="{
+                              name: 'SopakitDetail',
+                              params: { id: '123' },
+                            }"
+                          >
+                            <div
+                              class="product-img"
+                              :style="{
+                                'background-image': `url(${film.img_url})`,
+                              }"
+                            ></div>
+                          </b-link>
+                          <!-- <b-img :src="film.img_url"></b-img> -->
+                          <div class="product-film-title">
+                            <b-link
+                              :to="{
+                                name: 'SopakitDetail',
+                                params: { id: '123' },
+                              }"
+                            >
+                              {{ film.title }}</b-link
+                            >
+                          </div>
                         </div>
-                        <div class="product-film-title">{{ film.title }}</div>
                       </div>
                     </div>
                   </div>
                 </div>
               </div>
+              <div class="swiper-slide">ho</div>
             </div>
             <!-- If we need pagination -->
             <div class="swiper-pagination"></div>
@@ -116,6 +157,7 @@ export default {
   title: '소파킷',
   components: {
     PageHeader: () => import('@/components/PageHeader.vue'),
+    SvgNext: () => import('@/components/SvgNext'),
     BLink,
     BImg,
     // SwiperSlide,
@@ -133,12 +175,14 @@ export default {
             {
               title: '여름날',
               link: 'https://naver.com',
+              id: '1',
               // eslint-disable-next-line global-require
               img_url: require('@/assets/ex2.jpg'),
             },
             {
               title: '기억할만한 지나침',
               link: 'https://naver.com',
+              id: '1',
               // eslint-disable-next-line global-require
               img_url: require('@/assets/ex1.jpg'),
             },
@@ -182,18 +226,19 @@ export default {
       this.swiper = new SwiperCore('.swiper-container', {
         // Optional parameters
         direction: 'horizontal',
-        loop: true,
+        // loop: true,
 
         // If we need pagination
-        pagination: {
-          el: '.swiper-pagination',
-        },
+        // pagination: {
+        //   el: '.swiper-pagination',
+        // },
 
         // Navigation arrows
         navigation: {
           nextEl: '.swiper-button-next',
           prevEl: '.swiper-button-prev',
         },
+        cssMode: true,
 
         // And if we need scrollbar
         // scrollbar: {
@@ -223,52 +268,97 @@ export default {
 
 @import '@/common';
 
-.page-header {
-  h1 {
-    font-size: 24px;
-    font-weight: bold;
-    margin: 0;
-  }
-}
-
 .content-wrapper {
-  margin: auto 0;
-}
-
-.content {
-  display: flex;
-  align-items: flex-start;
-}
-
-.sopakit-items {
-  height: 100%;
+  margin-top: 50px;
+  flex: 1;
   display: flex;
   flex-direction: column;
 }
 
+@include max-with(lg) {
+  .content-wrapper {
+    margin-top: 20px;
+  }
+}
+
+@include max-with(md) {
+  .content-wrapper {
+    height: auto;
+  }
+}
+
+.content {
+  display: flex;
+  align-items: stretch;
+  flex: 1;
+  height: 100%;
+}
+
+@include max-with(lg) {
+  .content {
+    flex-direction: column;
+  }
+}
+
+@include max-with(md) {
+  .content {
+    height: auto;
+  }
+}
+
+.sopakit-items {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+@include max-with(md) {
+  .sopakit-items {
+    height: auto;
+  }
+}
+
 .summary {
-  padding-right: 20px;
+  padding-right: 60px;
+  border-right: 2px solid #000;
   p {
-    font-size: min(3vw, 28px);
+    font-size: min(3vw, 21px);
     font-weight: 500;
     margin: 0;
   }
 }
 
-@include max-with(sm) {
-  .page-header h1 {
-    font-size: 20x;
+@include max-with(lg) {
+  .summary {
+    width: 100%;
+    border: 0;
+    padding: 0 $mobile-sopakit-slide-padding;
+    margin-bottom: 50px;
+    p {
+      font-size: 18px;
+    }
   }
 
-  .summary p {
-    font-size: 14px;
+  br.desktop {
+    display: none;
   }
 }
 
-.page-header .page-header-inner-wrapper {
-  display: flex;
-  align-items: center;
-  height: 100%;
+.go-detail a {
+  color: #565656;
+  font-size: 14px;
+  line-height: 1;
+  svg {
+    width: 6px;
+    margin-top: -2px;
+    margin-left: 5px;
+  }
+}
+
+@include max-with(sm) {
+  .summary p {
+    font-size: 14px;
+  }
 }
 
 .search-box {
@@ -281,8 +371,13 @@ export default {
   font-size: 20px;
 }
 
-.mobile {
-  border-top: 2px solid #000;
+// .mobile {
+//   border-top: 2px solid #000;
+// }
+
+.mobile,
+.desktop {
+  height: 100%;
 }
 
 @include max-with(sm) {
@@ -312,14 +407,20 @@ export default {
 
 .swiper-container {
   width: 100%;
-  height: 500px;
+  height: 100%;
 }
 
 .items {
-  flex: 1 0 0;
+  flex: 1;
   padding-left: 20px;
-  border-left: 2px solid #000;
-  width: 50vw;
+  width: 10px;
+}
+
+@include max-with(lg) {
+  .items {
+    padding-left: 0;
+    width: 100%;
+  }
 }
 
 .swiper-button-prev,
@@ -327,7 +428,7 @@ export default {
   height: 100%;
   margin-top: 0;
   top: 0;
-  padding: 0 18px;
+  padding: 0 calc(12% - 100px);
   width: auto;
   color: #000;
 }
@@ -339,46 +440,84 @@ export default {
 }
 
 .swiper-slide {
-  padding: 0 100px;
+  padding: 0 calc(20% - 120px);
   display: flex;
-  flex-direction: column;
+  align-items: center;
 }
 
+@include max-with(xl) {
+  .swiper-slide {
+    padding: 0 $mobile-sopakit-slide-padding;
+  }
+
+  .swiper-button-prev,
+  .swiper-button-next {
+    padding: 0 20px;
+  }
+}
+
+.swiper-slide-inner-wrapper {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
 .title-section {
   display: flex;
+  height: 60px;
   align-items: flex-end;
   padding-bottom: 25px;
   border-bottom: 2px solid #000;
-  margin-bottom: 10px;
+  margin-bottom: 30px;
   line-height: 1;
+}
+
+@include max-with(md) {
+  .title-section {
+    height: 35px;
+    margin-bottom: 0;
+    border-bottom-width: 1px;
+    padding-bottom: 10px;
+  }
 }
 
 .title-number,
 .title-text {
-  font-size: 48px;
+  font-size: 33px;
   font-weight: 500;
 }
 
+@include max-with(md) {
+  .title-number,
+  .title-text {
+    font-size: 22px;
+    font-weight: 500;
+  }
+}
+
 .title-seperator {
-  width: 4px;
+  width: 3px;
   background-color: #000;
-  height: 42px;
+  height: 90%;
   margin: 0 14px;
-  // font-size: 38px;
-  // font-weight: bold;
-  // display: flex;
-  // align-items: center;
-  // padding: 0 10px;
+}
+@include max-with(md) {
+  .title-seperator {
+    width: 2px;
+  }
 }
 
 .title-films {
-  margin-left: 30px;
-  font-size: 30px;
+  margin-left: 21px;
+  font-size: 21px;
   font-weight: 500;
 }
 
 .mobile-title-films {
   display: none;
+  font-size: 14px;
+  padding: 5px 0;
+  border-bottom: 1px solid #000;
+  margin-bottom: 15px;
 }
 
 @include max-with(md) {
@@ -392,23 +531,8 @@ export default {
 }
 
 .title-year {
-  margin-left: 30px;
-  font-size: 30px;
-}
-
-@include max-with(xl) {
-  .title-number,
-  .title-text {
-    font-size: 36px;
-  }
-  .title-year,
-  .title-films {
-    font-size: 22.5px;
-  }
-  .title-seperator {
-    height: 31.5px;
-    width: 3px;
-  }
+  margin-left: 21px;
+  font-size: 21px;
 }
 
 .title-year {
@@ -428,21 +552,129 @@ export default {
 }
 .content-main {
   display: flex;
+  min-width: 500px;
+  flex: 1 0 0;
+}
+
+.main-mock {
+  position: relative;
+  width: 177px;
+  height: 174px;
+  margin-right: 20px;
+  margin-top: 2px;
+}
+
+@include max-with(md) {
+  .main-mock {
+    display: none;
+  }
 }
 
 .main-mock img {
-  margin: -80px -102px -71px -143px;
+  position: absolute;
+  transform: translate(-34.7%, -28.5%) scale(0.7);
+}
+
+.mobile-main-mock {
+  display: none;
+  width: 100%;
+  padding-bottom: 100%;
+  position: relative;
+
+  .image-resizer {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+  }
+
+  .inner {
+    position: absolute;
+    background-size: 100%;
+    transform: translate(-22%, -16%);
+    width: 155%;
+    height: 120%;
+  }
+}
+
+@include max-with(md) {
+  .mobile-main-mock {
+    display: block;
+    display: none;
+    width: 100%;
+    margin-right: 20px;
+    margin-top: 2px;
+  }
 }
 
 .main-text {
-  font-size: 26px;
+  font-size: 18px;
   font-weight: 500;
-  width: 400px;
-  margin-left: 40px;
+  margin-left: 20px;
+  margin-right: 30px;
+}
+
+@include max-with(md) {
+  .main-text {
+    font-size: 14px;
+    margin: 0;
+    width: 100%;
+  }
+}
+
+.content-product {
+  flex: 1;
+  border-left: 2px solid #000;
+  padding: 10px 0 30px 30px;
+  max-width: 350px;
+}
+
+@include max-with(xl) {
+  .content-product {
+    margin-top: 30px;
+    border: none;
+    padding: 0;
+  }
+}
+
+@include max-with(lg) {
+  .product-item {
+    display: inline-block;
+  }
+
+  .product-film-title a::after {
+    content: ' >';
+    // padding-left: 5px;
+    padding-right: 20px;
+  }
+
+  .product-img-link {
+    display: none;
+  }
+}
+.product-img {
+  width: 100%;
+  background-position: center;
+  background-size: cover;
+  height: 0;
+  padding-bottom: 30%;
 }
 
 .product-img img {
   width: 100px;
+}
+
+.product-title {
+  font-size: 20px;
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+
+.product-film-title {
+  font-size: 16px;
+  margin-bottom: 10px;
+  font-weight: 500;
 }
 </style>
 

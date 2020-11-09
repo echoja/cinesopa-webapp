@@ -12,34 +12,53 @@ export default {};
 @import '@/common';
 
 .page-header {
-  font-size: 24px;
-}
-
-.page-header {
+  font-size: $desktop-subheader-font-size;
+  z-index: 20;
   width: 100%;
-  height: 63px;
+  height: $desktop-subheader-height;
   background-color: #fff;
   border-bottom: 2px solid #000;
   margin-bottom: 0;
   position: sticky;
-  top: $desktop-header-height;
+}
+
+.body:not(.left-right-enter-active):not(.left-right-leave-active) .page-header {
+  top: $desktop-header-height + 2px;
 }
 
 @include max-with(sm) {
-
   .page-header {
-    font-size: 20px;
-    top: $mobile-header-height;
-    height: 48px;
+    font-size: $mobile-subheader-font-size;
+    // top: $mobile-header-height;
+    height: $mobile-subheader-height;
     margin-bottom: 20px;
+    border-top: 2px solid #000;
   }
+  .body:not(.left-right-enter-active):not(.left-right-leave-active)
+    .page-header {
+    top: $mobile-header-height;
+  }
+}
 
+.page-header h1 {
+  font-size: $desktop-subheader-font-size;
+  font-weight: bold;
+  margin: 0;
+}
+
+@include max-with(sm) {
+  .page-header h1 {
+    font-size: $mobile-subheader-font-size;
+  }
+}
+
+.page-header .page-header-inner-wrapper {
+  display: flex;
+  align-items: center;
+  height: 100%;
 }
 </style>
 
 <style lang="scss">
 @import '@/common';
-
-
-
 </style>
