@@ -1,3 +1,5 @@
+//@ts-check
+
 const path = require('path');
 const fs = require('fs');
 const crypto = require('crypto');
@@ -937,8 +939,69 @@ class DBManager {
   }
 
   /*= ====================================
-  제품
+  상품
   ===================================== */
+
+  async getProduct(id) {
+    const product = await model.Product.findOne({ id }).lean().exec();
+    const filmId = product.related_film;
+    const film = await model.Film.findOne({id: filmId}).lean().exec();
+    product.related_film = film;
+    return product;
+  }
+
+  /**
+   * 상품들을 얻습니다.
+   * page 는 값이 0이 들어와야 1페이지에 해당하는 상품들을 얻습니다.
+   * @param {ProductSearch} condition
+   */
+  async getProducts(condition = {}) {
+    const { product_type, page, perpage } = condition;
+    let query = model.Product.find();
+    if (product_type) {
+      query = query.find({ product_type });
+    }
+    const total = (await query.lean().exec()).length;
+    if (typeof page === 'number' && typeof perpage === 'number') {
+      query = query.limit(perpage).skip(perpage * page);
+    }
+    const list = await query.lean().exec();
+    return { total, list };
+  }
+  /**
+   * 새 상품을 생성합니다.
+   * @param {Productinfo} input
+   */
+  async createProduct(input) {
+    return model.Product.create(input);
+  }
+  /**
+   * 상품의 정보를 업데이트합니다. 관련된 cartitem 도 모두 업데이트 합니다.
+   * @param {number} id
+   * @param {Productinfo} input
+   */
+  async updateProduct(id, input) {
+    // todo cartitem 관련 업데이트
+
+    return model.Product.updateOne({ id }, input);
+  }
+  /**
+   * 해당 제품을 삭제합니다. 관련된 cartitem 도 모두 삭제합니다.
+   * @param {number} id
+   */
+  async removeProduct(id) {
+    // todo cartitem 관련 삭제
+
+    return model.Product.deleteOne({ id });
+  }
+
+  /*= ====================================
+  장바구니 cart cartitem
+  ===================================== */
+
+  async getCartitems(email) {
+    return model.Cartitem.find({ user: email }).lean().exec();
+  }
 
   /*= ====================================
   주문

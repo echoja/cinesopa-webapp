@@ -14,8 +14,11 @@
   "javascript.validate.enable": false,
   "search.exclude": {
     "**/node_modules": true,
+    "**/dist": true,
     "**/package-lock.json": true,
     "**/bower_components": true,
-    "**/*.code-search": true
+    "**/*.code-search": true,
+    "package-lock.json": true,
+    "package-lock.json.bak": true,
   }
 }

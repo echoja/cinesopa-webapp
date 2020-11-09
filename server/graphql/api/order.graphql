@@ -15,14 +15,29 @@ input DestinfoInput {
 }
 
 type Order {
-    status: String
-    method: String
-    c_date: DateTime
-    expected_date: DateTime # 도착 예정일
-    cash_receipt: String # 현금영수증 번호
-    transport_number: String # 송장 번호
-    transport_company: String # 택배 회사
-    meta: JSON
-    items: [CartItem]
-    dest: Destinfo
+  status: String
+  method: String
+  c_date: DateTime
+  expected_date: DateTime # 도착 예정일
+  cash_receipt: String # 현금영수증 번호
+  transport_number: String # 송장 번호
+  transport_company: String # 택배 회사
+  meta: JSON
+  items: [CartItem]
+  dest: Destinfo
+}
+
+input OrderSearch {
+  status: String
+  method: String
+  page: Int
+  perpage: Int
+}
+
+extend type Query {
+  orders(condition: OrderSearch): [Order]
+}
+
+extend type Mutation {
+  createOrderFromCart: Order
 }

@@ -1,7 +1,7 @@
 const Hangul = require('hangul-js');
 
 const { Mongoose } = require('mongoose');
-const { getFilmSearchStr } = require('./tool');
+const { getFilmSearchStr, makeSchemaHaveSearch } = require('./tool');
 const {
   enumPeopleRoleType,
   enumFilmWatchGrade,
@@ -116,33 +116,40 @@ module.exports = function (mongoose) {
   //   return Hangul.disassembleToString(strArray.join('').replace(/ /g, ''));
   // };
 
-  schema.index({ search: 'text' });
+  // schema.index({ search: 'text' });
+  makeSchemaHaveSearch(schema, 'search', [
+    'title',
+    'title_en',
+    'people.name',
+    'people.name_en',
+  ]);
 
-  schema.pre('save', function () {
-    console.log('++film save middleware 호출되었슴');
-    // this.prod_date.setHours(0, 0, 0);
-    // this.open_date.setHours(0, 0, 0);
-    this.search = getFilmSearchStr(this);
-  });
+  // schema.pre('save', function () {
+  //   console.log('++film save middleware 호출되었슴');
+  //   // this.prod_date.setHours(0, 0, 0);
+  //   // this.open_date.setHours(0, 0, 0);
+  //   this.search = getFilmSearchStr(this);
+  // });
 
-  // const updateSearch = async (query) => {
-  //   const docToUpdate = await query.model.findOne(query.getFilter());
-  //   // console.log(docToUpdate._doc);
-  //   docToUpdate.search = getFilmSearchStr(docToUpdate);
-  // };
+  // // const updateSearch = async (query) => {
+  // //   const docToUpdate = await query.model.findOne(query.getFilter());
+  // //   // console.log(docToUpdate._doc);
+  // //   docToUpdate.search = getFilmSearchStr(docToUpdate);
+  // // };
 
-  schema.post('updateOne', async function () {
-    console.log('++film updateOne middleware 호출되었슴');
-    const docToUpdate = await this.model.findOne(this.getFilter());
-    if (docToUpdate) await docToUpdate.save();
-  });
-  schema.on('index', function (err) {
-    if (err) {
-      console.error('User index error: %s', err);
-    } else {
-      console.info('User indexing complete');
-    }
-  });
+  // schema.post('updateOne', async function () {
+  //   console.log('++film updateOne middleware 호출되었슴');
+  //   const docToUpdate = await this.model.findOne(this.getFilter());
+  //   if (docToUpdate) await docToUpdate.save();
+  // });
+
+  // schema.on('index', function (err) {
+  //   if (err) {
+  //     console.error('User index error: %s', err);
+  //   } else {
+  //     console.info('User indexing complete');
+  //   }
+  // });
 
   autoIdSetter(schema, mongoose, 'film', 'id');
   return schema;

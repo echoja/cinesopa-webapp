@@ -94,6 +94,9 @@ const graphqlSuper = async (agent, query, variables) =>
       });
   });
 
+const guestEmail = 'testGuest';
+const adminEmail = 'testAdmin';
+
 const doLogin = async (agent, email, pwd) =>
   graphqlSuper(agent, loginQuery, {
     email,
@@ -101,12 +104,12 @@ const doLogin = async (agent, email, pwd) =>
   });
 const doAdminLogin = async (agent) =>
   graphqlSuper(agent, loginQuery, {
-    email: 'testAdmin',
+    email: adminEmail,
     pwd: 'abc',
   });
 const doGuestLogin = async (agent) =>
   graphqlSuper(agent, loginQuery, {
-    email: 'testGuest',
+    email: guestEmail,
     pwd: 'abc',
   });
 
@@ -130,10 +133,10 @@ const testDatabaseServer = (hookFunctions) => {
 
   hookFunctions.beforeEach('유저 세팅', async function () {
     // console.log('testDatabaseServer - beforeEach!!');
-    await db.createUser('testAdmin', 'abc', {
+    await db.createUser(adminEmail, 'abc', {
       role: 'ADMIN',
     });
-    await db.createUser('testGuest', 'abc', {
+    await db.createUser(guestEmail, 'abc', {
       role: 'GUEST',
     });
   });
@@ -267,6 +270,8 @@ const doLogout = async (agent) => {
  */
 
 module.exports = {
+  adminEmail,
+  guestEmail,
   graphqlSuper,
   doAdminLogin,
   doGuestLogin,

@@ -1,0 +1,336 @@
+const { expect } = require('chai');
+// const {} = require('./graphql-request');
+const {
+  initTestServer,
+  graphqlSuper,
+  doLogout,
+  doAdminLogin,
+  doGuestLogin,
+  adminEamil,
+  guestEmail,
+} = require('./tool');
+const { graphql } = require('graphql');
+const { model, db } = require('../loader');
+
+const createProductMutation = `
+mutation createProductMutation($input: ProductInput!) {
+  createProduct(input: $input) {
+    success 
+  }
+}
+`;
+const updateProductMutation = `
+mutation updateProductMutation($id: Int!, $input: ProductInput!) {
+  updateProduct(id: $id, input: $input) {
+    success 
+  }
+}
+`;
+const removeProductMutation = `
+mutation removeProductMutation($id: Int!) {
+  removeProduct(id: $id) {
+    success 
+  }
+}
+`;
+
+const productQuery = `
+query productQuery($id: Int!) {
+  product(id: $id) {
+    product_type
+    featured_image_url
+    featured_image_alt
+    content_main
+    content_sub
+    side_phrase
+    notice
+    name
+    options {
+      id
+      content
+      left
+      price
+    }
+    related_film {
+      poster_url
+      title
+      title_en
+      prod_date
+      open_date
+      genres
+      show_time
+      people {
+        role_type
+        name
+        role
+      }
+      watch_grade
+      synopsis
+    }
+  }
+}
+`;
+
+describe('product', function () {
+  // eslint-disable-next-line mocha/no-setup-in-describe
+  const { agent } = initTestServer({ before, beforeEach, after, afterEach });
+  describe('db', function () {
+    describe('getProduct', function () {
+      it('잘 동작해야 함.', async function () {
+        const result = await model.Product.create({
+          content_main: 'cm',
+          content_sub: 'cs',
+          kit_number: 'kn',
+          kit_title: 'kt',
+        });
+        const { id } = result;
+        const found = await db.getProduct(id);
+        console.log(found);
+        expect(found.content_main).to.equal('cm');
+      });
+    });
+    describe('getProducts', function () {
+      beforeEach('항목들 만들어놓기', async function () {
+        await model.Product.create({
+          content_main: '1',
+          product_type: 'sopakit',
+        });
+        await model.Product.create({
+          content_main: 'cm',
+        });
+        await model.Product.create({
+          content_main: 'cm',
+          kit_title: 'kt',
+          product_type: 'sopakit',
+        });
+        await model.Product.create({
+          content_main: 'cm',
+          content_sub: 'cs',
+        });
+        await model.Product.create({
+          kit_number: 'kn',
+          kit_title: 'kt',
+        });
+        await model.Product.create({
+          content_main: 'cm',
+          kit_title: 'kt',
+          kit_number: 'I2SPECITAL',
+          product_type: 'sopakit',
+        });
+        await model.Product.create({
+          content_main: 'cm',
+          content_sub: 'cs',
+          kit_number: 'IAmSpecial!!',
+        });
+        await model.Product.create({
+          content_main: 'cm',
+          kit_title: 'kt',
+
+          product_type: 'sopakit',
+        });
+        await model.Product.create({
+          content_main: 'cm',
+          content_sub: 'cs',
+        });
+      });
+      it('아무런 조건이 없을 때 잘 동작해야 함.', async function () {
+        const result = await db.getProducts();
+        const result2 = await db.getProducts({});
+        // console.log(result);
+        expect(result.total).to.equal(9);
+        expect(result.list.length).to.equal(9);
+        expect(result2.total).to.equal(9);
+        expect(result2.list.length).to.equal(9);
+      });
+      it('page, perpage 잘 동작해야 함.', async function () {
+        const result = await db.getProducts({ perpage: 2, page: 3 });
+        // console.log(result);
+        expect(result.total).to.equal(9);
+        expect(result.list.length).to.equal(2);
+        expect(result.list[0].kit_number).to.equal('IAmSpecial!!');
+      });
+      it('product_type이 잘 동작해야 함.', async function () {
+        const result = await db.getProducts({ product_type: 'sopakit' });
+        // console.log(result);
+        expect(result.total).to.equal(4);
+        expect(result.list.length).to.equal(4);
+      });
+      it('복합적으로 잘 동작해야 함.', async function () {
+        const result = await db.getProducts({
+          product_type: 'sopakit',
+          perpage: 1,
+          page: 2,
+        });
+        // console.log(result);
+        expect(result.total).to.equal(4);
+        expect(result.list.length).to.equal(1);
+        expect(result.list[0].kit_number).to.equal('I2SPECITAL');
+      });
+    });
+    describe('createProduct', function () {
+      it('잘 동작해야 함', async function () {
+        await db.createProduct({
+          content_main: 'cm',
+          content_sub: 'cs',
+          kit_number: 'kn',
+          kit_title: 'kt',
+        });
+        const res = await model.Product.findOne({ content_main: 'cm' })
+          .lean()
+          .exec();
+        expect(res.content_sub).to.equal('cs');
+      });
+    });
+    describe('updateProduct', function () {
+      it('잘 동작해야 함. 수정되지 않는 부분은 유지되어야 함.', async function () {
+        await model.Product.create({
+          content_main: 'cm',
+          content_sub: 'cs',
+          kit_number: 'kn',
+          kit_title: 'kt',
+        });
+        const result = await db.updateProduct(1, {
+          content_main: 'hello_world',
+          kit_number: '1234',
+        });
+        // console.log(result);
+        const updated = await model.Product.findOne().lean().exec();
+        expect(updated.content_main).to.equal('hello_world');
+        expect(updated.content_sub).to.equal('cs');
+        expect(updated.kit_number).to.equal('1234');
+        expect(updated.kit_title).to.equal('kt');
+      });
+    });
+    describe('removeProduct', function () {
+      it('잘 동작해야 함', async function () {
+        const item = await model.Product.create({
+          content_main: 'cm',
+          content_sub: 'cs',
+          kit_number: 'kn',
+          kit_title: 'kt',
+        });
+        const { id } = item;
+        await db.removeProduct(id);
+        const items = await model.Product.find().lean().exec();
+        expect(items.length).to.equal(1);
+      });
+    });
+  });
+  describe('api', function () {
+    describe('product', function () {
+      it('제대로 동작해야 함', async function () {
+        const film = await model.Film.create({
+          title: '하이',
+          title_en: '호호',
+          prod_date: new Date('2010-10-12'),
+          open_date: new Date('2015-10-12'),
+          genres: ['잔인해'],
+          show_time: 1024,
+          people: {
+            role_type: 'director',
+            name: '김감독',
+          },
+        });
+        const filmId = film.id;
+        const product = await model.Product.create({
+          product_type: 'sopakit',
+          featured_image_url: '123',
+          featured_image_alt: '234',
+          content_main: '345',
+          content_sub: '45',
+          side_phrase: '567',
+          notice: '678',
+          name: '슈퍼파워 소파킷이다.',
+          related_film: filmId,
+        });
+        const productId = product.id;
+
+        const res = await graphqlSuper(agent, productQuery, { id: productId });
+        const result = res.body.data.product;
+        // console.log(result);
+        expect(result.product_type).to.equal('sopakit');
+        expect(result.featured_image_url).to.equal('123');
+        expect(result.featured_image_alt).to.equal('234');
+        expect(result.content_main).to.equal('345');
+        expect(result.content_sub).to.equal('45');
+        expect(result.side_phrase).to.equal('567');
+        expect(result.notice).to.equal('678');
+        expect(result.name).to.equal('슈퍼파워 소파킷이다.');
+        expect(result.related_film).to.include({
+          title: '하이',
+          title_en: '호호',
+          show_time: 1024,
+        });
+      });
+    });
+    describe('products', function () {
+      it('제대로 동작해야 함', async function () {});
+    });
+    describe('productAdmin', function () {
+      it('제대로 동작해야 함', async function () {});
+    });
+    describe('productsAdmin', function () {
+      it('제대로 동작해야 함', async function () {});
+    });
+    describe('createProduct', function () {
+      it('제대로 동작해야 함', async function () {
+        await doAdminLogin(agent);
+        const res = await graphqlSuper(agent, createProductMutation, {
+          input: {
+            content_main: 'cm',
+            content_sub: 'cs',
+            kit_number: 'kn',
+            kit_title: 'kt',
+          },
+        });
+        const result = res.body.data.createProduct;
+        // console.log(result);
+        expect(result.success).to.be.true;
+      });
+    });
+    describe('updateProduct', function () {
+      it('제대로 동작해야 함', async function () {
+        await doAdminLogin(agent);
+        const doc = await model.Product.create({
+          content_main: 'cm',
+          content_sub: 'cs',
+          kit_number: 'kn',
+          kit_title: 'kt',
+        });
+        const res = await graphqlSuper(agent, updateProductMutation, {
+          id: doc.id,
+          input: { content_sub: 'cs2', kit_number: 'kn2' },
+        });
+        const result = res.body.data.updateProduct;
+        // console.log(result);
+        expect(result.success).to.be.true;
+
+        const updated = await model.Product.findOne({ id: doc.id });
+        expect(updated.content_main).to.equal('cm');
+        expect(updated.content_sub).to.equal('cs2');
+        expect(updated.kit_number).to.equal('kn2');
+        expect(updated.kit_title).to.equal('kt');
+      });
+    });
+    describe('removeProduct', function () {
+      it('제대로 동작해야 함', async function () {
+        await doAdminLogin(agent);
+        const doc = await model.Product.create({
+          content_main: 'cm',
+          content_sub: 'cs',
+          kit_number: 'kn',
+          kit_title: 'kt',
+        });
+        const res = await graphqlSuper(agent, removeProductMutation, {
+          id: doc.id,
+        });
+        const result = res.body.data.removeProduct;
+        // console.log(result);
+        expect(result.success).to.be.true;
+
+        const found = await model.Product.find().lean().exec();
+        expect(found.length).to.equal(0);
+      });
+    });
+  });
+});

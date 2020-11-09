@@ -44,6 +44,8 @@
     "test:mkdir": "npm test ./test/file.spec.js"
   },
   "devDependencies": {
+    "@types/chai": "^4.2.14",
+    "@types/mongoose": "^5.7.37",
     "@types/graphql-upload": "^8.0.3",
     "assert": "^2.0.0",
     "axios": "^0.20.0",

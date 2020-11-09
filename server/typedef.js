@@ -3,9 +3,48 @@
 ===================================== */
 
 /**
+ * @typedef {Object} Optioninfo
+ * @property {string}   id : String,
+ * @property {string} content : String,
+ * @property {number} left : Number,
+ * @property {number} price : Number,
+ */
+
+/**
+ * @typedef {Object} ProductSearch
+ * @property {string} product_type
+ * @property {number} page
+ * @property {number} perpage
+ */
+
+/**
+ * 상품의 정보를 담음
+ * @typedef {Object} Productinfo
+ * @property {string} product_type : { type : String, enum : enumProductType.raw_str_list },
+ * @property {string} status 공개 여부
+ * @property {string} featured_image_url : String,
+ * @property {string} featured_image_alt : String,
+ * @property {string} content_main : String,
+ * @property {string} content_sub : String,
+ * @property {string} side_phrase : String,
+ * @property {string} notice : String,
+ * @property {boolean} is_notice_default : Boolean,
+ * @property {string} name : String,
+ * @property {Optioninfo} options : [Option],
+ * @property {Date} c_date : { type : Date, default : Date.now },
+ * @property {number} related_film  : [{ type : mongoose.Schema.Types.ObjectId, ref : 'Film' }], // 영화 정보는 기본적으로 여기서 전부 가지고 온다.
+ * @property {string} related_cartitems : 관련된 카트 아이템.
+ * @property {object} meta : mongoose.Schema.Types.Mixed,
+ * @property {string} kit_number : String,
+ * @property {string} kit_title : String,
+ * @property {string} search : String,
+ *
+ */
+
+/**
  * 목적지 정보를 담는 객체
  * @typedef {Object} Destinfo
- *  @property {string}  name
+ *  @property {string} name
  *  @property {string} address
  *  @property {string} address_detail
  *  @property {string} phone
@@ -19,11 +58,14 @@
  * @property {number}  product_url_id : Number, // 제품의 링크용
  * @property {string}  name : String,
  * @property {string}  featured_image_url : String,
+ * @property {string}  featured_image_alt : String,
+ *
  */
 
 /**
  * 카트의 옵션을 담는 객체
  * @typedef {Object} CartItemOptioninfo
+ * @property {string} id  식별자
  * @property {string} content : String,
  * @property {number} price : Number,
  * @property {number} count : Number,
@@ -34,7 +76,8 @@
  * 카트 아이템을 담는 객체
  * @typedef {Object} CartIteminfo
  * @property {string}  user : String, // 유저 이메일
- * @property {Date}  added_date : { type: Date, default: Date.now },
+ * @property {Date}  added : { type: Date, default: Date.now },
+ * @property {Date}  modified : { type: Date, default: Date.now },
  * @property {string}  product_id : { type: mongoose.Schema.Types.ObjectId, ref: 'Product' },
  * @property {CartItemProductinfo}  product : CartItemProduct,
  * @property {CartItemOptioninfo[]}  options : [CartItemOption],

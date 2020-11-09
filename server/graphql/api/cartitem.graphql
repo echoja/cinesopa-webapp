@@ -3,9 +3,11 @@ type CartItemProduct {
   product_url_id: Int # 제품의 링크용
   name: String
   featured_image_url: String
+  featured_image_alt: String
 }
 
 type CartItemOption {
+  id: Int
   content: String
   price: Int
   count: Int
@@ -13,9 +15,70 @@ type CartItemOption {
 
 type CartItem {
   user: String # 유저 이메일
-  added_date: DateTime
+  added: DateTime
+  modified: DateTime
   product_id: String
   product: CartItemProduct
   options: [CartItemOption]
   meta: JSON
+  id: Int
+}
+
+type AddCartitemResult {
+  success: Boolean
+}
+type UpdateOptionCountResult {
+  success: Boolean
+}
+type RemoveCartitemResult {
+  success: Boolean
+}
+
+input CartitemUpdate {
+  modified: DateTime
+}
+
+input UpdateCountInput {
+  count: Int
+  modified: DateTime
+}
+
+input CartitemInput {
+  user: String # 유저 이메일
+  added: DateTime
+  modified: DateTime
+  product_id: String
+  product: CartitemProductInput
+  options: [CartitemOptionInput]
+  meta: JSON
+  id: Int
+}
+
+input CartitemOptionInput {
+  id: Int
+  content: String
+  price: Int
+  count: Int
+}
+
+input CartitemProductInput {
+  product_type: String
+  product_url_id: Int # 제품의 링크용
+  name: String
+  featured_image_url: String
+  featured_image_alt: String
+}
+
+extend type Query {
+  cartitems: [CartItem] # 현재 유저의 모든 cartitem 을 불러옴.
+}
+
+extend type Mutation {
+  addCartitem(input: CartitemInput!): AddCartitemResult
+  updateOptionCount(
+    id: Int!
+    optionId: Int!
+    count: UpdateCountInput!
+  ): UpdateOptionCountResult # Cartitem id, 옵션 id, 카운트
+  removeCartitem(id: Int!): RemoveCartitemResult
 }

@@ -10,5 +10,8 @@ const AutoIncrementFactory = require('mongoose-sequence');
  */
 module.exports = (schema, mongoose, name, inc_field) => {
   const AutoIncrement = AutoIncrementFactory(mongoose);
-  schema.plugin(AutoIncrement, { id: `${name}_${inc_field}`, inc_field });
+  const option = { id: `${name}_${inc_field}`, inc_field };
+  // console.log('# AutoIdSetter');
+  // console.log(option);
+  schema.plugin(AutoIncrement, option);
 };

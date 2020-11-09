@@ -1,0 +1,109 @@
+type Option {
+  id: String
+  content: String
+  left: Int
+  price: Int
+}
+
+input OptionInput {
+  id: String
+  content: String
+  left: Int
+  price: Int
+}
+
+type ProductAdmin {
+  id: Int
+  product_type: String
+  featured_image_url: String
+  featured_image_alt: String
+  content_main: String
+  content_sub: String
+  side_phrase: String
+  notice: String
+  is_notice_default: Boolean
+  name: String
+  options: [Option]
+  c_date: DateTime
+  related_film: Int # Film Id. 영화 정보는 기본적으로 여기서 전부 가지고 온다.
+  related_cartitems: [String]
+  meta: JSON
+  kit_number: String # 소파킷 전용. 소파킷 넘버
+  kit_title: String # 소파킷 전용. 소파킷 타이틀
+}
+
+extend type Query {
+  product(id: Int): Product
+}
+
+type createProductResult {
+  success: Boolean
+}
+type updateProductResult {
+  success: Boolean
+}
+type removeProductResult {
+  success: Boolean
+}
+
+input ProductInput {
+  product_type: String
+  featured_image_url: String
+  featured_image_alt: String
+  content_main: String
+  content_sub: String
+  side_phrase: String
+  notice: String
+  is_notice_default: Boolean
+  name: String
+  options: [OptionInput]
+  c_date: DateTime
+  related_film: Int # Film Id. 영화 정보는 기본적으로 여기서 전부 가지고 온다.
+  related_cartitems: [String]
+  meta: JSON
+  kit_number: String # 소파킷 전용. 소파킷 넘버
+  kit_title: String # 소파킷 전용. 소파킷 타이틀
+}
+
+type Product {
+  product_type: String
+  featured_image_url: String
+  featured_image_alt: String
+  content_main: String
+  content_sub: String
+  side_phrase: String
+  notice: String
+  name: String
+  options: [Option]
+  related_film: Film
+  # search: String
+}
+
+type ProductsResult {
+  total: Int
+  list: [Product]
+}
+
+input ProductSearch {
+  product_type: String
+  page: Int
+  perpage: Int
+}
+
+type ProductsAdminResult {
+  total: Int
+  list: [ProductAdmin]
+}
+
+extend type Query {
+  product(id: Int!): Product
+  productAdmin(id: Int!): ProductAdmin
+  products(condition: ProductSearch): ProductsResult
+  productsAdmin(condition: ProductSearch): ProductsAdminResult
+}
+
+extend type Mutation {
+  createProduct(input: ProductInput!): createProductResult
+  updateProduct(id: Int!, input: ProductInput!): updateProductResult
+  removeProduct(id: Int!): removeProductResult
+}

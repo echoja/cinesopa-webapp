@@ -12,19 +12,18 @@ const {
 const { graphql } = require('graphql');
 const { model, db } = require('../loader');
 
-describe('cartitem', function () {
+describe('product-cartitem', function () {
   // eslint-disable-next-line mocha/no-setup-in-describe
   const { agent } = initTestServer({ before, beforeEach, after, afterEach });
   describe('db', function () {
-    describe('getCartitems', function () {
-      it('잘 동작해야 함', async function () {
-        await model.Cartitem.create({
-          user: guestEmail,
-        });
-        const cartitems = await db.getCartitems(guestEmail);
-        // console.log(cartitems);
-        expect(cartitems.length).to.equal(1);
-        
+    describe('updateProduct', function () {
+      it('이미 존재하는 cartitem 에 대한 정보도 함께 수정되어야 함.', async function () {
+        // todo
+      });
+    });
+    describe('removeProduct', function () {
+      it('이미 존재하는 cartitem 도 전부 삭제되어야 함.', async function () {
+        // todo
       });
     });
   });

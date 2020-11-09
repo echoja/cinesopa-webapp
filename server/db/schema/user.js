@@ -5,7 +5,7 @@ const makeDestinfo = require('./destinfo');
 const role = enumAuthmap.raw_str_list.slice(0, -1);
 
 module.exports = function (mongoose) {
-  const CartItem = makeCartItem(mongoose);
+  const CartItem = makeCartItem(mongoose, false);
   const Destinfo = makeDestinfo(mongoose);
   const UserAgreed = new mongoose.Schema({
     privacy: Boolean,

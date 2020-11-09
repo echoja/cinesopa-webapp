@@ -22,6 +22,7 @@ function makeModule(mongoose) {
    */
   const model = {};
   Object.keys(schemaBuilder).forEach((key) => {
+    // console.log(key);
     model[key] = mongoose.model(key, schemaBuilder[key](mongoose));
   });
   // for (const key in schemaBuilder) {
