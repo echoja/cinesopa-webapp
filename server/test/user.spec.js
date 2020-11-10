@@ -1096,7 +1096,6 @@ describe('user', function () {
           await db.upsertKakaoUser('eszqsc112@naver.com', {
             kakao_id: 'hello',
           });
-          // todo 어떻게 로그인시키지??
           await graphqlSuper(agent, forceLoginMutation, {
             email: 'eszqsc112@naver.com',
           });

@@ -984,8 +984,6 @@ class DBManager {
    * @param {Productinfo} input
    */
   async updateProduct(id, input) {
-    // todo cartitem 관련 업데이트
-
     const product = await model.Product.findOne({ id });
 
     // product 가 존재하지 않을 경우 success 는 false
@@ -1047,6 +1045,9 @@ class DBManager {
   ===================================== */
 
   async getCartitems(email) {
+    // const all = await model.Cartitem.find().lean().exec();
+    // console.log('# db - getCartitems');
+    // console.log(all);
     return model.Cartitem.find({ user: email }).lean().exec();
   }
   /**
@@ -1123,8 +1124,18 @@ class DBManager {
     return { success: true, code: 'created' };
   }
 
-  async updateCartitemOption(id, optionId, count, current) {
-    const item = await model.Cartitem.findOne({ id });
+  /**
+   * 카트아이템 id 와 해당 옵션 id를 이용하여 count를 수정합니다.
+   * modified 가 current 보다 최근일 경우, 수정하지 않습니다.
+   * 해당 카트아이템이 해당 이메일(유저) 것이 아니라면, 수정하지 않습니다.
+   * @param {number} id 
+   * @param {string} optionId 
+   * @param {number} count 
+   * @param {Date} current 
+   * @param {string} email 
+   */
+  async updateCartitemOption(id, optionId, count, current, email) {
+    const item = await model.Cartitem.findOne({ id, user: email });
 
     // 아이템이 존재하지 않는다면 에러.
     if (!item) return { success: false, code: 'no_item' };

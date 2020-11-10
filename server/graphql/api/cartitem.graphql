@@ -53,11 +53,11 @@ input CartitemInput {
   product: CartitemProductInput
   options: [CartitemOptionInput]
   meta: JSON
-  id: Int
+  # id: Int
 }
 
 input CartitemOptionInput {
-  id: Int
+  id: String
   content: String
   price: Int
   count: Int

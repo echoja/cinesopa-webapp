@@ -70,7 +70,7 @@ const makeAgent = request.agent;
  * 요청주소는 /graphql 로 고정입니다.
  * @param {import("supertest").SuperAgentTest} agent
  * @param {string} query
- * @param {string} variables
+ * @param {object} variables
  */
 const graphqlSuper = async (agent, query, variables) =>
   new Promise((resolve, reject) => {
