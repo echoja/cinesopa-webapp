@@ -10,14 +10,13 @@ const autoIdSetter = require('./auto-id-setter');
 module.exports = function (mongoose, setId = true) {
   const CartItemProduct = new mongoose.Schema({
     product_type: { type: String, enum: enumProductType.raw_str_list },
-    product_url_id: Number, // 제품의 링크용
     name: String,
     featured_image_url: String,
     featured_image_alt: String,
   });
 
   const CartItemOption = new mongoose.Schema({
-    // id: String,
+    id: String,
     content: String,
     price: Number,
     count: Number,
@@ -27,7 +26,8 @@ module.exports = function (mongoose, setId = true) {
     user: String, // 유저 이메일
     added: { type: Date, default: Date.now },
     modified: { type: Date, default: Date.now },
-    product_id: { type: mongoose.Schema.Types.ObjectId, ref: 'Product' },
+    product_id: Number,
+    // product_id: { type: mongoose.Schema.Types.ObjectId, ref: 'Product' },
     product: CartItemProduct,
     options: [CartItemOption],
     meta: mongoose.Schema.Types.Mixed,

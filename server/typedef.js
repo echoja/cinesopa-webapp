@@ -55,7 +55,6 @@
  * 카트의 제품 정보를 담는 객체
  * @typedef {Object} CartItemProductinfo
  * @property {string}  product_type : { type: String, enum: enumProductType.raw_str_list },
- * @property {number}  product_url_id : Number, // 제품의 링크용
  * @property {string}  name : String,
  * @property {string}  featured_image_url : String,
  * @property {string}  featured_image_alt : String,
@@ -78,11 +77,22 @@
  * @property {string}  user : String, // 유저 이메일
  * @property {Date}  added : { type: Date, default: Date.now },
  * @property {Date}  modified : { type: Date, default: Date.now },
- * @property {string}  product_id : { type: mongoose.Schema.Types.ObjectId, ref: 'Product' },
+ * @property {number}  product_id
  * @property {CartItemProductinfo}  product : CartItemProduct,
  * @property {CartItemOptioninfo[]}  options : [CartItemOption],
  * @property {object}  meta : mongoose.Schema.Types.Mixed,
  */
+
+//  /**
+//   * @typedef {Object} CartitemInput
+//   * @property {string}   user: String # 유저 이메일
+//   * @property {Date} added: DateTime
+//   * @property {Date} modified: DateTime
+//   * @property {number} product_id: Int
+//   * @property {string} product: CartitemProductInput
+//   * @property {string} options: [CartitemOptionInput]
+//   * @property {Object} meta: JSON
+//   */
 
 /**
  * 주문 정보를 담는 객체

@@ -29,7 +29,8 @@ module.exports = function (mongoose) {
     c_date: { type: Date, default: Date.now },
     // related_film: { type: mongoose.Schema.Types.ObjectId, ref: 'Film' }, // 영화 정보는 기본적으로 여기서 전부 가지고 온다.
     related_film: Number, // 영화 정보는 기본적으로 여기서 전부 가지고 온다.
-    related_cartitems: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Cartitem' }], // 영화 정보는 기본적으로 여기서 전부 가지고 온다.
+    related_cartitems: [Number], // 영화 정보는 기본적으로 여기서 전부 가지고 온다. cartitem id.
+    // related_cartitems: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Cartitem' }], // 영화 정보는 기본적으로 여기서 전부 가지고 온다.
     meta: mongoose.Schema.Types.Mixed,
     kit_number: String,
     kit_title: String,

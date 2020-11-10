@@ -207,22 +207,94 @@ describe('product', function () {
     });
     describe('updateProduct', function () {
       it('잘 동작해야 함. 수정되지 않는 부분은 유지되어야 함.', async function () {
-        await model.Product.create({
+        const product = await model.Product.create({
           content_main: 'cm',
           content_sub: 'cs',
           kit_number: 'kn',
           kit_title: 'kt',
         });
-        const result = await db.updateProduct(1, {
+        const result = await db.updateProduct(product.id, {
           content_main: 'hello_world',
           kit_number: '1234',
         });
         // console.log(result);
-        const updated = await model.Product.findOne().lean().exec();
+        const updated = await model.Product.findOne({ id: product.id })
+          .lean()
+          .exec();
         expect(updated.content_main).to.equal('hello_world');
         expect(updated.content_sub).to.equal('cs');
         expect(updated.kit_number).to.equal('1234');
         expect(updated.kit_title).to.equal('kt');
+      });
+      it('관련된 cartitem 의 정보도 갱신되어야 함.', async function () {
+        const ci = await model.Cartitem.create({
+          options: [
+            {
+              id: 'hello',
+              content: 'abc',
+              price: 123,
+            },
+          ],
+        });
+        const prod = await model.Product.create({
+          content_main: 'cm',
+          content_sub: 'cs',
+          kit_number: 'kn',
+          kit_title: 'kt',
+          related_cartitems: [ci.id],
+          product_type: 'sopakit',
+          name: '슈펴사품',
+          featured_image_url: 'https://ho',
+          featured_image_alt: '이미지설명',
+        });
+        const result = await db.updateProduct(prod.id, {
+          featured_image_url: 'helloworld',
+        });
+        const afterCi = await model.Cartitem.findOne({ id: ci.id })
+          .lean()
+          .exec();
+        // const afterProd = await model.Product.findOne({id: ci.id}).lean().exec();
+        expect(afterCi.product.featured_image_url).to.equal('helloworld');
+      });
+      it('관련된 cartitem 이 존재하지 않을 때 오류가 나지 않고 해당 cartitem id 가 삭제되어야 함.', async function () {
+        const ci = await model.Cartitem.create({
+          options: [
+            {
+              id: 'hello',
+              content: 'abc',
+              price: 123,
+            },
+          ],
+        });
+        const ci2 = await model.Cartitem.create({
+          options: [
+            {
+              id: 'hello',
+              content: 'abc',
+              price: 123,
+            },
+          ],
+        });
+        const prod = await model.Product.create({
+          content_main: 'cm',
+          content_sub: 'cs',
+          kit_number: 'kn',
+          kit_title: 'kt',
+          related_cartitems: [5, 6, 7, ci.id, ci2.id, 100, 101, 102, 103],
+          product_type: 'sopakit',
+          name: '슈펴사품',
+          featured_image_url: 'https://ho',
+          featured_image_alt: '이미지설명',
+        });
+        const result = await db.updateProduct(prod.id, {
+          featured_image_url: 'helloworld',
+        });
+        expect(result.success).to.be.true;
+
+        const afterProd = await model.Product.findOne({ id: prod.id })
+          .lean()
+          .exec();
+        expect(afterProd.related_cartitems.length).to.equal(2);
       });
     });
     describe('removeProduct', function () {
@@ -236,13 +308,13 @@ describe('product', function () {
         const { id } = item;
         await db.removeProduct(id);
         const items = await model.Product.find().lean().exec();
-        expect(items.length).to.equal(1);
+        expect(items.length).to.equal(0);
       });
     });
   });
   describe('api', function () {
     describe('product', function () {
-      it.only('제대로 동작해야 함', async function () {
+      it('제대로 동작해야 함', async function () {
         const film = await model.Film.create({
           title: '하이',
           title_en: '호호',
@@ -288,7 +360,7 @@ describe('product', function () {
       });
     });
     describe('products', function () {
-      it.only('제대로 동작해야 함', async function () {
+      it('제대로 동작해야 함', async function () {
         const film = await model.Film.create({
           title: '하이',
           title_en: '호호',
@@ -355,7 +427,7 @@ describe('product', function () {
       });
     });
     describe('productAdmin', function () {
-      it.only('제대로 동작해야 함', async function () {
+      it('제대로 동작해야 함', async function () {
         await doAdminLogin(agent);
         const film = await model.Film.create({
           title: '하이',
@@ -383,7 +455,9 @@ describe('product', function () {
         });
         const productId = product.id;
 
-        const res = await graphqlSuper(agent, productAdminQuery, { id: productId });
+        const res = await graphqlSuper(agent, productAdminQuery, {
+          id: productId,
+        });
         const result = res.body.data.productAdmin;
         // console.log(result);
         expect(result.product_type).to.equal('sopakit');
@@ -402,7 +476,7 @@ describe('product', function () {
       });
     });
     describe('productsAdmin', function () {
-      it.only('제대로 동작해야 함', async function () {
+      it('제대로 동작해야 함', async function () {
         await doAdminLogin(agent);
         const film = await model.Film.create({
           title: '하이',

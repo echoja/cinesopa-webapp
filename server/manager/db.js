@@ -11,6 +11,8 @@ const {
   SchemaTypes: { ObjectId },
 } = require('mongoose');
 const { enumTokenPurpose } = require('../db/schema/enum');
+const { fail } = require('assert');
+const { forEachDefaultValue } = require('graphql-tools');
 // const { ManagerCreater } = require("./manager-loader");
 
 /** @typedef {Object.<string, Model<MongooseDocument, {}>>} ModelWrapper */
@@ -945,7 +947,7 @@ class DBManager {
   async getProduct(id) {
     const product = await model.Product.findOne({ id }).lean().exec();
     const filmId = product.related_film;
-    const film = await model.Film.findOne({id: filmId}).lean().exec();
+    const film = await model.Film.findOne({ id: filmId }).lean().exec();
     product.related_film = film;
     return product;
   }
@@ -977,13 +979,58 @@ class DBManager {
   }
   /**
    * 상품의 정보를 업데이트합니다. 관련된 cartitem 도 모두 업데이트 합니다.
+   * 이 때 해당 cartitem 이 존재하지 않는다면 가볍게 무시하고, 해당 cartitem 을 삭제합니다.
    * @param {number} id
    * @param {Productinfo} input
    */
   async updateProduct(id, input) {
     // todo cartitem 관련 업데이트
 
-    return model.Product.updateOne({ id }, input);
+    const product = await model.Product.findOne({ id });
+
+    // product 가 존재하지 않을 경우 success 는 false
+    if (!product) {
+      return { success: false, code: 'no_product' };
+    }
+
+    // related_cartitems 에 연결되어 있는 cartitems 를 업데이트 하면서
+    // 존재하지 않는 related_cartitems 를 삭제함.
+    const promises = product.related_cartitems.map((cartitemId) => {
+      return (async () => {
+        const cartitem = await model.Cartitem.findOne({
+          id: cartitemId,
+        }).exec();
+        // 만약 cartitem 이 존재하지 않는다면, 나중에 삭제하려고 알려줌.
+        if (!cartitem) {
+          return { result: 'not_exist_cartitem' };
+        }
+        cartitem.product = { ...input };
+        await cartitem.save();
+        return { result: 'success', id: cartitemId };
+      })();
+    });
+
+    const results = await Promise.allSettled(promises);
+    // console.log('results!!!!!');
+    // console.log(results);
+
+    // not_exist_cartitem 인 cartitem 을 제외한 것들을 걸러내어 새로 갱신함.
+    const remainedCartitems = results
+      .filter((promResult) => promResult.value.result === 'success')
+      .map((promResults) => promResults.value.id);
+    // console.log('remainedCartitems!!!!!');
+    // console.log(remainedCartitems);
+    product.related_cartitems = remainedCartitems;
+
+    // console.log('input!!!!!');
+    // console.log(input);
+
+    product.set(input);
+    await product.save();
+
+    console.log('product doc!!!!!');
+    console.log(product._doc);
+    return { success: true };
   }
   /**
    * 해당 제품을 삭제합니다. 관련된 cartitem 도 모두 삭제합니다.
@@ -1001,6 +1048,110 @@ class DBManager {
 
   async getCartitems(email) {
     return model.Cartitem.find({ user: email }).lean().exec();
+  }
+  /**
+   * 카트 아이템을 추가한다. 만약 이미 존재한다면 개수만 추가한다.
+   * input 에 user, options, product_id, modified 인수가 들어와야 한다.
+   * @param {CartIteminfo} input
+   */
+  async addCartitem(input = {}) {
+    const { user, options, product_id, modified } = input;
+    const keysForCopy = ['content', 'price'];
+    // const productId = input.product_id;
+    // 인수 검사
+    if (
+      typeof product_id !== 'number' ||
+      modified === undefined ||
+      options === undefined ||
+      user === undefined
+    ) {
+      return { success: false, code: 'invalid_arg' };
+    }
+    const product = await model.Product.findOne({ id: product_id }).exec();
+    if (!product) {
+      return { success: false, code: 'no_product' };
+    }
+
+    const cartitem = await model.Cartitem.findOne({ user, product_id }).exec();
+    // 이미 카트에 담겨있는 물품일 경우 (옵션은 무조건 존재함)
+    if (cartitem) {
+      // input 으로 들어왔던 각 option을 순회
+      options.forEach((option) => {
+        // 이미 존재하는 카트에서 해당 option 을 검색
+        const foundOption = cartitem.options.find(
+          (optInner) => optInner.id === option.id,
+        );
+
+        // 해당 option이 존재한다면 개수를 추가시켜줌.
+        if (foundOption) {
+          foundOption.count += option.count;
+        }
+      });
+
+      // 수정일 갱신
+      cartitem.modified = modified;
+      await cartitem.save();
+      return { success: true, code: 'added' };
+    }
+
+    // 카트에 없다면 새로 만들면 됨.
+    const newInput = { ...input };
+    newInput.product = { ...product._doc };
+    delete newInput.product._id; // product 복사하돼 mongodb id 값은 삭제함.
+    // console.log('newInput!!');
+    // console.log(newInput);
+
+    // 이미 존재하는 product 의 option 관련 정보 (price, content 등)를 newInput에 넣어줌.
+    newInput.options.forEach((newOption) => {
+      const { id } = newOption;
+
+      const foundProdOption = product.options.find(
+        (prodOption) => prodOption.id === id,
+      );
+      if (foundProdOption) {
+        keysForCopy.forEach((key) => {
+          newOption[key] = foundProdOption[key];
+        });
+      }
+    });
+    const created = await model.Cartitem.create(newInput);
+
+    // product에 해당하는 cartitem 추가
+    product.related_cartitems.push(created.id);
+    await product.save();
+
+    return { success: true, code: 'created' };
+  }
+
+  async updateCartitemOption(id, optionId, count, current) {
+    const item = await model.Cartitem.findOne({ id });
+
+    // 아이템이 존재하지 않는다면 에러.
+    if (!item) return { success: false, code: 'no_item' };
+
+    // 갱신하는 시간이 더 오래되었다면 아무것도 하지 않음.
+    if (item.modified > current) {
+      return { success: false, code: 'time_elapsed' };
+    }
+
+    const found = item.options.find((i) => i.id === optionId);
+
+    // 옵션을 찾을 수 없다면 에러.
+    if (!found) return { success: false, code: 'no_option' };
+
+    found.count = count;
+    item.modified = current;
+    await item.save();
+
+    return { success: true, code: '' };
+  }
+  /**
+   * cartitem 을 삭제합니다. product 에 있는 id는 삭제하지 않습니다.
+   * @param {number} id
+   */
+  async removeCartitem(id) {
+    await model.Cartitem.deleteOne({ id }).lean().exec();
+    return { success: true };
   }
 
   /*= ====================================

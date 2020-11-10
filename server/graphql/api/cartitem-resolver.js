@@ -19,9 +19,10 @@ module.exports = {
     addCartitem: makeResolver(async (obj, args, context, info) => {}).only(
       ACCESS_AUTH,
     ),
-    updateOptionCount: makeResolver(
-      async (obj, args, context, info) => {},
-    ).only(ACCESS_AUTH),
+    updateOptionCount: makeResolver(async (obj, args, context, info) => {
+      const { id, optionId, count, current } = args;
+      return db.updateCartitemOption(id, optionId, count, current);
+    }).only(ACCESS_AUTH),
     removeCartitem: makeResolver(async (obj, args, context, info) => {}).only(
       ACCESS_AUTH,
     ),
