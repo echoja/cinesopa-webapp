@@ -34,42 +34,66 @@ mutation removeProductMutation($id: Int!) {
 }
 `;
 
+const prodBlock = `{
+  product_type
+  featured_image_url
+  featured_image_alt
+  content_main
+  content_sub
+  side_phrase
+  notice
+  name
+  options {
+    id
+    content
+    left
+    price
+  }
+  related_film {
+    poster_url
+    title
+    title_en
+    prod_date
+    open_date
+    genres
+    show_time
+    people {
+      role_type
+      name
+      role
+    }
+    watch_grade
+    synopsis
+  }
+}`;
+
 const productQuery = `
 query productQuery($id: Int!) {
-  product(id: $id) {
-    product_type
-    featured_image_url
-    featured_image_alt
-    content_main
-    content_sub
-    side_phrase
-    notice
-    name
-    options {
-      id
-      content
-      left
-      price
-    }
-    related_film {
-      poster_url
-      title
-      title_en
-      prod_date
-      open_date
-      genres
-      show_time
-      people {
-        role_type
-        name
-        role
-      }
-      watch_grade
-      synopsis
-    }
-  }
+  product(id: $id) ${prodBlock}
 }
 `;
+
+const productAdminQuery = `
+query productAdminQuery($id: Int!) {
+  productAdmin(id: $id) ${prodBlock}
+}
+`;
+
+const productsQuery = `
+query productsQuery($condition: ProductSearch!) {
+  products(condition: $condition) {
+    total
+    list ${prodBlock}
+  }
+}`;
+
+const productsAdminQuery = `
+query productsAdminQuery($condition: ProductSearch!) {
+  productsAdmin(condition: $condition) {
+    total
+    list ${prodBlock}
+  }
+}`;
 
 describe('product', function () {
   // eslint-disable-next-line mocha/no-setup-in-describe
@@ -218,7 +242,7 @@ describe('product', function () {
   });
   describe('api', function () {
     describe('product', function () {
-      it('제대로 동작해야 함', async function () {
+      it.only('제대로 동작해야 함', async function () {
         const film = await model.Film.create({
           title: '하이',
           title_en: '호호',
@@ -264,13 +288,186 @@ describe('product', function () {
       });
     });
     describe('products', function () {
-      it('제대로 동작해야 함', async function () {});
+      it.only('제대로 동작해야 함', async function () {
+        const film = await model.Film.create({
+          title: '하이',
+          title_en: '호호',
+          prod_date: new Date('2010-10-12'),
+          open_date: new Date('2015-10-12'),
+          genres: ['잔인해'],
+          show_time: 1024,
+          people: {
+            role_type: 'director',
+            name: '김감독',
+          },
+        });
+        const filmId = film.id;
+        const product = await model.Product.create({
+          product_type: 'sopakit',
+          featured_image_url: '123',
+          featured_image_alt: '234',
+          content_main: '345',
+          content_sub: '45',
+          side_phrase: '567',
+          notice: '678',
+          name: '슈퍼파워 소파킷이다.',
+          related_film: filmId,
+        });
+        const productId = product.id;
+
+        const film2 = await model.Film.create({
+          title: '난다',
+          title_en: '호호',
+          prod_date: new Date('2010-10-12'),
+          open_date: new Date('2015-10-12'),
+          genres: ['잔인해'],
+          show_time: 2048,
+          people: {
+            role_type: 'director',
+            name: '김감독',
+          },
+        });
+        const film2Id = film2.id;
+        const product2 = await model.Product.create({
+          product_type: 'sopakit',
+          featured_image_url: '123',
+          featured_image_alt: '234',
+          content_main: '345',
+          content_sub: '45',
+          side_phrase: '567',
+          notice: '678',
+          name: '슈퍼파워 소파킷이다.',
+          related_film: film2Id,
+        });
+        const product2Id = product.id;
+
+        const res = await graphqlSuper(agent, productsQuery, {
+          condition: {
+            page: 1,
+            perpage: 1,
+          },
+        });
+        // console.log(res.body)
+        const result = res.body.data.products;
+        expect(result.total).to.equal(2);
+        expect(result.list.length).to.equal(1);
+        expect(result.list[0].featured_image_url).to.equal('123');
+      });
     });
     describe('productAdmin', function () {
-      it('제대로 동작해야 함', async function () {});
+      it.only('제대로 동작해야 함', async function () {
+        await doAdminLogin(agent);
+        const film = await model.Film.create({
+          title: '하이',
+          title_en: '호호',
+          prod_date: new Date('2010-10-12'),
+          open_date: new Date('2015-10-12'),
+          genres: ['잔인해'],
+          show_time: 1024,
+          people: {
+            role_type: 'director',
+            name: '김감독',
+          },
+        });
+        const filmId = film.id;
+        const product = await model.Product.create({
+          product_type: 'sopakit',
+          featured_image_url: '123',
+          featured_image_alt: '234',
+          content_main: '345',
+          content_sub: '45',
+          side_phrase: '567',
+          notice: '678',
+          name: '슈퍼파워 소파킷이다.',
+          related_film: filmId,
+        });
+        const productId = product.id;
+
+        const res = await graphqlSuper(agent, productAdminQuery, { id: productId });
+        const result = res.body.data.productAdmin;
+        // console.log(result);
+        expect(result.product_type).to.equal('sopakit');
+        expect(result.featured_image_url).to.equal('123');
+        expect(result.featured_image_alt).to.equal('234');
+        expect(result.content_main).to.equal('345');
+        expect(result.content_sub).to.equal('45');
+        expect(result.side_phrase).to.equal('567');
+        expect(result.notice).to.equal('678');
+        expect(result.name).to.equal('슈퍼파워 소파킷이다.');
+        expect(result.related_film).to.include({
+          title: '하이',
+          title_en: '호호',
+          show_time: 1024,
+        });
+      });
     });
     describe('productsAdmin', function () {
-      it('제대로 동작해야 함', async function () {});
+      it.only('제대로 동작해야 함', async function () {
+        await doAdminLogin(agent);
+        const film = await model.Film.create({
+          title: '하이',
+          title_en: '호호',
+          prod_date: new Date('2010-10-12'),
+          open_date: new Date('2015-10-12'),
+          genres: ['잔인해'],
+          show_time: 1024,
+          people: {
+            role_type: 'director',
+            name: '김감독',
+          },
+        });
+        const filmId = film.id;
+        const product = await model.Product.create({
+          product_type: 'sopakit',
+          featured_image_url: '123',
+          featured_image_alt: '234',
+          content_main: '345',
+          content_sub: '45',
+          side_phrase: '567',
+          notice: '678',
+          name: '슈퍼파워 소파킷이다.',
+          related_film: filmId,
+        });
+        const productId = product.id;
+
+        const film2 = await model.Film.create({
+          title: '난다',
+          title_en: '호호',
+          prod_date: new Date('2010-10-12'),
+          open_date: new Date('2015-10-12'),
+          genres: ['잔인해'],
+          show_time: 2048,
+          people: {
+            role_type: 'director',
+            name: '김감독',
+          },
+        });
+        const film2Id = film2.id;
+        const product2 = await model.Product.create({
+          product_type: 'sopakit',
+          featured_image_url: '123',
+          featured_image_alt: '234',
+          content_main: '345',
+          content_sub: '45',
+          side_phrase: '567',
+          notice: '678',
+          name: '슈퍼파워 소파킷이다.',
+          related_film: film2Id,
+        });
+        const product2Id = product.id;
+
+        const res = await graphqlSuper(agent, productsAdminQuery, {
+          condition: {
+            page: 1,
+            perpage: 1,
+          },
+        });
+        // console.log(res.body)
+        const result = res.body.data.productsAdmin;
+        expect(result.total).to.equal(2);
+        expect(result.list.length).to.equal(1);
+        expect(result.list[0].featured_image_url).to.equal('123');
+      });
     });
     describe('createProduct', function () {
       it('제대로 동작해야 함', async function () {

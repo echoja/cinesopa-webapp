@@ -18,12 +18,14 @@ module.exports = {
       const { id } = args;
       return db.getProduct(id);
     }).only(ACCESS_ADMIN),
-    products: makeResolver(async (obj, args, context, info) => {}).only(
-      ACCESS_ALL,
-    ),
-    productsAdmin: makeResolver(async (obj, args, context, info) => {}).only(
-      ACCESS_ADMIN,
-    ),
+    products: makeResolver(async (obj, args, context, info) => {
+      const { condition } = args;
+      return db.getProducts(condition);
+    }).only(ACCESS_ALL),
+    productsAdmin: makeResolver(async (obj, args, context, info) => {
+      const { condition } = args;
+      return db.getProducts(condition);
+    }).only(ACCESS_ADMIN),
   },
   Mutation: {
     createProduct: makeResolver(async (obj, args, context, info) => {
