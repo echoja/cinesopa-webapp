@@ -518,6 +518,16 @@ class DBManager {
   }
 
   /**
+   * 사이트 옵션의 이름으로 파일을 구합니다.
+   * @param {string} name
+   */
+  async getFilebyOptionName(name) {
+    const option = await model.SiteOption.findOne({ name }).lean().exec();
+    if (!option) return null;
+    return model.File.findOne({ filename: option.value }).lean().exec();
+  }
+
+  /**
    * 모든 파일을 구합니다.
    */
   async getFiles() {
@@ -1128,11 +1138,11 @@ class DBManager {
    * 카트아이템 id 와 해당 옵션 id를 이용하여 count를 수정합니다.
    * modified 가 current 보다 최근일 경우, 수정하지 않습니다.
    * 해당 카트아이템이 해당 이메일(유저) 것이 아니라면, 수정하지 않습니다.
-   * @param {number} id 
-   * @param {string} optionId 
-   * @param {number} count 
-   * @param {Date} current 
-   * @param {string} email 
+   * @param {number} id
+   * @param {string} optionId
+   * @param {number} count
+   * @param {Date} current
+   * @param {string} email
    */
   async updateCartitemOption(id, optionId, count, current, email) {
     const item = await model.Cartitem.findOne({ id, user: email });
@@ -1168,6 +1178,50 @@ class DBManager {
   /*= ====================================
   주문
   ===================================== */
+
+  /*= ====================================
+  사이트 옵션 site option
+  ===================================== */
+  /**
+   * 사이트 옵션을 설정합니다. 이미 있는 설정일 경우 덮어씌웁니다.
+   * @param {string} name
+   * @param {*} value
+   * @param {string} type
+   */
+  async setSiteOption(name, value, type) {
+    const found = await model.SiteOption.findOne({ name }).exec();
+    if (found) {
+      found.type = type;
+      found.value = value;
+      found.markModified('value');
+      await found.save();
+      return { success: true, code: 'updated' };
+    }
+    await model.SiteOption.create({
+      name,
+      value,
+      type,
+    });
+    return { success: true, code: 'created' };
+  }
+  /**
+   * 사이트 옵션 값을 얻습니다. (파일일 경우는 받지 않습니다.)
+   * @param {string} name
+   */
+  async getSiteOption(name) {
+    return model.SiteOption.findOne({ name }).lean().exec();
+  }
+  /**
+   * 사이트 옵션을 삭제합니다.
+   * @param {string} name
+   */
+  async removeSiteOption(name) {
+    const result = await model.SiteOption.deleteOne({ name });
+    // console.log('# removesiteOption');
+    // console.log(result);
+    if (result.deletedCount !== 1) return { success: false };
+    return { success: true };
+  }
 }
 
 /**

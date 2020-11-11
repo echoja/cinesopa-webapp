@@ -99,18 +99,30 @@ class FileService {
     // console.log(__dirname);
     if (foundByFilename) return res.sendFile(absPath(foundByFilename.path));
 
-    // 옵션 찾기 시도. 못찾을시 404
+    // 옵션으로 파일 찾기 시도. 못찾을시 404
     const optionName = filename;
-    const foundOption = await this.#db.getOption(optionName);
-    if (foundOption?.type !== 'file') return res.status(404).send();
+    const fileByOption = await this.#db.getFilebyOptionName(optionName);
+    // if (!fileByOption) return res.status(404).send();
 
-    // 옵션이 주어진다면, 해당하는 파일 보내기.
-    const fileByOption = await this.#db.getFile(foundOption.value);
-    if (fileByOption) return res.sendFile(absPath(foundByFilename.path));
+    // // 옵션이 주어진다면, 해당하는 파일 보내기.
+    // const fileByOption = await this.#db.getFile(foundOption.value);
+    if (fileByOption) return res.sendFile(absPath(fileByOption.path));
 
     // 해당하는 옵션의 파일도 존재하지 않는다면, 404
     return res.status(404).send();
   });
+
+  // /**
+  //  * Option Name 으로 파일을 얻어다주는 Middleware.
+  //  */
+  // getFileByNameMiddleware = aw(async (req, res, next) => {
+  //   const { name } = req.params;
+    
+  //   // name 이 주어지지 않았을 경우 
+  //   if (!name) return res.status(404).send();
+
+
+  // })
 
   async getFile(filename) {
     return this.#db.getFile(filename);

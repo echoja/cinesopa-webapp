@@ -12,6 +12,7 @@ schemaBuilder.Post = require('./schema/post');
 schemaBuilder.Product = require('./schema/product');
 schemaBuilder.Cartitem = require('./schema/cartitem')
 schemaBuilder.Token = require('./schema/token');
+schemaBuilder.SiteOption = require('./schema/site-option');
 
 /**
  * 모델을 만들어 반환합니다.

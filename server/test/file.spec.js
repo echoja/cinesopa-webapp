@@ -393,9 +393,27 @@ describe('file', function () {
         expect(res2.body).to.not.be.null;
       });
 
-      // todo
-      it('옵션으로 제대로 갖고와야 함.', async function () {
-        this.skip();
+      it.only('옵션으로 제대로 갖고와야 함.', async function () {
+        // 일단 파일 업로드
+        await doLogin(agent, 'testAdmin', 'abc');
+        const res = await agent
+          .post('/upload')
+          .attach('bin', path.join(__dirname, 'tool.js'))
+          .expect(200);
+        const { filename } = res.body.file;
+
+        // 옵션이 존재한다고 가정
+        await model.SiteOption.create({
+          name: 'power_name',
+          value: filename,
+          type: 'file',
+        })
+
+        const res2 = await agent.get(`/upload/power_name`).expect(200);
+        console.log(res2.body);
+        expect(res2.body).to.not.be.null;
+
+        // this.skip();
       });
       // todo
       it('옵션으로 갖고 오는데, 파일이 아니면 404여야 함', async function () {

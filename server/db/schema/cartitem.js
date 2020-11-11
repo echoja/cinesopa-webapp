@@ -37,8 +37,8 @@ module.exports = function (mongoose, setId = true) {
     autoIdSetter(CartItem, mongoose, 'cartitem', 'id');
   }
 
-  // CartItem.index({ user: 1 });
-  // CartItem.index({ id: 1 });
+  CartItem.index({ user: 1 });
+  CartItem.index({ id: 1 });
 
   return CartItem;
 };

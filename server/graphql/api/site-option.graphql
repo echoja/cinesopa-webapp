@@ -1,0 +1,18 @@
+type SetSiteOptionResult {
+  success: Boolean
+  code: String
+}
+
+type RemoveSiteOptionResult {
+  success: Boolean
+  code: String
+}
+extend type Query {
+  siteOption(name: String!): String
+}
+
+extend type Mutation {
+  setSiteOption(name: String!, value: String!): SetSiteOptionResult
+  setSiteFileOption(name: String!, filename: String!): SetSiteOptionResult
+  removeSiteOption(name: String!): RemoveSiteOptionResult
+}

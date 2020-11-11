@@ -1,0 +1,15 @@
+{
+  "baseUrl": ".",
+  "include": [".src/**/*"],
+  "compilerOptions": {
+    "baseUrl": ".",
+    "module": "es2020",
+    "target": "esnext",
+    "moduleResolution": "node",
+    "sourceMap": true,
+    "paths": {
+      "@/*": ["src/*"],
+    }
+  },
+  "exclude": ["node_modules"]
+}

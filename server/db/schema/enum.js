@@ -52,6 +52,7 @@ const enumFilmTypeName = makeEnum([
   '애니메이션',
 ]);
 const enumFilmStatus = makeEnum(['public', 'private']);
+const enumSiteOptionType = makeEnum(['file', 'string']);
 module.exports = {
   enumAuthmap,
   enumPeopleRoleType,
@@ -66,4 +67,5 @@ module.exports = {
   enumFilmWatchGrade,
   enumFilmTypeName,
   enumFilmStatus,
+  enumSiteOptionType,
 };
