@@ -107,3 +107,10 @@ $btn-disabled-opacity: 1;
 .show > .btn-secondary.dropdown-toggle {
   background-color: #000;
 }
+
+.btn-danger.disabled,
+.btn-danger:disabled,
+.btn-primary.disabled,
+.btn-primary:disabled {
+  opacity: 0.5;
+}

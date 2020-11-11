@@ -229,15 +229,15 @@ export default {
       for (const board of boards) {
         table.push(this.createBoardTableRow(board));
       }
-      console.log('TABLE!!!');
-      console.log(table);
+      // console.log('TABLE!!!');
+      // console.log(table);
       this.boards = table;
       this.state.processing.get = false;
     },
 
     createBoardTableRow(board) {
-      console.log('TABLE!!!');
-      console.log(board);
+      // console.log('TABLE!!!');
+      // console.log(board);
       const result = {
         ...board,
         editForm: {

@@ -10,7 +10,7 @@
 </template>
 
 <script>
-import { BButton, BTable } from 'bootstrap-vue';
+import { BButton, BSpinner, BTable } from 'bootstrap-vue';
 import { dataGraphql, getPagesQuery } from '@/api/graphql-client';
 import router from '@/router';
 
@@ -38,6 +38,7 @@ export default {
   components: {
     BTable,
     BButton,
+    BSpinner,
   },
   computed: {
     newPageName() {

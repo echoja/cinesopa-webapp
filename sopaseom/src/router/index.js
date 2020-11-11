@@ -3,7 +3,7 @@ import Vue from 'vue';
 import VueRouter from 'vue-router';
 import adminRoutes from './admin';
 import publicRoutes from './public';
-import { checkAuthFor } from './nav-guard';
+import { checkAuthFor, myBeforeEnter } from './nav-guard';
 
 Vue.use(VueRouter);
 
@@ -15,6 +15,13 @@ routes.push({
 });
 routes = routes.concat(adminRoutes);
 routes = routes.concat(publicRoutes);
+routes.push({
+  path: '*',
+  component: () => import('../views/client/404.vue'),
+  beforeEnter(to, from, next) {
+    next({ name: '404' });
+  },
+});
 
 const routesFinal = routes;
 // console.dir(routesFinal);

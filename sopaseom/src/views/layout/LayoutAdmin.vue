@@ -23,12 +23,12 @@
           <b-list-group-item to="/admin/cinesopa/film">
             영화
           </b-list-group-item>
-          <b-list-group-item to="/admin/cinesopa/menu">
+          <!-- <b-list-group-item to="/admin/cinesopa/menu">
             메뉴
           </b-list-group-item>
           <b-list-group-item to="/admin/cinesopa/design">
             디자인
-          </b-list-group-item>
+          </b-list-group-item> -->
           <b-list-group-item class="py-1 bg-light">
             sopaseom.com
           </b-list-group-item>
@@ -47,12 +47,12 @@
           <b-list-group-item to="/admin/sopaseom/user">
             사용자
           </b-list-group-item>
-          <b-list-group-item to="/admin/sopaseom/menu">
+          <!-- <b-list-group-item to="/admin/sopaseom/menu">
             메뉴
           </b-list-group-item>
           <b-list-group-item to="/admin/sopaseom/design">
             디자인
-          </b-list-group-item>
+          </b-list-group-item> -->
 
           <!-- makeListItem('/admin/statistics', '통계'), makeListItem(null, 'cinesopa.kr'),
           makeListItem('/admin/cinesopa/site', '사이트 정보'), makeListItem('/admin/cinesopa/page',
@@ -97,9 +97,7 @@
             </b-nav-item-dropdown>
           </b-navbar-nav>
         </b-navbar>
-        <div
-          class="message-box fixed-top"
-        >
+        <div class="message-box fixed-top">
           <!-- <h2>
             {{ messages }}
           </h2> -->
@@ -108,7 +106,7 @@
           <transition-group name="fade">
             <div
               class="message-wrapper mx-auto w-50"
-              v-for="(msgObj) in messages"
+              v-for="msgObj in messages"
               :key="msgObj.id"
             >
               <b-alert :show="true" :variant="msgObj.type" dismissible>
@@ -169,6 +167,7 @@ import {
   BDropdownHeader,
   BListGroup,
   BListGroupItem,
+  BAlert,
 } from 'bootstrap-vue';
 import { store } from '@/loader';
 // const makeListItem = (to, label, color) => ({
@@ -193,6 +192,7 @@ export default {
     BDropdownHeader,
     BListGroup,
     BListGroupItem,
+    BAlert,
   },
   computed: {
     ...mapState(['messages']),
@@ -221,7 +221,7 @@ export default {
     // });
   },
   beforeDestroy() {
-    this.unsubscribe();
+    // this.unsubscribe();
   },
   methods: {
     ...mapActions(['removeMessage']),

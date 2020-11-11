@@ -16,7 +16,10 @@
         </b-link>
         <span class="meta-seperator">/</span>
         <b-link
-          :to="{ name: boardWrapper.routerName, params: { board: boardPermalink } }"
+          :to="{
+            name: boardWrapper.routerName,
+            params: { board: boardPermalink },
+          }"
           class="meta-board"
         >
           {{ boardTitle }}
@@ -71,9 +74,15 @@ export default {
   },
   async mounted() {
     const res = await graphql(postQuery, { id: parseInt(this.id, 10) });
-    // console.log(res);
-    this.post = res?.data?.post;
+    console.log(res);
+    const post = res?.data?.post;
+    if (post === null) {
+      this.$router.push({ name: '404' });
+      return;
+    }
+    this.post = post;
     const boardId = this.post?.board;
+
     if (boardId) {
       const boardRes = await graphql(boardQuery, {
         condition: {
@@ -81,7 +90,10 @@ export default {
         },
       });
       // console.log(boardRes);
-      const { permalink: boardPermalink = null, title: boardTitle = null } = boardRes?.data?.board;
+      const {
+        permalink: boardPermalink = null,
+        title: boardTitle = null,
+      } = boardRes?.data?.board;
       this.boardTitle = boardTitle;
       this.boardPermalink = boardPermalink;
       this.boardWrapper = boardWrapperMap[boardPermalink];

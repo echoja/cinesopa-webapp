@@ -2,36 +2,49 @@
   <wrap-with-editor>
     <template #main>
       <h2>글 편집</h2>
-      <b-form-group id="input-title-group" label="제목" label-for="input-title">
-        <b-form-input
-          id="input-title"
-          name="input-title"
-          type="text"
-          v-model="input.title"
-          class="flex-grow-1"
-        ></b-form-input>
-      </b-form-group>
-      <div class="toolbar">
-        <b-button @click="$bvModal.show('media-insert-modal')">
-          파일/이미지 삽입
-        </b-button>
-        <b-modal id="media-insert-modal"> hello~! </b-modal>
-      </div>
-      <div
-        v-if="!state.editorLoaded"
-        class="h-25 d-flex p-2 justify-content-center align-items-center"
-      >
-        <b-spinner variant="secondary" class="m-2 small"></b-spinner>
-        <p class="m-0">에디터 로딩중입니다.</p>
-      </div>
+      <div class="post-edit-content">
+        <b-form-group
+          id="input-title-group"
+          label="제목"
+          label-for="input-title"
+        >
+          <b-form-input
+            id="input-title"
+            name="input-title"
+            type="text"
+            v-model="input.title"
+            class="flex-grow-1"
+          ></b-form-input>
+        </b-form-group>
+        <div class="toolbar">
+          <b-button @click="$bvModal.show('media-insert-modal')">
+            파일/이미지 삽입
+          </b-button>
+          <b-modal hide-footer hide-header id="media-insert-modal" size="xl">
+            <file-manager
+              @file-manager-selected="fileSelected"
+              modalId="media-insert-modal"
+              :selectOnlyOne="false"
+            ></file-manager>
+          </b-modal>
+          <b-button @click="test1">테스트</b-button>
+        </div>
+        <div
+          v-if="!state.editorLoaded"
+          class="h-25 d-flex p-2 justify-content-center align-items-center"
+        >
+          <b-spinner variant="secondary" class="m-2 small"></b-spinner>
+          <p class="m-0">에디터 로딩중입니다.</p>
+        </div>
 
-      <editor
-        ref="editor"
-        api-key="gt5higoqzglgrwcu9r7cdbmj408cva4csd4aj2y6qvcr5i5r"
-        v-model="input.content"
-        :init="editorInit"
-        @onInit="onEditorInit"
-      />
+        <editor
+          ref="editor"
+          api-key="gt5higoqzglgrwcu9r7cdbmj408cva4csd4aj2y6qvcr5i5r"
+          v-model="input.content"
+          :init="editorInit"
+          @onInit="onEditorInit"
+        />
+      </div>
     </template>
     <template #sidebar>
       <!-- :disabled="!changed" -->
@@ -146,6 +159,8 @@ import {
   BFormDatepicker,
   BButton,
   BModal,
+  BFormInput,
+  BSpinner,
 } from 'bootstrap-vue';
 import { mapActions } from 'vuex';
 import FileManager from '@/components/FileManager.vue';
@@ -155,7 +170,7 @@ import { baseUrl } from '@/constants';
 import WrapWithEditor from '../layout/WrapWithEditor.vue';
 
 /** @type {import('@types/tinymce')} */
-let editor = null;
+// let editor = null;
 
 export default {
   name: 'PostEdit',
@@ -170,10 +185,14 @@ export default {
     BFormDatepicker,
     BButton,
     BModal,
+    BFormInput,
+    BSpinner,
   },
   props: ['belongs_to', 'mode'],
   data() {
     return {
+      /** @type {import('@types/tinymce')} */
+      editor: null,
       featured_image_link: '',
       state: {
         editorLoaded: false,
@@ -256,7 +275,7 @@ export default {
   methods: {
     ...mapActions(['pushMessage']),
     onEditorInit(ev, tinymce) {
-      editor = tinymce;
+      this.editor = tinymce;
       this.state.editorLoaded = true;
       // editor.execCommand('mceInsertContent', false, 'Hello, World!');
     },
@@ -309,6 +328,16 @@ export default {
         });
     },
 
+    async fileSelected(files) {
+      files.forEach((file) => {
+        const { mimetype, fileurl, alt } = file;
+        if (mimetype.startsWith('image')) {
+          this.pushHtmlToEditor(`<img src="${fileurl}" alt="${alt}">`);
+        }
+      });
+      console.log(files, a, b);
+    },
+
     async setFeaturedImage(files) {
       // eslint-disable-next-line no-underscore-dangle
       if (files.length >= 1) this.input.featured_image = files[0]._id;
@@ -316,11 +345,19 @@ export default {
       this.featured_image_link = `${baseUrl}${files[0].fileurl}`;
     },
 
-    // async test1(event, values) {
-    //   editor.execCommand('mceInsertContent', true, '<div>하하하하 ~!!</div>');
-    //   console.log(event);
-    //   console.log(values);
-    // },
+    async pushHtmlToEditor(html) {
+      this.editor.execCommand('mceInsertContent', true, html);
+    },
+
+    async test1(event, values) {
+      this.editor.execCommand(
+        'mceInsertContent',
+        true,
+        '<div>하하하하 ~!!</div>',
+      );
+      console.log(event);
+      console.log(values);
+    },
   },
 };
 </script>
@@ -336,6 +373,10 @@ export default {
 .featured-image-content {
   max-width: 100%;
   max-height: 100%;
+}
+.post-edit-content {
+  max-width: 700px;
+  margin: 0 auto;
 }
 </style>
 

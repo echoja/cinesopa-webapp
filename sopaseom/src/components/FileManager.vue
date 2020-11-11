@@ -6,7 +6,10 @@
     <div class="toolbar">
       <div class="toolbar-left">
         <!-- <b-button size="sm">모두 선택</b-button> -->
-        <b-button size="sm" :disabled="selectedFiles.length === 0" @click="cancelSelected"
+        <b-button
+          size="sm"
+          :disabled="selectedFiles.length === 0"
+          @click="cancelSelected"
           >선택 취소
         </b-button>
         <b-button
@@ -24,8 +27,9 @@
           ok-variant="danger"
           id="confirm-remove"
           @ok="removeSelected"
-          >{{ selectedFiles.length }} 개의 파일을 정말로 삭제하시겠습니까? 이 파일들을 삭제하면
-          복구할 수 없으며, 삽입된 페이지/게시물 내에서도 모두 찾을 수 없게 됩니다.</b-modal
+          >{{ selectedFiles.length }} 개의 파일을 정말로 삭제하시겠습니까? 이
+          파일들을 삭제하면 복구할 수 없으며, 삽입된 페이지/게시물 내에서도 모두
+          찾을 수 없게 됩니다.</b-modal
         >
         <b-form-file
           class="d-inline-block w-auto"
@@ -57,7 +61,9 @@
       <div class="col-8 main-list" @click.self="mainListClicked">
         <!-- <div>{{ files }}</div> -->
         <div class="file-items">
-          <div class="file-item" v-if="files.length === 0">업로드된 파일이 없습니다.</div>
+          <div class="file-item" v-if="files.length === 0">
+            업로드된 파일이 없습니다.
+          </div>
           <div
             :class="{ detailed: file.detailed }"
             class="file-item"
@@ -93,7 +99,10 @@
         </div>
       </div>
       <div class="col-4 main-detail">
-        <b-form @submit.prevent.stop="updateDetail" @change="detailFormChanged = true">
+        <b-form
+          @submit.prevent.stop="updateDetail"
+          @change="detailFormChanged = true"
+        >
           <!--------------- b-form-broup start ----------------->
           <b-form-group
             class="main-detail-row"
@@ -115,7 +124,9 @@
             label-for="detail-origin"
             description="최초 업로드할 때의 파일 이름입니다."
           >
-            <p id="detail-origin" class="form-sticky">{{ detailForm.origin }}</p>
+            <p id="detail-origin" class="form-sticky">
+              {{ detailForm.origin }}
+            </p>
           </b-form-group>
           <!--------------- b-form-broup start ----------------->
           <b-form-group
@@ -126,7 +137,9 @@
             label-size="md"
             label-for="detail-mimetype"
           >
-            <p id="detail-mimetype" class="form-sticky">{{ detailForm.mimetype }}</p>
+            <p id="detail-mimetype" class="form-sticky">
+              {{ detailForm.mimetype }}
+            </p>
           </b-form-group>
           <!--------------- b-form-broup start ----------------->
           <b-form-group
@@ -163,7 +176,11 @@
             label-for="detail-label"
             description="유저들에게 보여질 이름"
           >
-            <b-form-input v-model="detailForm.label" id="detail-label" type="text"></b-form-input>
+            <b-form-input
+              v-model="detailForm.label"
+              id="detail-label"
+              type="text"
+            ></b-form-input>
           </b-form-group>
           <!--------------- b-form-broup start ----------------->
           <b-form-group
@@ -175,7 +192,11 @@
             label-for="detail-alt"
             description="이미지/파일이 로딩되지 않거나 했을 시 나타나는 이름. 접근성을 위해 cinesopa.kr 는 필수로 작성해야 합니다."
           >
-            <b-form-input v-model="detailForm.alt" id="detail-alt" type="text"></b-form-input>
+            <b-form-input
+              v-model="detailForm.alt"
+              id="detail-alt"
+              type="text"
+            ></b-form-input>
           </b-form-group>
           <!--------------- b-form-broup start ----------------->
           <b-form-group
@@ -203,7 +224,11 @@
             label-for="detail-public"
             description="파일/이미지가 외부에 공개되어 있는지 여부입니다. 공개되어 있다면 링크를 통해 파일을 다운받거나 이미지를 볼 수 있습니다."
           >
-            <b-form-radio-group v-model="detailForm.public" id="detail-public" type="text">
+            <b-form-radio-group
+              v-model="detailForm.public"
+              id="detail-public"
+              type="text"
+            >
               <b-form-radio :value="true">공개</b-form-radio>
               <b-form-radio :value="false">비공개</b-form-radio>
             </b-form-radio-group>
@@ -236,6 +261,19 @@
 import prettyBytes from 'pretty-bytes';
 import moment from 'moment';
 import { mapActions } from 'vuex';
+import {
+  BButton,
+  BForm,
+  BFormCheckbox,
+  BFormFile,
+  BFormGroup,
+  BFormInput,
+  BFormRadio,
+  BFormRadioGroup,
+  BFormTextarea,
+  BImg,
+  BPagination,
+} from 'bootstrap-vue';
 // import // filesQuery,
 // // // eslint-disable-next-line no-unused-vars
 // // fileQuery,
@@ -264,6 +302,19 @@ const makeDetailForm = (file) => ({
 
 export default {
   name: 'FileManager',
+  components: {
+    BImg,
+    BFormCheckbox,
+    BFormGroup,
+    BPagination,
+    BButton,
+    BFormRadio,
+    BFormRadioGroup,
+    BFormTextarea,
+    BFormInput,
+    BForm,
+    BFormFile,
+  },
   props: {
     modalId: String,
     selectMessage: {
@@ -517,7 +568,7 @@ h2 {
   margin-left: -2px;
   margin-top: -2px;
   position: relative;
-  transition: 0.5s;
+  // transition: 0.5s;
   background-color: #fff;
 }
 

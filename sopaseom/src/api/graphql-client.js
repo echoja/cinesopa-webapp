@@ -353,7 +353,7 @@ export const checkAuth = async () => {
     const result = await graphql(currentUserQuery, {});
     let { currentUser } = result.data;
     if (!currentUser) currentUser = null;
-    console.log('currentUser every beforeEach ho~!');
+    console.log('currentUser every beforeEach ho~! (only once)');
     console.dir(currentUser);
     store.commit('setUserInitialized', true);
     store.commit('setCurrentUser', { currentUser });

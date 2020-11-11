@@ -33,10 +33,16 @@
     <p v-if="state.processing.get">로딩중입니다.</p>
     <p v-if="!hasData && !state.processing.get">글이 없습니다.</p>
     <hr />
-    <b-button class="mx-1" :disabled="!checkedAtleastOne" variant="danger" @click="removePost"
+    <b-button
+      class="mx-1"
+      :disabled="!checkedAtleastOne"
+      variant="danger"
+      @click="removePost"
       >삭제</b-button
     >
-    <b-button class="mx-1" variant="primary" :to="{ name: 'PostNew' }">새로 추가</b-button>
+    <b-button class="mx-1" variant="primary" :to="{ name: 'PostNew' }"
+      >새로 추가</b-button
+    >
 
     <!-- <p>페이지: {{ page }}</p> -->
   </div>
@@ -44,7 +50,7 @@
 
 <script>
 import { mapActions } from 'vuex';
-import { BButton, BFormCheckbox, BLink } from 'bootstrap-vue';
+import { BButton, BFormCheckbox, BLink, BTable } from 'bootstrap-vue';
 import moment from 'moment';
 import { queryString, graphql } from '@/loader';
 
@@ -53,8 +59,12 @@ moment.locale('ko');
 export default {
   name: 'Post',
   components: {
-    BButton, BFormCheckbox, BLink,
+    BButton,
+    BFormCheckbox,
+    BLink,
+    BTable,
   },
+  props: ['belongs_to'],
   data() {
     return {
       total: 0,
@@ -121,6 +131,9 @@ export default {
   async mounted() {
     await this.boardData();
     this.setDataFromServer();
+
+    console.log('# post mounted');
+    console.log(`${this.belongs_to}, ${this.page}`);
   },
   methods: {
     ...mapActions(['pushMessage']),
@@ -174,12 +187,16 @@ export default {
       // }
       const promises = [];
       removing.forEach((item) => {
-        promises.push(graphql(queryString.post.removePostMutation, { id: item.id }));
+        promises.push(
+          graphql(queryString.post.removePostMutation, { id: item.id }),
+        );
       });
       const result = await Promise.allSettled(promises);
       console.log(result);
 
-      const completed = result.every((promise) => promise.status === 'fulfilled');
+      const completed = result.every(
+        (promise) => promise.status === 'fulfilled',
+      );
 
       // const row = this.removingRow;
       // const res = await graphql(queryString.post.removePostMutation, { id: row.item.id });
