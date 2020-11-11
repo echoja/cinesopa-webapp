@@ -161,6 +161,7 @@ import {
   BModal,
   BFormInput,
   BSpinner,
+  BImg,
 } from 'bootstrap-vue';
 import { mapActions } from 'vuex';
 import FileManager from '@/components/FileManager.vue';
@@ -187,6 +188,7 @@ export default {
     BModal,
     BFormInput,
     BSpinner,
+    BImg,
   },
   props: ['belongs_to', 'mode'],
   data() {

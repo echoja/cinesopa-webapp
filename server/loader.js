@@ -64,15 +64,17 @@ const ACCESS_ADMIN = alist.slice(0, 1);
 const makeResolver = require('./graphql/make-resolver').init(ACCESS_UNAUTH[0]);
 
 // eslint-disable-next-line operator-linebreak
-const uploadBaseUrl =
-  process.env.NODE_ENV === 'production'
-    ? 'https://sopaseom.com/upload/'
-    : '/upload/';
+// const uploadBaseUrl =
+//   process.env.NODE_ENV === 'production'
+//     ? 'https://sopaseom.com/upload/'
+//     : '/upload/';
+const uploadBaseUrl = '/upload/';
 // eslint-disable-next-line operator-linebreak
-const downloadBaseUrl =
-  process.env.NODE_ENV === 'production'
-    ? 'https://sopaseom.com/download/'
-    : '/download/';
+const downloadBaseUrl = '/download/';
+// const downloadBaseUrl =
+//   process.env.NODE_ENV === 'production'
+//     ? 'https://sopaseom.com/download/'
+//     : '/download/';
 
 module.exports = {
   mail,
