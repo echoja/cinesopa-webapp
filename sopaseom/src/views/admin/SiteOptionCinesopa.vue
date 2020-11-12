@@ -189,6 +189,11 @@ export default {
             label: '식별자',
             editable: true,
           },
+          name: {
+            type: 'string',
+            label: '이름',
+            editable: true,
+          },
           nickname: {
             type: 'string',
             label: '닉네임',
