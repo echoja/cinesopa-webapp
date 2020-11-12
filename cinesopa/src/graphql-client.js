@@ -288,6 +288,27 @@ query filmDetailQuery($id: Int!) {
   film(id: $id) ${filmDetail}
 }`;
 
+export const siteOptionsQuery = `
+query siteOptionsQuery($names: [String!]!) {
+  siteOptions(names: $names) {
+    name
+    value
+    success
+    code
+  }
+}
+`;
+
+// export const setSiteOptionsMutation = `
+// mutation setSiteOptionsMutation($inputs: [SetSiteOptionInput!]!) {
+//   setSiteOptions(inputs: $inputs) {
+//     name
+//     success
+//     code
+//   }
+// }
+// `;
+
 // export const singleUploadQuery = `
 //   mutation singleUpload($file: Upload!) {
 //     singleUpload(file: $file) {

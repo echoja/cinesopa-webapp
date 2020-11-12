@@ -132,14 +132,14 @@ export default [
 
   /** site */
   {
-    ...adminRoute('/admin/cinesopa/site', 'SiteCinesopa'),
-    component: () => import('@/views/admin/Site.vue'),
-    props: { belongs_to: 'cinesopa' },
+    ...adminRoute('/admin/cinesopa/site', 'SiteOptionCinesopa'),
+    component: () => import('@/views/admin/SiteOptionCinesopa.vue'),
+    // props: { belongs_to: 'cinesopa' },
   },
   {
-    ...adminRoute('/admin/sopaseom/site', 'SiteSopaseom'),
-    component: () => import('@/views/admin/Site.vue'),
-    props: { belongs_to: 'sopaseom' },
+    ...adminRoute('/admin/sopaseom/site', 'SiteOptionSopaseom'),
+    component: () => import('@/views/admin/SiteOptionSopaseom.vue'),
+    // props: { belongs_to: 'sopaseom' },
   },
 
   /** menu */

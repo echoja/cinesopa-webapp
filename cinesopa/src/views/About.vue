@@ -17,29 +17,31 @@
           <p class="reveal1-1">씨네 + 소파 =</p>
           <p class="reveal1-2">
             <span class="big">{</span> 씨네(<small>cine-</small>): 영화의
-            <span class="big">}</span> + <span class="big">{</span> 소파(<small>小波</small>) 작은
-            파도 <span class="big">}</span>
+            <span class="big">}</span> +
+            <span class="big">{</span> 소파(<small>小波</small>) 작은 파도
+            <span class="big">}</span>
           </p>
           <p><br /></p>
           <p class="reveal1-3">우리의 작은 파도는,</p>
           <p class="reveal1-4 simple-about-list">
-            <em>1.</em> 상영 기회가 없던 <span class="blue-circle-strong">좋은 영화</span>를
-            발견하여 관객과 만나게 합니다.
+            <em>1.</em> 상영 기회가 없던
+            <span class="blue-circle-strong">좋은 영화</span>를 발견하여 관객과
+            만나게 합니다.
           </p>
           <p class="reveal1-5 simple-about-list">
-            <em>2.</em> 영화를 재밌고 깊이 <span class="blue-circle-strong">향유</span>할 수 있는
-            방법을 고민합니다.
+            <em>2.</em> 영화를 재밌고 깊이
+            <span class="blue-circle-strong">향유</span>할 수 있는 방법을
+            고민합니다.
           </p>
           <p class="reveal1-6 simple-about-list">
             <em>3.</em> 다재다능한 친구들과 영화를 매개로
             <span class="blue-circle-strong">함께</span>하고자 합니다.
           </p>
           <p><br /></p>
-          <p class="reveal1-7">
-            씨네소파는 시야를 확장시키는 영화를 통해
-          </p>
+          <p class="reveal1-7">씨네소파는 시야를 확장시키는 영화를 통해</p>
           <p class="reveal1-8">
-            나 자신을 발견하고, 상대를 헤아리며, 세상을 이해하는 방법을 제시합니다.
+            나 자신을 발견하고, 상대를 헤아리며, 세상을 이해하는 방법을
+            제시합니다.
           </p>
         </div>
       </div>
@@ -147,7 +149,11 @@
         data-aos-duration="1000"
       >
         <div class="person-sign">
-          <b-img class="person-sign-image" :src="parseUploadLink(person.imageLink)" :alt="person.imageAlt"></b-img>
+          <b-img
+            class="person-sign-image"
+            :src="parseUploadLink(person.imageLink)"
+            :alt="person.imageAlt"
+          ></b-img>
         </div>
         <div class="person-info">
           <div class="person-name-position">
@@ -195,7 +201,11 @@
       >
         <div class="history-year">{{ yearGroup.year }}</div>
         <div class="history-events">
-          <div class="history-event" v-for="(event, index) in yearGroup.events" :key="index">
+          <div
+            class="history-event"
+            v-for="(event, index) in yearGroup.events"
+            :key="index"
+          >
             {{ event.title }}
           </div>
         </div>
@@ -207,91 +217,55 @@
 <script>
 import AOS from 'aos';
 import { parseUploadLink } from '../util';
+import { graphql, siteOptionsQuery } from '@/graphql-client';
 
 export default {
   name: 'About',
   title: '회사소개',
   data() {
     return {
-      //       최예지(딩딩)
-      // - 직무: 홍보마케팅
-
-      // 성송이(쏭쏭)
-      // - 직급: 대표
-      // - 직무: 배급
-
-      // 남유진(남다른)
-      // - 직무: 배급/홍보지원
-
-      // 최동녁(누룩)
-      // - 직무: 디자인, 홍보지원
-      //       nulook@cinesopa.kr
-      // ssong@cinesopa.kr
-      // dingding@cinesopa.kr
-      // namda@cinesopa.kr
-      people: [
-        {
-          name: '성송이',
-          nickname: '쏭쏭',
-          position: '대표',
-          work: '배급',
-          email: 'ssong@cinesopa.kr',
-          phone: '010-3577-4970',
-          // eslint-disable-next-line global-require
-          imageLink: require('../assets/test/ss.png'),
-          imageAlt: '건강한 조직 손글씨',
-        },
-        {
-          name: '최예지',
-          nickname: '딩딩',
-          position: '',
-          work: '홍보마케팅',
-          email: 'dingding@cinesopa.kr',
-          phone: '010-3399-4668',
-          // eslint-disable-next-line global-require
-          imageLink: require('../assets/test/dd.png'),
-          imageAlt: '건강한 조직 손글씨',
-        },
-        {
-          name: '최동녁',
-          nickname: '누룩',
-          position: '',
-          work: '디자인/홍보지원',
-          email: 'nulook@cinesopa.kr',
-          phone: '010-5295-9737',
-          // eslint-disable-next-line global-require
-          imageLink: require('../assets/test/nu.png'),
-          imageAlt: '건강한 조직 손글씨',
-        },
-        {
-          name: '남유진',
-          nickname: '남다른',
-          position: '',
-          work: '배급/홍보지원',
-          email: 'namda@cinesopa.kr',
-          phone: '010-8425-9362',
-          // eslint-disable-next-line global-require
-          imageLink: require('../assets/test/nam.png'),
-          imageAlt: '건강한 조직 손글씨',
-        },
-      ],
+      people: [],
       history: [
-        { date: new Date('2019-05-03'), title: '영화展; 기억할 만한 지나침[머무는 집] 전시' },
-        { date: new Date('2019-04-03'), title: '<기억할 만한 지나침> 전국 개봉' },
+        {
+          date: new Date('2019-05-03'),
+          title: '영화展; 기억할 만한 지나침[머무는 집] 전시',
+        },
+        {
+          date: new Date('2019-04-03'),
+          title: '<기억할 만한 지나침> 전국 개봉',
+        },
         { date: new Date('2019-03-03'), title: '<밤의 문이 열린다> 전국 개봉' },
-        { date: new Date('2019-02-03'), title: '높아서 재송 ‘재송동 사무실’시대 개막' },
-        { date: new Date('2019-01-03'), title: '부산독립영화제 순회상영회 <단, 비>진행' },
+        {
+          date: new Date('2019-02-03'),
+          title: '높아서 재송 ‘재송동 사무실’시대 개막',
+        },
+        {
+          date: new Date('2019-01-03'),
+          title: '부산독립영화제 순회상영회 <단, 비>진행',
+        },
         { date: new Date('2018-06-03'), title: '<마담B> 전국 개봉' },
         { date: new Date('2018-05-03'), title: '시민배급단 씨네보배 1기 운영' },
         { date: new Date('2018-04-03'), title: '부산형 예비사회적 기업 지정' },
         { date: new Date('2018-03-03'), title: '배급기록집 [소파섬] 1호 출간' },
         { date: new Date('2018-02-03'), title: '관객리뷰단 씨네보쓰 2기 운영' },
-        { date: new Date('2018-01-03'), title: '<파란입이 달린 얼굴> 전국 개봉' },
+        {
+          date: new Date('2018-01-03'),
+          title: '<파란입이 달린 얼굴> 전국 개봉',
+        },
         { date: new Date('2017-05-03'), title: '배급기록집 [소파섬] 0호 출간' },
         { date: new Date('2017-04-03'), title: '관객리뷰단 씨네보쓰 1기 운영' },
-        { date: new Date('2017-03-03'), title: '<그럼에도 불구하고> 전국 개봉' },
-        { date: new Date('2017-02-03'), title: '영화배급협동조합 씨네소파 설립' },
-        { date: new Date('2017-01-03'), title: '영화배급협동조합 씨네소파 창립총회' },
+        {
+          date: new Date('2017-03-03'),
+          title: '<그럼에도 불구하고> 전국 개봉',
+        },
+        {
+          date: new Date('2017-02-03'),
+          title: '영화배급협동조합 씨네소파 설립',
+        },
+        {
+          date: new Date('2017-01-03'),
+          title: '영화배급협동조합 씨네소파 창립총회',
+        },
       ],
     };
   },
@@ -309,14 +283,33 @@ export default {
         .reverse()
         .map((year) => ({
           year,
-          events: yearKeyed[year].sort((a, b) => b.date.getTime() - a.date.getTime()),
+          events: yearKeyed[year].sort(
+            (a, b) => b.date.getTime() - a.date.getTime(),
+          ),
         }));
       return result;
     },
   },
-  mounted() {
+  async mounted() {
     // console.log(AOS);
     AOS.init();
+    const res = await graphql(siteOptionsQuery, {
+      names: ['person'],
+    });
+    const result = res.data.siteOptions;
+    console.log('# About = mounted');
+    console.log(result);
+    this.people = result[0].value.map((item) => ({
+      name: item.name,
+      nickname: item.nickname,
+      position: item.position,
+      work: item.work,
+      email: item.email,
+      phone: item.phone,
+      // eslint-disable-next-line global-require
+      imageLink: item.image.fileurl,
+      imageAlt: item.image.alt,
+    }));
   },
   methods: {
     parseUploadLink,

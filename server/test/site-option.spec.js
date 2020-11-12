@@ -17,10 +17,39 @@ query siteOptionQuery($name: String!) {
   siteOption(name: $name)
 }
 `;
+const siteOptionsQuery = `
+query siteOptionsQuery($names: [String!]!) {
+  siteOptions(names: $names) {
+    name
+    value
+    success
+    code
+  }
+}
+`;
+
+const siteOptionDoubleQuery = `
+query siteOptionDoubleQuery($names: [String!]) {
+  siteOption(name: $name)
+  siteOption(name:)
+}
+`;
+
+
 
 const setSiteOptionMutation = `
-mutation setSiteOptionMutation($name: String!, $value: String!) {
+mutation setSiteOptionMutation($name: String!, $value: JSON!) {
   setSiteOption(name: $name, value: $value) {
+    success
+    code
+  }
+}
+`;
+
+const setSiteOptionsMutation = `
+mutation setSiteOptionsMutation($inputs: [SetSiteOptionInput!]!) {
+  setSiteOptions(inputs: $inputs) {
+    name
     success
     code
   }
@@ -104,7 +133,7 @@ describe('cartitem', function () {
   });
   describe('api', function () {
     describe('siteOption', function () {
-      it.only('잘 동작해야 함', async function () {
+      it('잘 동작해야 함', async function () {
         await model.SiteOption.create({
           name: 'hello',
           type: 'string',
@@ -117,9 +146,50 @@ describe('cartitem', function () {
         // console.log(result);
         expect(result).to.equal('superpower');
       });
+      it('한꺼번에 많이 받아올 수 있어야 함.', async function () {
+        this.skip();
+        // siteOptions 으로 기능 이전.
+
+
+        // await model.SiteOption.create({
+        //   name: 'hello',
+        //   type: 'string',
+        //   value: 'superpower',
+        // });
+        // await model.SiteOption.create({
+        //   name: 'hi',
+        //   type: 'string',
+        //   value: 'superpower22',
+        // });
+        // const res = await
+      });
+    });
+    describe('siteOptions', function () {
+      it('제대로 잘 동작해야 함', async function () {
+        await model.SiteOption.create({
+          name: 'hello',
+          type: 'string',
+          value: 'superpower',
+        });
+        await model.SiteOption.create({
+          name: 'hi',
+          type: 'string',
+          value: 'superpower22',
+        });
+        const res = await graphqlSuper(agent, siteOptionsQuery, {
+          names: ['hello', 'hi'],
+        });
+        const result = res.body.data.siteOptions;
+        // console.log(result);
+        expect(result.length).to.equal(2);
+        expect(result[0].name).to.equal('hello');
+        expect(result[0].value).to.equal('superpower');
+        expect(result[1].name).to.equal('hi');
+        expect(result[1].value).to.equal('superpower22');
+      });
     });
     describe('setSiteOption', function () {
-      it.only('처음부터 아무 것도 없을 때 잘 동작해야 함', async function () {
+      it('처음부터 아무 것도 없을 때 잘 동작해야 함', async function () {
         await doAdminLogin(agent);
         const res = await graphqlSuper(agent, setSiteOptionMutation, {
           name: 'hello',
@@ -135,7 +205,7 @@ describe('cartitem', function () {
         expect(option.value).to.equal('alli');
         expect(option.type).to.equal('string');
       });
-      it.only('이미 해당 옵션이 있어도 잘 동작해야 함.', async function () {
+      it('이미 해당 옵션이 있어도 잘 동작해야 함.', async function () {
         await doAdminLogin(agent);
         await model.SiteOption.create({
           name: 'hello',
@@ -159,15 +229,60 @@ describe('cartitem', function () {
         expect(option.type).to.equal('string');
       });
     });
+    describe('setSiteOptions', function () {
+      it('제대로 동작해야 함', async function () {
+        await doAdminLogin(agent);
+        await model.SiteOption.create({
+          name: 'hello',
+          type: 'string',
+          value: 'superpower',
+        });
+        await model.SiteOption.create({
+          name: 'hi',
+          type: 'string',
+          value: 'superpower22',
+        });
+        const inputs = [
+          {
+            name: 'newone',
+            value: 'one',
+          },
+          {
+            name: 'hello',
+            value: '123',
+          },
+          {
+            name: 'hi',
+            value: 'superman',
+          },
+          {
+            name: 'newtwo',
+            value: 'two',
+          },
+        ];
+        const res = await graphqlSuper(agent, setSiteOptionsMutation, {
+          inputs,
+        });
+        const result = res.body.data.setSiteOptions;
+        // console.log(result);
+        const all = await model.SiteOption.find().lean().exec();
+        // console.log(all);
+        expect(all.length).to.equal(4);
+        all.forEach((item) => {
+          const found = inputs.find((input) => input.name === item.name);
+          expect(found.value).to.equal(item.value);
+          // console.log("oooo!!");
+        });
+      });
+    });
     describe('setSiteFileOption', function () {
-      it.only('잘 동작해야 함', async function () {
+      it('잘 동작해야 함', async function () {
         this.skip();
         // await doAdminLogin(agent);
-
       });
     });
     describe('removeSiteOption', function () {
-      it.only('잘 동작해야 함', async function () {
+      it('잘 동작해야 함', async function () {
         await doAdminLogin(agent);
         await model.SiteOption.create({
           name: 'hello',

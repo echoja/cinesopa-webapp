@@ -348,6 +348,39 @@ mutation removeFilm($id: Int!) {
 }
 `;
 
+export const siteOptionsQuery = `
+query siteOptionsQuery($names: [String!]!) {
+  siteOptions(names: $names) {
+    name
+    value
+    success
+    code
+  }
+}
+`;
+
+export const setSiteOptionsMutation = `
+mutation setSiteOptionsMutation($inputs: [SetSiteOptionInput!]!) {
+  setSiteOptions(inputs: $inputs) {
+    name
+    success
+    code
+  }
+}
+`;
+
+export const getFileInfoQuery = `
+query getFileInfoQuery($filename: String) {
+  file(filename: $filename) {
+    mimetype
+    filename
+    fileurl
+    label
+  }
+}
+
+`;
+
 export const checkAuth = async () => {
   if (store.state.userInitialized === false) {
     const result = await graphql(currentUserQuery, {});

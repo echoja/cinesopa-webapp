@@ -1195,14 +1195,14 @@ class DBManager {
       found.value = value;
       found.markModified('value');
       await found.save();
-      return { success: true, code: 'updated' };
+      return { name, success: true, code: 'updated' };
     }
     await model.SiteOption.create({
       name,
       value,
       type,
     });
-    return { success: true, code: 'created' };
+    return { name, success: true, code: 'created' };
   }
   /**
    * 사이트 옵션 값을 얻습니다. (파일일 경우는 받지 않습니다.)
