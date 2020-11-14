@@ -20,5 +20,6 @@
     "**/*.code-search": true,
     "package-lock.json": true,
     "package-lock.json.bak": true,
-  }
+  },
+  "compile-hero.disable-compile-files-on-did-save-code": false
 }

@@ -18,6 +18,7 @@
     "greenlock-express": "^4.0.3",
     "hangul-js": "^0.2.6",
     "image-size": "^0.9.1",
+    "inline-css": "^3.0.0",
     "isemail": "^3.2.0",
     "lodash": "^4.17.20",
     "merge-graphql-schemas": "^1.7.8",
@@ -45,8 +46,8 @@
   },
   "devDependencies": {
     "@types/chai": "^4.2.14",
-    "@types/mongoose": "^5.7.37",
     "@types/graphql-upload": "^8.0.3",
+    "@types/mongoose": "^5.7.37",
     "assert": "^2.0.0",
     "axios": "^0.20.0",
     "babel-eslint": "^10.1.0",
@@ -62,6 +63,7 @@
     "mocha": "^8.1.3",
     "mochawesome": "^6.1.1",
     "mongodb-memory-server": "^6.7.5",
+    "open": "^7.3.0",
     "sinon": "^9.0.3",
     "supertest": "^4.0.2"
   }
