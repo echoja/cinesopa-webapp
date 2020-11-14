@@ -7,19 +7,31 @@
       backdrop
       shadow
     >
+    <template #default="{ hide }">
       <ul class="mobile-menu-link-list">
         <li>
-          <b-link class="mobile-menu-link" :to="{ name: 'SopakitItems' }"
+          <b-link
+            class="mobile-menu-link"
+            :to="{ name: 'SopakitItems' }"
+            @click="hide"
             >소파킷</b-link
           >
         </li>
         <li>
-          <b-link class="mobile-menu-link" :to="{ name: 'Application' }">
+          <b-link
+            class="mobile-menu-link"
+            :to="{ name: 'Application' }"
+            @click="hide"
+          >
             상영
           </b-link>
         </li>
         <li>
-          <b-link href="#" class="mobile-menu-link coming-soon">소파밋 </b-link>
+          <b-link
+            href="#"
+            class="mobile-menu-link coming-soon"
+            >소파밋
+          </b-link>
         </li>
         <hr />
         <li>
@@ -27,7 +39,9 @@
             class="mobile-menu-link"
             v-if="!currentUser"
             :to="{ name: 'Login', params: { board: 'Login' } }"
-            >로그인
+            @click="hide"
+          >
+            로그인
           </b-link>
         </li>
         <li>
@@ -35,7 +49,9 @@
             class="mobile-menu-link"
             :to="{ name: 'JoinPolicy' }"
             v-if="!currentUser"
-            >회원가입
+            @click="hide"
+          >
+            회원가입
           </b-link>
         </li>
         <li>
@@ -43,6 +59,7 @@
             class="mobile-menu-link"
             :to="{ name: 'My' }"
             v-if="currentUser"
+            @click="hide"
             >마이페이지
           </b-link>
         </li>
@@ -50,10 +67,12 @@
           <!-- :to="{ name: 'Logout' }" -->
           <logout-link
             class="mobile-menu-link"
+            @click="hide"
             v-if="currentUser"
           ></logout-link>
         </li>
       </ul>
+      </template>
     </b-sidebar>
     <header class="nav-main-menu">
       <div class="flex-items">
@@ -113,7 +132,11 @@
           >
             회원가입
           </b-link>
-          <b-link class="nav-main-menu-link" v-if="currentUser">
+          <b-link
+            :to="{ name: 'My' }"
+            class="nav-main-menu-link"
+            v-if="currentUser"
+          >
             마이페이지
           </b-link>
           <!-- :to="{ name: 'Logout' }" -->
@@ -171,6 +194,9 @@ export default {
       if (this.$route.name === routeName) {
         VueScrollTo.scrollTo('body', 300);
       }
+    },
+    async mobileMenuButtonClicked(event) {
+
     },
   },
 };

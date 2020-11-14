@@ -38,6 +38,8 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+@import '@/common';
+
 h2,
 p {
   text-align: center;
@@ -47,6 +49,12 @@ h2 {
   font-size: 60px;
   font-weight: bold;
   margin-top: 30px;
+}
+
+@include max-with(sm) {
+  h2 {
+    font-size: 36px;
+  }
 }
 
 .info {
@@ -62,6 +70,16 @@ h2 {
   font-size: 18px;
 }
 
+@include max-with(sm) {
+  .s1 {
+    font-size: 22px;
+  }
+
+  .s2 {
+    font-size: 14px;
+  }
+}
+
 .next-button {
   margin-top: 80px;
   display: block;
@@ -71,6 +89,12 @@ h2 {
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+@include max-with(sm) {
+  .next-button {
+    font-size: 16px;
+  }
 }
 </style>
 <style scoped></style>

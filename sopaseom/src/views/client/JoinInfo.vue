@@ -388,7 +388,6 @@ export default {
       console.log('power super login');
       this.setJoinFinished(true);
       this.$router.push({ name: 'JoinSuccess' });
-      
     },
   },
 };
@@ -419,10 +418,18 @@ export default {
 </style>
 
 <style lang="scss" >
+@import '@/common';
+
 .join-content .form-group label {
   font-size: 18px;
   font-weight: bold;
   margin-bottom: 4px;
+}
+
+@include max-with(sm) {
+  .join-content .form-group label {
+    font-size: 16px;
+  }
 }
 
 .next-button {
@@ -430,6 +437,12 @@ export default {
   width: 100%;
   font-size: 21px;
   height: 55px;
+}
+
+@include max-with(sm) {
+  .next-button {
+    font-size: 16px;
+  }
 }
 </style>
 <style lang="scss">

@@ -105,10 +105,19 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+
+@import '@/common';
+
 h2 {
-  font-size: 21px;
+  font-size: 18px;
   font-weight: bold;
   margin-bottom: 20px;
+}
+
+@include max-with(sm) {
+  h2 {
+    font-size: 16px;
+  }
 }
 
 .check-item {
@@ -118,16 +127,23 @@ h2 {
 }
 
 .checkbox-text {
-  font-size: 18px;
+  font-size: 16px;
   display: inline-block;
   transform: translateY(-1px);
+}
+
+@include max-with(sm) {
+  .checkbox-text {
+    font-size: 14px;
+      transform: translateY(-3px);
+  }
 }
 
 .show-more {
   color: #aaa;
   width: 8px;
   border: 10px solid transparent;
-  border-width: 10px 0 10px 10px;
+  border-width: 5px 0 5px 15px;
   box-sizing: content-box;
   background-color: transparent;
   margin: 0;
@@ -147,6 +163,12 @@ h2 {
   }
   .btn:first-child {
     margin-right: 30px;
+  }
+}
+
+@include max-with(sm) {
+  .button-box .btn {
+    font-size: 16px;
   }
 }
 

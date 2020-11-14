@@ -50,13 +50,16 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+
+@import '@/common';
+
 .process {
   text-align: center;
   padding-top: 10px;
-  margin-bottom: 32px;
+  margin-bottom: 20px;
 }
 .process span {
-  font-size: 21px;
+  font-size: 16px;
   font-weight: bold;
   color: #c4c4c4;
   &.current {
@@ -71,7 +74,7 @@ export default {
 .join-outer-box {
   margin: 20px auto;
   max-width: 460px;
-  min-height: 600px;
+  // min-height: 600px;
   display: flex;
   align-items: center;
 }
@@ -80,14 +83,19 @@ export default {
 }
 
 .join-content {
-  padding-top: 32px;
-  height: 410px;
+  padding-top: 20px;
+  // height: 410px;
+}
+
+@include max-with(sm) {
+  .join-content {
+    padding-top: 5px;
+  }
 }
 
 hr {
   border-color: #000;
 }
-
 </style>
 
 

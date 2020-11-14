@@ -25,7 +25,7 @@
           @dismiss-count-down="countDownChanged" -->
       <transition-group name="fade-alert">
         <div
-          class="message-wrapper mx-auto w-50"
+          class="message-wrapper"
           v-for="msgObj in messages"
           :key="msgObj.id"
         >
@@ -98,6 +98,19 @@ export default {
   border-width: 2px;
   border-color: #000;
   pointer-events: all;
+}
+
+.message-wrapper {
+  margin: 0 auto;
+  width: 50%;
+  max-width: 300px;
+
+}
+
+@include max-with(sm) {
+  .message-wrapper {
+    width: 100%;
+  }
 }
 
 .message-box {

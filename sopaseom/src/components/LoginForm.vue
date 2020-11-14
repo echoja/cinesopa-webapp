@@ -104,6 +104,7 @@ reset        () => void        A function that resets the validation state on th
     <div class="login-header">
       <img class="logo-main" src="@/assets/sopaseom-logo.svg" alt="" />
     </div>
+    <h2 class="mobile-title">계정으로 로그인</h2>
     <div class="login-body">
       <!-- v-slot="{ handleSubmit, invalid }" -->
       <!-- <validation-observer ref="observer"> -->
@@ -449,6 +450,8 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+@import '@/common';
+
 .login-component {
   max-width: 360px;
   margin: 0 auto;
@@ -458,14 +461,42 @@ export default {
   text-align: center;
   margin-top: -10px;
 }
+@include max-with(sm) {
+  .login-header {
+    margin-top: 0px;
+  }
+}
 
 .logo-main {
   width: 113px;
 }
+@include max-with(sm) {
+  .logo-main {
+    display: none;
+  }
+}
 
-.login-body {
+.mobile-title {
+  display: none;
   margin-top: 20px;
 }
+@include max-with(sm) {
+  .mobile-title {
+    display: block;
+    font-size: 16px;
+    text-align: center;
+    font-weight: bold;
+  }
+}
+.login-body {
+  margin-top: 40px;
+}
+@include max-with(sm) {
+  .login-body {
+    margin-top: 20px;
+  }
+}
+
 .input-password {
   margin-top: -1px;
 }
@@ -490,6 +521,11 @@ export default {
   display: flex;
   justify-content: space-between;
   margin-top: 12px;
+}
+@include max-with(sm) {
+  .login-sub-menu {
+    font-size: 14px;
+  }
 }
 
 .login-button {
