@@ -8,12 +8,13 @@
   <div id="app" ref="app" class="top noto-sans">
     <VueSkipTo to="#main" label="본문 바로가기" />
     <div class="loading" v-if="pageLoading">loading</div>
-    <div class="h-header"></div>
+    <div class="h-header" v-show="is_site_public"></div>
     <!-- fixed header 를 위한 빈자리 -->
     <!-- <affix relative-element-selector="#body"> -->
     <!-- :style="{ 'background-color': $store.state.menuTransparent ? 'transparent' : '#fff' }" -->
     <!-- :style="{ 'margin-top': `${headerMarginTopWhenScrollTop}px` }" -->
     <div
+      v-show="is_site_public"
       class="header-wrapper transition-header fixed-top"
       :class="{ transparent: $store.state.menuTransparent }"
       ref="header-wrapper"
@@ -22,7 +23,10 @@
       <header class="position-relative mx-auto">
         <div class="logo text-center transition-header">
           <!-- :style="{ color: $store.state.logoColor }" -->
-          <b-link :to="{ name: 'Home' }" :class="{ white: $store.state.logoWhite }">
+          <b-link
+            :to="{ name: 'Home' }"
+            :class="{ white: $store.state.logoWhite }"
+          >
             <span class="visually-hidden">홈으로 이동</span>
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -122,7 +126,9 @@
           <div
             id="nav"
             class="text-center transition-header d-flex justify-content-center"
-            :class="{ /*small: isMenuShouldSmall,*/ white: $store.state.navLinkWhite }"
+            :class="{
+              /*small: isMenuShouldSmall,*/ white: $store.state.navLinkWhite,
+            }"
           >
             <!-- :class="[isMenuShouldSmall ? 'px-3' : 'px-3', {}]" -->
             <b-link :to="{ name: 'About' }">회사소개 </b-link>
@@ -131,11 +137,16 @@
               작품소개
             </b-link>
             <!-- :class="[isMenuShouldSmall ? 'px-3' : 'px-3']" -->
-            <b-link :to="{ name: 'BoardArchive', params: { board: 'all' } }">아카이브 </b-link>
+            <b-link :to="{ name: 'BoardArchive', params: { board: 'all' } }"
+              >아카이브
+            </b-link>
             <!-- :class="[isMenuShouldSmall ? 'px-3' : 'px-3']" -->
-            <b-link :to="{ name: 'BoardNotice', params: { board: 'all' } }">공지사항 </b-link>
+            <b-link :to="{ name: 'BoardNotice', params: { board: 'all' } }"
+              >공지사항
+            </b-link>
             <!-- :class="[isMenuShouldSmall ? 'px-3' : 'px-3']" -->
-            <b-link :to="{ name: 'Distribution', params: { permalink: 'about' } }"
+            <b-link
+              :to="{ name: 'Distribution', params: { permalink: 'about' } }"
               >신청하기
             </b-link>
             <!-- <router-link to="/">Home</router-link> |
@@ -144,39 +155,56 @@
         </div>
 
         <!-- 모바일 -->
-        <div class="menu-mobile d-block d-md-none h-100 d-flex align-items-center">
-          <b-link v-b-toggle.sidebar-menu class="menu-button ml-3 p-0 ">
+        <div
+          class="menu-mobile d-block d-md-none h-100 d-flex align-items-center"
+        >
+          <b-link v-b-toggle.sidebar-menu class="menu-button ml-3 p-0">
             <font-awesome-icon size="2x" :icon="['fas', 'bars']" />
           </b-link>
-          <b-sidebar id="sidebar-menu" title="MENU" :backdrop-variant="'dark'" backdrop shadow>
+          <b-sidebar
+            id="sidebar-menu"
+            title="MENU"
+            :backdrop-variant="'dark'"
+            backdrop
+            shadow
+          >
             <div class="px-3 py-2">
               <p>
                 <b-link class="px-4" :to="{ name: 'About' }">회사소개 </b-link>
               </p>
               <p>
-                <b-link class="px-4" :to="{ name: 'FilmList', params: { type: 'all' } }">
+                <b-link
+                  class="px-4"
+                  :to="{ name: 'FilmList', params: { type: 'all' } }"
+                >
                   작품소개
                 </b-link>
               </p>
               <p>
-                <b-link class="px-4" :to="{ name: 'BoardArchive', params: { board: 'all' } }"
+                <b-link
+                  class="px-4"
+                  :to="{ name: 'BoardArchive', params: { board: 'all' } }"
                   >아카이브
                 </b-link>
               </p>
               <p>
-                <b-link class="px-4" :to="{ name: 'BoardNotice', params: { board: 'all' } }"
+                <b-link
+                  class="px-4"
+                  :to="{ name: 'BoardNotice', params: { board: 'all' } }"
                   >공지사항
                 </b-link>
               </p>
               <p>
-                <b-link class="px-4" :to="{ name: 'Distribution' }">신청하기 </b-link>
+                <b-link class="px-4" :to="{ name: 'Distribution' }"
+                  >신청하기
+                </b-link>
               </p>
             </div>
           </b-sidebar>
         </div>
       </header>
     </div>
-    <div id="body">
+    <div id="body" v-show="is_site_public">
       <main id="main">
         <!-- {{  }} -->
         <!-- mode="out-in" -->
@@ -188,24 +216,38 @@
           @afterLeave="afterLeave"
           @afterEnter="afterEnter"
         >
-          <router-view :key="$route.fullPath.split('/')[1]" :style="{ overflow: 'visible' }" />
+          <router-view
+            :key="$route.fullPath.split('/')[1]"
+            :style="{ overflow: 'visible' }"
+          />
         </transition>
       </main>
       <footer class="body-footer">
         <div
-          class="footer-sns-buttons mb-1 d-flex footer-link-color
-          justify-content-center align-items-center"
+          class="footer-sns-buttons mb-1 d-flex footer-link-color justify-content-center align-items-center"
         >
-          <b-link href="https://www.instagram.com/cinesopa/" target="_blank" rel="external">
+          <b-link
+            href="https://www.instagram.com/cinesopa/"
+            target="_blank"
+            rel="external"
+          >
             <span class="visually-hidden">씨네소파 인스타그램 이동</span>
             <font-awesome-icon :icon="['fab', 'instagram']" />
           </b-link>
-          <b-link href="https://www.facebook.com/coop.cinesopa" target="_blank" rel="external">
+          <b-link
+            href="https://www.facebook.com/coop.cinesopa"
+            target="_blank"
+            rel="external"
+          >
             <span class="visually-hidden">씨네소파 페이스북 이동</span>
             <font-awesome-icon :icon="['fab', 'facebook']" />
           </b-link>
           <!-- <b-img class="m-2" src="./assets/naver-blog.svg"></b-img> -->
-          <b-link href="https://blog.naver.com/cinesopa" target="_blank" rel="external">
+          <b-link
+            href="https://blog.naver.com/cinesopa"
+            target="_blank"
+            rel="external"
+          >
             <span class="visually-hidden">씨네소파 네이버 블로그 이동</span>
             <!-- aria-describedby="설명id" -->
             <svg
@@ -257,41 +299,70 @@
           <b-icon-tools class="m-2"></b-icon-tools>
           <b-icon-person-fill class="m-2"></b-icon-person-fill> -->
         </div>
-        <div class="footer-links d-flex footer-link-color justify-content-center">
-          <b-link :to="{ name: 'EmailRefuse' }" class="mx-2 my-2">이메일무단수집거부</b-link>
+        <div
+          class="footer-links d-flex footer-link-color justify-content-center"
+        >
+          <b-link :to="{ name: 'EmailRefuse' }" class="mx-2 my-2"
+            >이메일무단수집거부</b-link
+          >
           <b-link :to="{ name: 'Sitemap' }" class="mx-2 my-2">사이트맵</b-link>
         </div>
         <!-- class p-2 -->
-        <div class="footer-information d-flex footer-text-color justify-content-center">
+        <div
+          class="footer-information d-flex footer-text-color justify-content-center"
+        >
           <!-- <p>사업자등록번호 159-87-00749&nbsp; &nbsp;|&nbsp;
             &nbsp;부산시 해운대구 재반로103번길 5, 3층&nbsp; &nbsp;|
             &nbsp; &nbsp;coop.cinesopa@gmail.com</p> -->
           <p>
-            <span class="m-0 m-md-2 footer-information-item">사업자등록번호 159-87-00749</span>
+            <span class="m-0 m-md-2 footer-information-item"
+              >사업자등록번호 159-87-00749</span
+            >
             <span class="m-0 m-md-2 footer-information-divider">|</span>
             <span class="m-0 m-md-2 footer-information-item"
               >부산시 해운대구 재반로103번길 5, 3층</span
             >
             <span class="m-0 m-md-2 footer-information-divider">|</span>
-            <span class="m-0 m-md-2 footer-information-item">coop.cinesopa@gmail.com</span>
+            <span class="m-0 m-md-2 footer-information-item"
+              >coop.cinesopa@gmail.com</span
+            >
           </p>
         </div>
-        <div class="footer-copyright d-flex footer-text-color justify-content-center mb-4">
+        <div
+          class="footer-copyright d-flex footer-text-color justify-content-center mb-4"
+        >
           <p>Copyright ⓒ 2020 CINESOPA All Rights Reserved</p>
         </div>
         <!-- {{ text }} -->
       </footer>
     </div>
+    <div id="under-contruction" v-if="!is_site_public">
+      <p>사이트 공사중입니다!</p>
+      <p>coop.cinesopa@gmail.com</p>
+    </div>
   </div>
 </template>
 
 <script>
+import { makeRequest } from './graphql-client';
 // import cssVars from 'css-vars-ponyfill';
+
+const getIsPublicFromServer = makeRequest('siteOption', {
+  type: 'query',
+  paramList: [
+    {
+      varName: 'name',
+      typeName: 'String!',
+    },
+  ],
+  resultString: '{name value success code}',
+});
 
 export default {
   title: '영화배급협동조합 씨네소파',
   data() {
     return {
+      is_site_public: true,
       prevHeight: 0,
       showA: true,
       scrollY: 0,
@@ -372,9 +443,18 @@ export default {
     (() => {
       if (typeof window.CustomEvent === 'function') return;
       function CustomEvent(event, paramsInput) {
-        const params = paramsInput || { bubbles: false, cancelable: false, detail: null };
+        const params = paramsInput || {
+          bubbles: false,
+          cancelable: false,
+          detail: null,
+        };
         const evt = document.createEvent('CustomEvent');
-        evt.initCustomEvent(event, params.bubbles, params.cancelable, params.detail);
+        evt.initCustomEvent(
+          event,
+          params.bubbles,
+          params.cancelable,
+          params.detail,
+        );
         return evt;
       }
       window.CustomEvent = CustomEvent;
@@ -394,6 +474,16 @@ export default {
       this.setWindowSize();
       this.updateThingsWhenScroll();
     });
+    getIsPublicFromServer({ name: 'is_site_public' })
+      .then((result) => {
+        console.log('#App getIsPublicFromServer');
+        console.log(result);
+        this.is_site_public = result.value;
+      })
+      .catch((err) => {
+        console.log('#App getIsPublicFromServer Error!');
+        console.error(err);
+      });
   },
 
   beforeMount() {
@@ -455,7 +545,8 @@ export default {
     enter(/* element */) {
       // console.log(`route name: ${this.$route.name}`);
       // console.log(`route full path split / [0]${this.$route.fullPath.split('/')[1]}`);
-      if (this.$route.name === 'Home') this.$refs.app.classList.add('route-home');
+      if (this.$route.name === 'Home')
+        this.$refs.app.classList.add('route-home');
       // const { height } = getComputedStyle(element);
       // // eslint-disable-next-line no-param-reassign
       // element.style.height = this.prevHeight;
@@ -465,7 +556,8 @@ export default {
       // });
     },
     afterLeave() {
-      if (this.$route.name !== 'Home') this.$refs.app.classList.remove('route-home');
+      if (this.$route.name !== 'Home')
+        this.$refs.app.classList.remove('route-home');
     },
     afterEnter(/* element */) {
       // // eslint-disable-next-line no-param-reassign
@@ -760,9 +852,9 @@ button:hover {
 /** fonts !fonts */
 
 .noto-sans {
-  font-family: 'Noto Sans KR', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
-    'Helvetica Neue', Arial, 'Noto Sans', sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
-    'Segoe UI Symbol', 'Noto Color Emoji';
+  font-family: 'Noto Sans KR', -apple-system, BlinkMacSystemFont, 'Segoe UI',
+    Roboto, 'Helvetica Neue', Arial, 'Noto Sans', sans-serif,
+    'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
 }
 
 .noto-serif {
@@ -920,5 +1012,14 @@ button:hover {
 
 .vue-skip-to {
   z-index: 1000;
+}
+
+#under-contruction {
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
 }
 </style>

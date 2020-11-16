@@ -13,7 +13,17 @@ module.exports = {
     siteOption: makeResolver(async (obj, args, context, info) => {
       const { name } = args;
       const option = await db.getSiteOption(name);
-      return option.value;
+      // 성공시
+      if (option) {
+        return { name: option.name, value: option.value, success: true };
+      }
+      // 실패시
+      return {
+        name,
+        value: null,
+        success: false,
+        code: 'no_option',
+      };
     }).only(ACCESS_ALL),
 
     // 악의성 유저가 공격할 우려가 있음...
@@ -28,6 +38,7 @@ module.exports = {
       // console.log(results);
       const refined = results.map((result, index) => {
         const option = result.value;
+        // 옵션 찾기 성공시
         if (option) {
           return {
             name: option.name,
@@ -35,6 +46,7 @@ module.exports = {
             success: true,
           };
         }
+        // 옵션 찾기 실패시
         return {
           name: names[index],
           value: null,

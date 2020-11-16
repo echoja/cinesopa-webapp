@@ -16,7 +16,7 @@ type RemoveSiteOptionResult {
   code: String
 }
 extend type Query {
-  siteOption(name: String!): String
+  siteOption(name: String!): SiteOptionResult
   siteOptions(names: [String!]!): [SiteOptionResult]
 }
 
