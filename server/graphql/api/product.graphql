@@ -38,16 +38,20 @@ extend type Query {
 
 type createProductResult {
   success: Boolean
+  code: String
 }
 type updateProductResult {
   success: Boolean
+  code: String
 }
 type removeProductResult {
   success: Boolean
+  code: String
 }
 
 input ProductInput {
   product_type: String
+  status: String
   featured_image_url: String
   featured_image_alt: String
   content_main: String
@@ -66,9 +70,12 @@ input ProductInput {
 }
 
 type Product {
+  id: Int
+  status: String
   product_type: String
   featured_image_url: String
   featured_image_alt: String
+  is_notice_default: Boolean
   content_main: String
   content_sub: String
   side_phrase: String

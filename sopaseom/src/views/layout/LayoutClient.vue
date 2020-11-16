@@ -6,14 +6,12 @@
       mode="out-in"
       @before-enter="fsBeforeEnter"
       @after-leave="fsAfterLeave"
+      @before-leave="fsBeforeLeave"
     >
       <component :is="footerStyle">
         <transition name="fade" mode="out-in">
-          <router-view
-            id="main"
-            :key="$route.fullPath.split('/')[1]"
-            :style="{ overflow: 'visible' }"
-          />
+          <router-view id="main" :key="$route.fullPath.split('/')[1]" />
+          <!-- :style="{ overflow: 'visible' }" -->
         </transition>
       </component>
     </transition>
@@ -59,25 +57,65 @@ export default {
     NavMenu: () => import('@/components/NavMenu.vue'),
     BAlert,
   },
+  data() {
+    return {
+      layoutStyle: {},
+    };
+  },
   computed: {
     ...mapState(['messages']),
     footerStyle() {
       return this.$route.meta.footerStyle || BodyNoFooter;
     },
-    layoutStyle() {
-      const footerStyle = this.$route.meta || BodyFixedFooter;
+    // layoutStyle() {
+    //   const footerStyle = this.$route.meta || BodyFixedFooter;
+    //   if (footerStyle === BodyNoFooter) {
+    //     return { overflow: 'inherit' };
+    //   }
+    //   return { 'overflow-y': 'inherit', 'overlfow-x': 'hidden' };
+    // },
+    shouldOverflowBeHidden() {
+      const footerStyle = this.$route?.meta?.footerStyle || BodyFixedFooter;
+      console.log('# LayoutClient shouldOverflowBeHidden');
+      console.log(footerStyle);
+      // console.log(footerstyle());
+      console.log(BodyFixedFooter);
       if (footerStyle === BodyNoFooter) {
-        return { overflow: 'inherit' };
+        return false;
       }
-      return { 'overflow-y': 'inherit', 'overlfow-x': 'hidden' };
+      return true;
     },
   },
   watch: {
-    $route() {},
+    $route(to, from) {
+      // console.log('# Layoutclient watch route');
+      // console.log(to);
+      // console.log(from);
+    },
   },
   methods: {
-    // todo
-    fsBeforeEnter(el) {},
+    // todo 상황:
+    // 오버플로 hidden > 오버플로 scroll : to의 beforeEnter 또는 from의 afterLeave 에서 overflow hidden 삭제
+    // 오버플로 hidden > 오버플로 hidden : 아무것도 할 것 없음
+    // 오버플로 scroll > 오버플로 scroll : 아무것도 할 것 없음.
+    // 오버플로 scroll > 오버플로 hidden : route 가 변경되는 즉시 hidden 으로 변경
+
+    fsBeforeEnter(el) {
+      console.log('# LayoutClient fsBeforeEnter');
+      // console.log(el);
+      // console.log(this.$route);
+      if (!this.shouldOverflowBeHidden) {
+        this.layoutStyle = { overflow: 'inherit' };
+      }
+    },
+    fsBeforeLeave(el) {
+      if (this.shouldOverflowBeHidden) {
+        this.layoutStyle = { overflow: 'hidden' };
+      }
+      console.log('# LayoutClient fsBeforeLeave');
+      // console.log(el);
+      // console.log(this.$route);
+    },
     fsAfterLeave(el) {},
   },
 };
@@ -104,7 +142,6 @@ export default {
   margin: 0 auto;
   width: 50%;
   max-width: 300px;
-
 }
 
 @include max-with(sm) {
@@ -130,7 +167,6 @@ export default {
 .left-right-leave-active {
   transition-duration: 0.3s;
 }
-
 </style>
 
 <style scoped>
@@ -187,7 +223,6 @@ export default {
   transition-timing-function: ease;
   overflow: hidden;
 }
-
 
 .left-right-enter {
   transform: translateX(-20px);

@@ -1,3 +1,7 @@
+import BodyFixedFooter from '@/views/layout/BodyFixedFooter.vue';
+import BodyFooter from '@/views/layout/BodyFooter.vue';
+import BodyNoFooter from '@/views/layout/BodyNoFooter.vue';
+
 import {
   // emailVerifyBeforeEnter,
   logoutBeforeEnter,
@@ -7,10 +11,13 @@ import {
 } from './nav-guard';
 
 const BodyFixedFooterMeta = {
-  footerStyle: () => import('@/views/layout/BodyFixedFooter.vue'),
+  footerStyle: BodyFixedFooter,
 };
 const BodyFooterMeta = {
-  footerStyle: () => import('@/views/layout/BodyFooter.vue'),
+  footerStyle: BodyFooter,
+};
+const BodyNoFooterMeta = {
+  footerStyle: BodyNoFooter,
 };
 
 export default [
@@ -19,7 +26,7 @@ export default [
     name: 'Home',
     component: () => import('../views/client/Home.vue'),
     meta: {
-      footerStyle: () => import('@/views/layout/BodyNoFooter.vue'),
+      ...BodyNoFooterMeta,
     },
   },
   {
@@ -106,7 +113,6 @@ export default [
     name: 'Application',
     component: () => import('@/views/client/Application.vue'),
   },
-
   {
     path: '/my',
     name: 'My',

@@ -237,13 +237,13 @@ export default {
     const res = await graphql(queryString.board.boardsQuery, {
       belongs_to: this.belongs_to,
     });
-    console.log(res);
-    this.options.board = res.data.boards.map((board) => {
-      return {
-        value: board._id,
-        text: board.title,
-      };
-    });
+    // console.log('# PostEdit mounted');
+    // console.log(res);
+    this.options.board = res.data.boards.map((board) => ({
+      // eslint-disable-next-line
+      value: board._id,
+      text: board.title,
+    }));
     this.input.board = this.options.board[0].value;
 
     // edit mode일 때 정보 초기화 설정
@@ -337,13 +337,13 @@ export default {
           this.pushHtmlToEditor(`<img src="${fileurl}" alt="${alt}">`);
         }
       });
-      console.log(files, a, b);
+      // console.log(files, a, b);
     },
 
     async setFeaturedImage(files) {
-      // eslint-disable-next-line no-underscore-dangle
       if (files.length >= 1) this.input.featured_image = files[0]._id;
-      console.log(files);
+      // console.log('# postEdit setFeaturedImage');
+      // console.log(files);
       this.featured_image_link = `${baseUrl}${files[0].fileurl}`;
     },
 

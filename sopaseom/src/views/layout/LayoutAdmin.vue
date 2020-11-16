@@ -39,7 +39,7 @@
             페이지
           </b-list-group-item>
           <b-list-group-item to="/admin/sopaseom/product">
-            소파킷
+            소파킷 상품
           </b-list-group-item>
           <b-list-group-item to="/admin/sopaseom/application">
             신청

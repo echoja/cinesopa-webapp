@@ -68,7 +68,7 @@ const examplePlugin = (editor) => {
  * @param {string} content 초기 내용
  * @returns {object} Tinymce 초기화 객체
  */
-export default (/* content */) => ({
+export default ({ height = 800 } = {}) => ({
   content_css: [
     '//fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@100;300;400;500;700;900&family=Noto+Serif+KR:wght@200;300;400;500;600;700;900&display=swap',
     '//fonts.googleapis.com/css2?family=Indie+Flower&family=Nanum+Gothic:wght@400;700',
@@ -103,7 +103,7 @@ export default (/* content */) => ({
     { title: 'Black.', format: 'fw900' },
   ],
   relative_urls: false,
-  height: 800,
+  height,
   max_width: 700,
   // inline: true,
   plugins: [

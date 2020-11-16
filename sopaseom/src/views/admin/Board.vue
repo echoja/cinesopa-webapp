@@ -4,7 +4,14 @@
       <h2>게시판 목록</h2>
     </header>
 
-    <b-modal @ok="removeRow()" id="check-remove" title="삭제 확인">
+    <b-modal
+      @ok="removeRow()"
+      id="check-remove"
+      title="삭제 확인"
+      ok-title="삭제"
+      ok-variant="danger"
+      cancel-title="취소"
+    >
       <p class="my-1">정말로 삭제하시겠습니까?</p>
     </b-modal>
 
@@ -45,7 +52,11 @@
             <li v-for="(value, key) in row.item" :key="key">{{ key }}: {{ value }}</li>
           </ul> -->
           <b-form @submit.prevent.stop="onSubmit(row)" @reset="onReset">
-            <b-form-group id="input-permalink-group" label="링크" label-for="input-permalink">
+            <b-form-group
+              id="input-permalink-group"
+              label="링크"
+              label-for="input-permalink"
+            >
               <b-form-input
                 id="input-permalink"
                 name="input-permalink"
@@ -54,7 +65,11 @@
                 @input="onInput(row)"
               ></b-form-input>
             </b-form-group>
-            <b-form-group id="input-title-group" label="제목" label-for="input-title">
+            <b-form-group
+              id="input-title-group"
+              label="제목"
+              label-for="input-title"
+            >
               <b-form-input
                 id="input-title"
                 name="input-title"
@@ -63,7 +78,11 @@
                 @input="onInput(row)"
               ></b-form-input>
             </b-form-group>
-            <b-form-group id="input-description-group" label="설명" label-for="input-description">
+            <b-form-group
+              id="input-description-group"
+              label="설명"
+              label-for="input-description"
+            >
               <b-form-input
                 id="input-description"
                 name="input-description"
@@ -73,9 +92,14 @@
               ></b-form-input>
             </b-form-group>
             <b-button-group>
-              <b-button :disabled="!row.item.changed" type="submit" variant="success">{{
-                row.item.submitAction === 'new' ? '확인' : '적용'
-              }}</b-button>
+              <b-button
+                :disabled="!row.item.changed"
+                type="submit"
+                variant="success"
+                >{{
+                  row.item.submitAction === 'new' ? '확인' : '적용'
+                }}</b-button
+              >
               <b-button @click="cancelForm(row)">취소</b-button>
             </b-button-group>
             <div
@@ -346,7 +370,9 @@ export default {
     },
     async removeBoard() {
       const row = this.removingRow;
-      const res = await graphql(queryString.board.removeBoardMutation, { id: row.item.id });
+      const res = await graphql(queryString.board.removeBoardMutation, {
+        id: row.item.id,
+      });
       if (res.data.removeBoard) {
         this.pushMessage({
           type: 'success',

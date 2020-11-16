@@ -378,8 +378,107 @@ query getFileInfoQuery($filename: String) {
     label
   }
 }
-
 `;
+
+const prodBlock = `{
+  product_type
+  status
+  featured_image_url
+  featured_image_alt
+  content_main
+  content_sub
+  side_phrase
+  notice
+  name
+  options {
+    id
+    content
+    left
+    price
+  }
+  related_film {
+    id
+#    poster_url
+#    title
+#    title_en
+#    prod_date
+#    open_date
+#    genres
+#    show_time
+#    people {
+#      role_type
+#      name
+#      role
+#    }
+#    watch_grade  
+#    synopsis
+  }
+}`;
+
+export const productAdminQuery = `
+query productAdminQuery($id: Int!) {
+  productAdmin(id: $id) ${prodBlock}
+}
+`;
+
+/**
+ * 제일 첫 글자를 대문자로 만듭니다.
+ * @param {string} s
+ */
+const capitalize = (s) => {
+  if (typeof s !== 'string') return '';
+  return s.charAt(0).toUpperCase() + s.slice(1);
+};
+
+/**
+ * 호호
+ * @typedef {Object} GraphQLParamListItem
+ * @property {string} varName
+ * @property {string} typeName
+ */
+
+/**
+ * @param {GraphQLParamListItem[]} paramList
+ */
+const makeOuterParamList = (paramList) => {
+  return paramList.map((param) => `$${param.varName}: ${param.typeName}`).join(', ');
+};
+/**
+ * @param {GraphQLParamListItem[]} paramList
+ */
+const makeInnerParamlist = (paramList) => {
+  return paramList.map((param) => `${param.varName}: $${param.varName}`).join(', ');
+};
+
+/**
+ * @typedef {Object} CreateQueryStringOption
+ * @property {string} type 'query' | 'mutation'
+ * @property {GraphQLParamListItem[]} paramList 사용할 파라미터
+ * @property {string} resultString 결과 값들 {}로 둘러싸여져 있도록 함.
+ */
+
+/**
+ * grapql 로 요청하는 쿼리 혹은 뮤테이션 string 을 제작해줍니다.
+ * @param {string} reqName
+ * @param {CreateQueryStringOption} param1
+ */
+export const makeReqString = (reqName, { type = 'query', paramList, resultString } = {}) => {
+  if (typeof reqName !== 'string') return '# makeReqString: No reqName Error';
+  return `${type} ${reqName}${capitalize(type)}(${makeOuterParamList(paramList)}) {
+    ${reqName}(${makeInnerParamlist(paramList)}) ${resultString}
+  }`;
+};
+
+/**
+ * 쿼리에 따라 요청하는 graphql 함수를 만들어줍니다.
+ * @param {string} reqName
+ * @param {CreateQueryStringOption} defs
+ */
+export const makeRequest = (reqName, defs) => async (args) => {
+  const res = await graphql(makeReqString(reqName, defs), args);
+  const result = res.data[reqName];
+  return result;
+};
 
 export const checkAuth = async () => {
   if (store.state.userInitialized === false) {

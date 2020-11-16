@@ -956,6 +956,8 @@ class DBManager {
 
   async getProduct(id) {
     const product = await model.Product.findOne({ id }).lean().exec();
+    // console.log("# db getProduct");
+    // console.log(product);
     const filmId = product.related_film;
     const film = await model.Film.findOne({ id: filmId }).lean().exec();
     product.related_film = film;
@@ -1030,8 +1032,8 @@ class DBManager {
     // console.log(remainedCartitems);
     product.related_cartitems = remainedCartitems;
 
-    // console.log('input!!!!!');
-    // console.log(input);
+    console.log('# db updateProduct input!!!!!');
+    console.log(input);
 
     product.set(input);
     await product.save();
@@ -1146,7 +1148,7 @@ class DBManager {
    */
   async updateCartitemOption(id, optionId, count, current, email) {
     const item = await model.Cartitem.findOne({ id, user: email });
-
+    
     // 아이템이 존재하지 않는다면 에러.
     if (!item) return { success: false, code: 'no_item' };
 

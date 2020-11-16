@@ -74,8 +74,12 @@ export default [
     component: () => import('@/views/admin/Product.vue'),
   },
   {
-    ...adminRoute('/admin/sopaseom/product/new', 'AdminProductNew'),
+    ...adminRoute('/admin/sopaseom/product/page/:page', 'AdminProductPaged'),
     component: () => import('@/views/admin/Product.vue'),
+  },
+  {
+    ...adminRoute('/admin/sopaseom/product/new', 'AdminProductNew'),
+    component: () => import('@/views/admin/ProductEdit.vue'),
     props: { mode: 'new' },
   },
   {

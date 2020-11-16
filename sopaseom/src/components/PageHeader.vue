@@ -22,9 +22,9 @@ export default {};
   position: sticky;
 }
 
-.body:not(.left-right-enter-active):not(.left-right-leave-active) .page-header {
-  top: $desktop-header-height + 2px;
-}
+// .body:not(.left-right-enter-active):not(.left-right-leave-active) .page-header {
+//   top: $desktop-header-height + 2px;
+// }
 
 @include max-with(sm) {
   .page-header {
@@ -34,10 +34,10 @@ export default {};
     margin-bottom: 20px;
     border-top: 2px solid #000;
   }
-  .body:not(.left-right-enter-active):not(.left-right-leave-active)
-    .page-header {
-    top: $mobile-header-height;
-  }
+  // .body:not(.left-right-enter-active):not(.left-right-leave-active)
+  //   .page-header {
+  //   top: $mobile-header-height;
+  // }
 }
 
 .page-header h1 {

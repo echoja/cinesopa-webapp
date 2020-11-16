@@ -111,6 +111,8 @@ $btn-disabled-opacity: 1;
 .btn-danger.disabled,
 .btn-danger:disabled,
 .btn-primary.disabled,
-.btn-primary:disabled {
+.btn-primary:disabled,
+.btn.disabled,
+.btn:disabled {
   opacity: 0.5;
 }

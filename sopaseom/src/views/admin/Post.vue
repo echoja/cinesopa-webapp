@@ -132,8 +132,8 @@ export default {
     await this.boardData();
     this.setDataFromServer();
 
-    console.log('# post mounted');
-    console.log(`${this.belongs_to}, ${this.page}`);
+    // console.log('# post mounted');
+    // console.log(`${this.belongs_to}, ${this.page}`);
   },
   methods: {
     ...mapActions(['pushMessage']),
