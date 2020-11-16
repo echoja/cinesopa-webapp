@@ -18,5 +18,6 @@ module.exports = {
     'implicit-arrow-linebreak': 'off',
     'no-param-reassign': 'off',
     'no-underscore-dangle': 'off',
+    'global-require': 'off',
   },
 };

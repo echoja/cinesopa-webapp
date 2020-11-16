@@ -91,7 +91,7 @@
           <!-- 만약 현재 요소가 string 이라면 일반적으로 수행. -->
           <b-form-input
             :id="`input-${option}`"
-            v-if="form[option].type === 'string'"
+            v-else-if="form[option].type === 'string'"
             v-model="form[option].value"
           ></b-form-input>
 
@@ -122,6 +122,14 @@
               </b-modal>
             </div>
           </div>
+
+          <!-- 만약 현재 요소가 boolean 이라면 체크박스 불러오기. -->
+          <b-form-checkbox
+            v-else-if="form[option].type === 'single_checkbox'"
+            v-model="form[option].value"
+          >
+            {{ form[option].description }}
+          </b-form-checkbox>
         </td>
       </tr>
     </table>
@@ -157,7 +165,13 @@
 </template>
 
 <script>
-import { BButton, BFormInput, VBToggle, BModal } from 'bootstrap-vue';
+import {
+  BButton,
+  BFormInput,
+  VBToggle,
+  BModal,
+  BFormCheckbox,
+} from 'bootstrap-vue';
 import {
   siteOptionsQuery,
   graphql,
@@ -174,6 +188,7 @@ export default {
     BFormInput,
     BButton,
     BModal,
+    BFormCheckbox,
     FileManager,
   },
   directives: {
@@ -230,19 +245,16 @@ export default {
         address: {
           label: '주소',
           value: null,
-          initValue: null,
           type: 'string',
         },
         phone: {
           label: '전화번호',
           value: null,
-          initValue: null,
           type: 'string',
         },
         logo: {
           label: '로고',
           value: null,
-          initValue: null,
           type: 'file',
           file: {
             label: '',
@@ -254,8 +266,13 @@ export default {
           label: '사람들',
           type: 'array',
           value: [],
-          initValue: [],
           typedef: 'person',
+        },
+        is_site_public: {
+          label: '사이트 공개 여부',
+          value: null,
+          type: 'single_checkbox',
+          description: '공개합니다',
         },
       },
     };

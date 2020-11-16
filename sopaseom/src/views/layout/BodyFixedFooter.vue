@@ -36,7 +36,7 @@ export default {
   // margin-bottom: $desktop-simple-footer-height;
   display: flex;
   flex-direction: column;
-  overflow:hidden;
+  // overflow:hidden;
 }
 
 @include max-with(sm) {

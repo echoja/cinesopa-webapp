@@ -21,11 +21,34 @@ $simple-footer-height: 55px;
 $desktop-simple-footer-height: $simple-footer-height;
 $mobile-simple-footer-height: $simple-footer-height;
 
-
 $cinesopa-logo-color: #323e48;
 
-// $grid-breakpoints: custom-style.$grid-breakpoints;
+// for animation break with sticky
 
+// $animation-classes: (
+//   fade-enter-active,
+//   fade-leave-actiive,
+//   left-right-enter-active,
+//   left-right-leave-active
+// );
+
+@mixin prevent-break-top0($selector) {
+  .fade-enter-active #{$selector},
+  .fade-leave-active #{$selector},
+  .left-right-enter-active #{$selector},
+  .left-right-leave-active #{$selector},
+  .slide-enter-active #{$selector},
+  .slide-leave-active #{$selector} {
+    top: 0;
+  }
+}
+
+// @each $class in $animation-classes {
+//   .#{$value} {
+    
+//   } 
+// } 
+// $grid-breakpoints: custom-style.$grid-breakpoints;
 // @include respond-above(sm) {}
 @mixin min-with($breakpoint) {
   // If the breakpoint exists in the map.

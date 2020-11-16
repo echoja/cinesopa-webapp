@@ -25,21 +25,12 @@
                 <span>{{ item.name }}</span>
               </div>
               <div class="inf-row">
-                <div class="inf-cell number-controller">
-                  <div class="controller-down">
-                    <b-link @click="downClicked(index)">
-                      <svg-next></svg-next>
-                    </b-link>
-                  </div>
-                  <div class="controller-number">
-                    {{ item.count }}
-                  </div>
-                  <div class="controller-up">
-                    <b-link @click="upClicked(index)">
-                      <svg-next></svg-next>
-                    </b-link>
-                  </div>
-                </div>
+                <number-controller
+                  v-model="item.count"
+                  class="inf-cell"
+                ></number-controller>
+                <!-- <div class="inf-cell number-controller">
+                </div> -->
                 <div class="inf-cell money">
                   ￦ {{ numberWithCommas(item.price) }}
                 </div>
@@ -107,21 +98,8 @@
                 <span>{{ item.name }}</span>
               </div>
               <div class="inf-row">
-                <div class="inf-cell number-controller">
-                  <div class="controller-down">
-                    <b-link @click="downClicked(index)">
-                      <svg-next></svg-next>
-                    </b-link>
-                  </div>
-                  <div class="controller-number">
-                    {{ item.count }}
-                  </div>
-                  <div class="controller-up">
-                    <b-link @click="upClicked(index)">
-                      <svg-next></svg-next>
-                    </b-link>
-                  </div>
-                </div>
+                <number-controller v-model="item.count" class="inf-cell">
+                </number-controller>
                 <div class="inf-cell money">
                   ￦ {{ numberWithCommas(item.price) }}
                 </div>
@@ -152,6 +130,7 @@
 <script>
 import { BModal, BButton, BLink } from 'bootstrap-vue';
 import { mapMutations } from 'vuex';
+import { numberWithCommas } from '@/util';
 
 // const numberWithCommas = (x) =>
 //   x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
@@ -163,8 +142,9 @@ export default {
     BLink,
     BModal,
     PageHeader: () => import('@/components/PageHeader'),
-    SvgNext: () => import('@/components/SvgNext'),
+    // SvgNext: () => import('@/components/SvgNext'),
     CloseFigure: () => import('@/components/CloseFigure'),
+    NumberController: () => import('@/components/NumberController'),
   },
   data() {
     return {
@@ -221,9 +201,7 @@ export default {
   },
   methods: {
     ...mapMutations(['setAdditionalFooterPaddingBottom']),
-    numberWithCommas(x) {
-      return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
-    },
+    numberWithCommas,
     upClicked(index) {
       if (this.items[index].count < 99) {
         this.items[index].count += 1;
@@ -325,6 +303,8 @@ $content-margin-top: 30px;
     $desktop-subheader-height;
 }
 
+@include prevent-break-top0(".desktop-order");
+
 .desktop-order,
 .mobile-order {
   h2 {
@@ -339,33 +319,9 @@ $content-margin-top: 30px;
   }
 }
 
-.number-controller {
-  margin-top: 5px;
-  display: flex;
-  align-items: center;
-
-  a:hover {
-    color: #585858;
-  }
-  svg {
-    width: 6px;
-    border-style: solid;
-    border-color: transparent;
-    border-width: 0 17px 2px;
-    box-sizing: content-box;
-  }
-}
-
 // .number-controller .controller-down svg {
 //   border-left: 0;
 // }
-.number-controller .controller-down svg,
-.number-controller .controller-up svg {
-  border-right: 0;
-}
-.controller-down svg {
-  transform: scaleX(-1);
-}
 
 .inf-row {
   display: flex;
@@ -463,7 +419,6 @@ $content-margin-top: 30px;
 </style>
 
 <style lang="scss">
-
 // .modal-open {
 //   overflow:hidden;
 //   overflow-y:scroll;

@@ -65,7 +65,7 @@ export default {
   computed: {
     ...mapState(['messages']),
     footerStyle() {
-      return this.$route.meta.footerStyle || BodyNoFooter;
+      return this.$route.meta.footerStyle || BodyFooter;
     },
     // layoutStyle() {
     //   const footerStyle = this.$route.meta || BodyFixedFooter;
@@ -105,12 +105,13 @@ export default {
       // console.log(el);
       // console.log(this.$route);
       if (!this.shouldOverflowBeHidden) {
-        this.layoutStyle = { overflow: 'inherit' };
+        // this.layoutStyle = { overflow: 'inherit' };
       }
     },
     fsBeforeLeave(el) {
       if (this.shouldOverflowBeHidden) {
-        this.layoutStyle = { overflow: 'hidden' };
+        // this.layoutStyle = { overflow: 'inherit' };
+        // this.layoutStyle = { 'overflow-x': 'hidden', 'overflow-y': 'inherit' };
       }
       console.log('# LayoutClient fsBeforeLeave');
       // console.log(el);

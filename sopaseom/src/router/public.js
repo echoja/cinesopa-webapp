@@ -118,6 +118,7 @@ export default [
     name: 'My',
     component: () => import('@/views/client/My.vue'),
     beforeEnter: myBeforeEnter,
+    meta: { ...BodyFixedFooterMeta },
     children: [
       {
         path: 'info',
@@ -140,30 +141,35 @@ export default [
     path: '/order',
     name: 'Order',
     component: () => import('@/views/client/Order.vue'),
+    meta: { ...BodyFixedFooterMeta },
     children: [
       {
         path: 'cart',
         name: 'Cart',
         component: () => import('@/views/client/OrderCart.vue'),
         beforeEnter: requireAuth('GUEST'),
+        meta: { ...BodyFixedFooterMeta },
       },
       {
         path: 'payment',
         name: 'Payment',
         component: () => import('@/views/client/OrderPayment.vue'),
         beforeEnter: requireAuth('GUEST', true),
+        meta: { ...BodyFixedFooterMeta },
       },
       {
         path: 'success',
         name: 'PaymentSuccess',
         component: () => import('@/views/client/OrderSuccess.vue'),
         beforeEnter: requireAuth('GUEST', true),
+        meta: { ...BodyFixedFooterMeta },
       },
       {
         path: 'fail',
         name: 'PaymentFail',
         component: () => import('@/views/client/OrderFail.vue'),
         beforeEnter: requireAuth('GUEST', true),
+        meta: { ...BodyFixedFooterMeta },
       },
     ],
   },

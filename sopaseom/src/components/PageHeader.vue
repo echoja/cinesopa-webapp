@@ -20,7 +20,20 @@ export default {};
   border-bottom: 2px solid #000;
   margin-bottom: 0;
   position: sticky;
+  // top: 0;
+  top: $desktop-header-height + 2px;
 }
+
+// transition 때 이상하게 top 이 계산되는 문제 수정
+
+@include prevent-break-top0(".page-header");
+
+// .left-right-enter-active .page-header,
+// .left-right-leave-active .page-header,
+// .fade-enter-active .page-header,
+// .fade-leave-active .page-header {
+//   top: 0;
+// }
 
 // .body:not(.left-right-enter-active):not(.left-right-leave-active) .page-header {
 //   top: $desktop-header-height + 2px;
