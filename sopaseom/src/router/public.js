@@ -117,23 +117,41 @@ export default [
     path: '/my',
     name: 'My',
     component: () => import('@/views/client/My.vue'),
-    beforeEnter: myBeforeEnter,
+    // beforeEnter: myBeforeEnter,
+    beforeEnter: (to, from, next) => {
+      if (to.fullPath === '/my') {
+        next({ name: 'MyInfo' });
+      } else {
+        next();
+      }
+    },
     meta: { ...BodyFixedFooterMeta },
     children: [
       {
         path: 'info',
         name: 'MyInfo',
         component: () => import('@/views/client/MyInfo.vue'),
+        meta: { ...BodyFixedFooterMeta },
       },
       {
         path: 'ordered',
         name: 'MyOrdered',
         component: () => import('@/views/client/MyOrdered.vue'),
+        meta: { ...BodyFixedFooterMeta },
       },
       {
         path: 'application',
         name: 'MyApplication',
         component: () => import('@/views/client/MyApplication.vue'),
+        meta: { ...BodyFixedFooterMeta },
+      },
+      {
+        path: '*',
+        name: 'MyRedirection',
+        component: () => import('@/views/client/MyApplication.vue'),
+        beforeEnter(to, from, next) {
+          next({ name: 'MyInfo' });
+        },
       },
     ],
   },
@@ -186,7 +204,8 @@ export default [
     name: 'Join',
     component: () => import('@/views/client/Join.vue'),
     beforeEnter: (to, from, next) => {
-      console.log(to.fullPath);
+      // console.log("public.js Join beforeEnter");
+      // console.log(to.fullPath);
       if (to.fullPath === '/join') {
         next({ name: 'JoinPolicy' });
       } else {

@@ -1,5 +1,5 @@
 <template>
-  <b-button :to="to"><slot></slot></b-button>
+  <b-button class="oval-button" :to="to"><slot></slot></b-button>
 </template>
 
 <script>
@@ -11,7 +11,7 @@ export default {
 };
 </script>
 <style lang="scss" scoped>
-.btn {
+.btn.oval-button {
   border-radius: 50%;
   border-width: 2px;
   font-size: 18px;

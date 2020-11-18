@@ -111,7 +111,7 @@ export default {
           product: {
             product_type: 'sopakit',
             name: '소파킷 - 고독',
-            featured_image_url: require('@/assets/ex1.jpg'),
+            featured_image_url: 'https://sopaseom.com/upload/5d55a90942e7e191f1a5225c62ee4f3a',
             featured_image_alt: '이미지 설명',
           },
           options: [

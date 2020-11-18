@@ -1,5 +1,7 @@
 <template>
-  <b-button :disabled="disabled" @click="buttonClicked"><slot></slot></b-button>
+  <b-button v-bind="$attrs" :disabled="disabled" @click="buttonClicked">
+    <slot> </slot>
+  </b-button>
 </template>
 
 <script>

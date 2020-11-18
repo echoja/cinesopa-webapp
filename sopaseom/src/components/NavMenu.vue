@@ -71,8 +71,8 @@
             </b-link>
           </li>
           <!-- <li> -->
-            <!-- :to="{ name: 'Logout' }" -->
-            <!-- <logout-link
+          <!-- :to="{ name: 'Logout' }" -->
+          <!-- <logout-link
             class="mobile-menu-link"
             @click="hide"
             v-if="currentUser"
@@ -84,40 +84,48 @@
     <header class="nav-main-menu">
       <div class="flex-items">
         <div class="left">
-          <b-link class="nav-main-menu-link" :to="{ name: 'SopakitItems' }">
+          <link-strikethrough
+            class="nav-main-menu-link"
+            :to="{ name: 'SopakitItems' }"
+          >
             소파킷
-          </b-link>
-          <b-link class="nav-main-menu-link" :to="{ name: 'Application' }">
+          </link-strikethrough>
+          <link-strikethrough
+            class="nav-main-menu-link"
+            :to="{ name: 'Application' }"
+          >
             상영
-          </b-link>
-          <b-link class="nav-main-menu-link coming-soon">소파밋</b-link>
+          </link-strikethrough>
+          <link-strikethrough class="nav-main-menu-link coming-soon"
+            >소파밋</link-strikethrough
+          >
         </div>
         <!-- <div class="logo-wrapper">
-          <b-link :to="{ name: 'Home' }" class="logo">
+          <link-strikethrough :to="{ name: 'Home' }" class="logo">
             <img class="logo-main" src="../assets/sopaseom-logo.svg" alt="" />
             <img
               class="logo-tag"
               src="../assets/sopaseom-logo-tag.svg"
               alt=""
             />
-          </b-link>
+          </link-strikethrough>
         </div> -->
         <div class="right">
-          <b-link
+          <link-strikethrough
             class="nav-main-menu-link"
             @click="$bvModal.show('modal-login')"
             v-if="!currentUser"
           >
             로그인
-          </b-link>
+          </link-strikethrough>
           <b-modal id="modal-login" hide-footer hide-header centered>
-            <b-link
+            <link-strikethrough
               class="modal-close-button"
               href="#"
               @click="$bvModal.hide('modal-login')"
             >
               <close-figure></close-figure>
-            </b-link>
+            </link-strikethrough>
             <login-form modal-id="modal-login"></login-form>
             <!-- <template #modal-header-close>
               <b-img
@@ -132,27 +140,27 @@
             </template> -->
           </b-modal>
 
-          <b-link
+          <link-strikethrough
             class="nav-main-menu-link"
             :to="{ name: 'JoinPolicy' }"
             v-if="!currentUser"
           >
             회원가입
-          </b-link>
-          <b-link
+          </link-strikethrough>
+          <link-strikethrough
             :to="{ name: 'Cart' }"
             class="nav-main-menu-link"
             v-if="currentUser"
           >
             장바구니
-          </b-link>
-          <b-link
+          </link-strikethrough>
+          <link-strikethrough
             :to="{ name: 'My' }"
             class="nav-main-menu-link"
             v-if="currentUser"
           >
             마이페이지
-          </b-link>
+          </link-strikethrough>
           <!-- <logout-link class="nav-main-menu-link" v-if="currentUser">
           </logout-link> -->
         </div>
@@ -180,6 +188,7 @@
 import { BLink, BModal, BSidebar } from 'bootstrap-vue';
 import { mapState } from 'vuex';
 import VueScrollTo from 'vue-scrollto';
+// import LinkStrikethrough from './LinkStrikethrough.vue';
 
 export default {
   components: {
@@ -189,6 +198,7 @@ export default {
     CloseFigure: () => import('@/components/CloseFigure'),
     LoginForm: () => import('@/components/LoginForm'),
     LogoutLink: () => import('@/components/LogoutLink'),
+    LinkStrikethrough: () => import('@/components/LinkStrikethrough'),
   },
   data() {
     return {

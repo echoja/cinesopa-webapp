@@ -1,87 +1,89 @@
 <template>
-  <main class="sticky-container" ref="sticky-container">
-    <div class="sticky">
-      <div class="slide-container">
-        <div class="slide" ref="sl1">
-          <div class="slide-big-text">
-            <p>독립영화.</p>
-          </div>
-        </div>
-        <div class="scdown" ref="scdown">
-          <!-- <img src="@/assets/scroll-down.svg" /> -->
-          <svg-scdown class="scdown-icon"></svg-scdown>
-        </div>
-        <div class="slide" ref="sl2">
-          <div class="slide-big-text">
-            <p>낯선 듯 익숙한 듯,</p>
-            <p>어딘가 외로운 이름.</p>
-          </div>
-        </div>
-        <div class="slide sl3" ref="sl3">
-          <div class="slide-big-text">
-            <p>
-              <span ref="sl3-tl" class="d-inline-block">당신과</span> 독립영화
-              <span ref="sl3-tr" class="d-inline-block">사이에</span>
-            </p>
-            <p>새로운 섬이 떠올랐습니다.</p>
-          </div>
-        </div>
-        <div class="slide slide-left sl4" ref="sl4">
-          <div class="sl4-content">
-            <div class="slide-big-text" ref="sl4-big">
-              <p ref="sl4-big-1">작은 파도가 닿는 곳,</p>
-              <p ref="sl4-big-2">영화와 사람이 만나는</p>
-              <p ref="sl4-big-3">영화의 섬</p>
-            </div>
-            <div class="slide-small-text">
-              <p>
-                상영 기회가 없던, 작지만 본연의 <br class="small" />가치를 지닌
-                영화들을 발굴합니다.
-              </p>
-              <p>
-                당신이 영화를 좀 더 깊이있게 <br class="small" />누릴 수 있는
-                영화의 시간을 준비합니다.
-              </p>
-              <p>
-                당신과 영화의 다양한 만남과 <br class="small" />가능성을
-                제안합니다.
-              </p>
+  <div class="sticky-container-wrapper">
+    <main class="sticky-container" ref="sticky-container">
+      <div class="sticky">
+        <div class="slide-container">
+          <div class="slide" ref="sl1">
+            <div class="slide-big-text">
+              <p>독립영화.</p>
             </div>
           </div>
-        </div>
-        <div class="wave" ref="wave">
-          <!-- 파도맨~
+          <div class="scdown" ref="scdown">
+            <!-- <img src="@/assets/scroll-down.svg" /> -->
+            <svg-scdown class="scdown-icon"></svg-scdown>
+          </div>
+          <div class="slide" ref="sl2">
+            <div class="slide-big-text">
+              <p>낯선 듯 익숙한 듯,</p>
+              <p>어딘가 외로운 이름.</p>
+            </div>
+          </div>
+          <div class="slide sl3" ref="sl3">
+            <div class="slide-big-text">
+              <p>
+                <span ref="sl3-tl" class="d-inline-block">당신과</span> 독립영화
+                <span ref="sl3-tr" class="d-inline-block">사이에</span>
+              </p>
+              <p>새로운 섬이 떠올랐습니다.</p>
+            </div>
+          </div>
+          <div class="slide slide-left sl4" ref="sl4">
+            <div class="sl4-content">
+              <div class="slide-big-text" ref="sl4-big">
+                <p ref="sl4-big-1">작은 파도가 닿는 곳,</p>
+                <p ref="sl4-big-2">영화와 사람이 만나는</p>
+                <p ref="sl4-big-3">영화의 섬</p>
+              </div>
+              <div class="slide-small-text">
+                <p>
+                  상영 기회가 없던, 작지만 본연의 <br class="small" />가치를
+                  지닌 영화들을 발굴합니다.
+                </p>
+                <p>
+                  당신이 영화를 좀 더 깊이있게 <br class="small" />누릴 수 있는
+                  영화의 시간을 준비합니다.
+                </p>
+                <p>
+                  당신과 영화의 다양한 만남과 <br class="small" />가능성을
+                  제안합니다.
+                </p>
+              </div>
+            </div>
+          </div>
+          <div class="wave" ref="wave">
+            <!-- 파도맨~
           {{ require('../../assets/home-wave.svg') }} -->
-          <div
-            class="wave-animation"
-            :style="{
-              'background-image': `url('${require('@/assets/home-wave.svg')}')`,
-            }"
-          ></div>
-        </div>
-
-        <div class="slide slide-left sl5" ref="sl5">
-          <div class="slide-big-text">
-            <p>영화향유플랫폼 소파섬은</p>
-            <p>당신의 풍요롭고</p>
-            <p>영화로운 나날을 꿈꿉니다.</p>
+            <div
+              class="wave-animation"
+              :style="{
+                'background-image': `url('${require('@/assets/home-wave.svg')}')`,
+              }"
+            ></div>
           </div>
-          <div class="go-surf-wrapper">
-            <b-link :to="{ name: 'SopakitItems' }" class="go-surf"
-              ><span>서핑하기</span>
-              <img
-                class="go-surf-icon"
-                width="35"
-                src="@/assets/home-surf-button.svg"
-            /></b-link>
+
+          <div class="slide slide-left sl5" ref="sl5">
+            <div class="slide-big-text">
+              <p>영화향유플랫폼 소파섬은</p>
+              <p>당신의 풍요롭고</p>
+              <p>영화로운 나날을 꿈꿉니다.</p>
+            </div>
+            <div class="go-surf-wrapper">
+              <b-link :to="{ name: 'SopakitItems' }" class="go-surf"
+                ><span>서핑하기</span>
+                <img
+                  class="go-surf-icon"
+                  width="35"
+                  src="@/assets/home-surf-button.svg"
+              /></b-link>
+            </div>
           </div>
         </div>
       </div>
-    </div>
+    </main>
     <div class="home-footer">
       <footer-component></footer-component>
     </div>
-  </main>
+  </div>
 </template>
 
 <script>
@@ -98,7 +100,7 @@ const def = {
   height: 7100,
   elements: {
     sl1: {
-      top: 600,
+      top: 500,
       bottom: 1900,
       topStyle: {
         opacity: 0,
@@ -187,7 +189,7 @@ const def = {
   animations: {
     sl1: [
       {
-        top: 600,
+        top: 500,
         bottom: 1900,
         easing: midSlow,
         styles: {
@@ -198,7 +200,7 @@ const def = {
         },
       },
       {
-        top: 600,
+        top: 500,
         bottom: 800,
         easing: ease,
         styles: {
@@ -209,7 +211,7 @@ const def = {
         },
       },
       {
-        top: 1700,
+        top: 1400,
         bottom: 1900,
         easing: easeIn,
         styles: {
@@ -247,7 +249,7 @@ const def = {
       },
       {
         top: 1900,
-        bottom: 2200,
+        bottom: 2500,
         easing: ease,
         styles: {
           opacity: {
@@ -257,7 +259,7 @@ const def = {
         },
       },
       {
-        top: 2900,
+        top: 2600,
         bottom: 3200,
         easing: easeIn,
         styles: {
@@ -282,7 +284,7 @@ const def = {
       },
       {
         top: 3300,
-        bottom: 3600,
+        bottom: 3900,
         easing: ease,
         styles: {
           opacity: {
@@ -292,7 +294,7 @@ const def = {
         },
       },
       {
-        top: 4300,
+        top: 4000,
         bottom: 4600,
         easing: easeIn,
         styles: {
@@ -319,7 +321,7 @@ const def = {
     wave: [
       {
         top: 4500,
-        bottom: 5700,
+        bottom: 5300,
         easing: ease,
         styles: {
           translateY: {
@@ -333,7 +335,7 @@ const def = {
         },
       },
       {
-        top: 5700,
+        top: 5300,
         bottom: 5900,
         easing: easeIn,
         styles: {
@@ -362,7 +364,7 @@ const def = {
       },
       {
         top: 4700,
-        bottom: 5000,
+        bottom: 5300,
         easing: ease,
         styles: {
           opacity: {
@@ -372,7 +374,7 @@ const def = {
         },
       },
       {
-        top: 5700,
+        top: 5400,
         bottom: 6000,
         easing: easeIn,
         styles: {
@@ -397,7 +399,7 @@ const def = {
       },
       {
         top: 6100,
-        bottom: 6300,
+        bottom: 6700,
         easing: ease,
         styles: {
           opacity: {
@@ -692,11 +694,11 @@ export default {
 
 .slide-big-text p {
   margin: 0;
-  font-size: 60px;
+  font-size: 45px;
   font-weight: bold;
   line-height: 1.35;
-  letter-spacing: -2px;
-  word-spacing: 2px;
+  letter-spacing: -1.5px;
+  word-spacing: 1.5px;
   text-align: center;
 }
 
@@ -706,7 +708,7 @@ export default {
 }
 
 .slide-small-text p {
-  font-size: 20px;
+  font-size: 18px;
   margin: 0;
 }
 
@@ -794,7 +796,7 @@ br.small {
 
 @include max-with(sm) {
   .wave {
-    height: 120px;
+    height: 150px;
   }
 }
 
@@ -803,7 +805,7 @@ br.small {
   min-width: 2856px;
   height: 100%;
   // transform: translateX(-1428px);
-  animation: 14s ease-in-out infinite flow;
+  animation: 35s linear infinite flow;
 }
 
 @keyframes flow {
@@ -817,7 +819,7 @@ br.small {
 
 .home-footer {
   width: 100%;
-  position: absolute;
+  // position: absolute;
   bottom: 0;
 }
 
@@ -830,7 +832,7 @@ br.small {
 }
 
 .go-surf {
-  font-size: 34px;
+  font-size: 28px;
   display: inline-flex;
   align-items: center;
 }

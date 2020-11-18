@@ -177,21 +177,24 @@ export default {
               link: 'https://naver.com',
               id: '1',
               // eslint-disable-next-line global-require
-              img_url: require('@/assets/ex2.jpg'),
+              img_url:
+                'https://sopaseom.com/upload/e9e865dfb901fbc11709df8d1511ca3d',
             },
             {
               title: '기억할만한 지나침',
               link: 'https://naver.com',
               id: '1',
               // eslint-disable-next-line global-require
-              img_url: require('@/assets/ex1.jpg'),
+              img_url:
+                'https://sopaseom.com/upload/a206886e8633c12caf7a795a842d7f65',
             },
           ],
           explain:
             '‘고독’에 숨겨진 뜻이\n‘만남’이라고 제안하고 싶습니다.\n외로운 사람만이 만남의 진정한\n가치를 알 수 있듯\n고독할 때에야 비로소 나와\n타인을 생각하게 되니까요.',
           year: 2020,
           // eslint-disable-next-line global-require
-          mock_url: require('@/assets/ex_mock.png'),
+          mock_url:
+            'https://sopaseom.com/upload/b3e7a3fc69f30216ff55049e5c61eba8',
         },
         {
           number: '01',
@@ -201,20 +204,23 @@ export default {
               title: '여름날',
               link: 'https://naver.com',
               // eslint-disable-next-line global-require
-              img_url: require('@/assets/ex2.jpg'),
+              img_url:
+                'https://sopaseom.com/upload/e9e865dfb901fbc11709df8d1511ca3d',
             },
             {
               title: '기억할만한 지나침',
               link: 'https://naver.com',
               // eslint-disable-next-line global-require
-              img_url: require('@/assets/ex1.jpg'),
+              img_url:
+                'https://sopaseom.com/upload/a206886e8633c12caf7a795a842d7f65',
             },
           ],
           explain:
             '‘고독’에 숨겨진 뜻이\n‘만남’이라고 제안하고 싶습니다.\n외로운 사람만이 만남의 진정한\n가치를 알 수 있듯\n고독할 때에야 비로소 나와\n타인을 생각하게 되니까요.',
           year: 2020,
           // eslint-disable-next-line global-require
-          mock_url: require('@/assets/ex_mock.png'),
+          mock_url:
+            'https://sopaseom.com/upload/b3e7a3fc69f30216ff55049e5c61eba8',
         },
       ],
     };
@@ -601,7 +607,7 @@ export default {
 @include max-with(md) {
   .mobile-main-mock {
     display: block;
-    display: none;
+    // display: none;
     width: 100%;
     margin-right: 20px;
     margin-top: 2px;

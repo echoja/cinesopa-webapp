@@ -18,6 +18,6 @@ module.exports = function (mongoose) {
 
   SiteOption.index({ name: 1 });
   SiteOption.index({ id: 1 });
-
+  
   return SiteOption;
 };

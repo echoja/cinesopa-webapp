@@ -364,8 +364,6 @@ export default {
   border: 0;
   padding: 3px 15px;
   font-size: 14px;
-  :hover {
-  }
 }
 
 .form-address-title-wrapper {
