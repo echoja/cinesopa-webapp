@@ -119,13 +119,13 @@
             로그인
           </link-strikethrough>
           <b-modal id="modal-login" hide-footer hide-header centered>
-            <link-strikethrough
+            <b-link
               class="modal-close-button"
               href="#"
               @click="$bvModal.hide('modal-login')"
             >
               <close-figure></close-figure>
-            </link-strikethrough>
+            </b-link>
             <login-form modal-id="modal-login"></login-form>
             <!-- <template #modal-header-close>
               <b-img

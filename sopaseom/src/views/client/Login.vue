@@ -1,5 +1,5 @@
 <template>
-  <login-form></login-form>
+  <login-form hide-logo ></login-form>
 </template>
 
 <script>

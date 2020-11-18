@@ -101,7 +101,7 @@ reset        () => void        A function that resets the validation state on th
 
 <template>
   <div class="login-component">
-    <div class="login-header">
+    <div class="login-header" v-if="!shouldHideLogo">
       <img class="logo-main" src="@/assets/sopaseom-logo.svg" alt="" />
     </div>
     <h2 class="mobile-title">계정으로 로그인</h2>
@@ -268,6 +268,10 @@ export default {
       type: String,
       default: '',
     },
+    hideLogo: {
+      type: String,
+      deafult: null,
+    },
   },
   data() {
     return {
@@ -295,6 +299,12 @@ export default {
         },
       },
     };
+  },
+  computed: {
+    shouldHideLogo() {
+      const t = typeof this.hideLogo;
+      return t === 'string' || t === true;
+    },
   },
   methods: {
     ...mapActions(['pushMessage']),

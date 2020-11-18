@@ -1,5 +1,10 @@
 <template>
-  <b-link class="strike-through-link" :to="to" v-bind="$attrs">
+  <b-link
+    v-on="$listeners"
+    class="strike-through-link"
+    :to="to"
+    v-bind="$attrs"
+  >
     <slot></slot>
     <span class="strike-through"></span>
   </b-link>
