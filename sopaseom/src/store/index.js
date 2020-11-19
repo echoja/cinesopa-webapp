@@ -20,6 +20,7 @@ const s = new Vuex.Store({
   state: {
     userInitialized: false,
     currentUser: null,
+    currentUserAsync: null,
     createUserAgreed: {
       policy: null,
       privacy: null,
@@ -33,6 +34,7 @@ const s = new Vuex.Store({
     joinProcessing: false,
     joinFinished: false,
     additionalFooterPaddingBottom: 0,
+    routeWhereLoginSuccess: null,
   },
   /**
    * 게터.
@@ -68,6 +70,9 @@ const s = new Vuex.Store({
     setCurrentUser(state, { currentUser }) {
       state.currentUser = currentUser;
     },
+    setCurrentUserAsync(state, currentUserAsync) {
+      state.currentUserAsync = currentUserAsync;
+    },
     setUserInitialized(state, userInitialized) {
       state.userInitialized = userInitialized;
     },
@@ -94,6 +99,9 @@ const s = new Vuex.Store({
     },
     setAdditionalFooterPaddingBottom(state, additionalFooterPaddingBottom) {
       state.additionalFooterPaddingBottom = additionalFooterPaddingBottom;
+    },
+    setRouteWhereLoginSuccess(state, route) {
+      state.routeWhereLoginSuccess = route;
     },
   },
   /**

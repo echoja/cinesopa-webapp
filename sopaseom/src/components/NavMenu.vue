@@ -53,6 +53,14 @@
             </b-link>
           </li>
           <li>
+            <!-- :to="{ name: 'Logout' }" -->
+            <logout-link
+              class="mobile-menu-link"
+              @click="hide"
+              v-if="currentUser"
+            ></logout-link>
+          </li>
+          <li>
             <b-link
               class="mobile-menu-link"
               :to="{ name: 'Cart' }"
@@ -64,20 +72,12 @@
           <li>
             <b-link
               class="mobile-menu-link"
-              :to="{ name: 'My' }"
+              :to="{ name: 'MyInfo' }"
               v-if="currentUser"
               @click="hide"
               >마이페이지
             </b-link>
           </li>
-          <!-- <li> -->
-          <!-- :to="{ name: 'Logout' }" -->
-          <!-- <logout-link
-            class="mobile-menu-link"
-            @click="hide"
-            v-if="currentUser"
-          ></logout-link> -->
-          <!-- </li> -->
         </ul>
       </template>
     </b-sidebar>
@@ -140,6 +140,8 @@
             </template> -->
           </b-modal>
 
+          <logout-link class="nav-main-menu-link" v-if="currentUser">
+          </logout-link>
           <link-strikethrough
             class="nav-main-menu-link"
             :to="{ name: 'JoinPolicy' }"
@@ -155,14 +157,12 @@
             장바구니
           </link-strikethrough>
           <link-strikethrough
-            :to="{ name: 'My' }"
+            :to="{ name: 'MyInfo' }"
             class="nav-main-menu-link"
             v-if="currentUser"
           >
             마이페이지
           </link-strikethrough>
-          <!-- <logout-link class="nav-main-menu-link" v-if="currentUser">
-          </logout-link> -->
         </div>
         <div
           class="menu-mobile d-block d-sm-none h-100 d-flex align-items-center"

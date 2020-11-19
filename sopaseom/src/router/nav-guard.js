@@ -119,12 +119,9 @@ export const requireAuth = (condition = {}, failRN = {}) => async (to, from, nex
     emailVerificationRequiredRN = 'ShouldVerify',
     agreeRequiredRN = 'JoinOAuthUser',
   } = failRN;
-  // const { permissionStatus, user, emailVerificationRequired } = result;
-  // console.log('## requireAuth');
-  // console.dir(result);
 
-  // todo await something!! 유저 받아오는 함수를 await 해줘야 함.
-  const user = store.state.currentUser;
+  const user = await store.state.currentUserAsync || store.state.currentUser;
+  store.commit('setCurrentUserAsync', null);
   const currentRole = user?.role ? user.role : 'ANYONE';
   const userLogined = !!user;
 
@@ -139,7 +136,8 @@ export const requireAuth = (condition = {}, failRN = {}) => async (to, from, nex
       return next({ name: noPermissionRN });
     }
 
-    // 로그인을 안했다면 로그인이 필요함
+    // 로그인을 안했다면 로그인이 필요함. 로그인하기 전 redirectRoute를 설정함.
+    store.commit('setRouteWhereLoginSuccess', to);
     return next({ name: loginRequiredRN });
   }
 
@@ -153,7 +151,7 @@ export const requireAuth = (condition = {}, failRN = {}) => async (to, from, nex
   // 만약 약관 동의를 안했다면
   const userAgreed = user?.user_agreed?.privacy && user?.user_agreed?.policy;
   if (shouldAgreed && !userAgreed) {
-    return next({name: agreeRequiredRN});
+    return next({ name: agreeRequiredRN });
   }
 
   // 모든 조건을 다 통과했다면 정상적으로 진행

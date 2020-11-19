@@ -83,7 +83,7 @@ const checkAuth = makeResolver(async (obj, args, context, info) => {
       (should_verified && contextUser.verified === true)
     ) {
       console.log(
-        `# checkAuth: USER ${contextUser.email} 님의 접근이 승인되었습니다.`,
+        `# checkAuth: USER ${contextUser.email} 님의 뷰 접근이 승인되었습니다.`,
       );
       return { permissionStatus: 'OK', user: contextUser };
     } else {
@@ -97,7 +97,7 @@ const checkAuth = makeResolver(async (obj, args, context, info) => {
   // 유저는 찾은 경우, NO_PERMISSION 리턴.
   if (contextUser) {
     console.log(
-      `# checkAuth: USER ${contextUser.email} 님의 접근이 거부되었습니다.`,
+      `# checkAuth: USER ${contextUser.email} 님의 접근이 뷰 거부되었습니다.`,
     );
     result.permissionStatus = 'NO_PERMISSION';
     result.user = contextUser;

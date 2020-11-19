@@ -399,21 +399,26 @@ export default {
         return;
       }
 
-      // 데이터로부터 redirectLink가 오면 해당 리다이렉트 페이지로 이동
-      let redirectPath = '';
-      // console.dir(result.data);
-      // console.log(this.$route.fullPath);
+      // // 데이터로부터 redirectLink가 오면 해당 리다이렉트 페이지로 이동
+      // let redirectPath = '';
+      // // console.dir(result.data);
+      // // console.log(this.$route.fullPath);
 
-      if (!redirectLink) {
-        redirectPath = '/';
-      } else {
-        const parsed = url.parse(redirectLink);
-        redirectPath = parsed.pathname;
+      // if (!redirectLink) {
+      //   redirectPath = '/';
+      // } else {
+      //   const parsed = url.parse(redirectLink);
+      //   redirectPath = parsed.pathname;
+      // }
+      // // console.log(redirectLink);
+
+      // // 경로가 같지 않을 때에만 페이지로 이동
+      // if (this.$route.fullPath !== redirectPath) router.push(redirectPath);
+      const redirect = this.$store.state.routeWhereLoginSuccess;
+      if (redirect && this.$route.fullPath !== redirect.fullPath) {
+        this.$store.commit('setRouteWhereLoginSuccess', null);
+        router.push(redirect);
       }
-      // console.log(redirectLink);
-
-      // 경로가 같지 않을 때에만 페이지로 이동
-      if (this.$route.fullPath !== redirectPath) router.push(redirectPath);
 
       // 로그인 창 없애기
       this.closeModal();

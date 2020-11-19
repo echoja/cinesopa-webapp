@@ -118,12 +118,16 @@ export default [
     name: 'My',
     component: () => import('@/views/client/My.vue'),
     // beforeEnter: myBeforeEnter,
-    beforeEnter: (to, from, next) => {
-      if (to.fullPath === '/my') {
-        next({ name: 'MyInfo' });
-      } else {
-        next();
+    beforeEnter(to, from, next) {
+      console.log(from);
+      if (from.name === 'MyInfo') {
+        console.log('hohofsdofhd');
+        return next(false);
       }
+      if (to.fullPath === '/my') {
+        return next({ name: 'MyInfo' });
+      }
+      return next();
     },
     meta: { ...BodyFixedFooterMeta },
     children: [

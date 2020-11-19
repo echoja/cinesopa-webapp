@@ -541,13 +541,15 @@ export const makeSimpleQuery = (endpoint) => async (args, resultString) => {
  * 유저의 정보를 서버로부터 받아 store의 currentUser state에 저장합니다.
  */
 export const checkAuth = async () => {
-  console.log('# checkauth Called');
-  const result = await graphql(currentUserQuery, {});
-  let { currentUser } = result.data;
+  console.log('# grpahql-client checkauth Called');
+  const currentUserAsync = (async () => (await graphql(currentUserQuery, {})).data.currentUser)();
+  store.commit('setCurrentUserAsync', currentUserAsync);
+  console.log('# grpahql-client currentUserAsync committed');
+  let currentUser = await currentUserAsync;
   if (!currentUser) currentUser = null;
-  console.log('currentUser every beforeEach ho~! (only once)');
-  console.dir(currentUser);
   store.commit('setCurrentUser', { currentUser });
+  console.log('# grpahql-client checkauth currentUser GOT!');
+  console.dir(currentUser);
 };
 
 // export const manualCheckAuth = async () => {
