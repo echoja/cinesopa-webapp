@@ -238,7 +238,7 @@ reset        () => void        A function that resets the validation state on th
 
 <script>
 import url from 'url';
-import { graphql, loginMutation } from '@/api/graphql-client';
+import { makeSimpleMutation } from '@/api/graphql-client';
 import router from '@/router';
 import {
   BForm,
@@ -251,6 +251,24 @@ import {
   BTooltip,
 } from 'bootstrap-vue';
 import { mapActions } from 'vuex';
+
+// const loginMutation = `
+// mutation Login ($email: String!, $pwd: String!) {
+//   login(provider: {email:$email, pwd: $pwd}) {
+//     wrong_reason
+//     wrong_pwd_count
+//     success
+//     emailVerificationRequired
+//     user {
+//       email
+//       role
+//       verified
+//     }
+//     redirectLink
+//   }
+// }
+// `;
+const loginRequest = makeSimpleMutation('login');
 
 export default {
   components: {
@@ -283,7 +301,7 @@ export default {
       text: '',
       show: true,
       loginFailReason: '',
-      autoLogin: false,
+      autoLogin: true,
       validate: {
         email: {
           provider: 'emailProvider',
@@ -305,6 +323,9 @@ export default {
       const t = typeof this.hideLogo;
       return t === 'string' || t === true;
     },
+    disableSession() {
+      return !this.autoLogin;
+    },
   },
   methods: {
     ...mapActions(['pushMessage']),
@@ -325,11 +346,25 @@ export default {
 
     async loginProcess() {
       const { email, pwd } = this;
-      const result = await graphql(loginMutation, { email, pwd });
-      this.text = result;
+      // const result = await graphql(loginMutation, { email, pwd });
+      const login = await loginRequest(
+        { provider: { email, pwd, disableSession: this.disableSession } },
+        `{ wrong_reason
+        wrong_pwd_count
+        success
+        emailVerificationRequired
+        user {
+          email
+          role
+          verified
+        }
+        redirectLink
+      }`,
+      );
+      this.text = login;
 
-      // 권한 자체가 잘못된 문제. 이미 로그인된 상태인데 로그인 창이 떠있는 거였음.
-      if (!result.data.login) {
+      // 권한 자체가 잘못된 문제. 이미 로그인된 상태인데 로그인 창이 떠있는 상태.
+      if (!login) {
         this.closeModal();
         // 현재 페이지를 새로고침.
         router.go();
@@ -342,7 +377,7 @@ export default {
         success,
         wrong_reason,
         wrong_pwd_count,
-      } = result.data.login;
+      } = login;
 
       console.log(`wrong_reason: ${wrong_reason}`);
       // 로그인 실패
@@ -365,16 +400,16 @@ export default {
 
       // 데이터로부터 redirectLink가 오면 해당 리다이렉트 페이지로 이동
       let redirectPath = '';
-      console.dir(result.data);
-      console.log(this.$route.fullPath);
+      // console.dir(result.data);
+      // console.log(this.$route.fullPath);
 
-      if (redirectLink === '') {
+      if (!redirectLink) {
         redirectPath = '/';
       } else {
         const parsed = url.parse(redirectLink);
         redirectPath = parsed.pathname;
       }
-      console.log(redirectLink);
+      // console.log(redirectLink);
 
       // 경로가 같지 않을 때에만 페이지로 이동
       if (this.$route.fullPath !== redirectPath) router.push(redirectPath);

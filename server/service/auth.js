@@ -39,14 +39,22 @@ class AuthService {
     return user;
   }
   /**
+   * @typedef {Object} LoginOption
+   * @property {boolean} disableSession 기본: false
+   */
+  /**
    * 해당 콘텍스트에 유저를 로그인시킵니다.
    * 세션도 저장됩니다. verified 체크는 하지 않습니다.
    * @param {string} email 이메일
    * @param {string} pwd 비밀번호
    * @param {PassportContext} context 콘텍스트
+   * @param {LoginOption} option 로그인 할 때 옵션
    * @returns 유저 정보와 리다이렉트할 링크
    */
-  async login(email, pwd, context) {
+  async login(email, pwd, context, option = {}) {
+    console.log('# auth login');
+    console.log(option);
+    const { disableSession = false } = option;
     const redirectLink = context.req?.session?.redirectLink;
     const userFound = await this.#db.getUserByEmail(email);
     if (!userFound) return { wrong_reason: 'no_email', success: false };
@@ -88,6 +96,8 @@ class AuthService {
         wrong_reason = 'too_much_attempt';
         currentWrongCount = MAX_LOGIN_ATTEMPT;
       }
+
+      // 로그아웃 실패 처리 후 즉시 동작 종료
       await this.#db.updateUser(email, { wrong_pwd_count: currentWrongCount });
       return {
         wrong_reason,
@@ -98,8 +108,17 @@ class AuthService {
     // 로그인
     // console.log("calling context.login");
 
-    // console.log("-- session in login --");
-    // console.dir(context.req.session);
+    // console.log('-- session in login --');
+    // console.dir(context.req.session.cookie);
+    //
+
+    // disable Session 이라면 쿠키 기능을 비활성화 하여
+    // 브라우저 종료시 쿠키가 날라가도록 하여 브라우저를 끄면 자동으로
+    // 로그아웃되도록 설정.
+    if (disableSession) {
+      context.req.session.cookie.expires = false;
+    }
+
     // console.log(context.req.sessionID);
     // 로그인에 성공했다면, wrong_pwd_count 초기화
     this.#db.updateUser(email, { wrong_pwd_count: 0 });

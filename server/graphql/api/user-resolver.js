@@ -39,10 +39,12 @@ const setRedirectLink = (context, redirectLink) => {
  * @returns {Promise<{userinfo: Userinfo, rediretLink: string}>}
  */
 const login = makeResolver(async (obj, args, context, info) => {
+  // 인수 받아오기.
+  // blog 어떤 값에 default 를 어디서 처리할 것인가? validation 단에 해당하는 내용..?
   const {
-    provider: { email, pwd },
+    provider: { email, pwd, disableSession },
   } = args;
-  const loginResult = await auth.login(email, pwd, context);
+  const loginResult = await auth.login(email, pwd, context, { disableSession });
 
   // 아직 인증된 상태가 아닐 경우
   if (loginResult.user && loginResult.user.verified !== true) {

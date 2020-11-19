@@ -85,8 +85,9 @@ enum Permission {
 }
 
 input EmailAuthProvider {
-  email: String
-  pwd: String
+  email: String!
+  pwd: String!
+  disableSession: Boolean
 }
 
 

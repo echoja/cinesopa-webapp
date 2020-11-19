@@ -84,23 +84,6 @@ mutation Login ($email: String!, $pwd: String!) {
 }
 `;
 
-export const loginMutation = `
-mutation Login ($email: String!, $pwd: String!) {
-  login(provider: {email:$email, pwd: $pwd}) {
-    wrong_reason
-    wrong_pwd_count
-    success
-    emailVerificationRequired
-    user {
-      email
-      role
-      verified
-    }
-    redirectLink
-  }
-}
-`;
-
 // const createGuestMutation = `
 // mutation createGuest($email: String!, $pwd: String!) {
 //   createGuest (email: $email, pwd: $pwd) {
@@ -431,6 +414,23 @@ const capitalize = (s) => {
 };
 
 /**
+ * graphql argument 로 들어갈 수 있는 문자열을 생성합니다.
+ * @param {Object} obj
+ */
+const stringify = (obj) => {
+  if (typeof obj !== 'object' || Array.isArray(obj)) {
+    // not an object, stringify using native function
+    return JSON.stringify(obj);
+  }
+  // Implements recursive object serialization according to JSON spec
+  // but without quotes around the keys.
+  const props = Object.keys(obj)
+    .map((key) => `${key}:${stringify(obj[key])}`)
+    .join(',');
+  return `{${props}}`;
+};
+
+/**
  * 호호
  * @typedef {Object} GraphQLParamListItem
  * @property {string} varName
@@ -478,6 +478,56 @@ export const makeRequest = (reqName, defs) => async (args) => {
   const res = await graphql(makeReqString(reqName, defs), args);
   const result = res.data[reqName];
   return result;
+};
+
+// simpleRequest${capitalize(endpoint)} { }
+
+/**
+ * graphql 자체의 arg 시스템을 쓰지 않고 그냥 간단한 쿼리를 만듭니다.
+ * @param {string} endpoint
+ * @param {Object.<string, any>} args
+ * @param {string} resultString
+ */
+export const makeSimpleRequestString = (endpoint, args, resultString) => `{
+  ${endpoint}(${Object.entries(args)
+  .map(([key, value]) => `${key}: ${stringify(value)}`)
+  .join(', ')}) ${resultString}
+}`;
+
+// /**
+//  *
+//  * @param {string} endpoint
+//  */
+// export const makeSimpleRequest = (endpoint) => async (args, resultString) => {
+//   const res = await graphql(makeSimpleRequestString(endpoint, args, resultString));
+//   return res.data[endpoint];
+// };
+
+/**
+ * 간단한 Mutation 요청 함수를 만듭니다.
+ * @param {string} endpoint
+ */
+export const makeSimpleMutation = (endpoint) => async (args, resultString) => {
+  const reqStr = `mutation ${endpoint}Mutation ${makeSimpleRequestString(
+    endpoint,
+    args,
+    resultString,
+  )}`;
+  // console.log("# graphql-client makeSimpleMutation");
+  // console.log(reqStr);
+  const res = await graphql(reqStr);
+  return res.data[endpoint];
+};
+
+/**
+ * 간단한 Query 요청 함수를 만듭니다.
+ * @param {string} endpoint
+ */
+export const makeSimpleQuery = (endpoint) => async (args, resultString) => {
+  const res = await graphql(
+    `query ${endpoint}Query ${makeSimpleRequestString(endpoint, args, resultString)}`,
+  );
+  return res.data[endpoint];
 };
 
 export const checkAuth = async () => {
