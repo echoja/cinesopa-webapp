@@ -20,7 +20,6 @@ type UsersResult {
   list: [User]
 }
 
-
 type CheckAuthResult {
   permissionStatus: PermissionStatus
   emailVerificationRequired: Boolean
@@ -67,6 +66,11 @@ type UserAgreed {
   advertisement: Boolean
 }
 
+type AgreementForKakaoUserResult {
+  success: Boolean
+  code: String
+}
+
 enum UserRole {
   ADMIN
   GUEST
@@ -89,8 +93,6 @@ input EmailAuthProvider {
   pwd: String!
   disableSession: Boolean
 }
-
-
 
 input UpdateUserAdminInput {
   role: UserRole
@@ -117,7 +119,11 @@ extend type Query {
   currentUser: User
   userExists(email: String!): UserExistsResult
   # getUserByEmailNoAuth(email: String!): User # MUST DELETE WHEN DEPLOY!
-  checkAuth(redirectLink: String!, role: Permission!, should_verified: Boolean): CheckAuthResult
+  checkAuth(
+    redirectLink: String!
+    role: Permission!
+    should_verified: Boolean
+  ): CheckAuthResult
 }
 
 extend type Mutation {
@@ -127,11 +133,19 @@ extend type Mutation {
   # logout(email: String!): LoginResult
   logoutMe: User
   # createAdmin(email: String!, pwd: String!, role: UserRole!): User
-  createGuest(email: String!, pwd: String!, user_agreed: UserAgreedInput, debug: Boolean): User # debug 라면 메일을 보내지 않음. 딱 그것뿐.
+  createGuest(
+    email: String!
+    pwd: String!
+    user_agreed: UserAgreedInput
+    debug: Boolean
+  ): User # debug 라면 메일을 보내지 않음. 딱 그것뿐.
   verifyUserEmail(token: String!): User
 
-  updateUserAdmin(email: String!, userinfo: UpdateUserAdminInput): User 
+  updateUserAdmin(email: String!, userinfo: UpdateUserAdminInput): User
   makePwdForKakaoUser(pwd: String!): User # 실패시 user null
+  agreementForKakaoUser(
+    user_agreed: UserAgreedInput!
+  ): AgreementForKakaoUserResult
   updateMe(userinfo: UpdateMeInput!): User
   requestVerifyEmail(debug: Boolean): RequestVerifyEmailResult
   requestChangePassword(debug: Boolean): RequestChangePasswordResult

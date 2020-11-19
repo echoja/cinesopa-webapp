@@ -1,4 +1,3 @@
-
 import { requireAuth } from './nav-guard';
 
 /**
@@ -11,7 +10,7 @@ import { requireAuth } from './nav-guard';
 export const adminRoute = (path, name) => ({
   path,
   name,
-  beforeEnter: requireAuth('ADMIN'),
+  beforeEnter: requireAuth({ role: 'admin' }),
   meta: {
     layout: () => import('@/views/layout/LayoutAdmin.vue'),
   },

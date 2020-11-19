@@ -49,6 +49,13 @@ query currentUserQuery {
     c_date
     role
     verified
+    kakao_id
+    user_agreed {
+      policy
+      privacy
+      advertisement
+    }
+    has_pwd
   }
 }
 `;
@@ -530,23 +537,27 @@ export const makeSimpleQuery = (endpoint) => async (args, resultString) => {
   return res.data[endpoint];
 };
 
+/**
+ * 유저의 정보를 서버로부터 받아 store의 currentUser state에 저장합니다.
+ */
 export const checkAuth = async () => {
-  if (store.state.userInitialized === false) {
-    const result = await graphql(currentUserQuery, {});
-    let { currentUser } = result.data;
-    if (!currentUser) currentUser = null;
-    console.log('currentUser every beforeEach ho~! (only once)');
-    console.dir(currentUser);
-    store.commit('setUserInitialized', true);
-    store.commit('setCurrentUser', { currentUser });
-  }
+  console.log('# checkauth Called');
+  const result = await graphql(currentUserQuery, {});
+  let { currentUser } = result.data;
+  if (!currentUser) currentUser = null;
+  console.log('currentUser every beforeEach ho~! (only once)');
+  console.dir(currentUser);
+  store.commit('setCurrentUser', { currentUser });
 };
 
-export const manualCheckAuth = async () => {
-  store.commit('setUserInitialized', false);
-  await checkAuth();
-};
+// export const manualCheckAuth = async () => {
+//   store.commit('setUserInitialized', false);
+//   await checkAuth();
+// };
 
+/**
+ * 로그아웃을 실시합니다.
+ */
 export const doLogout = async () => {
   store.commit('setCurrentUser', { currentUser: null });
   await graphql(logoutMeQuery, {});

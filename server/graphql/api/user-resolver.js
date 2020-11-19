@@ -68,6 +68,8 @@ const logoutMe = makeResolver(async (obj, args, context, info) => {
 const checkAuth = makeResolver(async (obj, args, context, info) => {
   const { redirectLink, role, should_verified = false } = args;
   const contextUser = context.getUser();
+  console.log('# user-resolver checkAuth');
+  console.log(contextUser);
   // const roleSymbol = enumAuthmap[role];
   const isOk = await validator.isOkContext(context, role, enumAuthmap);
   const result = {
@@ -101,6 +103,8 @@ const checkAuth = makeResolver(async (obj, args, context, info) => {
     result.user = contextUser;
     return result;
   }
+
+  // 아무것도 못찾은 경우, 그냥 ip 를 출력하고 끝냄.
   const ip =
     context.req?.headers['x-forwarded-for'] ||
     context.req?.connection?.remoteAddress;
@@ -130,6 +134,23 @@ const makePwdForKakaoUser = makeResolver(async (obj, args, context, info) => {
   const found = context.getUser();
   if (!found || found.has_pwd) return null;
   return user.makePwdForKakaoUser(found.email, pwd);
+}).only(ACCESS_AUTH);
+
+const agreementForKakaoUser = makeResolver(async (obj, args, context, info) => {
+  const { user_agreed } = args;
+  const userFound = context.getUser();
+
+  if (!userFound.kakao_id) {
+    return { success: false, code: 'user_is_not_kakao_user' };
+  }
+  if (userFound.user_agreed) {
+    return { success: false, code: 'already_agreed' };
+  }
+  if (!user_agreed.privacy || !user_agreed.policy) {
+    return { success: false, code: 'inappropriate_user_agreed' };
+  }
+  await db.updateUser(userFound.email, { user_agreed });
+  return { success: true };
 }).only(ACCESS_AUTH);
 
 const updateMe = makeResolver(async (obj, args, context, info) => {
@@ -198,7 +219,6 @@ const changePassword = makeResolver(async (obj, args, context, info) => {
   return user.changePassword(token, pwd);
 }).only(ACCESS_ALL);
 
-// todo 나중에 productive 모드에서는 무조건 삭제해야 함.
 const forceLogin = makeResolver(async (obj, args, context, info) => {
   const { email } = args;
   const found = await db.getUserByEmail(email);
@@ -223,6 +243,7 @@ module.exports = {
     verifyUserEmail,
     updateUserAdmin,
     makePwdForKakaoUser,
+    agreementForKakaoUser,
     updateMe,
     requestVerifyEmail,
     requestChangePassword,

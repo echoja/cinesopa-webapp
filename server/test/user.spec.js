@@ -147,6 +147,14 @@ mutation makePwdForKakaoUserMutation($pwd: String!) {
 }
 `;
 
+const agreementForKakaoUserMutation = `
+mutation agreementForKakaoUserMutation($user_agreed: UserAgreedInput!) {
+  agreementForKakaoUser(user_agreed: $user_agreed) {
+    success
+    code
+  }
+}`;
+
 const updateMeMutation = `
 mutation updateMeMutation($userinfo: UpdateMeInput!) {
   updateMe(userinfo: $userinfo) {
@@ -908,7 +916,7 @@ describe('user', function () {
           expect(result2.wrong_reason).to.equal('too_much_attempt');
           expect(result2.user).to.be.null;
         });
-        it('로그인 성공 시 비밀번호 틀린 횟수가 초기화되어야 함', async function() {
+        it('로그인 성공 시 비밀번호 틀린 횟수가 초기화되어야 함', async function () {
           await wrongPasswd();
           await wrongPasswd();
           await wrongPasswd();
@@ -992,8 +1000,16 @@ describe('user', function () {
           });
           const result = res.body.data.createGuest;
           console.log(result);
-          const found = await model.User.findOne({email: 'eszqsc112@naver.com'}).lean().exec();
-          const login = await model.Login.findOne({email: 'eszqsc112@naver.com'}).lean().exec();
+          const found = await model.User.findOne({
+            email: 'eszqsc112@naver.com',
+          })
+            .lean()
+            .exec();
+          const login = await model.Login.findOne({
+            email: 'eszqsc112@naver.com',
+          })
+            .lean()
+            .exec();
           expect(login).to.not.be.null;
           expect(login.pwd).to.be.a('string');
           expect(login.salt).to.be.a('string');
@@ -1119,6 +1135,39 @@ describe('user', function () {
           );
           expect(login.pwd).to.be.a('string');
           expect(login.salt).to.be.a('string');
+        });
+      });
+      describe('db.upsertKakaoUser > agreementForKakaoUser', function () {
+        it('제대로 동작해야 함', async function () {
+          await db.upsertKakaoUser('eszqsc112@naver.com', {
+            kakao_id: 'hello',
+          });
+          await graphqlSuper(agent, forceLoginMutation, {
+            email: 'eszqsc112@naver.com',
+          });
+          const userBefore = await model.User.findOne({
+            email: 'eszqsc112@naver.com',
+          })
+            .lean()
+            .exec();
+          await graphqlSuper(agent, agreementForKakaoUserMutation, {
+            user_agreed: {
+              privacy: true,
+              policy: true,
+            },
+          });
+          const userAfter = await model.User.findOne({
+            email: 'eszqsc112@naver.com',
+          })
+            .lean()
+            .exec();
+          // console.log('userBefore');
+          // console.log(userBefore);
+          // console.log('userAfter');
+          // console.log(userAfter);
+          expect(userBefore.user_agreed).to.be.undefined;
+          expect(userAfter.user_agreed.policy).to.be.true;
+          expect(userAfter.user_agreed.privacy).to.be.true;
         });
       });
       describe('updateMe', function () {

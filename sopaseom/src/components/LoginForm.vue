@@ -200,7 +200,7 @@ reset        () => void        A function that resets the validation state on th
           {{ loginFailReason }}
         </p>
         <div class="kakao-login-button-wrapper">
-          <b-button class="kakao-login-button">
+          <b-button @click="kakaoLoginButtonClicked" class="kakao-login-button">
             <svg
               class="kakaotalk-logo"
               width="17.67"
@@ -335,6 +335,7 @@ export default {
       this.$nextTick(() => {
         this.$refs.email.focus();
       });
+
     },
 
     async login() {
@@ -485,6 +486,11 @@ export default {
       if (this.validate[refname].showTooltip !== false) {
         this.validate[refname].showTooltip = false;
       }
+    },
+
+    kakaoLoginButtonClicked() {
+      window.location.href = '/graphql/kakao/login';
+      // this.$router.push('/graphql/kakao/login');
     },
   },
   created() {

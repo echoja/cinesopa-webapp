@@ -155,7 +155,7 @@ import {
 import { graphql } from '@/loader';
 
 import { mapGetters, mapMutations, mapState } from 'vuex';
-import { manualCheckAuth } from '@/api/graphql-client';
+import { checkAuth, manualCheckAuth } from '@/api/graphql-client';
 
 const userExistsQuery = `
 query userExistsQuery($email: String!) {
@@ -384,7 +384,7 @@ export default {
       });
       console.log('power super created guest');
       console.log(r1);
-      await manualCheckAuth();
+      await checkAuth();
       console.log('power super login');
       this.setJoinFinished(true);
       this.$router.push({ name: 'JoinSuccess' });

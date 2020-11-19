@@ -215,8 +215,12 @@ class DBManager {
     if (
       typeof email !== 'string' ||
       typeof userinfo !== 'object' ||
-      typeof userinfo.kakao_id !== 'string'
+      !userinfo.kakao_id
     ) {
+      console.error('email');
+      console.error(email);
+      console.error('userinfo');
+      console.error(userinfo);
       throw Error('upsertKakaoUser: 인수가 올바르지 않습니다.');
     }
     const { kakao_access_token, kakao_refresh_token, kakao_id } = userinfo;
@@ -248,6 +252,11 @@ class DBManager {
     });
     return;
   }
+
+  // async agreementForKakaoUser(email, user_agreed) {
+
+  // }
+
   /**
    * 이메일 기준 유저의 정보를 업데이트합니다.
    * @param {string} email 이메일
