@@ -1,5 +1,5 @@
-
 const { expect } = require('chai');
+const random = require('random');
 // const { upload, createFileFromMockFile } = require('./tool');
 const { fake } = require('sinon');
 const { model, db } = require('../loader');
@@ -190,6 +190,34 @@ describe('film', function () {
         ]);
         expect(yes.length).to.equal(1);
         expect(no.length).to.equal(0);
+      });
+
+      it('open_date의 최신 순으로 나와야 함.', async function () {
+        const promises = [];
+        for (let i = 0; i < 15; i++) {
+          // eslint-disable-next-line no-await-in-loop
+          // await model.Film.create({ title: `ho${i + 1}` });
+          promises.push(
+            model.Film.create({
+              title: `ho${i + 1}`,
+              open_date: new Date(
+                random.int(1990, 2020),
+                random.int(1, 12),
+                random.int(1, 20),
+              ),
+            }),
+          );
+        }
+        await Promise.allSettled(promises);
+        const { list: found, total } = await db.getFilms(0, 10);
+        // console.log(found);
+        for (let i = 0; i < 9; i++) {
+          expect(found[i].open_date).to.greaterThan(
+            found[i + 1].open_date,
+            `${i}번째 항목은 ${i + 1}번째 항목보다 더 작아요!`,
+          );
+        }
+        // console.log(total);
       });
       describe('검색', function () {
         afterEach('인덱스 상태 출력', function () {

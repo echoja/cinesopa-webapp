@@ -152,5 +152,7 @@ module.exports = function (mongoose) {
   // });
 
   autoIdSetter(schema, mongoose, 'film', 'id');
+
+  schema.index({ open_date: 1 });
   return schema;
 };

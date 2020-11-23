@@ -638,10 +638,10 @@ class DBManager {
     // 페이지 하기 전의 영화 총 개수 구하기
     const total = (await query.exec()).length;
 
-    // 페이지 설정
+    // 페이지 설정 및 open_date 로 정렬
     if (page !== null && perpage) {
       console.log('getFilms: page, perpage!!');
-      query = query.limit(perpage).skip(perpage * page);
+      query = query.limit(perpage).skip(perpage * page).sort({open_date: -1});
     }
 
     return {
