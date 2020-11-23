@@ -7,6 +7,7 @@ const {
   enumFilmWatchGrade,
   enumFilmTypeName,
   enumFilmStatus,
+  enumFilmAvailableSubtitle,
 } = require('./enum');
 
 const autoIdSetter = require('./auto-id-setter');
@@ -101,6 +102,7 @@ module.exports = function (mongoose) {
       enum: enumFilmStatus.raw_str_list,
       default: 'public',
     },
+    available_subtitles: [{ type: String, enum: enumFilmAvailableSubtitle.raw_str_list }],
     meta: mongoose.Schema.Types.Mixed,
     search: String,
   });

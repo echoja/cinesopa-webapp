@@ -11,8 +11,9 @@ const {
   removeFilmMutation,
   filmsFeaturedQuery,
 } = require('./graphql-request');
-const { initTestServer, graphqlSuper, doLogin, doLogout } = require('./tool');
-
+const { initTestServer, graphqlSuper, doLogin, doLogout, makeSimpleQuery } = require('./tool');
+const o = require('./tool');
+console.log(o);
 describe('film', function () {
   // eslint-disable-next-line mocha/no-setup-in-describe
   const { agent } = initTestServer({ before, beforeEach, after, afterEach });
@@ -438,6 +439,12 @@ describe('film', function () {
         expect(result.total).to.equal(1);
         expect(result.list.length).to.equal(1);
         expect(result.list[0].title).to.equal('1');
+      });
+    });
+    describe("availableSubtitle", function () {
+      it.only("제대로 동작해야 함.", async function () {
+        const result = await makeSimpleQuery(agent, 'availableSubtitle')({}, '');
+        console.log(result);
       });
     });
     describe('createfilm', function () {

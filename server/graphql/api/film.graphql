@@ -177,6 +177,7 @@ extend type Query {
   films(condition: FilmSearch!): Films
   filmsAdmin(condition: FilmSearch!): Films
   filmsFeatured: Films
+  availableSubtitle: [String] # 단순히 가능한 subtitle 목록을 보여줌.
 }
 
 extend type Mutation {

@@ -7,6 +7,7 @@ const {
   makeResolver,
   db,
 } = require('../../loader');
+const { enumFilmAvailableSubtitle } = require('../../db/schema/enum');
 
 // (id: Int!): Film
 const filmResolver = makeResolver(async (obj, args, context, info) => {
@@ -75,6 +76,11 @@ const filmsFeatured = makeResolver(async (obj, args, context, info) => {
   return db.getFeaturedFilms();
 }).only(ACCESS_ALL);
 
+const availableSubtitle = makeResolver(async (obj, args, context, info) => {
+  return enumFilmAvailableSubtitle.raw_str_list;
+}).only(ACCESS_ALL);
+
+// MUTATION
 // createFilm(filminfo: Film): Film
 const createFilm = makeResolver(async (obj, args, context, info) => {
   const { input } = args;
@@ -99,6 +105,7 @@ module.exports = {
     films,
     filmsAdmin,
     filmsFeatured,
+    availableSubtitle,
   },
   Mutation: {
     createFilm,

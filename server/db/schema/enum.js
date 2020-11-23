@@ -53,6 +53,12 @@ const enumFilmTypeName = makeEnum([
 ]);
 const enumFilmStatus = makeEnum(['public', 'private']);
 const enumSiteOptionType = makeEnum(['file', 'string']);
+const enumFilmAvailableSubtitle = makeEnum([
+  '무자막',
+  '영문자막',
+  '한글자막',
+  '배리어프리자막',
+]);
 module.exports = {
   enumAuthmap,
   enumPeopleRoleType,
@@ -68,4 +74,5 @@ module.exports = {
   enumFilmTypeName,
   enumFilmStatus,
   enumSiteOptionType,
+  enumFilmAvailableSubtitle,
 };
