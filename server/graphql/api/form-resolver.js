@@ -39,6 +39,24 @@ const requestShowingLabelMap = {
   additionalPapers: '서류 요청',
   others: '기타 요청 사항',
 };
+const requestDistributionLabelMap = {
+  user_name: '신청인 이름',
+  user_email: '신청인 메일',
+  user_phone: '신청인 연락처',
+  user_role: '신청인 역할',
+  film_title: '영화 이름(국문)',
+  film_title_en: '영화 이름(영문)',
+  film_director_name: '감독 이름',
+  film_type: '영화 구분',
+  film_runningtime: '러닝타임',
+  film_prod_date: '제작일',
+  film_synopsis: '시놉시스',
+  film_purpose: '연출의도',
+  film_festival_list: '시상식',
+  film_link: '스크리너 링크',
+  film_linkpw: '스크리너 링크 비밀번호',
+  film_etc: '비고',
+};
 
 module.exports = {
   Query: {},
@@ -49,9 +67,10 @@ module.exports = {
       console.log('# form-resolver requestShowing');
       console.log(input);
       const trs = Object.entries(input).map(([inputKey, inputValue]) => {
-        return `<tr><td style="min-width: 150px;">${
-          requestShowingLabelMap[inputKey]
-        }</td><td><pre>${JSON.stringify(inputValue)}</pre></td></tr>`;
+        return `<tr><td style="min-width: 150px;">
+        ${requestShowingLabelMap[inputKey]}</td><td>${JSON.stringify(
+          inputValue,
+        )}</td></tr>`;
       });
 
       const html = `<table>${trs.join('')}</table>`;
@@ -64,6 +83,7 @@ module.exports = {
       console.log(subject);
 
       await mail.sendMail(
+        // todo 주소를 관리자 주소로 해야 함.
         { recipientEmail: 'eszqsc112@naver.com' },
         subject,
         html,
@@ -71,8 +91,48 @@ module.exports = {
       return { success: true };
     }).only(ACCESS_ALL),
     requestDistribution: makeResolver(async (obj, args, context, info) => {
+      const { input } = args;
+      console.log('# form-resolver requestDistribution input');
+      console.log(input);
+      const userEntries = Object.keys(input.user).map((userKey) => {
+        const titleKey = `user_${userKey}`;
+        return {
+          title: requestDistributionLabelMap[titleKey],
+          content: JSON.stringify(input.user[userKey]),
+        };
+      });
+
+      const filmEntries = Object.keys(input.film).map((filmKey) => {
+        const titleKey = `film_${filmKey}`;
+        return {
+          title: requestDistributionLabelMap[titleKey],
+          content: JSON.stringify(input.film[filmKey]),
+        };
+      });
+      const entries = [...userEntries, ...filmEntries];
+      const trs = entries
+        .map(
+          (entry) =>
+            `<tr><td style="min-width: 150px;">${entry.title}</td><td>${entry.content}</td></tr>`,
+        );
+      const html = `<table>${trs.join('')}</table>`;
+      console.log('# form-resolver requestDistribution html');
+      console.log(html);
+
+      const subject = `${input.film.title} 배급 의뢰`;
+      console.log(subject);
+
+      await mail.sendMail(
+        // todo 주소를 관리자 주소로 해야 함.
+        { recipientEmail: 'eszqsc112@naver.com' },
+        subject,
+        html,
+      );
+
+
       // const { id } = args;
       // return db.removeFilm(id);
+      return {success: true};
     }).only(ACCESS_ALL),
   },
 };

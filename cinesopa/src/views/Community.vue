@@ -944,7 +944,7 @@ export default {
           label: '단편',
         },
       ],
-      required: false,
+      required: true,
       checkPrivacy: false,
       checkCopyright: false,
       mapLoader: null,
@@ -1072,8 +1072,6 @@ export default {
       console.log(isValidPromise);
       const isValid = await isValidPromise;
       if (isValid) {
-        // console.log('success!');
-        // todo
         const requestShowing = makeSimpleMutation('requestShowing');
         const result = await requestShowing(
           {
@@ -1094,9 +1092,10 @@ export default {
         );
         console.log('# Community submit result');
         console.log(result);
-        // this.$router.push({ name: 'SuccessRequest' });
+        // todo 메일을 실제로 보내기 전까지 로딩 기간을 뭔가 로딩 바가 도는 등의 애니메이션 등장이 필요함.
+        this.$router.push({ name: 'SuccessRequest' });
       } else {
-        // todo
+        // todo 만약 유효하지 않을 때만 따로 처리할 피룡가 있슴.
       }
     },
     getValidationState({ dirty, validated, valid = null }) {

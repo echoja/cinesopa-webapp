@@ -1,8 +1,6 @@
 <template>
   <div>
-    <p class="main-summary">
-      작품 의뢰 주셔서 감사드립니다.
-    </p>
+    <p class="main-summary">작품 의뢰 주셔서 감사드립니다.</p>
     <p class="sub-summary">
       본 신청서를 작성하시면 2주 이내 연락을 드리니, 잠시만 기다려주세요 :)
     </p>
@@ -20,9 +18,15 @@
     <p class="how-to">*시사용 DVD를 우편으로 발송할 경우에는 포장 겉면에 반드시 <배급의뢰신청>이라고 기재하시고 아래 주소로 보내주세요.
   부산광역시 해운대구 재반로</p>
     <p class="how-to">내부 시사 후 15일 이내에 메일로 연락드립니다.</p> -->
-    <validation-observer ref="observer" v-slot="{ /*handleSubmit, */ validate /*errors*/ }">
+    <validation-observer
+      ref="observer"
+      v-slot="{ /*handleSubmit, */ validate /*errors*/ }"
+    >
       <!-- <b-button @click="log(validate(), errors)">체크체크</b-button> -->
-      <b-form class="distribution-form" @submit.stop.prevent="submit(validate())">
+      <b-form
+        class="distribution-form"
+        @submit.stop.prevent="submit(validate())"
+      >
         <!-- <b-input type="text" required></b-input> -->
 
         <hr />
@@ -35,7 +39,7 @@
           label-size="md"
           label-for="user-name"
         >
-            <!-- placeholder="박소파" -->
+          <!-- placeholder="박소파" -->
           <b-form-input
             class="underlined-box"
             v-model="form.user.name"
@@ -52,7 +56,7 @@
           label-size="md"
           label-for="user-email"
         >
-            <!-- placeholder="cinesopa@example.com" -->
+          <!-- placeholder="cinesopa@example.com" -->
           <b-form-input
             class="underlined-box"
             v-model="form.user.email"
@@ -70,16 +74,15 @@
           label-for="user-phone"
           description="'-' 없이 숫자만 입력해주세요."
         >
-            <b-form-input
-              class="underlined-box"
-              v-model="form.user.phone"
-              type="text"
-              id="user-phone"
-              
-              :required="required"
-            ></b-form-input>
+          <b-form-input
+            class="underlined-box"
+            v-model="form.user.phone"
+            type="text"
+            id="user-phone"
+            :required="required"
+          ></b-form-input>
         </b-form-group>
-                <b-form-group
+        <b-form-group
           class="distribution-form-group"
           label="역할"
           label-cols-sm="3"
@@ -87,7 +90,7 @@
           label-size="md"
           label-for="user-role"
         >
-         <b-form-select
+          <b-form-select
             class="rounded-box w-50"
             v-model="form.user.role"
             id="user-role"
@@ -102,72 +105,9 @@
             <option :value="'프로듀서'">프로듀서</option>
             <option :value="'기타'">기타</option>
           </b-form-select>
-                </b-form-group>
-
-        <!-- <h2 class="d-flex align-items-center">
-          감독
-          <b-form-checkbox
-            @change="isUserSameWithDirectorChanged"
-            v-model="form.isUserSameWithDirector"
-            class="same"
-            >신청인 정보와 동일</b-form-checkbox
-          >
-        </h2>
-        <b-form-group
-          class="distribution-form-group"
-          label="이름"
-          label-cols-sm="3"
-          label-align-sm="left"
-          label-size="md"
-          label-for="director-name"
-        >
-          <b-form-input
-            class="underlined-box"
-            v-model="form[directorInfoFrom].name"
-            id="director-name"
-            type="text"
-            :placeholder="form.isUserSameWithDirector ? '' : '김감독'"
-            :disabled="form.isUserSameWithDirector"
-          ></b-form-input>
         </b-form-group>
-        <b-form-group
-          class="distribution-form-group"
-          label="이메일"
-          label-cols-sm="3"
-          label-align-sm="left"
-          label-size="md"
-          label-for="director-email"
-        >
-          <b-form-input
-            class="underlined-box"
-            v-model="form[directorInfoFrom].email"
-            id="director-email"
-            type="email"
-            :placeholder="form.isUserSameWithDirector ? '' : 'cinesopa@example.com'"
-            :disabled="form.isUserSameWithDirector"
-          ></b-form-input>
-        </b-form-group>
-        <b-form-group
-          class="distribution-form-group"
-          label="연락처"
-          label-cols-sm="3"
-          label-align-sm="left"
-          label-size="md"
-          label-for="director-phone"
-        >
-          <b-form-input
-            class="underlined-box"
-            v-model="form[directorInfoFrom].phone"
-            type="text"
-            id="director-phone"
-            :placeholder="form.isUserSameWithDirector ? '' : '\'-\' 없이 숫자만 입력'"
-            :disabled="form.isUserSameWithDirector"
-          ></b-form-input>
-        </b-form-group> -->
 
-        <h2>
-          작품 정보
-        </h2>
+        <h2>작품 정보</h2>
         <b-form-group
           class="distribution-form-group"
           label="한글 제목"
@@ -202,7 +142,7 @@
             :required="required"
           ></b-form-input>
         </b-form-group>
-         <b-form-group
+        <b-form-group
           class="distribution-form-group"
           label="감독 이름"
           label-cols-sm="3"
@@ -219,26 +159,7 @@
             :required="required"
           ></b-form-input>
         </b-form-group>
-        <!-- <b-form-group
-          class="distribution-form-group"
-          label="길이 구분"
-          label-cols-sm="3"
-          label-align-sm="left"
-          label-size="md"
-          label-for="film-islong"
-        >
-          <b-form-select
-            class="rounded-box w-50"
-            v-model="form.film.islong"
-            id="film-islong"
-            placeholder=""
-            :required="required"
-          >
-            <option :value="true">장편</option>
-            <option :value="false">단편</option>
-          </b-form-select>
-          <b-form-text>60분보다 길면 장편, 짧으면 단편입니다.</b-form-text>
-        </b-form-group> -->
+
         <b-form-group
           class="distribution-form-group"
           label="형식"
@@ -292,31 +213,16 @@
           label-size="md"
           label-for="film-prod_date"
         >
-            <!-- :required="required" -->
-          <b-form-datepicker
+          <!-- :required="required" -->
+          <b-form-datepicker-korean
             class="underlined-box"
             v-model="form.film.prod_date"
             id="film-prod_date"
-            placeholder=""
-            label-today-button="오늘 날짜"
-            label-reset-button="재설정"
-            label-close-button="닫기"
-            label-prev-year="이전해"
-            label-prev-month="이전달"
-            label-current-month="현재달"
-            label-next-month="다음달"
-            label-next-year="다음해"
-            label-today="오늘"
-            label-selected="선택된 날짜"
-            label-no-date-selected="날짜가 선택되지 않았습니다"
-            label-calendar="달력"
-            label-nav="달력 열기"
-            label-help="방향키를 이용하여 날짜를 선택하세요"
           >
             <!-- <template #button-content>
               날짜 선택
             </template> -->
-          </b-form-datepicker>
+          </b-form-datepicker-korean>
         </b-form-group>
         <b-form-group
           class="distribution-form-group wide"
@@ -378,13 +284,13 @@
           label-for="film-link"
           description="비밀번호로 보호된, vimeo 및 youtube 등의 링크를 적어주세요."
         >
-            <b-form-input
-              class="underlined-box"
-              v-model="form.film.link"
-              type="text"
-              id="film-link"
-              :required="required"
-            ></b-form-input>
+          <b-form-input
+            class="underlined-box"
+            v-model="form.film.link"
+            type="text"
+            id="film-link"
+            :required="required"
+          ></b-form-input>
         </b-form-group>
         <b-form-group
           class="distribution-form-group"
@@ -444,7 +350,13 @@
                 variant="outline-dark"
                 >전문 보기</b-link
               >
-              <b-modal id="modal-privacy" size="lg" scrollable hide-footer title="개인정보처리방침">
+              <b-modal
+                id="modal-privacy"
+                size="lg"
+                scrollable
+                hide-footer
+                title="개인정보처리방침"
+              >
                 <privacy></privacy>
               </b-modal>
             </div>
@@ -460,7 +372,9 @@
           </b-form-group>
         </validation-provider>
 
-        <b-button class="submit" type="submit" variant="primary">의뢰서를 제출합니다</b-button>
+        <b-button class="submit" type="submit" variant="primary"
+          >의뢰서를 제출합니다</b-button
+        >
         <!-- </b-col>
       </b-row> -->
       </b-form>
@@ -476,7 +390,9 @@ import {
   // extend,
   // localize,
 } from 'vee-validate';
-import Privacy from '../components/Privacy.vue';
+import Privacy from '@/components/Privacy.vue';
+import { makeSimpleMutation } from '@/graphql-client';
+import BFormDatepickerKorean from '@/components/BFormDatepickerKorean.vue';
 
 extend('shouldCheck', (value) => value === true);
 
@@ -487,30 +403,24 @@ export default {
     privacy: Privacy,
     'validation-observer': ValidationObserver,
     'validation-provider': ValidationProvider,
+    BFormDatepickerKorean,
   },
   data() {
     return {
-      required: true,
-      // required: false,
+      // required: true,
+      required: false,
       checkPrivacy: false,
       form: {
-        isUserSameWithDirector: false,
         user: {
           name: null,
           email: null,
           phone: null,
           role: '감독',
         },
-        director: {
-          name: null,
-          email: null,
-          phone: null,
-        },
         film: {
           title: null,
           title_en: null,
           director_name: '',
-          islong: true,
           type: '극영화',
           runningtime: null,
           prod_date: null,
@@ -542,9 +452,19 @@ export default {
     async submit(isValidPromise) {
       const isValid = await isValidPromise;
       if (isValid) {
-        // todo
-        // console.log('hi!! success!');
-        this.$router.push({ name: 'SuccessRequest' });
+        const requestDistribution = makeSimpleMutation('requestDistribution');
+        const result = await requestDistribution(
+          {
+            input: {
+              user: this.form.user,
+              film: this.form.film,
+            },
+          },
+          '{success code recipient}',
+        );
+        console.log('# Distribution submit result');
+        console.log(result);
+        // this.$router.push({ name: 'SuccessRequest' });
       } else {
         // this.$scrollTo(this.$refs.observer.$el, 500);
       }
@@ -650,7 +570,6 @@ export default {
   font-weight: bold;
   padding: 10px 20px;
 }
-
 </style>
 
 

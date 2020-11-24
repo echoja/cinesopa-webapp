@@ -46,9 +46,31 @@ input ShowingInput {
   others: String
 }
 
+input DistributionUserInput {
+  name: String
+  email: String
+  phone: String
+  role: String
+}
+input DistributionFilmInput {
+  title: String
+  title_en: String
+  director_name: String
+  type: String
+  runningtime: String
+  prod_date: DateTime
+  synopsis: String
+  purpose: String
+  festival_list: String
+  link: String
+  linkpw: String
+  etc: String
+}
+
 input DistributionInput {
   # todo 실제에 맞게 필드를 더 많이 채워넣어야 함.
-  id: String
+  user: DistributionUserInput!
+  film: DistributionFilmInput!
 }
 
 # extend type Query {
