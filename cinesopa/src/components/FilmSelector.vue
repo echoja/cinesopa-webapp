@@ -133,7 +133,7 @@ export default {
       };
       const result = await makeSimpleQuery('films')(
         { condition },
-        '{ total list { title is_opened open_date people  {name role_type role} available_subtitles}}',
+        '{ total list { id title is_opened open_date people  {name role_type role} available_subtitles}}',
       );
       // console.log('# FilmSelector updateSearchString result');
       // console.log(result);

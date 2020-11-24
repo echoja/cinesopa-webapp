@@ -318,15 +318,18 @@ const capitalize = (s) => {
  * @param {Object} obj
  */
 const stringify = (obj) => {
-  if (typeof obj !== 'object' || Array.isArray(obj)) {
+  if (obj === null || obj instanceof Date || typeof obj !== 'object') {
     // not an object, stringify using native function
     return JSON.stringify(obj);
+  }
+  if (Array.isArray(obj)) {
+    return `[${obj.map((c) => stringify(c)).join(', ')}]`;
   }
   // Implements recursive object serialization according to JSON spec
   // but without quotes around the keys.
   const props = Object.keys(obj)
     .map((key) => `${key}:${stringify(obj[key])}`)
-    .join(',');
+    .join(', ');
   return `{${props}}`;
 };
 
@@ -421,8 +424,8 @@ export const makeSimpleMutation = (endpoint) => async (args, resultString) => {
     args,
     resultString,
   )}`;
-  // console.log("# graphql-client makeSimpleMutation");
-  // console.log(reqStr);
+  console.log('# graphql-client makeSimpleMutation');
+  console.log(reqStr);
   const res = await graphql(reqStr);
   return res.data[endpoint];
 };

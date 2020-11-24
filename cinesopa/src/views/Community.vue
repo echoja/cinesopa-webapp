@@ -136,6 +136,7 @@
             type="number"
             placeholder=""
             :required="required"
+            number
           ></b-form-input>
           <template #description>영화 상영 횟수를 적어주세요.</template>
         </b-form-group>
@@ -279,10 +280,10 @@
                     <b-form-radio value="DCP"
                       >DCP <small>(별도 영사기 필요)</small></b-form-radio
                     >
-                    <b-form-radio value="MOV1"
+                    <b-form-radio value="MOV_100GB"
                       >MOV <small>(100GB)</small></b-form-radio
                     >
-                    <b-form-radio value="MOV2"
+                    <b-form-radio value="MOV_or_MP4_10-30GB"
                       >MOV 혹은 MP4 <small>(10~30GB)</small></b-form-radio
                     >
                     <!-- <b-form-radio value="MOV3"
@@ -378,12 +379,9 @@
             v-model="form.howToReceive"
           >
             <b-form-radio value="택배">택배로 수령</b-form-radio>
-            <b-form-radio :disabled="disabledReceiveByEmail" value="온라인"
-              >온라인 수령</b-form-radio
-            >
-            <b-form-radio :disabled="disabledReceiveByEmail" value="직접"
-              >직접 수령</b-form-radio
-            >
+            <!-- :disabled="disabledReceiveByEmail" -->
+            <b-form-radio value="온라인">온라인 수령</b-form-radio>
+            <b-form-radio value="직접">직접 수령</b-form-radio>
           </b-form-radio-group>
         </b-form-group>
 
@@ -535,7 +533,7 @@
           <!-- description="영화 구분(장편/단편)과 예상 관객수를 설정하면 예상 상영료가 표시됩니다." -->
           <b-form-input
             class="underlined-box"
-            v-model="form.addressDetailed"
+            v-model="form.selfShowingFee"
             id="showingFee"
             type="text"
             placeholder=""
@@ -846,7 +844,7 @@
                   hide-footer
                   title="저작물이용동의서"
                 >
-                    <!-- :film-name="form.filmname" -->
+                  <!-- :film-name="form.filmname" -->
                   <copyright-consent
                     :film-list="form.films"
                     :playdate-start="form.playdateStart"
@@ -889,6 +887,7 @@ import {
 import FilmSelector from '@/components/FilmSelector.vue';
 import Privacy from '@/components/Privacy.vue';
 import CopyrightConsent from '@/components/CopyrightConsent.vue';
+import { makeSimpleMutation } from '@/graphql-client';
 
 extend('shouldCheck', (value) => value === true);
 
@@ -906,7 +905,6 @@ export default {
   },
   data() {
     return {
-      // required: false,
       showingFeeMap: {
         0: {
           long: 150000,
@@ -946,14 +944,13 @@ export default {
           label: '단편',
         },
       ],
-      required: true,
+      required: false,
       checkPrivacy: false,
       checkCopyright: false,
       mapLoader: null,
-      addressNew: '',
-      addressOld: '',
+      addressNew: '', // admin 으로 보내는 정보에 포함되어야 함
+      addressOld: '', // admin 으로 보내는 정보에 포함되어야 함
       form: {
-        a: null,
         companyName: '',
         festivalName: '',
         playdateStart: null,
@@ -963,7 +960,6 @@ export default {
         username: null,
         userphone: null,
         useremail: null,
-        // filmname: null,
         films: [
           // {
           //   title: '타이틀',
@@ -973,13 +969,14 @@ export default {
           //   selected_subtitles: [],
           // },
         ],
-        format: null,
-        visitDate: null,
+        // format: null,
         howToReceive: null,
-        addressDetailed: '',
+        visitDate: null,
         receiveDate: null,
-        filmType: '',
+        addressDetailed: '',
+        // filmType: '',
         expectedPopulation: '',
+        selfShowingFee: '',
         depositdate: null,
         isTaxSame: true,
         taxCompany: '',
@@ -993,19 +990,21 @@ export default {
   },
 
   computed: {
-    disabledReceiveByEmail() {
-      return this.form.format !== 'MOV3' && this.form.format !== null;
-    },
+    // disabledReceiveByEmail() {
+    //   return this.form.format !== 'MOV3' && this.form.format !== null;
+    // },
     receivedByEmail() {
       return this.form.howToReceive === '온라인';
     },
-    showingFee() {
-      const { expectedPopulation, filmType } = this.form;
-      if (expectedPopulation === '' || filmType === '') return 0;
-      let fee = this.showingFeeMap[expectedPopulation][filmType];
-      fee += fee / 10 + 10000;
-      return this.numberWithCommas(fee);
-    },
+
+    // showingFee() {
+    //   const { expectedPopulation, filmType } = this.form;
+    //   if (expectedPopulation === '' || filmType === '') return 0;
+    //   let fee = this.showingFeeMap[expectedPopulation][filmType];
+    //   fee += fee / 10 + 10000;
+    //   return this.numberWithCommas(fee);
+    // },
+
     showingFeeItems() {
       const keys = Object.keys(this.showingFeeMap);
       const items = [];
@@ -1061,6 +1060,7 @@ export default {
       });
     const { name } = this.$route.query;
     if (name) {
+      // todo 주소로 영화 이름이 들어왔을 때 처리해야 함.
       this.form.filmname = name;
       // this.$refs.filmname.focus();
     }
@@ -1068,11 +1068,33 @@ export default {
 
   methods: {
     async submit(isValidPromise) {
+      console.log('# Community submit');
+      console.log(isValidPromise);
       const isValid = await isValidPromise;
       if (isValid) {
         // console.log('success!');
         // todo
-        this.$router.push({ name: 'SuccessRequest' });
+        const requestShowing = makeSimpleMutation('requestShowing');
+        const result = await requestShowing(
+          {
+            input: {
+              ...this.form,
+              films: this.form.films.map((film) => ({
+                id: film.id,
+                title: film.title,
+                format: film.format,
+                selected_subtitles: film.selected_subtitles,
+                meta: film.meta,
+              })),
+              addressNew: this.addressNew,
+              addressOld: this.addressOld,
+            },
+          },
+          '{success code recipient}',
+        );
+        console.log('# Community submit result');
+        console.log(result);
+        // this.$router.push({ name: 'SuccessRequest' });
       } else {
         // todo
       }
@@ -1085,9 +1107,6 @@ export default {
       this.mapLoader.open();
     },
 
-    spaced(event) {
-      // console.log(event.target);
-    },
     formatSelected(value) {
       if (value !== 'MOV3') {
         this.form.howToReceive = '택배';

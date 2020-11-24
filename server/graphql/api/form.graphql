@@ -1,0 +1,60 @@
+type RequestShowingResult {
+  success: Boolean
+  code: String
+  recipient: String
+}
+type RequestDistributionResult {
+  success: Boolean
+  code: String
+  recipient: String
+}
+
+input ShowingFilmInput {
+  id: Int
+  title: String
+  format: String
+  selected_subtitles: [String]
+  meta: [String]
+}
+
+input ShowingInput {
+  companyName: String
+  festivalName: String
+  playdateStart: DateTime
+  playdateEnd: DateTime
+  playtimes: Int
+  playplace: String
+  username: String
+  userphone: String
+  useremail: String
+  films: [ShowingFilmInput]
+  addressNew: String
+  addressOld: String
+  addressDetailed: String
+  howToReceive: String
+  visitDate: DateTime
+  receiveDate: DateTime
+  expectedPopulation: String
+  selfShowingFee: String
+  depositdate: DateTime
+  isTaxSame: Boolean
+  taxCompany: String
+  taxPerson: String
+  taxPhone: String
+  taxOthers: String
+  additionalPapers: [String]
+  others: String
+}
+
+input DistributionInput {
+  # todo 실제에 맞게 필드를 더 많이 채워넣어야 함.
+  id: String
+}
+
+# extend type Query {
+# }
+
+extend type Mutation {
+  requestShowing(input: ShowingInput): RequestShowingResult
+  requestDistribution(input: DistributionInput): RequestDistributionResult
+}

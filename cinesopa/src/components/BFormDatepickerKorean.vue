@@ -24,6 +24,8 @@
     label-calendar="달력"
     label-nav="달력 열기"
     label-help="방향키를 이용하여 날짜를 선택하세요"
+    value-as-date
+    @input="onInput"
   >
     <template #button-content>
       <font-awesome-icon
@@ -46,19 +48,21 @@ export default {
     BFormDatepicker,
   },
   props: {
-    value: String,
+    value: [String, Date],
     required: Boolean,
     id: String,
     dateDisabledFn: Function,
   },
   methods: {
-    onInput() {
-      this.$emit('input', this.value);
+    onInput(value) {
+      console.log('# BFormDatepickerKorean onInput');
+      console.log(value);
+      this.$emit('input', value);
     },
-    hoverButton(event) {
-      console.log('# BFormDatepickerKorean hoverButton');
-      console.log(event);
-    },
+    // hoverButton(event) {
+    //   console.log('# BFormDatepickerKorean hoverButton');
+    //   console.log(event);
+    // },
   },
 };
 </script>
