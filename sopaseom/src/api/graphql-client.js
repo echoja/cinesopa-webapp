@@ -296,6 +296,7 @@ const filmResponse = `{
   featured_synopsis
   badge_text
   badge_color
+  available_subtitles
   status
   synopsis 
   meta 
@@ -411,6 +412,8 @@ query productAdminQuery($id: Int!) {
 }
 `;
 
+/** graphQL 관련 유틸 함수 */
+
 /**
  * 제일 첫 글자를 대문자로 만듭니다.
  * @param {string} s
@@ -495,11 +498,17 @@ export const makeRequest = (reqName, defs) => async (args) => {
  * @param {Object.<string, any>} args
  * @param {string} resultString
  */
-export const makeSimpleRequestString = (endpoint, args, resultString) => `{
-  ${endpoint}(${Object.entries(args)
-  .map(([key, value]) => `${key}: ${stringify(value)}`)
-  .join(', ')}) ${resultString}
-}`;
+export const makeSimpleRequestString = (endpoint, args, resultString) => {
+  const entries = Object.entries(args);
+  let argsString = '';
+  if (args.length > 0) {
+    argsString = `(${entries.map(([key, value]) => `${key}: ${stringify(value)}`).join(', ')})`;
+  }
+
+  return `{
+   ${endpoint}${argsString} ${resultString}
+  }`;
+};
 
 // /**
 //  *
@@ -530,7 +539,7 @@ export const makeSimpleMutation = (endpoint) => async (args, resultString) => {
  * 간단한 Query 요청 함수를 만듭니다.
  * @param {string} endpoint
  */
-export const makeSimpleQuery = (endpoint) => async (args, resultString) => {
+export const makeSimpleQuery = (endpoint) => async (args = {}, resultString = '') => {
   const res = await graphql(
     `query ${endpoint}Query ${makeSimpleRequestString(endpoint, args, resultString)}`,
   );

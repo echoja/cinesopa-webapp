@@ -73,6 +73,7 @@ type Film {
   badge_text: String # 뱃지에 들어갈 텍스트
   badge_color: String
   status: String
+  available_subtitles: [String]
   meta: JSON # Mixed
 }
 
@@ -157,6 +158,7 @@ input FilmInput {
   badge_text: String
   badge_color: String
   status: String
+  available_subtitles: [String]
   meta: JSON # Mixed
 }
 

@@ -79,7 +79,11 @@
                 :disabled="state.processing"
               ></b-form-input>
               <span class="after-input">분</span>
-              <b-form-input v-model="input.show_time_seconds" type="number" number></b-form-input>
+              <b-form-input
+                v-model="input.show_time_seconds"
+                type="number"
+                number
+              ></b-form-input>
               <span class="after-input">초</span>
             </div>
           </b-form-group>
@@ -182,6 +186,29 @@
           </b-form-group>
           <!----- form group start --->
           <b-form-group
+            id="input-available_subtitles-group"
+            label="지원 자막 (공동체상영용)"
+            label-cols-md="3"
+            label-align-md="left"
+            label-size="md"
+            label-for="input-available_subtitles"
+          >
+            <b-form-checkbox-group
+              v-model="film.available_subtitles"
+              id="input-available_subtitles"
+              name="input-available_subtitles"
+              :disabled="state.processing"
+            >
+              <b-form-checkbox
+                v-for="(value, index) in available_subtitles_list"
+                :key="index"
+                :value="value"
+                >{{ value }}</b-form-checkbox
+              >
+            </b-form-checkbox-group>
+          </b-form-group>
+          <!----- form group start --->
+          <b-form-group
             id="input-synopsis-group"
             label="시놉시스"
             label-cols-md="3"
@@ -230,10 +257,16 @@
             label-align-md="left"
             label-size="md"
           >
-            <b-form-checkbox v-model="film.is_featured" :value="true" :unchecked-value="false"
+            <b-form-checkbox
+              v-model="film.is_featured"
+              :value="true"
+              :unchecked-value="false"
               >영화 리스트의 상단 슬라이더에 노출시킵니다.</b-form-checkbox
             >
-            <b-form-checkbox v-model="film.is_opened" :value="true" :unchecked-value="false"
+            <b-form-checkbox
+              v-model="film.is_opened"
+              :value="true"
+              :unchecked-value="false"
               >개봉한 영화입니다. (필터 적용시 작동)</b-form-checkbox
             >
           </b-form-group>
@@ -262,7 +295,10 @@
             label-size="md"
             label-for="input-badge_color"
           >
-            <ColorPicker id="input-badge_color" v-model="input.badge_color"></ColorPicker>
+            <ColorPicker
+              id="input-badge_color"
+              v-model="input.badge_color"
+            ></ColorPicker>
           </b-form-group>
           <b-form-group
             label="상단 노출 스틸컷"
@@ -316,7 +352,10 @@
             label-size="md"
             label-for="input-featured_color"
           >
-            <ColorPicker id="input-featured_color" v-model="input.featured_color"></ColorPicker>
+            <ColorPicker
+              id="input-featured_color"
+              v-model="input.featured_color"
+            ></ColorPicker>
           </b-form-group>
 
           <!-- 마지막! -->
@@ -335,7 +374,11 @@
           <div id="edit-people">
             <h2>
               배우/제작진
-              <b-button size="sm" @click="addPerson" variant="outline-secondary">
+              <b-button
+                size="sm"
+                @click="addPerson"
+                variant="outline-secondary"
+              >
                 새로 추가
               </b-button>
             </h2>
@@ -353,15 +396,32 @@
               <tr v-for="(person, index) in film.people" :key="index">
                 <td>
                   <b-form-select size="sm" v-model="person.role_type">
-                    <b-form-select-option value="director">감독</b-form-select-option>
-                    <b-form-select-option value="actor">배우</b-form-select-option>
-                    <b-form-select-option value="staff">스태프</b-form-select-option>
+                    <b-form-select-option value="director"
+                      >감독</b-form-select-option
+                    >
+                    <b-form-select-option value="actor"
+                      >배우</b-form-select-option
+                    >
+                    <b-form-select-option value="staff"
+                      >스태프</b-form-select-option
+                    >
                   </b-form-select>
                 </td>
-                <td><b-form-input size="sm" v-model="person.name"></b-form-input></td>
-                <td><b-form-input size="sm" v-model="person.name_en"></b-form-input></td>
-                <td><b-form-input size="sm" v-model="person.role"></b-form-input></td>
-                <td><b-button-close @click="removePerson(index)"></b-button-close></td>
+                <td>
+                  <b-form-input size="sm" v-model="person.name"></b-form-input>
+                </td>
+                <td>
+                  <b-form-input
+                    size="sm"
+                    v-model="person.name_en"
+                  ></b-form-input>
+                </td>
+                <td>
+                  <b-form-input size="sm" v-model="person.role"></b-form-input>
+                </td>
+                <td>
+                  <b-button-close @click="removePerson(index)"></b-button-close>
+                </td>
               </tr>
             </table>
           </div>
@@ -395,13 +455,41 @@
 
               <tr v-for="(award, index) in film.awards" :key="index">
                 <td>
-                  <b-form-input size="sm" type="number" v-model="award.year" number> </b-form-input>
+                  <b-form-input
+                    size="sm"
+                    type="number"
+                    v-model="award.year"
+                    number
+                  >
+                  </b-form-input>
                 </td>
-                <td><b-form-input size="sm" v-model="award.festival_name"></b-form-input></td>
-                <td><b-form-input size="sm" v-model="award.person_name"></b-form-input></td>
-                <td><b-form-input size="sm" v-model="award.award_name"></b-form-input></td>
-                <td><b-form-input size="sm" v-model="award.award_type"></b-form-input></td>
-                <td><b-button-close @click="removeAward(index)"></b-button-close></td>
+                <td>
+                  <b-form-input
+                    size="sm"
+                    v-model="award.festival_name"
+                  ></b-form-input>
+                </td>
+                <td>
+                  <b-form-input
+                    size="sm"
+                    v-model="award.person_name"
+                  ></b-form-input>
+                </td>
+                <td>
+                  <b-form-input
+                    size="sm"
+                    v-model="award.award_name"
+                  ></b-form-input>
+                </td>
+                <td>
+                  <b-form-input
+                    size="sm"
+                    v-model="award.award_type"
+                  ></b-form-input>
+                </td>
+                <td>
+                  <b-button-close @click="removeAward(index)"></b-button-close>
+                </td>
               </tr>
             </table>
           </div>
@@ -409,7 +497,11 @@
           <div id="edit-companies">
             <h2>
               영화사
-              <b-button size="sm" @click="addCompany" variant="outline-secondary">
+              <b-button
+                size="sm"
+                @click="addCompany"
+                variant="outline-secondary"
+              >
                 새로 추가
               </b-button>
             </h2>
@@ -422,10 +514,23 @@
               </tr>
 
               <tr v-for="(company, index) in film.companies" :key="index">
-                <td><b-form-input size="sm" v-model="company.name"></b-form-input></td>
-                <td><b-form-input size="sm" v-model="company.name_en"></b-form-input></td>
-                <td><b-form-input size="sm" v-model="company.role"></b-form-input></td>
-                <td><b-button-close @click="removeCompany(index)"></b-button-close></td>
+                <td>
+                  <b-form-input size="sm" v-model="company.name"></b-form-input>
+                </td>
+                <td>
+                  <b-form-input
+                    size="sm"
+                    v-model="company.name_en"
+                  ></b-form-input>
+                </td>
+                <td>
+                  <b-form-input size="sm" v-model="company.role"></b-form-input>
+                </td>
+                <td>
+                  <b-button-close
+                    @click="removeCompany(index)"
+                  ></b-button-close>
+                </td>
               </tr>
             </table>
           </div>
@@ -487,9 +592,15 @@
                 <td class="text-center">
                   <img class="photo-preview" :src="photo.preview_url" alt="" />
                 </td>
-                <td><b-form-input size="sm" v-model="photo.title"></b-form-input></td>
-                <td><b-form-input size="sm" v-model="photo.alt"></b-form-input></td>
-                <td><b-button-close @click="removePhoto(index)"></b-button-close></td>
+                <td>
+                  <b-form-input size="sm" v-model="photo.title"></b-form-input>
+                </td>
+                <td>
+                  <b-form-input size="sm" v-model="photo.alt"></b-form-input>
+                </td>
+                <td>
+                  <b-button-close @click="removePhoto(index)"></b-button-close>
+                </td>
               </tr>
             </table>
           </div>
@@ -497,13 +608,17 @@
           <div id="edit-videos">
             <h2>
               비디오
-              <b-button size="sm" @click="importVideoByLink" variant="outline-secondary">
+              <b-button
+                size="sm"
+                @click="importVideoByLink"
+                variant="outline-secondary"
+              >
                 새로 추가
               </b-button>
             </h2>
             <p>
-              메인 예고편은 <code>메인 에고편 여부</code>에 체크하세요. (영화 상세 페이지에서 우선
-              노출)
+              메인 예고편은 <code>메인 에고편 여부</code>에 체크하세요. (영화
+              상세 페이지에서 우선 노출)
             </p>
             <table class="w-100">
               <tr>
@@ -517,12 +632,23 @@
               </tr>
 
               <tr v-for="(video, index) in film.videos" :key="index">
-                <td><b-form-checkbox v-model="video.is_main_trailer"></b-form-checkbox></td>
-                <td><b-form-input size="sm" v-model="video.title"></b-form-input></td>
                 <td>
-                  <b-form-textarea size="sm" v-model="video.youtube_iframe"></b-form-textarea>
+                  <b-form-checkbox
+                    v-model="video.is_main_trailer"
+                  ></b-form-checkbox>
                 </td>
-                <td><b-button-close @click="removeVideo(index)"></b-button-close></td>
+                <td>
+                  <b-form-input size="sm" v-model="video.title"></b-form-input>
+                </td>
+                <td>
+                  <b-form-textarea
+                    size="sm"
+                    v-model="video.youtube_iframe"
+                  ></b-form-textarea>
+                </td>
+                <td>
+                  <b-button-close @click="removeVideo(index)"></b-button-close>
+                </td>
               </tr>
             </table>
           </div>
@@ -530,7 +656,11 @@
           <div id="edit-reviews">
             <h2>
               리뷰
-              <b-button size="sm" @click="addReview" variant="outline-secondary">
+              <b-button
+                size="sm"
+                @click="addReview"
+                variant="outline-secondary"
+              >
                 새로 추가
               </b-button>
               <!-- <b-button size="sm" @click="importReviewByLink">
@@ -547,11 +677,31 @@
               </tr>
 
               <tr v-for="(review, index) in film.reviews" :key="index">
-                <td><b-form-input size="sm" v-model="review.title"></b-form-input></td>
-                <td><b-form-input size="sm" v-model="review.url" type="url"></b-form-input></td>
-                <td><b-form-input size="sm" v-model="review.source"></b-form-input></td>
-                <td><b-form-input size="sm" v-model="review.author"></b-form-input></td>
-                <td><b-button-close @click="removeReview(index)"></b-button-close></td>
+                <td>
+                  <b-form-input size="sm" v-model="review.title"></b-form-input>
+                </td>
+                <td>
+                  <b-form-input
+                    size="sm"
+                    v-model="review.url"
+                    type="url"
+                  ></b-form-input>
+                </td>
+                <td>
+                  <b-form-input
+                    size="sm"
+                    v-model="review.source"
+                  ></b-form-input>
+                </td>
+                <td>
+                  <b-form-input
+                    size="sm"
+                    v-model="review.author"
+                  ></b-form-input>
+                </td>
+                <td>
+                  <b-button-close @click="removeReview(index)"></b-button-close>
+                </td>
               </tr>
             </table>
           </div>
@@ -559,7 +709,9 @@
       </b-row>
       <b-row>
         <div class="d-flex align-items-center">
-          <b-button type="submit" variant="primary">변경 사항을 적용합니다.</b-button>
+          <b-button type="submit" variant="primary"
+            >변경 사항을 적용합니다.</b-button
+          >
           <b-form-checkbox
             class="ml-4"
             v-model="film.status"
@@ -582,6 +734,7 @@ import { Chrome } from 'vue-color';
 import {
   BButton,
   BFormCheckbox,
+  BFormCheckboxGroup,
   BFormInput,
   BFormGroup,
   BButtonClose,
@@ -593,6 +746,10 @@ import {
   BFormDatepicker,
   BFormTextarea,
   BModal,
+  BFormSelect,
+  BFormSelectOption,
+  BImg,
+  BForm,
 } from 'bootstrap-vue';
 // import moment from 'moment';
 import {
@@ -600,6 +757,7 @@ import {
   filmQuery,
   updateFilmMutation,
   createFilmMutation,
+  makeSimpleQuery,
 } from '@/api/graphql-client';
 import router from '@/router';
 import FileManager from '@/components/FileManager.vue';
@@ -607,6 +765,11 @@ import FileManager from '@/components/FileManager.vue';
 export default {
   name: 'FilmEdit',
   components: {
+    BFormCheckboxGroup,
+    BFormSelect,
+    BFormSelectOption,
+    BImg,
+    BForm,
     ColorPicker: Chrome,
     FileManager,
     BButton,
@@ -624,15 +787,10 @@ export default {
     BModal,
   },
   props: ['mode'],
-  async created() {
-    if (this.mode !== 'new') {
-      const { id } = router.currentRoute.params;
-      this.id = parseInt(id, 10);
-      await this.initExist(this.id);
-    }
-  },
+
   data() {
     return {
+      available_subtitles_list: [],
       show: true,
       state: {
         processing: false,
@@ -675,10 +833,21 @@ export default {
         featured_synopsis: '',
         badge_text: '',
         badge_color: {},
+        available_subtitles: [],
         status: 'public',
         meta: {}, // Mixed
       },
     };
+  },
+  async mounted() {
+    makeSimpleQuery('availableSubtitle')().then((result) => {
+      this.available_subtitles_list = result;
+    });
+    if (this.mode !== 'new') {
+      const { id } = router.currentRoute.params;
+      this.id = parseInt(id, 10);
+      await this.initExist(this.id);
+    }
   },
   computed: {
     photosView() {
@@ -695,6 +864,7 @@ export default {
     //   return moment(this.film.open_date).format('yyyy-MM-DD');
     // },
   },
+
   methods: {
     ...mapActions(['pushMessage']),
     // 이미 존재하는 영화에 대해서 정보를 채워넣습니다.

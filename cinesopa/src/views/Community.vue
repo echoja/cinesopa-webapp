@@ -5,57 +5,51 @@
         여럿이 함께 영화를 보거나 아카이빙을 위한 상영 신청 페이지입니다.<br />
       </p>
       <p class="guide-main-sub">
-        본 신청서를 작성하시면 <span class="colored-strong">3일 이내</span>에 메일 또는 전화로
-        연락을 드리오니,<br />잠시만 기다려주세요 :)
+        본 신청서를 작성하시면 <span class="colored-strong">3일 이내</span>에
+        메일 또는 전화로 연락을 드리오니,<br />잠시만 기다려주세요 :)
       </p>
       <hr />
-      <h2>
-        상영 절차
-      </h2>
+      <h2>상영 절차</h2>
       <ol>
-        <li>
-          상영 신청서를 작성합니다
-        </li>
-        <li>
-          담당자와 세부사항을 논의하고 확정합니다.
-        </li>
-        <li>
-          상영본 외장하드를 수령합니다.
-        </li>
-        <li>상영을 한 후 상영본을 반환합니다.</li>
-        <li>
-          상영료를 정산합니다.
-        </li>
+        <li>상영 신청서를 작성해주세요.</li>
+        <li>담당자가 신청서를 확인하여 상영 확정 메일을 드립니다.</li>
+        <li>상영본 외장하드를 수령합니다.</li>
+        <li>상영 후, 상영본을 반환합니다.</li>
+        <li>상영료를 정산합니다.</li>
       </ol>
-      <h2>
-        상영료 안내
-      </h2>
-      <b-table class="guide-showing-fee" :items="showingFeeItems" :fields="showingFeeFields">
+      <h2>상영료 안내</h2>
+      <b-table
+        class="guide-showing-fee"
+        :items="showingFeeItems"
+        :fields="showingFeeFields"
+      >
       </b-table>
 
-      <h2>
-        유의사항
-      </h2>
+      <h2>유의사항</h2>
       <ul>
+        <li>본 상영료는 vat를 포함한 금액입니다.</li>
         <li>
-          상영료 외 비용은 발생하지 않습니다.
+          상영본 발송에 필요한 모든 비용은 씨네소파가 부담하며, 상영 후
+          반납시에는 신청자가 부담합니다.
         </li>
         <li>
-          하나의 영화가 아닌, 여러 영화를 상영하실 경우 영화 각각 신청서를 작성해주세요.
+          <p>감독님 섭외 부분은 신청인께서 직접하셔야 합니다.</p>
+          <p class="small">
+            씨네소파는 신청인과 감독의 상호 연락처 전달 업무만 담당합니다.
+          </p>
         </li>
-        <li>
-          <p>감독님 섭외 부분은 신청인께서 직접 하셔야함을 알려드립니다.</p>
-          <p class="small">씨네소파는 신청인과 감독의 상호 연락처 전달 업무만 담당합니다.</p>
-        </li>
-        <li>
+        <!-- <li>
           씨네소파는 예비사회적기업으로서 독립영화 저변 확대를 위해 노력하고 있습니다.<br />이에,
           상영료를 좌석 수가 아닌 관객 수를 기준으로 책정하고 있습니다. 그에 따른 차액만큼<br />
           사회서비스제공확인서(양식제공)를 요청드릴 수 있으니 참고 부탁드립니다.
-        </li>
+        </li> -->
       </ul>
     </div>
 
-    <validation-observer ref="observer" v-slot="{ /* handleSubmit, */ validate /* errors */ }">
+    <validation-observer
+      ref="observer"
+      v-slot="{ /* handleSubmit, */ validate /* errors */ }"
+    >
       <b-form class="community-form" @submit.stop.prevent="submit(validate())">
         <h2>행사 정보</h2>
         <b-form-group
@@ -94,39 +88,35 @@
         </b-form-group>
         <b-form-group
           class="community-form-group"
-          label="상영일"
+          label="상영 시작일"
           label-cols-sm="3"
           label-align-sm="left"
           label-size="md"
-          label-for="playdate"
+          label-for="playdate-start"
         >
-          <b-form-datepicker
+          <b-form-datepicker-korean
             class="underlined-box"
-            v-model="form.playdate"
-            id="playdate"
-            placeholder="클릭하여 날짜 선택"
+            v-model="form.playdateStart"
             :required="required"
-            label-today-button="오늘 날짜"
-            label-reset-button="재설정"
-            label-close-button="닫기"
-            label-prev-year="이전해"
-            label-prev-month="이전달"
-            label-current-month="현재달"
-            label-next-month="다음달"
-            label-next-year="다음해"
-            label-today="오늘"
-            label-selected="선택된 날짜"
-            label-no-date-selected="날짜가 선택되지 않았습니다"
-            label-calendar="달력"
-            label-nav="달력 열기"
-            label-help="방향키를 이용하여 날짜를 선택하세요"
+            id="playdate-start"
           >
-            <!-- <template #button-content :style="{ width: `300px` }"> -->
-            <!-- <div class="w-100 h-100 d-flex align-items-center justify-content-center"> -->
-            <!-- <font-awesome-icon :icon="['fas', 'calendar']"></font-awesome-icon> -->
-            <!-- </div> -->
-            <!-- </template> -->
-          </b-form-datepicker>
+          </b-form-datepicker-korean>
+        </b-form-group>
+        <b-form-group
+          class="community-form-group"
+          label="상영 종료일"
+          label-cols-sm="3"
+          label-align-sm="left"
+          label-size="md"
+          label-for="playdate-end"
+        >
+          <b-form-datepicker-korean
+            class="underlined-box"
+            v-model="form.playdateEnd"
+            :required="required"
+            id="playdate-end"
+          >
+          </b-form-datepicker-korean>
         </b-form-group>
         <b-form-group
           class="community-form-group"
@@ -144,7 +134,7 @@
             placeholder=""
             :required="required"
           ></b-form-input>
-          <template #description>영화를 총 몇 회 상영하는지 적어주세요.</template>
+          <template #description>영화 상영 횟수를 적어주세요.</template>
         </b-form-group>
         <b-form-group
           class="community-form-group"
@@ -199,7 +189,9 @@
             placeholder="예) 01012345678"
             :required="required"
           ></b-form-input>
-          <template #description>반드시 연락 가능한 연락처를 적어주세요. </template>
+          <template #description
+            >반드시 연락 가능한 연락처를 적어주세요.
+          </template>
         </b-form-group>
         <b-form-group
           class="community-form-group"
@@ -242,8 +234,8 @@
             :required="required"
           ></b-form-input>
           <template #description>
-            하나의 영화만 기재해주세요.<br />여러 영화를 상영하신다면, 각각 신청서를 작성해주시기
-            바랍니다.
+            하나의 영화만 기재해주세요.<br />여러 영화를 상영하신다면, 각각
+            신청서를 작성해주시기 바랍니다.
           </template>
         </b-form-group>
 
@@ -262,21 +254,25 @@
             v-model="form.format"
             stacked
           >
-            <b-form-radio value="DCP">DCP <small>(별도 영사기 필요)</small></b-form-radio>
+            <b-form-radio value="DCP"
+              >DCP <small>(별도 영사기 필요)</small></b-form-radio
+            >
             <b-form-radio value="MOV1"
-              >초고화질 MOV <small>(100GB 내외, 고사양 PC 및 대형 프로젝터용)</small></b-form-radio
+              >초고화질 MOV
+              <small
+                >(100GB 내외, 고사양 PC 및 대형 프로젝터용)</small
+              ></b-form-radio
             >
             <b-form-radio value="MOV2"
-              >고화질 MOV <small>(10~30GB 내외, 일반 PC 및 노트북용)</small></b-form-radio
+              >고화질 MOV
+              <small>(10~30GB 내외, 일반 PC 및 노트북용)</small></b-form-radio
             >
             <b-form-radio value="MOV3"
               >일반 MOV <small>(2~3GB, 유튜브 1080p 화질)</small></b-form-radio
             >
           </b-form-radio-group>
         </b-form-group>
-        <h2>
-          비용 및 배송 관련 정보
-        </h2>
+        <h2>비용 및 배송 관련 정보</h2>
         <b-form-group
           class="community-form-group"
           label="상영본 수령 방법"
@@ -426,8 +422,9 @@
               v-for="(key, index) in Object.keys(showingFeePopLabels)"
               :value="key"
               :key="index"
-              >{{ showingFeePopLabels[key] }}</option
             >
+              {{ showingFeePopLabels[key] }}
+            </option>
           </b-form-select>
         </b-form-group>
         <b-form-group
@@ -484,7 +481,10 @@
           label-size="md"
           label-for="additional-papers"
         >
-          <b-form-checkbox-group id="additional-papers" v-model="form.additionalPapers">
+          <b-form-checkbox-group
+            id="additional-papers"
+            v-model="form.additionalPapers"
+          >
             <b-form-checkbox
               :disabled="form.additionalPapers.includes('현금영수증')"
               :value="'세금계산서'"
@@ -508,7 +508,12 @@
           label-for="others"
           description="추가로 요청하실 사항이나 논의가 필요한 부분이 있다면, 자유롭게 적어주세요!"
         >
-          <b-form-textarea v-model="form.others" size="sm" id="others" rows="5"></b-form-textarea>
+          <b-form-textarea
+            v-model="form.others"
+            size="sm"
+            id="others"
+            rows="5"
+          ></b-form-textarea>
         </b-form-group>
 
         <!-- <p>상영료:</p> -->
@@ -595,7 +600,8 @@
                 >
                   <copyright-consent
                     :film-name="form.filmname"
-                    :playdate="form.playdate"
+                    :playdate-start="form.playdateStart"
+                    :playdate-end="form.playdateEnd"
                     :playplace="form.playplace"
                     :playtimes="form.playtimes"
                     :user-name="form.username"
@@ -614,7 +620,9 @@
             </b-form-group>
           </validation-provider>
         </div>
-        <b-button class="submit" type="submit" variant="primary">신청서를 제출하겠습니다</b-button>
+        <b-button class="submit" type="submit" variant="primary"
+          >신청서를 제출하겠습니다</b-button
+        >
       </b-form>
     </validation-observer>
   </div>
@@ -638,10 +646,11 @@ export default {
   title: '상영 신청',
   name: 'Community',
   components: {
-    privacy: Privacy,
-    'copyright-consent': CopyrightConsent,
-    'validation-observer': ValidationObserver,
-    'validation-provider': ValidationProvider,
+    Privacy,
+    CopyrightConsent,
+    ValidationObserver,
+    ValidationProvider,
+    BFormDatepickerKorean: () => import('@/components/BFormDatepickerKorean'),
   },
   data() {
     return {
@@ -695,7 +704,8 @@ export default {
         a: null,
         companyName: '',
         festivalName: '',
-        playdate: null,
+        playdateStart: null,
+        playdateEnd: null,
         playtimes: null,
         playplace: null,
         username: null,
@@ -750,7 +760,9 @@ export default {
   },
 
   mounted() {
-    this.$loadScript('https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js')
+    this.$loadScript(
+      'https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js',
+    )
       .then((/* result */) => {
         // console.log(this);
         // console.dir(result);
@@ -937,7 +949,6 @@ export default {
   font-weight: bold;
   padding: 10px 20px;
 }
-
 </style>
 
 <!---------------------------------------------------------------->
