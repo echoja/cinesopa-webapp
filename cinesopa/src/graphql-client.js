@@ -299,6 +299,11 @@ query siteOptionsQuery($names: [String!]!) {
 }
 `;
 
+/** ------------------------------------------------------------- */
+/** ------------------------------------------------------------- */
+/** ------------------------------------------------------------- */
+/** graphQL 관련 유틸 함수 */
+
 /**
  * 제일 첫 글자를 대문자로 만듭니다.
  * @param {string} s
@@ -306,6 +311,23 @@ query siteOptionsQuery($names: [String!]!) {
 const capitalize = (s) => {
   if (typeof s !== 'string') return '';
   return s.charAt(0).toUpperCase() + s.slice(1);
+};
+
+/**
+ * graphql argument 로 들어갈 수 있는 문자열을 생성합니다.
+ * @param {Object} obj
+ */
+const stringify = (obj) => {
+  if (typeof obj !== 'object' || Array.isArray(obj)) {
+    // not an object, stringify using native function
+    return JSON.stringify(obj);
+  }
+  // Implements recursive object serialization according to JSON spec
+  // but without quotes around the keys.
+  const props = Object.keys(obj)
+    .map((key) => `${key}:${stringify(obj[key])}`)
+    .join(',');
+  return `{${props}}`;
 };
 
 /**
@@ -358,6 +380,67 @@ export const makeRequest = (reqName, defs) => async (args) => {
   return result;
 };
 
+// simpleRequest${capitalize(endpoint)} { }
+
+/**
+ * graphql 자체의 arg 시스템을 쓰지 않고 그냥 간단한 쿼리를 만듭니다.
+ * @param {string} endpoint
+ * @param {Object.<string, any>} args
+ * @param {string} resultString
+ */
+export const makeSimpleRequestString = (endpoint, args, resultString) => {
+  const entries = Object.entries(args);
+  let argsString = '';
+  if (entries.length > 0) {
+    argsString = `(${entries.map(([key, value]) => `${key}: ${stringify(value)}`).join(', ')})`;
+  }
+  const result = `{
+    ${endpoint}${argsString} ${resultString}
+   }`;
+  console.log('# graphql-client makeSimpleRequestString');
+  console.log(result);
+  return result;
+};
+
+// /**
+//  *
+//  * @param {string} endpoint
+//  */
+// export const makeSimpleRequest = (endpoint) => async (args, resultString) => {
+//   const res = await graphql(makeSimpleRequestString(endpoint, args, resultString));
+//   return res.data[endpoint];
+// };
+
+/**
+ * 간단한 Mutation 요청 함수를 만듭니다.
+ * @param {string} endpoint
+ */
+export const makeSimpleMutation = (endpoint) => async (args, resultString) => {
+  const reqStr = `mutation ${endpoint}Mutation ${makeSimpleRequestString(
+    endpoint,
+    args,
+    resultString,
+  )}`;
+  // console.log("# graphql-client makeSimpleMutation");
+  // console.log(reqStr);
+  const res = await graphql(reqStr);
+  return res.data[endpoint];
+};
+
+/**
+ * 간단한 Query 요청 함수를 만듭니다.
+ * @param {string} endpoint
+ */
+export const makeSimpleQuery = (endpoint) => async (args = {}, resultString = '') => {
+  const res = await graphql(
+    `query ${endpoint}Query ${makeSimpleRequestString(endpoint, args, resultString)}`,
+  );
+  return res.data[endpoint];
+};
+
+/** ------------------------------------------------------------- */
+/** ------------------------------------------------------------- */
+/** ------------------------------------------------------------- */
 
 // export const setSiteOptionsMutation = `
 // mutation setSiteOptionsMutation($inputs: [SetSiteOptionInput!]!) {

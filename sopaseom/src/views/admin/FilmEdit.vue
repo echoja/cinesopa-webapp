@@ -878,7 +878,7 @@ export default {
       // this.film = Object.assign(this.film, film);
       Object.keys(this.film).forEach((key) => {
         // console.log(`key: ${key}`);
-        if (film[key] !== undefined) {
+        if (film[key] !== undefined && film[key] !== null) {
           this.film[key] = film[key];
         }
         // this.film[key] = film[key] !== undefined ? film[key];

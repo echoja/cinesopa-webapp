@@ -387,7 +387,7 @@ const makeRequest = (agent, reqName, defs) => {
 const makeSimpleRequestString = (endpoint, args, resultString) => {
   const entries = Object.entries(args);
   let argsString = '';
-  if (args.length > 0) {
+  if (entries.length > 0) {
     argsString = `(${entries
       .map(([key, value]) => `${key}: ${stringify(value)}`)
       .join(', ')})`;

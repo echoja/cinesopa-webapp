@@ -412,6 +412,9 @@ query productAdminQuery($id: Int!) {
 }
 `;
 
+/** ------------------------------------------------------------- */
+/** ------------------------------------------------------------- */
+/** ------------------------------------------------------------- */
 /** graphQL 관련 유틸 함수 */
 
 /**
@@ -501,7 +504,7 @@ export const makeRequest = (reqName, defs) => async (args) => {
 export const makeSimpleRequestString = (endpoint, args, resultString) => {
   const entries = Object.entries(args);
   let argsString = '';
-  if (args.length > 0) {
+  if (entries.length > 0) {
     argsString = `(${entries.map(([key, value]) => `${key}: ${stringify(value)}`).join(', ')})`;
   }
 
@@ -545,6 +548,10 @@ export const makeSimpleQuery = (endpoint) => async (args = {}, resultString = ''
   );
   return res.data[endpoint];
 };
+
+/** ------------------------------------------------------------- */
+/** ------------------------------------------------------------- */
+/** ------------------------------------------------------------- */
 
 /**
  * 유저의 정보를 서버로부터 받아 store의 currentUser state에 저장합니다.

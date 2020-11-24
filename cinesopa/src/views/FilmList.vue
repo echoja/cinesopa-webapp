@@ -569,9 +569,12 @@ export default {
       //   badge_text: '개봉예정',
       // },
     },
+    // 영화를 가져오는 함수
     async fetchFilms() {
       this.loading = true;
       const delay = sleep(300);
+
+      // 조건 설정
       const condition = {
         is_opened: this.isOpened,
         search: this.search,

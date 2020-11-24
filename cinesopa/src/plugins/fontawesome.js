@@ -8,7 +8,7 @@ import {
   faCalendar,
   faSearchPlus,
 } from '@fortawesome/free-solid-svg-icons';
-import { faClock, faFolderOpen } from '@fortawesome/free-regular-svg-icons';
+import { faClock, faFolderOpen, faCalendar as faCalendarRegular } from '@fortawesome/free-regular-svg-icons';
 import { faFacebook, faInstagram } from '@fortawesome/free-brands-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 
@@ -21,6 +21,7 @@ library.add(
   faSearch,
   faClock,
   faCalendar,
+  faCalendarRegular,
   faSearchPlus,
 );
 

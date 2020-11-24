@@ -102,22 +102,25 @@
           >
           </b-form-datepicker-korean>
         </b-form-group>
-        <b-form-group
-          class="community-form-group"
-          label="상영 종료일"
-          label-cols-sm="3"
-          label-align-sm="left"
-          label-size="md"
-          label-for="playdate-end"
-        >
-          <b-form-datepicker-korean
-            class="underlined-box"
-            v-model="form.playdateEnd"
-            :required="required"
-            id="playdate-end"
+        <!-- 날짜 validation -->
+        <validation-provider>
+          <b-form-group
+            class="community-form-group"
+            label="상영 종료일"
+            label-cols-sm="3"
+            label-align-sm="left"
+            label-size="md"
+            label-for="playdate-end"
           >
-          </b-form-datepicker-korean>
-        </b-form-group>
+            <b-form-datepicker-korean
+              class="underlined-box"
+              v-model="form.playdateEnd"
+              :required="required"
+              id="playdate-end"
+            >
+            </b-form-datepicker-korean>
+          </b-form-group>
+        </validation-provider>
         <b-form-group
           class="community-form-group"
           label="상영 회차"
@@ -215,16 +218,16 @@
         </b-form-group>
 
         <h2>상영본 정보</h2>
-
+        <!-- b-form-group started -->
         <b-form-group
           class="community-form-group"
-          label="영화 이름"
+          label="신청 영화"
           label-cols-sm="3"
           label-align-sm="left"
           label-size="md"
-          label-for="filmname"
+          label-for="select-film-button"
         >
-          <b-form-input
+          <!-- <b-form-input
             class="underlined-box"
             v-model="form.filmname"
             id="filmname"
@@ -232,14 +235,122 @@
             type="text"
             placeholder=""
             :required="required"
-          ></b-form-input>
+          ></b-form-input> -->
+          <ul class="film-list">
+            <li
+              v-for="(film, filmIndex) in form.films"
+              :key="filmIndex"
+              ref="filmlist"
+              :id="`film-list-item-${filmIndex}`"
+              tabindex="-1"
+            >
+              <div class="film-header">
+                <h3 class="film-title">{{ film.title }}</h3>
+                <b-button
+                  class="close-button"
+                  @click="form.films.splice(filmIndex, 1)"
+                  :aria-labelledby="`remove-film-${filmIndex}`"
+                  >&times;</b-button
+                >
+                <p :id="`remove-film-${filmIndex}`" class="visually-hidden">
+                  {{ film.title }} 삭제
+                </p>
+              </div>
+              <!-- <div class="meta">
+                {{ film.meta.join(' | ') }}
+              </div> -->
+              <!-- <h4>상영 포맷</h4> -->
+              <div class="format">
+                <!-- @change="formatSelected" -->
+                <b-form-group
+                  class="community-form-group"
+                  label="상영 포맷"
+                  label-size="md"
+                  :label-for="`format-${filmIndex}`"
+                >
+                  <!-- description="일반 MOV만 이메일 발송이 가능합니다." -->
+                  <!-- DCP / MOV(100GB) / MOV 혹은 MP4 (10~30GB) -->
+                  <b-form-radio-group
+                    class="radio-group"
+                    :id="`format-${filmIndex}`"
+                    v-model="film.format"
+                    stacked
+                  >
+                    <b-form-radio value="DCP"
+                      >DCP <small>(별도 영사기 필요)</small></b-form-radio
+                    >
+                    <b-form-radio value="MOV1"
+                      >MOV <small>(100GB)</small></b-form-radio
+                    >
+                    <b-form-radio value="MOV2"
+                      >MOV 혹은 MP4 <small>(10~30GB)</small></b-form-radio
+                    >
+                    <!-- <b-form-radio value="MOV3"
+                      >일반 MOV
+                      <small>(2~3GB, 유튜브 1080p 화질)</small></b-form-radio
+                    > -->
+                  </b-form-radio-group>
+                </b-form-group>
+              </div>
+              <!-- <h4>자막</h4> -->
+              <div
+                class="subtitle"
+                v-if="
+                  film.available_subtitles &&
+                  film.available_subtitles.length > 0
+                "
+              >
+                <b-form-group
+                  class="community-form-group"
+                  label="자막"
+                  label-size="md"
+                  :label-for="`subtitle-${filmIndex}`"
+                >
+                  <b-form-checkbox-group
+                    :id="`subtitle-${filmIndex}`"
+                    v-model="film.selected_subtitles"
+                    stacked
+                  >
+                    <b-form-checkbox
+                      v-for="(subtitle,
+                      subtitleIndex) in film.available_subtitles"
+                      :key="subtitleIndex"
+                      :value="subtitle"
+                      >{{ subtitle }}</b-form-checkbox
+                    >
+                  </b-form-checkbox-group>
+                </b-form-group>
+              </div>
+              <!-- <div class="test">
+                {{ film }}
+              </div> -->
+            </li>
+          </ul>
           <template #description>
-            하나의 영화만 기재해주세요.<br />여러 영화를 상영하신다면, 각각
-            신청서를 작성해주시기 바랍니다.
+            영화 추가 후 상영 포맷 및 자막을 설정합니다.
           </template>
+          <b-button
+            size="sm"
+            id="select-film-button"
+            @click="$bvModal.show('film-select-modal')"
+          >
+            영화 추가
+          </b-button>
+          <b-modal
+            size="xl"
+            id="film-select-modal"
+            title="영화 선택"
+            hide-footer
+            :return-focus="`film-list-item-${lastFilmIndex}`"
+          >
+            <film-selector
+              class="noto-sans"
+              @film-selected="filmSelected"
+            ></film-selector>
+          </b-modal>
         </b-form-group>
-
-        <b-form-group
+        <!-- b-form-group started -->
+        <!-- <b-form-group
           class="community-form-group"
           label="상영 포맷"
           label-cols-sm="3"
@@ -247,31 +358,8 @@
           label-size="md"
           label-for="format"
         >
-          <b-form-radio-group
-            class="radio-group"
-            id="format"
-            @change="formatSelected"
-            v-model="form.format"
-            stacked
-          >
-            <b-form-radio value="DCP"
-              >DCP <small>(별도 영사기 필요)</small></b-form-radio
-            >
-            <b-form-radio value="MOV1"
-              >초고화질 MOV
-              <small
-                >(100GB 내외, 고사양 PC 및 대형 프로젝터용)</small
-              ></b-form-radio
-            >
-            <b-form-radio value="MOV2"
-              >고화질 MOV
-              <small>(10~30GB 내외, 일반 PC 및 노트북용)</small></b-form-radio
-            >
-            <b-form-radio value="MOV3"
-              >일반 MOV <small>(2~3GB, 유튜브 1080p 화질)</small></b-form-radio
-            >
-          </b-form-radio-group>
-        </b-form-group>
+          
+        </b-form-group> -->
         <h2>비용 및 배송 관련 정보</h2>
         <b-form-group
           class="community-form-group"
@@ -280,8 +368,8 @@
           label-align-sm="left"
           label-size="md"
           label-for="how-to-receive"
-          description="일반 MOV만 이메일 발송이 가능합니다."
         >
+          <!-- description="일반 MOV만 이메일 발송이 가능합니다." -->
           <b-form-radio-group
             class="radio-group"
             id="how-to-receive"
@@ -289,59 +377,82 @@
             @change="changedHowToReceive"
             v-model="form.howToReceive"
           >
-            <b-form-radio value="택배">택배로 수령 (배송비 무료)</b-form-radio>
-            <b-form-radio :disabled="disabledReceiveByEmail" value="이메일"
-              >이메일로 수령</b-form-radio
+            <b-form-radio value="택배">택배로 수령</b-form-radio>
+            <b-form-radio :disabled="disabledReceiveByEmail" value="온라인"
+              >온라인 수령</b-form-radio
+            >
+            <b-form-radio :disabled="disabledReceiveByEmail" value="직접"
+              >직접 수령</b-form-radio
             >
           </b-form-radio-group>
         </b-form-group>
 
         <b-form-group
           class="community-form-group"
-          label="상영본 받을 주소"
+          label="방문 예정일"
           label-cols-sm="3"
           label-align-sm="left"
           label-size="md"
-          :label-for="!receivedByEmail ? 'address' : null"
-          :disabled="receivedByEmail"
+          label-for="visit-date"
+          v-if="form.howToReceive === '직접'"
         >
-          <b-button
-            id="address"
-            variant="outline-dark"
-            @click="openMap"
-            aria-describedby="다음 주소창이 새 창으로 열립니다."
-            >주소 검색</b-button
-          >
-          <p v-if="addressNew !== ''" class="address-new">{{ addressNew }}</p>
-          <p v-if="addressOld !== ''" class="address-old">{{ addressOld }}</p>
-          <!-- <b-form-text
-            >하나의 영화만 기재해주세요. 여러 영화를 상영하신다면, 각각 신청서를 작성해주시기
-            바랍니다.</b-form-text
-          > -->
-        </b-form-group>
-
-        <b-form-group
-          class="community-form-group"
-          label="상세 주소"
-          label-cols-sm="3"
-          label-align-sm="left"
-          label-size="md"
-          :label-for="!receivedByEmail ? 'addressDetailed' : null"
-          :disabled="receivedByEmail"
-        >
-          <b-form-input
+          <b-form-datepicker-korean
             class="underlined-box"
-            v-model="form.addressDetailed"
-            id="addressDetailed"
-            type="text"
-            placeholder=""
+            v-model="form.visitDate"
             :required="required"
-          ></b-form-input>
-          <!-- <b-form-text
+            id="visit-date"
+            :date-disabled-fn="receiveDateDisabled"
+          >
+          </b-form-datepicker-korean>
+        </b-form-group>
+        <template v-else-if="form.howToReceive === '택배'">
+          <b-form-group
+            class="community-form-group"
+            label="상영본 받을 주소"
+            label-cols-sm="3"
+            label-align-sm="left"
+            label-size="md"
+            label-for="address"
+          >
+            <!-- :disabled="receivedByEmail" -->
+            <b-button
+              id="address"
+              variant="outline-dark"
+              @click="openMap"
+              aria-describedby="다음 주소창이 새 창으로 열립니다."
+              >주소 검색</b-button
+            >
+            <p v-if="addressNew !== ''" class="address-new">{{ addressNew }}</p>
+            <p v-if="addressOld !== ''" class="address-old">{{ addressOld }}</p>
+            <!-- <b-form-text
             >하나의 영화만 기재해주세요. 여러 영화를 상영하신다면, 각각 신청서를 작성해주시기
             바랍니다.</b-form-text
           > -->
-        </b-form-group>
+          </b-form-group>
+
+          <b-form-group
+            class="community-form-group"
+            label="상세 주소"
+            label-cols-sm="3"
+            label-align-sm="left"
+            label-size="md"
+            :label-for="!receivedByEmail ? 'addressDetailed' : null"
+            :disabled="receivedByEmail"
+          >
+            <b-form-input
+              class="underlined-box"
+              v-model="form.addressDetailed"
+              id="addressDetailed"
+              type="text"
+              placeholder=""
+              :required="required"
+            ></b-form-input>
+            <!-- <b-form-text
+            >하나의 영화만 기재해주세요. 여러 영화를 상영하신다면, 각각 신청서를 작성해주시기
+            바랍니다.</b-form-text
+          > -->
+          </b-form-group>
+        </template>
 
         <b-form-group
           class="community-form-group"
@@ -350,37 +461,23 @@
           label-align-sm="left"
           label-size="md"
           label-for="receive-date"
+          v-if="form.howToReceive !== '직접'"
         >
-          <b-form-datepicker
+          <b-form-datepicker-korean
             class="underlined-box"
             v-model="form.receiveDate"
             id="receive-date"
-            placeholder="클릭하여 날짜 선택"
             :required="required"
-            label-today-button="오늘 날짜"
-            label-reset-button="재설정"
-            label-close-button="닫기"
-            label-prev-year="이전해"
-            label-prev-month="이전달"
-            label-current-month="현재달"
-            label-next-month="다음달"
-            label-next-year="다음해"
-            label-today="오늘"
-            label-selected="선택된 날짜"
-            label-no-date-selected="날짜가 선택되지 않았습니다"
-            label-calendar="달력"
-            label-nav="달력 열기"
-            label-help="방향키를 이용하여 날짜를 선택하세요"
           >
             <!-- <template #button-content :style="{ width: `300px` }"> -->
             <!-- <div class="w-100 h-100 d-flex align-items-center justify-content-center"> -->
             <!-- <font-awesome-icon :icon="['fas', 'calendar']"></font-awesome-icon> -->
             <!-- </div> -->
             <!-- </template> -->
-          </b-form-datepicker>
+          </b-form-datepicker-korean>
         </b-form-group>
-        <hr />
-        <b-form-group
+        <!-- <hr /> -->
+        <!-- <b-form-group
           class="community-form-group"
           label="영화 구분"
           label-cols-sm="3"
@@ -398,7 +495,7 @@
             <b-form-radio value="long">장편</b-form-radio>
             <b-form-radio value="short">단편</b-form-radio>
           </b-form-radio-group>
-        </b-form-group>
+        </b-form-group> -->
         <b-form-group
           class="community-form-group"
           label="예상 관객수"
@@ -427,19 +524,27 @@
             </option>
           </b-form-select>
         </b-form-group>
+        <!-- label="상영료(부가세 포함)" -->
         <b-form-group
-          class="community-form-group"
-          label="예상 상영료(부가세 포함)"
+          class="community-form-group align-items-center"
           label-cols-sm="3"
           label-align-sm="left"
           label-size="md"
           label-for="showingFee"
-          description="영화 구분(장편/단편)과 예상 관객수를 설정하면 예상 상영료가 표시됩니다."
         >
-          <template #label> 예상 상영료<br />(부가세 포함) </template>
-          <p id="showingFee">
+          <!-- description="영화 구분(장편/단편)과 예상 관객수를 설정하면 예상 상영료가 표시됩니다." -->
+          <b-form-input
+            class="underlined-box"
+            v-model="form.addressDetailed"
+            id="showingFee"
+            type="text"
+            placeholder=""
+            :required="required"
+          ></b-form-input>
+          <template #label>상영료<br />(부가세 포함) </template>
+          <!-- <p id="showingFee">
             <var>{{ showingFee }}</var> 원
-          </p>
+          </p> -->
         </b-form-group>
         <b-form-group
           class="community-form-group"
@@ -449,29 +554,172 @@
           label-size="md"
           label-for="depositdate"
         >
-          <b-form-datepicker
+          <b-form-datepicker-korean
             class="underlined-box"
             v-model="form.depositdate"
             id="depositdate"
-            placeholder="클릭하여 날짜 선택"
             :required="required"
-            label-today-button="오늘 날짜"
-            label-reset-button="재설정"
-            label-close-button="닫기"
-            label-prev-year="이전해"
-            label-prev-month="이전달"
-            label-current-month="현재달"
-            label-next-month="다음달"
-            label-next-year="다음해"
-            label-today="오늘"
-            label-selected="선택된 날짜"
-            label-no-date-selected="날짜가 선택되지 않았습니다"
-            label-calendar="달력"
-            label-nav="달력 열기"
-            label-help="방향키를 이용하여 날짜를 선택하세요"
           >
-          </b-form-datepicker>
+          </b-form-datepicker-korean>
         </b-form-group>
+        <div class="d-flex align-items-baseline">
+          <h2>정산 정보</h2>
+          <b-form-checkbox
+            class="ml-4"
+            id="is-tax-same"
+            v-model="form.isTaxSame"
+            >주최기관과 같습니다</b-form-checkbox
+          >
+        </div>
+        <!-- <b-form-group
+          class="community-form-group align-items-center"
+          label-cols-sm="3"
+          label-align-sm="left"
+          label-size="md"
+          label-for="is-tax-same"
+          label="정산 기관"
+        >
+          <b-form-checkbox id="is-tax-same" v-model="form.isTaxSame"
+            >주최기관과 같습니다</b-form-checkbox
+          >
+        </b-form-group> -->
+        <!-- form.isTaxSame 일 때에는 위의 정보를 보여줌 -->
+        <template v-if="form.isTaxSame">
+          <b-form-group
+            class="community-form-group"
+            label="기관 이름"
+            label-cols-sm="3"
+            label-align-sm="left"
+            label-size="md"
+            label-for="tax-company"
+          >
+            <!-- v-model="form.taxCompany" -->
+            <b-form-input
+              class="underlined-box"
+              :value="form.companyName"
+              id="tax-company"
+              type="text"
+              disabled
+            >
+            </b-form-input>
+          </b-form-group>
+          <b-form-group
+            class="community-form-group"
+            label="담당자 이름"
+            label-cols-sm="3"
+            label-align-sm="left"
+            label-size="md"
+            label-for="tax-person"
+          >
+            <template #label> 담당자 이름 </template>
+            <!-- v-model="form.taxPerson" -->
+            <b-form-input
+              class="underlined-box"
+              :value="form.username"
+              id="tax-person"
+              type="text"
+              disabled
+            >
+            </b-form-input>
+          </b-form-group>
+          <b-form-group
+            class="community-form-group"
+            label="담당자 연락처"
+            label-cols-sm="3"
+            label-align-sm="left"
+            label-size="md"
+            label-for="tax-phone"
+          >
+            <!-- v-model="form.taxPhone" -->
+            <b-form-input
+              class="underlined-box"
+              :value="form.userphone"
+              id="tax-phone"
+              type="text"
+              disabled
+            >
+            </b-form-input>
+          </b-form-group>
+          <b-form-group
+            class="community-form-group"
+            label="비고"
+            label-cols-sm="3"
+            label-align-sm="left"
+            label-size="md"
+            label-for="tax-others"
+          >
+            <!-- class="underlined-box" -->
+            <b-form-textarea v-model="form.taxOthers" size="sm" id="tax-others">
+            </b-form-textarea>
+          </b-form-group>
+        </template>
+        <!-- tax 정보를 직접 써야 할 때 -->
+        <template v-else>
+          <b-form-group
+            class="community-form-group"
+            label="기관 이름"
+            label-cols-sm="3"
+            label-align-sm="left"
+            label-size="md"
+            label-for="tax-company"
+          >
+            <b-form-input
+              class="underlined-box"
+              v-model="form.taxCompany"
+              id="tax-company"
+              type="text"
+              :required="required"
+            >
+            </b-form-input>
+          </b-form-group>
+          <b-form-group
+            class="community-form-group"
+            label="담당자 이름"
+            label-cols-sm="3"
+            label-align-sm="left"
+            label-size="md"
+            label-for="tax-person"
+          >
+            <template #label> 담당자 이름 </template>
+            <b-form-input
+              class="underlined-box"
+              v-model="form.taxPerson"
+              id="tax-person"
+              type="text"
+              :required="required"
+            >
+            </b-form-input>
+          </b-form-group>
+          <b-form-group
+            class="community-form-group"
+            label="담당자 연락처"
+            label-cols-sm="3"
+            label-align-sm="left"
+            label-size="md"
+            label-for="tax-phone"
+          >
+            <b-form-input
+              class="underlined-box"
+              v-model="form.taxPhone"
+              id="tax-phone"
+              type="text"
+              :required="required"
+            >
+            </b-form-input>
+          </b-form-group>
+          <b-form-group
+            class="community-form-group"
+            label="비고"
+            label-cols-sm="3"
+            label-align-sm="left"
+            label-size="md"
+            label-for="tax-others"
+          >
+            <!-- class="underlined-box" -->
+            <b-form-textarea v-model="form.taxOthers" size="sm" id="tax-others">
+            </b-form-textarea>
+          </b-form-group>
+        </template>
         <hr />
         <b-form-group
           class="community-form-group"
@@ -598,8 +846,9 @@
                   hide-footer
                   title="저작물이용동의서"
                 >
+                    <!-- :film-name="form.filmname" -->
                   <copyright-consent
-                    :film-name="form.filmname"
+                    :film-list="form.films"
                     :playdate-start="form.playdateStart"
                     :playdate-end="form.playdateEnd"
                     :playplace="form.playplace"
@@ -637,8 +886,9 @@ import {
   // extend,
   // localize,
 } from 'vee-validate';
-import Privacy from '../components/Privacy.vue';
-import CopyrightConsent from '../components/CopyrightConsent.vue';
+import FilmSelector from '@/components/FilmSelector.vue';
+import Privacy from '@/components/Privacy.vue';
+import CopyrightConsent from '@/components/CopyrightConsent.vue';
 
 extend('shouldCheck', (value) => value === true);
 
@@ -650,7 +900,9 @@ export default {
     CopyrightConsent,
     ValidationObserver,
     ValidationProvider,
+
     BFormDatepickerKorean: () => import('@/components/BFormDatepickerKorean'),
+    FilmSelector,
   },
   data() {
     return {
@@ -711,14 +963,29 @@ export default {
         username: null,
         userphone: null,
         useremail: null,
-        filmname: null,
+        // filmname: null,
+        films: [
+          // {
+          //   title: '타이틀',
+          //   format: '',
+          //   meta: ['감독 김한글'],
+          //   available_subtitles: ['a', 'b', 'c'],
+          //   selected_subtitles: [],
+          // },
+        ],
         format: null,
+        visitDate: null,
         howToReceive: null,
         addressDetailed: '',
         receiveDate: null,
         filmType: '',
         expectedPopulation: '',
         depositdate: null,
+        isTaxSame: true,
+        taxCompany: '',
+        taxPerson: '',
+        taxPhone: '',
+        taxOthers: '',
         additionalPapers: [],
         others: '',
       },
@@ -730,7 +997,7 @@ export default {
       return this.form.format !== 'MOV3' && this.form.format !== null;
     },
     receivedByEmail() {
-      return this.form.howToReceive === '이메일';
+      return this.form.howToReceive === '온라인';
     },
     showingFee() {
       const { expectedPopulation, filmType } = this.form;
@@ -756,6 +1023,13 @@ export default {
         });
       });
       return items;
+    },
+    // lastAdded() {
+    //   const lis = this.$refs.filmlist;
+    //   return lis[lis.length - 1];
+    // },
+    lastFilmIndex() {
+      return this.form.films.length - 1;
     },
   },
 
@@ -825,6 +1099,28 @@ export default {
     },
     numberWithCommas(x) {
       return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+    },
+    filmSelected(item) {
+      this.$bvModal.hide('film-select-modal');
+      console.log('# Community filmSelected');
+      console.log(item);
+      this.form.films.push({
+        ...item,
+        format: '',
+        // meta: '감독 김한글',
+        selected_subtitles: [],
+      });
+
+      this.$nextTick(() => {
+        const i = this.form.films.length - 1;
+        console.log(this.$refs.filmlist[i]);
+        this.$refs.filmlist[i].focus();
+      });
+      // console.log(this.$refs);
+    },
+    receiveDateDisabled(ymd, date) {
+      const weekday = date.getDay();
+      return weekday === 0 || weekday === 5 || weekday === 6;
     },
   },
 };
@@ -936,18 +1232,62 @@ export default {
   font-weight: 700;
 }
 
-#showingFee {
-  margin-top: 6px;
-  font-size: 18px;
-  margin-bottom: 0;
-  & var {
-    font-family: var(--font-family-monospace);
-  }
-}
+// #showingFee {
+//   margin-top: 6px;
+//   font-size: 18px;
+//   margin-bottom: 0;
+//   & var {
+//     font-family: var(--font-family-monospace);
+//   }
+// }
+
 .submit {
   font-size: 18.7px;
   font-weight: bold;
   padding: 10px 20px;
+}
+
+.film-list {
+  padding: 0;
+  list-style: none;
+}
+
+.film-list li {
+  padding-bottom: 20px;
+  border-bottom: 1px solid #ddd;
+  margin-bottom: 20px;
+
+  h3 {
+    margin: 0;
+    font-size: 20px;
+    font-weight: bold;
+  }
+  h4 {
+    margin-top: 20px;
+    font-size: 16px;
+    font-weight: bold;
+  }
+
+  .meta {
+    font-size: 13px;
+    color: #666;
+  }
+}
+
+// .mobile .film-list li {
+//   padding: 20px 0;
+// }
+
+.film-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  .close-button {
+    flex: 0;
+    background-color: #fff;
+    border: 0;
+    color: #2b3e4a;
+  }
 }
 </style>
 

@@ -247,7 +247,10 @@
  * @property {string[]} tags
  * @property {boolean} is_featured
  * @property {string} featured_poster
- * @property {string} badge
+ * @property {string} badge_text
+ * @property {string} badge_color
+ * @property {string} status
+ * @property {string[]} available_subtitles
  * @property {object} meta
  * @property {string} search
  */
