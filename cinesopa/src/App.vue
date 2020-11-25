@@ -167,6 +167,8 @@
             :backdrop-variant="'dark'"
             backdrop
             shadow
+            aria-label="메뉴"
+            close-label="닫기"
           >
             <div class="px-3 py-2">
               <p>

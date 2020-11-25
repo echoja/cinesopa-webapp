@@ -21,7 +21,9 @@
         </template>
       </div>
       <!-- 검색창 -->
-      <div class="search text-center position-relative d-flex align-items-center">
+      <div
+        class="search text-center position-relative d-flex align-items-center"
+      >
         <div class="search-icon mr-3 d-flex align-items-center">
           <font-awesome-icon :icon="['fas', 'search']"></font-awesome-icon>
         </div>
@@ -53,15 +55,13 @@
     >
       <div
         v-if="loading"
-        class="position-absolute w-100 h-100 d-flex
-          text-center justify-content-center align-items-center"
+        class="position-absolute w-100 h-100 d-flex text-center justify-content-center align-items-center"
       >
         불러오는 중입니다.
       </div>
       <div
         v-if="posts.length === 0 && !loading"
-        class="position-absolute w-100 h-100 d-flex
-          text-center justify-content-center align-items-center"
+        class="position-absolute w-100 h-100 d-flex text-center justify-content-center align-items-center"
       >
         게시글이 없습니다.
       </div>
@@ -78,7 +78,11 @@
                 {{ post.title }}
               </b-link>
             </span>
-            <span class="cell-date flex-shrink-0 small">{{ formatDate(post.date) }}</span>
+            <span
+              class="cell-date flex-shrink-0 small"
+              :aria-label="ariaDate(post.date)"
+              >{{ formatDate(post.date) }}</span
+            >
           </li>
         </ul>
       </transition>
@@ -86,29 +90,39 @@
     <!-- </VueAria> -->
     <!-- 게시글 목록 (갤러리형) -->
     <!-- <VueAria :aria="postListAria"> -->
-    <div v-if="viewType === 'gallery'" class="gallery" :aria-label="listARIALabel">
+    <div
+      v-if="viewType === 'gallery'"
+      class="gallery"
+      :aria-label="listARIALabel"
+    >
       <div
         v-if="loading"
-        class="position-absolute w-100 h-100 d-flex
-          text-center justify-content-center align-items-center"
+        class="position-absolute w-100 h-100 d-flex text-center justify-content-center align-items-center"
       >
         불러오는 중입니다.
       </div>
       <div
         v-if="posts.length === 0 && !loading"
-        class="position-absolute w-100 h-100 d-flex
-          text-center justify-content-center align-items-center"
+        class="position-absolute w-100 h-100 d-flex text-center justify-content-center align-items-center"
       >
         게시글이 없습니다.
       </div>
-      <transition-group name="post-list-item" mode="out-in" tag="div" class="row">
+      <transition-group
+        name="post-list-item"
+        mode="out-in"
+        tag="div"
+        class="row"
+      >
         <div
           class="gallery-item col-12 col-sm-6 col-md-4"
           v-for="(post, index) in posts"
           :key="index"
         >
           <div class="gallery-thumbnail">
-            <b-link :to="{ name: 'Post', params: { id: post.id } }" class="thumbnail-link">
+            <b-link
+              :to="{ name: 'Post', params: { id: post.id } }"
+              class="thumbnail-link"
+            >
               <span class="visually-hidden">{{ post.title }}</span>
 
               <img
@@ -117,12 +131,17 @@
                 :src="parseUploadLink(post.featured_image_link)"
                 class="gallery-thumbnail-img"
               />
-              <span class="no-featured-image" v-else> 대표 사진이<br />없습니다. </span>
+              <span class="no-featured-image" v-else>
+                대표 사진이<br />없습니다.
+              </span>
               <!-- todo: 서버에서 alt 받아와서 처리해야 함. -->
             </b-link>
           </div>
           <div class="gallery-title">
-            <b-link class="gallery-title-link" :to="{ name: 'Post', params: { id: post.id } }">
+            <b-link
+              class="gallery-title-link"
+              :to="{ name: 'Post', params: { id: post.id } }"
+            >
               {{ post.title }}
             </b-link>
           </div>
@@ -178,7 +197,7 @@ function sleep(ms) {
 
 export default {
   name: 'Board',
-  title: (context) => context.title,
+  title: (context) => context.titleComputed,
   components: {
     // VueAria,
   },
@@ -200,22 +219,23 @@ export default {
       searchString: null,
       currentPage: 1,
       postTotal: 0,
+      vuePageTitle: '',
       boards: [
-        {
-          permalinks: '_all',
-          title: '전체',
-          selected: true,
-        },
-        {
-          permalinks: 'press',
-          title: '프레스',
-          selected: false,
-        },
-        {
-          permalinks: 'cooperative',
-          title: '조합소식',
-          selected: false,
-        },
+        // {
+        //   permalinks: '_all',
+        //   title: '전체',
+        //   selected: true,
+        // },
+        // {
+        //   permalinks: 'press',
+        //   title: '프레스',
+        //   selected: false,
+        // },
+        // {
+        //   permalinks: 'cooperative',
+        //   title: '조합소식',
+        //   selected: false,
+        // },
       ],
       boardTitleMap: {},
       posts: [
@@ -303,6 +323,10 @@ export default {
       result.push(...this.boards);
       return result;
     },
+
+    titleComputed() {
+      return `${this.boards.find((board) => board.selected === true)?.title ?? ''} - ${this.title}`;
+    },
     // ...titleof(['press', 'cooperative']),
     // getBoardTitle(...args) {
     //   console.dir(args);
@@ -330,6 +354,19 @@ export default {
       return this.boards.find((board) => board.selected)?.permalinks;
     },
   },
+  // watch: {
+  //   $route(to) {
+  //     console.log('# Board.vue watch route');
+  //     console.log(to.fullPath);
+  //   },
+  // },
+  // beforeRouteEnter(to, from, next) {
+  //   next((vm) => {
+  //     console.log('# Board.vue beforeRouteEnter');
+  //     console.log(vm.$route.fullPath);
+  //     // `vm`을 통한 컴포넌트 인스턴스 접근
+  //   });
+  // },
 
   async mounted() {
     this.startLoading();
@@ -372,9 +409,13 @@ export default {
     // console.log(this.$route.params.board);
     // console.log(this.boards);
 
-    const foundIndex = this.boards.findIndex((item) => item.permalink === this.$route.params.board);
-    if (foundIndex !== -1) this.boards[foundIndex].selected = true;
-
+    const foundIndex = this.boards.findIndex(
+      (item) => item.permalink === this.$route.params.board,
+    );
+    if (foundIndex !== -1) {
+      this.boards[foundIndex].selected = true;
+      this.vuePageTitle = this.titleComputed;
+    }
     await this.refreshPosts();
 
     // // 게시글들 설정
@@ -415,6 +456,9 @@ export default {
     formatDate(date) {
       return moment(date).format('YYYY.MM.DD');
     },
+    ariaDate(date) {
+      return moment(date).format('YYYY년 MM월 DD일');
+    },
     linkGen(page) {
       // console.log(this.$route.fullPath);
       return { name: this.$route.name, params: { page } };
@@ -428,6 +472,8 @@ export default {
     },
     async refreshPosts() {
       const minimum = sleep(300);
+
+      // 게시글 검색 조건 생성
       const condition = {
         page: this.currentPage - 1,
         perpage: this.perpage,
@@ -451,6 +497,7 @@ export default {
         featured_image_alt: post.featured_image_alt,
       }));
       this.postTotal = posts.total;
+
       await minimum;
     },
     startLoading() {

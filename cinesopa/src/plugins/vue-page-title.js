@@ -11,12 +11,31 @@ import Vue from 'vue';
 
 const suffix = ' - 영화배급협동조합 씨네소파';
 const pageTitle = {
-  created() {
+  watch: {
+    $route(to) {
+      const { title } = this.$options;
+      if (typeof title === 'string') {
+        document.title = `${title}${suffix}`;
+      } else if (typeof title === 'function') {
+        document.title = `${title.call(this, this)}${suffix}`;
+        // console.log('# vue-page-title watch $route title function');
+        // console.log(document.title);
+      } else {
+        // document.title = '영화배급협동조합 씨네소파';
+      }
+    },
+    vuePageTitle(to) {
+      document.title = `${to}${suffix}`;
+    },
+  },
+  mounted() {
     const { title } = this.$options;
     if (typeof title === 'string') {
       document.title = `${title}${suffix}`;
     } else if (typeof title === 'function') {
       document.title = `${title.call(this, this)}${suffix}`;
+      // console.log('# vue-page-title title function');
+      // console.log(document.title);
     } else {
       // document.title = '영화배급협동조합 씨네소파';
     }

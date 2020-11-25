@@ -65,6 +65,7 @@ export default {
       boardWrapper: {},
       boardTitle: '',
       boardPermalink: '',
+      vuePageTitle: '',
     };
   },
   methods: {
@@ -80,8 +81,13 @@ export default {
       this.$router.push({ name: '404' });
       return;
     }
+
+    // console.log('# Post.vue mounted post data');
+    // console.log(post);
+
     this.post = post;
     const boardId = this.post?.board;
+    this.vuePageTitle = this.post.title;
 
     if (boardId) {
       const boardRes = await graphql(boardQuery, {

@@ -1,7 +1,7 @@
 <template>
   <div ref="about" class="container-fluid">
     <!-- big-title -->
-    <h1 class="visually-hidden">씨네소파 소개</h1>
+    <h1 class="visually-hidden">회사소개</h1>
 
     <div class="summary">
       <div class="value-three-background">

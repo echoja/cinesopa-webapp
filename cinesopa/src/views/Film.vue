@@ -229,8 +229,8 @@
           class="row-fullwidth film-photos-wrapper"
           id="carousel"
           :interval="0"
-          label-prev="다음으로 이동"
-          label-next="이전으로 이동"
+          label-prev="이전으로 이동"
+          label-next="다음으로 이동"
           label-goto-slide="특정 슬라이드로 이동: "
           label-indicators="클릭하여 해당하는 슬라이드를 화면에 띄우세요"
           controls
@@ -293,6 +293,7 @@ export default {
   title: (context) => context.film.title,
   data() {
     return {
+      vuePageTitle: '',
       film: {
         title: '',
         title_en: '',
@@ -565,6 +566,9 @@ export default {
         iframe.setAttribute('title', `${this.film.title} 메인 예고편`);
       }
     });
+
+    // 제목 (vuePageTitle) 설정
+    this.vuePageTitle = `${this.film.title}`;
 
     // console.log(`iframe.height: ${iframe.height}`);
     // console.log(`iframe.width: ${iframe.width}`);

@@ -6,7 +6,7 @@
         <b-button size="sm" @click="importFrom">영진위로부터 가져오기</b-button>
       </h1>
     </header>
-    <b-form @submit.stop.prevent="confirm" v-if="show">
+    <b-form class="container-fluid" @submit.stop.prevent="confirm" v-if="show">
       <b-row class="action"> </b-row>
       <b-row>
         <b-col lg>
@@ -77,12 +77,14 @@
                 name="input-show_time"
                 v-model="input.show_time_minutes"
                 :disabled="state.processing"
+                class="input-flexitem-auto"
               ></b-form-input>
               <span class="after-input">분</span>
               <b-form-input
                 v-model="input.show_time_seconds"
                 type="number"
                 number
+                class="input-flexitem-auto"
               ></b-form-input>
               <span class="after-input">초</span>
             </div>
@@ -1126,4 +1128,17 @@ h2 {
   max-width: 100%;
   max-height: 100%;
 }
+
+.input-flexitem-auto {
+  width: 0;
+  flex: 1 1 auto;
+}
+</style>
+
+<style lang="scss">
+
+#input-genres .b-form-tags-button {
+  flex: 0 0 auto;
+}
+
 </style>

@@ -1,12 +1,15 @@
 <template>
   <div>
     <!-- placeholder -->
-    <h1 class="visually-hidden">영화 리스트</h1>
-    <div class="featured-wrapper position-relative fullwidth" v-if="featured.length !== 0">
+    <h1 class="visually-hidden">작품 소개</h1>
+    <div
+      class="featured-wrapper position-relative fullwidth"
+      v-if="featured.length !== 0"
+    >
+      <h2 class="visually-hidden">특집 작품 목록</h2>
       <div class="featured-height"></div>
       <div
-        class="featured featured-height d-flex
-        align-items-center justify-content-center text-center"
+        class="featured featured-height d-flex align-items-center justify-content-center text-center"
       >
         <!-- indicators -->
 
@@ -21,8 +24,8 @@
           controls
           fade
           indicators
-          label-prev="다음으로 이동"
-          label-next="이전으로 이동"
+          label-prev="이전으로 이동"
+          label-next="다음으로 이동"
           label-goto-slide="특정 슬라이드로 이동: "
           label-indicators="클릭하여 해당하는 슬라이드를 화면에 띄우세요"
         >
@@ -41,7 +44,11 @@
             <template #img>
               <div
                 class="carousel-item-content-bg"
-                :style="{ 'background-image': `url(${parseUploadLink(film.featured_steel)})` }"
+                :style="{
+                  'background-image': `url(${parseUploadLink(
+                    film.featured_steel,
+                  )})`,
+                }"
               ></div>
               <div
                 class="carousel-item-content h-100"
@@ -56,7 +63,10 @@
                       class="d-block w-100 h-100"
                       :to="{ name: 'IndividualFilm', params: { id: film.id } }"
                     >
-                      <b-img class="mw-100 mh-100" :src="parseUploadLink(film.poster_url)"></b-img>
+                      <b-img
+                        class="mw-100 mh-100"
+                        :src="parseUploadLink(film.poster_url)"
+                      ></b-img>
                     </b-link>
                   </b-col>
                   <b-col
@@ -68,12 +78,20 @@
                     </p>
 
                     <h2 class="featured-title">
-                      <b-link :to="{ name: 'IndividualFilm', params: { id: film.id } }">{{
-                        film.title
-                      }}</b-link>
+                      <b-link
+                        :to="{
+                          name: 'IndividualFilm',
+                          params: { id: film.id },
+                        }"
+                        >{{ film.title }}</b-link
+                      >
                     </h2>
                     <p class="featured-subtitle">
-                      {{ film.title_en }}<span v-if="film.title_en && film.open_date.getTime() > 0">, </span>{{ film.open_date.getFullYear() }}
+                      {{ film.title_en
+                      }}<span
+                        v-if="film.title_en && film.open_date.getTime() > 0"
+                        >, </span
+                      >{{ film.open_date.getFullYear() }}
                     </p>
                     <p class="featured-synopsis">
                       {{ film.featured_excerpt }}
@@ -81,7 +99,10 @@
                     <p>
                       <b-link
                         class="d-flex align-items-center featured-more"
-                        :to="{ name: 'IndividualFilm', params: { id: film.id } }"
+                        :to="{
+                          name: 'IndividualFilm',
+                          params: { id: film.id },
+                        }"
                       >
                         <span>더보기</span>
                         <!-- style="enable-background:new 0 0 1920 1080;"
@@ -115,11 +136,12 @@
         </b-carousel>
       </div>
     </div>
+    <h2 class="visually-hidden">필터 및 검색창</h2>
     <div class="filter">
       <!-- 모바일 때만 보이는 필터 -->
       <template v-if="$store.state.isMobile">
         <!-- 개봉되었는지의 여부 필터링 -->
-        <div class="opened text-center m-1 pt-5 pb-2 d-flex justify-content-center">
+        <!-- <div class="opened text-center m-1 pt-5 pb-2 d-flex justify-content-center">
           <div
             class="opened-options-wrapper"
             role="listbox"
@@ -138,14 +160,31 @@
               {{ option.label }}
             </b-link>
           </div>
-        </div>
+        </div> -->
+        <h3 class="visually-hidden">개봉 상태에 따른 분류</h3>
+        <b-form-radio-group
+          v-model="opened"
+          @change="openedChanged"
+          class="isopen-mobile"
+        >
+          <b-form-radio value="all">모두</b-form-radio>
+          <b-form-radio value="opened">개봉작</b-form-radio>
+          <b-form-radio value="owned">보유작</b-form-radio>
+        </b-form-radio-group>
 
         <!-- 검색창 -->
-        <div class="search text-center mx-auto my-2 position-relative d-flex align-items-center">
+        <h3 class="visually-hidden">검색창</h3>
+        <div
+          class="search text-center mx-auto my-2 position-relative d-flex align-items-center"
+        >
           <div class="search-icon mr-3 d-flex align-items-center">
             <font-awesome-icon :icon="['fas', 'search']"></font-awesome-icon>
           </div>
-          <label class="w-100 m-0" for="keywords" title="영화제목, 감독, 배우 검색">
+          <label
+            class="w-100 m-0"
+            for="keywords"
+            title="영화제목, 감독, 배우 검색"
+          >
             <b-form-input
               debounce="500"
               @update="updateSearchString"
@@ -172,12 +211,20 @@
         <div class="search-icon mr-3 d-flex align-items-center">
           <font-awesome-icon :icon="['fas', 'search']"></font-awesome-icon>
         </div>
-        <b-form-radio-group v-model="opened" @change="openedChanged" class="isopen-in-search">
+        <b-form-radio-group
+          v-model="opened"
+          @change="openedChanged"
+          class="isopen-in-search"
+        >
           <b-form-radio value="all">모두</b-form-radio>
           <b-form-radio value="opened">개봉작</b-form-radio>
           <b-form-radio value="owned">보유작</b-form-radio>
         </b-form-radio-group>
-        <label class="w-100 m-0" for="keywords" title="영화제목, 감독, 배우 검색">
+        <label
+          class="w-100 m-0"
+          for="keywords"
+          title="영화제목, 감독, 배우 검색"
+        >
           <b-form-input
             debounce="500"
             @update="updateSearchString"
@@ -194,9 +241,10 @@
           ></b-form-input>
         </label>
       </div>
+    </div>
 
-      <!-- 태그 설정 -->
-      <!-- <div
+    <!-- 태그 설정 -->
+    <!-- <div
         class="tags d-flex justify-content-center"
         aria-hidden="false"
         role="group"
@@ -217,88 +265,97 @@
         </template>
       </div> -->
 
-      <!-- 영화 목록 -->
-      <b-row class="filmlist" ref="filmlist">
-        <transition name="filmlist-fade">
-          <div
-            class="filmlist-loading d-flex justify-content-center align-items-center"
-            v-if="loading"
-          >
-            로딩중입니다.
-          </div>
-        </transition>
-        <div v-if="films.length === 0" class="col-12 film-wrapper text-center">
-          영화를 찾을 수 없습니다.
-        </div>
-        <b-col
-          lg="4"
-          md="6"
-          cols="12"
-          v-for="(film, index) in films"
-          :key="index"
-          class="film-wrapper text-center"
-          data-aos="fade-up"
-          data-aos-duration="1000"
+    <!-- 영화 목록 -->
+    <h2 class="visually-hidden">영화 목록</h2>
+    <b-row class="filmlist" ref="filmlist">
+      <transition name="filmlist-fade">
+        <div
+          class="filmlist-loading d-flex justify-content-center align-items-center"
+          v-if="loading"
         >
-          <!-- {{ film }} -->
-          <!-- <b-link :style="{'background-image': `url(${film.posterLink})`}"
-           class="poster-link w-100" href=""></b-link> -->
-          <div class="poster-wrapper d-flex align-items-center justify-content-center">
-            <b-link
-              :title="`${film.title}`"
-              :to="{ name: 'IndividualFilm', params: { id: film.id } }"
-              class="poster-link"
-            >
-              <span
-                class="film-badge"
-                v-if="film.badge_text"
-                :style="{ 'background-color': film.badge_color }"
-                >{{ film.badge_text }}</span
-              >
-              <img v-if="film.posterLink" :src="parseUploadLink(film.posterLink)" :alt="`${film.title} 포스터`" />
-              <span class="no-poster" v-else>포스터<br>준비 중입니다</span>
-            </b-link>
-          </div>
-
-          <h2 class="m-0">
-            <b-link
-              :title="`${film.title}`"
-              :to="{ name: 'IndividualFilm', params: { id: film.id } }"
-              class="poster-link"
-            >
-              {{ film.title }}
-            </b-link>
-          </h2>
-          <p class="film-description">
-            <span v-if="film.title_en !== ''">{{ film.title_en }}</span>
-            <span v-if="film.title_en && film.open_date.getTime() > 0">, </span>
-            <span v-if="film.open_date.getTime() > 0">{{ film.open_date.getFullYear() }}</span>
-          </p>
-        </b-col>
-      </b-row>
-
-      <!-- 페이지 옮기기 -->
-      <div class="d-flex justify-content-center m-5">
-        <!-- pills -->
-        <b-pagination-nav
-          limit="9"
-          v-model="currentPage"
-          :link-gen="linkGen"
-          :number-of-pages="numberOfPages"
-          use-router
-          class="film-pagination"
-          hide-goto-end-buttons
-          label-first-page="첫 페이지로 이동"
-          label-prev-page="이전 페이지로 이동"
-          label-next-page="다음 페이지로 이동"
-          label-last-page="마지막 페이지로 이동"
-          exact-active-class="exact"
-          @change="pageChanged"
-        ></b-pagination-nav>
+          로딩중입니다.
+        </div>
+      </transition>
+      <div v-if="films.length === 0" class="col-12 film-wrapper text-center">
+        영화를 찾을 수 없습니다.
       </div>
+      <b-col
+        lg="4"
+        md="6"
+        cols="12"
+        v-for="(film, index) in films"
+        :key="index"
+        class="film-wrapper text-center"
+        data-aos="fade-up"
+        data-aos-duration="1000"
+      >
+        <!-- {{ film }} -->
+        <!-- <b-link :style="{'background-image': `url(${film.poster_url})`}"
+           class="poster-link w-100" href=""></b-link> -->
+        <div
+          class="poster-wrapper d-flex align-items-center justify-content-center"
+        >
+          <b-link
+            :title="`${film.title}`"
+            :to="{ name: 'IndividualFilm', params: { id: film.id } }"
+            class="poster-link"
+          >
+            <span
+              class="film-badge"
+              v-if="film.badge_text"
+              :style="{ 'background-color': film.badge_color }"
+              >{{ film.badge_text }}</span
+            >
+            <img
+              v-if="film.poster_url"
+              :src="parseUploadLink(film.poster_url)"
+              :alt="`${film.title} 포스터`"
+            />
+            <span class="no-poster" v-else>포스터<br />준비 중입니다</span>
+          </b-link>
+        </div>
 
-      <!-- 테스트용 -->
-      <!-- <b-form-checkbox name="check-button" v-model="checked">
+        <h3 class="m-0">
+          <b-link
+            :title="`${film.title}`"
+            :to="{ name: 'IndividualFilm', params: { id: film.id } }"
+            class="poster-link"
+          >
+            {{ film.title }}
+          </b-link>
+        </h3>
+        <p class="film-description">
+          <span v-if="film.title_en !== ''">{{ film.title_en }}</span>
+          <span v-if="film.title_en && film.open_date.getTime() > 0">, </span>
+          <span v-if="film.open_date.getTime() > 0">{{
+            film.open_date.getFullYear()
+          }}</span>
+        </p>
+      </b-col>
+    </b-row>
+
+    <!-- 페이지 옮기기 -->
+    <div class="d-flex justify-content-center m-5">
+      <!-- pills -->
+      <b-pagination-nav
+        limit="9"
+        v-model="currentPage"
+        :link-gen="linkGen"
+        :number-of-pages="numberOfPages"
+        use-router
+        class="film-pagination"
+        hide-goto-end-buttons
+        label-first-page="첫 페이지로 이동"
+        label-prev-page="이전 페이지로 이동"
+        label-next-page="다음 페이지로 이동"
+        label-last-page="마지막 페이지로 이동"
+        exact-active-class="exact"
+        @change="pageChanged"
+      ></b-pagination-nav>
+    </div>
+
+    <!-- 테스트용 -->
+    <!-- <b-form-checkbox name="check-button" v-model="checked">
         checkbox
       </b-form-checkbox>
       <input type="checkbox" />
@@ -312,14 +369,17 @@
       </div>
       {{ checked }}
       {{ $route.params }} -->
-    </div>
   </div>
 </template>
 
 <script>
 import AOS from 'aos';
 import hexToRgba from 'hex-to-rgba';
-import { filmsFeaturedQuery, filmsNormalQuery, graphql } from '../graphql-client';
+import {
+  filmsFeaturedQuery,
+  filmsNormalQuery,
+  graphql,
+} from '../graphql-client';
 import { parseUploadLink } from '../util';
 
 function sleep(ms) {
@@ -358,7 +418,7 @@ export default {
         //   id: 1,
         //   title: '여름날',
         //   // eslint-disable-next-line global-require
-        //   posterLink: require('../assets/test/test-poster.jpg'),
+        //   poster_url: require('../assets/test/test-poster.jpg'),
         //   featured_excerpt: `그들은 평범한 일상 속에서 자신처럼 고립되어 있는 폐왕성에 도착하고,
         //     그곳에서 누구나 언젠가 지나쳐야만 하는 유배된 시간과 만난다.`,
         //   title_en: 'Days in a Summer',
@@ -405,7 +465,7 @@ export default {
         //   id: 1,
         //   title: '여름날',
         //   // eslint-disable-next-line global-require
-        //   posterLink: require('../assets/test/test-poster.jpg'),
+        //   poster_url: require('../assets/test/test-poster.jpg'),
         //   title_en: 'Days in a Summer, 2020',
         //   badge: '개봉예정',
         // },
@@ -413,7 +473,7 @@ export default {
         //   id: 2,
         //   title: '마담B',
         //   // eslint-disable-next-line global-require
-        //   posterLink: require('../assets/test/test-poster2.png'),
+        //   poster_url: require('../assets/test/test-poster2.png'),
         //   title_en: 'Madame B, 2018',
         //   badge: null,
         // },
@@ -421,7 +481,7 @@ export default {
         //   id: 3,
         //   title: '여름날',
         //   // eslint-disable-next-line global-require
-        //   posterLink: require('../assets/test/test-poster.jpg'),
+        //   poster_url: require('../assets/test/test-poster.jpg'),
         //   title_en: 'Days in a Summer, 2020',
         //   badge: '개봉예정',
         // },
@@ -429,7 +489,7 @@ export default {
         //   id: 4,
         //   title: '마담B',
         //   // eslint-disable-next-line global-require
-        //   posterLink: require('../assets/test/test-poster2.png'),
+        //   poster_url: require('../assets/test/test-poster2.png'),
         //   title_en: 'Madame B, 2018',
         //   badge: null,
         // },
@@ -437,7 +497,7 @@ export default {
         //   id: 5,
         //   title: '여름날',
         //   // eslint-disable-next-line global-require
-        //   posterLink: require('../assets/test/test-poster.jpg'),
+        //   poster_url: require('../assets/test/test-poster.jpg'),
         //   title_en: 'Days in a Summer, 2020',
         //   badge: '개봉예정',
         // },
@@ -445,7 +505,7 @@ export default {
         //   id: 6,
         //   title: '마담B',
         //   // eslint-disable-next-line global-require
-        //   posterLink: require('../assets/test/test-poster2.png'),
+        //   poster_url: require('../assets/test/test-poster2.png'),
         //   title_en: 'Madame B, 2018',
         //   badge: null,
         // },
@@ -453,7 +513,7 @@ export default {
         //   id: 7,
         //   title: '여름날',
         //   // eslint-disable-next-line global-require
-        //   posterLink: require('../assets/test/test-poster.jpg'),
+        //   poster_url: require('../assets/test/test-poster.jpg'),
         //   title_en: 'Days in a Summer, 2020',
         //   badge: '개봉예정',
         // },
@@ -461,7 +521,7 @@ export default {
         //   id: 8,
         //   title: '마담B',
         //   // eslint-disable-next-line global-require
-        //   posterLink: require('../assets/test/test-poster2.png'),
+        //   poster_url: require('../assets/test/test-poster2.png'),
         //   title_en: 'Madame B, 2018',
         //   badge: null,
         // },
@@ -469,7 +529,7 @@ export default {
         //   id: 9,
         //   title: '여름날',
         //   // eslint-disable-next-line global-require
-        //   posterLink: require('../assets/test/test-poster.jpg'),
+        //   poster_url: require('../assets/test/test-poster.jpg'),
         //   title_en: 'Days in a Summer, 2020',
         //   badge: '개봉예정',
         // },
@@ -561,7 +621,7 @@ export default {
       //   id: 1,
       //   title: '여름날',
       //   // eslint-disable-next-line global-require
-      //   posterLink: require('../assets/test/test-poster.jpg'),
+      //   poster_url: require('../assets/test/test-poster.jpg'),
       //   featured_excerpt: `그들은 평범한 일상 속에서 자신처럼 고립되어 있는 폐왕성에 도착하고,
       //     그곳에서 누구나 언젠가 지나쳐야만 하는 유배된 시간과 만난다.`,
       //   title_en: 'Days in a Summer',
@@ -579,7 +639,9 @@ export default {
         is_opened: this.isOpened,
         search: this.search,
         tags: this.selectedTags,
-        page: this.currentPage ? this.currentPage - 1 : parseInt(this.page, 10) - 1,
+        page: this.currentPage
+          ? this.currentPage - 1
+          : parseInt(this.page, 10) - 1,
         perpage: this.perpage,
       };
       // console.log(condition);
@@ -595,7 +657,7 @@ export default {
         this.films = list.map((film) => ({
           id: film.id,
           title: film.title,
-          posterLink: film.poster_url,
+          poster_url: film.poster_url,
           title_en: film.title_en,
           badge_text: film.badge_text,
           badge_color: film.badge_color,
@@ -686,8 +748,8 @@ export default {
 }
 
 .featured-more {
-  color: #fff;
-  opacity: 60%;
+  color: #ffffff;
+  opacity: 0.6;
 }
 
 .mobile {
@@ -794,16 +856,12 @@ export default {
   margin-top: 80px;
   position: relative;
 
-  & .film-wrapper {
+  .film-wrapper {
     position: relative;
     margin-bottom: 80px;
-
-    & h2 {
-      font-weight: 600;
-    }
   }
 
-  & .film-badge {
+  .film-badge {
     position: absolute;
     left: 0;
     top: 0;
@@ -818,52 +876,53 @@ export default {
     color: #fff;
   }
 
-  & .poster-link {
+  .poster-link {
     transition: 0.5s;
     overflow: hidden;
     position: relative;
   }
-  & .poster-link:hover img {
+  .poster-link:hover img {
     transform: scale(1.2);
     opacity: 0.7;
   }
 
-  & .poster-wrapper {
+  .poster-wrapper {
     height: 500px;
     overflow: hidden;
     margin-bottom: 30px;
   }
 
-  & .film-description {
+  .film-description {
     font-size: 14px;
     color: #767676;
     // font-weight:400;
     // letter-spacing: -0.5px;
   }
 
-  & img {
+  img {
     transition: 0.5s;
     max-width: 100%;
     max-height: 500px;
     border: 1px solid #ddd;
   }
-  & h2 a {
+  h3 a {
     font-size: 36px;
     color: #009eda;
+    font-weight: bold;
   }
-  & h2 a:hover {
+  h3 a:hover {
     color: #2b3e4a;
     transition: none;
     text-decoration: none;
   }
 
-  & p {
+  p {
     color: #767676;
   }
 }
 
 .no-poster {
-  border:1px solid #ddd;
+  border: 1px solid #ddd;
   display: block;
   padding: 20px 30px;
 }
@@ -949,6 +1008,12 @@ export default {
 .filter .form-control::placeholder {
   color: #ddd;
   font-weight: 400;
+}
+.isopen-mobile {
+  display: flex;
+  margin: 20px 0;
+  align-items: center;
+  justify-content: center;
 }
 
 .isopen-in-search {

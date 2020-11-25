@@ -1,5 +1,7 @@
 <template>
   <div>
+    <h1 class="visually-hidden">배급 의뢰</h1>
+    <h2 class="visually-hidden">안내사항</h2>
     <p class="main-summary">작품 의뢰 주셔서 감사드립니다.</p>
     <p class="sub-summary">
       본 신청서를 작성하시면 2주 이내 연락을 드리니, 잠시만 기다려주세요 :)
@@ -18,6 +20,7 @@
     <p class="how-to">*시사용 DVD를 우편으로 발송할 경우에는 포장 겉면에 반드시 <배급의뢰신청>이라고 기재하시고 아래 주소로 보내주세요.
   부산광역시 해운대구 재반로</p>
     <p class="how-to">내부 시사 후 15일 이내에 메일로 연락드립니다.</p> -->
+    <h2 class="visually-hidden">신청 폼</h2>
     <validation-observer
       ref="observer"
       v-slot="{ /*handleSubmit, */ validate /*errors*/ }"
@@ -72,7 +75,7 @@
           label-align-sm="left"
           label-size="md"
           label-for="user-phone"
-          description="'-' 없이 숫자만 입력해주세요."
+          description="'-'(하이픈) 없이 숫자만 입력해주세요."
         >
           <b-form-input
             class="underlined-box"

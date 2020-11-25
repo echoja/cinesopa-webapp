@@ -27,7 +27,7 @@
         </li>
       </ol>
     </nav>
-    <h1 class="visually-hidden">{{ currentMenu }}</h1>
+    
     <!-- <div role="heading" aria-level="1">This is a main page heading</div> -->
 
     <transition name="fade" mode="out-in">
@@ -39,7 +39,7 @@
 <script>
 export default {
   name: 'Request',
-  title: '신청',
+  // title: '상영신청',
   data() {
     return {
       linkRefMap: {
@@ -61,9 +61,6 @@ export default {
   // },
 
   computed: {
-    currentMenu() {
-      return 'ho';
-    },
     currentNavEmLeft() {
       return this.linkRefMap[this.$route.name]?.$el.offsetLeft + 4;
     },

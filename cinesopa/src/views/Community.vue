@@ -1,5 +1,8 @@
 <template>
-  <div class="">
+  <div>
+    <h1 class="visually-hidden">상영신청</h1>
+    <h2 class="visually-hidden">안내사항</h2>
+
     <div class="guide">
       <p class="guide-main">
         여럿이 함께 영화를 보거나 아카이빙을 위한 상영 신청 페이지입니다.<br />
@@ -9,7 +12,7 @@
         메일 또는 전화로 연락을 드리오니,<br />잠시만 기다려주세요 :)
       </p>
       <hr />
-      <h2>상영 절차</h2>
+      <h3>상영 절차</h3>
       <ol>
         <li>상영 신청서를 작성해주세요.</li>
         <li>담당자가 신청서를 확인하여 상영 확정 메일을 드립니다.</li>
@@ -17,7 +20,7 @@
         <li>상영 후, 상영본을 반환합니다.</li>
         <li>상영료를 정산합니다.</li>
       </ol>
-      <h2>상영료 안내</h2>
+      <h3>상영료 안내</h3>
       <b-table
         class="guide-showing-fee"
         :items="showingFeeItems"
@@ -25,7 +28,7 @@
       >
       </b-table>
 
-      <h2>유의사항</h2>
+      <h3>유의사항</h3>h2
       <ul>
         <li>본 상영료는 vat를 포함한 금액입니다.</li>
         <li>
@@ -902,7 +905,7 @@ import LoadingButton from '@/components/LoadingButton.vue';
 extend('shouldCheck', (value) => value === true);
 
 export default {
-  title: '상영 신청',
+  title: '상영신청',
   name: 'Community',
   components: {
     Privacy,
@@ -1170,7 +1173,7 @@ export default {
   padding: 50px 0;
 
   max-width: 700px;
-  & h2 {
+  & h3 {
     margin-top: 40px;
     font-size: 22px;
   }
