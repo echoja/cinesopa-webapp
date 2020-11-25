@@ -55,7 +55,11 @@
             </div>
             <div class="position-absolute w-100 h-100 top0">
               <parallax :speed="-90" class="w-100 h-100 position-relative">
-                <div ref="img0-3" data-animation-number="3" class="position-relative w-100 h-100">
+                <div
+                  ref="img0-3"
+                  data-animation-number="3"
+                  class="position-relative w-100 h-100"
+                >
                   <b-img
                     alt=""
                     aria-hidden="true"
@@ -67,7 +71,11 @@
             </div>
             <div class="position-absolute w-100 h-100 top0">
               <parallax :speed="-80" class="w-100 h-100 position-relative">
-                <div ref="img0-2" data-animation-number="2" class="position-relative w-100 h-100">
+                <div
+                  ref="img0-2"
+                  data-animation-number="2"
+                  class="position-relative w-100 h-100"
+                >
                   <b-img
                     alt=""
                     aria-hidden="true"
@@ -79,7 +87,11 @@
             </div>
             <div class="position-absolute w-100 h-100 top0">
               <parallax :speed="-75" class="w-100 h-100 position-relative">
-                <div ref="img0-1" data-animation-number="1" class="position-relative w-100 h-100">
+                <div
+                  ref="img0-1"
+                  data-animation-number="1"
+                  class="position-relative w-100 h-100"
+                >
                   <b-img
                     alt=""
                     aria-hidden="true"
@@ -89,11 +101,13 @@
                 </div>
               </parallax>
             </div>
-            <div class="noto-serif  position-absolute w-100 h-100 top0">
+            <div class="noto-serif position-absolute w-100 h-100 top0">
               <parallax :speed="-70" class="w-100 h-100 position-relative">
                 <div class="sec0-text">
                   <div ref="sec0-text" class="text-center sec0-text-aminated">
-                    <span> 독립영화, 작은 파도<br />영화배급협동조합 씨네소파 </span>
+                    <span>
+                      독립영화, 작은 파도<br />영화배급협동조합 씨네소파
+                    </span>
                   </div>
                 </div>
               </parallax>
@@ -103,7 +117,11 @@
         <!-- </transition> -->
       </div>
       <!-- ref="scroll1" -->
-      <div class="page-scroll-section d-none" ref="section1" v-b-visible="visible(1)">
+      <div
+        class="page-scroll-section d-none"
+        ref="section1"
+        v-b-visible="visible(1)"
+      >
         <transition
           @beforeEnter="beforeEnter1"
           @enter="enter1"
@@ -137,14 +155,20 @@
               <!-- <parallax :speed="-30" class="w-100 h-100 position-relative"> -->
               <div class="home-featured position-relative">
                 <h2 ref="steel1-title" class="title">여름날</h2>
-                <p ref="steel1-subtitle" class="subtitle">Days In a Summer, 2020</p>
+                <p ref="steel1-subtitle" class="subtitle">
+                  Days In a Summer, 2020
+                </p>
                 <p ref="steel1-open" class="open">2020.08.20 개봉</p>
                 <p ref="steel1-synopsis" class="synopsis">
-                  그들은 평범한 일상 속에서 자신처럼 고립되어 있는 폐왕성에 도착하고, 그곳에서
-                  누구나 언젠가 지나쳐야만 하는 유배된 시간과 만난다.
+                  그들은 평범한 일상 속에서 자신처럼 고립되어 있는 폐왕성에
+                  도착하고, 그곳에서 누구나 언젠가 지나쳐야만 하는 유배된 시간과
+                  만난다.
                 </p>
                 <p ref="steel1-featured-more">
-                  <b-link class="featured-more" :to="{ name: 'IndividualFilm', params: { id: 1 } }">
+                  <b-link
+                    class="featured-more"
+                    :to="{ name: 'IndividualFilm', params: { id: 1 } }"
+                  >
                     <span>더보기</span>
                     <!-- style="enable-background:new 0 0 1920 1080;"
                           xml:space="preserve" -->
@@ -181,12 +205,18 @@
         >
           <!-- <transition name="page2"> -->
           <div v-if="isVisible(2)" class="w-100 h-100 position-absolute">
-            <div ref="whiteboard" class="w-100 h-100 position-absolute witeboard-wrapper">
+            <div
+              ref="whiteboard"
+              class="w-100 h-100 position-absolute witeboard-wrapper"
+            >
               <parallax :speed="-80" class="whiteboard"></parallax>
             </div>
             <div class="row section2-wrapper">
               <parallax :speed="-30" class="col-12 col-md-3">
-                <h2 ref="main-new-post-header" class="main-new-post-header text-center">
+                <h2
+                  ref="main-new-post-header"
+                  class="main-new-post-header text-center"
+                >
                   새소식
                 </h2>
               </parallax>
@@ -214,9 +244,13 @@
                     v-for="(a, index) in news"
                     :key="index"
                   >
-                    <div role="cell" class="news-cell news-cell-date">{{ a.dateFormatted }}</div>
+                    <div role="cell" class="news-cell news-cell-date">
+                      {{ a.dateFormatted }}
+                    </div>
                     <div role="cell" class="news-cell news-cell-link">
-                      <b-link :to="{ name: 'Post', params: { id: a.id } }">{{ a.title }}</b-link>
+                      <b-link :to="{ name: 'Post', params: { id: a.id } }">{{
+                        a.title
+                      }}</b-link>
                     </div>
                     <!-- <div role="cell">{{}}</div> -->
                   </div>
@@ -285,7 +319,7 @@ import Parallax from '../components/parallax.vue';
 // function getTop(element) {
 //   // return getTopByoffset(element);
 //   const rect = element.getBoundingClientRect();
-//   console.log(rect);
+// console.log(rect);
 //   return (window.scrollY || window.pageYOffset) + rect.top;
 // }
 
@@ -350,19 +384,22 @@ export default {
         {
           date: new Date('2018-01-18'),
           dateFormatted: null,
-          title: '성송이 영화배급협동조합 씨네소파 대표 - 부산에서 독립영화 배급하기',
+          title:
+            '성송이 영화배급협동조합 씨네소파 대표 - 부산에서 독립영화 배급하기',
           id: 1,
         },
         {
           date: new Date('2017-11-06'),
           dateFormatted: null,
-          title: '[ACT! 107호 인터뷰] “희생하지 않습니다.” - 부산 영화배급협동조합 씨네소파',
+          title:
+            '[ACT! 107호 인터뷰] “희생하지 않습니다.” - 부산 영화배급협동조합 씨네소파',
           id: 1,
         },
         {
           date: new Date('2017-07-20'),
           dateFormatted: null,
-          title: "독립영화 배급 나선 당찬 20대 청년들 '씨네소파' 협동조합 \"멀티플렉스 게, 섰거라!",
+          title:
+            "독립영화 배급 나선 당찬 20대 청년들 '씨네소파' 협동조합 \"멀티플렉스 게, 섰거라!",
           id: 1,
         },
       ],
@@ -386,7 +423,7 @@ export default {
   //     if (rellaxInstance?.refresh) {
   //       this.$nextTick(() => {
   //         rellaxInstance.refresh();
-  //         console.log('rellaxInstance refreshed!');
+          // console.log('rellaxInstance refreshed!');
   //       });
   //     }
   //   },
@@ -410,7 +447,7 @@ export default {
 
     // if (rellaxInstance?.refresh) {
     //   rellaxInstance.refresh();
-    //   console.log('refreshed!');
+      // console.log('refreshed!');
     // } else {
     //
 
@@ -434,7 +471,9 @@ export default {
     // window.addEventListener(wheelEvent, this.onWheel, { passive: false });
     window.addEventListener('resize', this.onResize);
     // window.addEventListener('cssVarsSuccessed', this.onCssVarsSuccessed);
-    document.addEventListener('touchmove', this.onTouchMove, { passive: false });
+    document.addEventListener('touchmove', this.onTouchMove, {
+      passive: false,
+    });
 
     this.$store.commit('setMenuTransparent', true);
 
@@ -535,7 +574,9 @@ export default {
     // window.removeEventListener(wheelEvent, this.onWheel, { passive: false });
     window.removeEventListener('resize', this.onResize);
     // window.removeEventListener('cssVarsSuccessed', this.onCssVarsSuccessed);
-    document.removeEventListener('touchmove', this.onTouchMove, { passive: false });
+    document.removeEventListener('touchmove', this.onTouchMove, {
+      passive: false,
+    });
     this.$store.commit('setMenuTransparent', false);
     this.$store.commit('setLogoWhite', false);
     this.$store.commit('setNavLinkWhite', false);
@@ -725,10 +766,12 @@ export default {
       // remove next slide
       // this.remove1();
 
-      ['img0-0', 'img0-1', 'img0-2', 'img0-3', 'sec0-text'].forEach((elstring) => {
-        this.$refs[elstring].style.opacity = 0;
-        // Velocity(this.$refs[elstring], 'stop');
-      });
+      ['img0-0', 'img0-1', 'img0-2', 'img0-3', 'sec0-text'].forEach(
+        (elstring) => {
+          this.$refs[elstring].style.opacity = 0;
+          // Velocity(this.$refs[elstring], 'stop');
+        },
+      );
 
       // 물결 느낌 스스 나게 함.
       // const images = [];
@@ -1030,16 +1073,31 @@ export default {
       const { target } = event;
       const animationNumber = target.getAttribute('data-animation-number');
 
-      target.style.setProperty(`--r${animationNumber}-1`, `${Math.random() * 20 - 10}px`);
-      target.style.setProperty(`--r${animationNumber}-2`, `${Math.random() * 20 - 10}px`);
+      target.style.setProperty(
+        `--r${animationNumber}-1`,
+        `${Math.random() * 20 - 10}px`,
+      );
+      target.style.setProperty(
+        `--r${animationNumber}-2`,
+        `${Math.random() * 20 - 10}px`,
+      );
     },
     transitionEnd(event) {
       // console.log('`transitionEnd!`');
       const { target } = event;
       const animationNumber = target.getAttribute('data-animation-number');
-      target.style.setProperty(`--r${animationNumber}-1`, `${Math.random() * 20 - 10}px`);
-      target.style.setProperty(`--r${animationNumber}-2`, `${Math.random() * 20 - 10}px`);
-      target.style.setProperty(`--r${animationNumber}-3`, `${Math.random() * 2 + 2}s`);
+      target.style.setProperty(
+        `--r${animationNumber}-1`,
+        `${Math.random() * 20 - 10}px`,
+      );
+      target.style.setProperty(
+        `--r${animationNumber}-2`,
+        `${Math.random() * 20 - 10}px`,
+      );
+      target.style.setProperty(
+        `--r${animationNumber}-3`,
+        `${Math.random() * 2 + 2}s`,
+      );
     },
     onTouchMove(event) {
       event.preventDefault();
@@ -1121,7 +1179,8 @@ export default {
   animation: 3s ease 2000ms forwards slide-up;
 }
 .img0-1-wrapper {
-  animation: 3s slide-up forwards /*, var(--r1-3, 2s) infinite forwards random-wave-1*/;
+  animation: 3s slide-up forwards
+    /*, var(--r1-3, 2s) infinite forwards random-wave-1*/;
   transition: var(--r1-3, 2s);
   transform: translate(var(--r1-1, 5px), var(--r1-2, 5px));
 }

@@ -55,8 +55,8 @@ export default {
   },
   methods: {
     onInput(value) {
-      console.log('# BFormDatepickerKorean onInput');
-      console.log(value);
+      // console.log('# BFormDatepickerKorean onInput');
+      // console.log(value);
       this.$emit('input', value);
     },
     // hoverButton(event) {

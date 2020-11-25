@@ -74,7 +74,7 @@ export default {
   },
   async mounted() {
     const res = await graphql(postQuery, { id: parseInt(this.id, 10) });
-    console.log(res);
+    // console.log(res);
     const post = res?.data?.post;
     if (post === null) {
       this.$router.push({ name: '404' });

@@ -372,9 +372,17 @@
           </b-form-group>
         </validation-provider>
 
-        <b-button class="submit" type="submit" variant="primary"
-          >의뢰서를 제출합니다</b-button
+        <loading-button
+          :loading="submitting"
+          loading-label="제출 중입니다."
+          class="submit"
+          type="submit"
+          variant="primary"
+          >의뢰서를 제출합니다</loading-button
         >
+        <!-- <loading-button class="test" :loading="false">안녕하세요</loading-button> -->
+        <!-- <loading-button class="test" :loading="true" loading-label="제출중이에요.">안녕하세요</loading-button> -->
+
         <!-- </b-col>
       </b-row> -->
       </b-form>
@@ -393,6 +401,7 @@ import {
 import Privacy from '@/components/Privacy.vue';
 import { makeSimpleMutation } from '@/graphql-client';
 import BFormDatepickerKorean from '@/components/BFormDatepickerKorean.vue';
+import LoadingButton from '@/components/LoadingButton.vue';
 
 extend('shouldCheck', (value) => value === true);
 
@@ -404,12 +413,14 @@ export default {
     'validation-observer': ValidationObserver,
     'validation-provider': ValidationProvider,
     BFormDatepickerKorean,
+    LoadingButton,
   },
   data() {
     return {
-      // required: true,
-      required: false,
+      required: true,
+      // required: false,
       checkPrivacy: false,
+      submitting: false,
       form: {
         user: {
           name: null,
@@ -450,24 +461,31 @@ export default {
       }
     },
     async submit(isValidPromise) {
+      this.submitting = true;
       const isValid = await isValidPromise;
-      if (isValid) {
-        const requestDistribution = makeSimpleMutation('requestDistribution');
-        const result = await requestDistribution(
-          {
-            input: {
-              user: this.form.user,
-              film: this.form.film,
+      try {
+        if (isValid) {
+          const requestDistribution = makeSimpleMutation('requestDistribution');
+          const result = await requestDistribution(
+            {
+              input: {
+                user: this.form.user,
+                film: this.form.film,
+              },
             },
-          },
-          '{success code recipient}',
-        );
-        console.log('# Distribution submit result');
-        console.log(result);
-        // this.$router.push({ name: 'SuccessRequest' });
-      } else {
-        // this.$scrollTo(this.$refs.observer.$el, 500);
+            '{success code recipient}',
+          );
+          // console.log('# Distribution submit result');
+          // console.log(result);
+          this.$router.push({ name: 'SuccessRequest' });
+        } else {
+          // this.$scrollTo(this.$refs.observer.$el, 500);
+        }
+      } catch (error) {
+        console.error(error);
       }
+
+      this.submitting = false;
     },
     async log(any, errors) {
       any

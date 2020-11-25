@@ -342,7 +342,7 @@
             id="film-select-modal"
             title="영화 선택"
             hide-footer
-            :return-focus="`film-list-item-${lastFilmIndex}`"
+            :return-focus="`#film-list-item-${lastFilmIndex}`"
           >
             <film-selector
               class="noto-sans"
@@ -867,9 +867,18 @@
             </b-form-group>
           </validation-provider>
         </div>
-        <b-button class="submit" type="submit" variant="primary"
-          >신청서를 제출하겠습니다</b-button
+        <loading-button
+          class="submit"
+          type="submit"
+          variant="primary"
+          :loading="submitting"
+          loading-label="제출 중입니다."
         >
+          신청서를 제출하겠습니다
+        </loading-button>
+        <!-- <b-button class="submit" type="submit" variant="primary"
+          ></b-button -->
+        <!-- > -->
       </b-form>
     </validation-observer>
   </div>
@@ -888,6 +897,7 @@ import FilmSelector from '@/components/FilmSelector.vue';
 import Privacy from '@/components/Privacy.vue';
 import CopyrightConsent from '@/components/CopyrightConsent.vue';
 import { makeSimpleMutation } from '@/graphql-client';
+import LoadingButton from '@/components/LoadingButton.vue';
 
 extend('shouldCheck', (value) => value === true);
 
@@ -899,12 +909,13 @@ export default {
     CopyrightConsent,
     ValidationObserver,
     ValidationProvider,
-
+    LoadingButton,
     BFormDatepickerKorean: () => import('@/components/BFormDatepickerKorean'),
     FilmSelector,
   },
   data() {
     return {
+      submitting: false,
       showingFeeMap: {
         0: {
           long: 150000,
@@ -1068,35 +1079,41 @@ export default {
 
   methods: {
     async submit(isValidPromise) {
-      console.log('# Community submit');
-      console.log(isValidPromise);
-      const isValid = await isValidPromise;
-      if (isValid) {
-        const requestShowing = makeSimpleMutation('requestShowing');
-        const result = await requestShowing(
-          {
-            input: {
-              ...this.form,
-              films: this.form.films.map((film) => ({
-                id: film.id,
-                title: film.title,
-                format: film.format,
-                selected_subtitles: film.selected_subtitles,
-                meta: film.meta,
-              })),
-              addressNew: this.addressNew,
-              addressOld: this.addressOld,
+      // console.log('# Community submit');
+      // console.log(isValidPromise);
+      this.submitting = true;
+      try {
+        const isValid = await isValidPromise;
+        if (isValid) {
+          const requestShowing = makeSimpleMutation('requestShowing');
+          const result = await requestShowing(
+            {
+              input: {
+                ...this.form,
+                films: this.form.films.map((film) => ({
+                  id: film.id,
+                  title: film.title,
+                  format: film.format,
+                  selected_subtitles: film.selected_subtitles,
+                  meta: film.meta,
+                })),
+                addressNew: this.addressNew,
+                addressOld: this.addressOld,
+              },
             },
-          },
-          '{success code recipient}',
-        );
-        console.log('# Community submit result');
-        console.log(result);
-        // todo 메일을 실제로 보내기 전까지 로딩 기간을 뭔가 로딩 바가 도는 등의 애니메이션 등장이 필요함.
-        this.$router.push({ name: 'SuccessRequest' });
-      } else {
-        // todo 만약 유효하지 않을 때만 따로 처리할 피룡가 있슴.
+            '{success code recipient}',
+          );
+          // console.log('# Community submit result');
+          // console.log(result);
+          // todo 메일을 실제로 보내기 전까지 로딩 기간을 뭔가 로딩 바가 도는 등의 애니메이션 등장이 필요함.
+          this.$router.push({ name: 'SuccessRequest' });
+        } else {
+          // todo 만약 유효하지 않을 때만 따로 처리할 피룡가 있슴.
+        }
+      } catch (error) {
+        console.error(error);
       }
+      this.submitting = false;
     },
     getValidationState({ dirty, validated, valid = null }) {
       return dirty || validated ? valid : null;
@@ -1120,8 +1137,8 @@ export default {
     },
     filmSelected(item) {
       this.$bvModal.hide('film-select-modal');
-      console.log('# Community filmSelected');
-      console.log(item);
+      // console.log('# Community filmSelected');
+      // console.log(item);
       this.form.films.push({
         ...item,
         format: '',
@@ -1129,11 +1146,11 @@ export default {
         selected_subtitles: [],
       });
 
-      this.$nextTick(() => {
-        const i = this.form.films.length - 1;
-        console.log(this.$refs.filmlist[i]);
-        this.$refs.filmlist[i].focus();
-      });
+      // this.$nextTick(() => {
+      //   const i = this.form.films.length - 1;
+      //   // console.log(this.$refs.filmlist[i]);
+      //   this.$refs.filmlist[i].focus();
+      // });
       // console.log(this.$refs);
     },
     receiveDateDisabled(ymd, date) {

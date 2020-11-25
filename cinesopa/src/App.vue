@@ -476,12 +476,12 @@ export default {
     });
     getIsPublicFromServer({ name: 'is_site_public' })
       .then((result) => {
-        console.log('#App getIsPublicFromServer');
-        console.log(result);
+        // console.log('#App getIsPublicFromServer');
+        // console.log(result);
         this.is_site_public = result.value;
       })
       .catch((err) => {
-        console.log('#App getIsPublicFromServer Error!');
+        console.error('#App getIsPublicFromServer Error!');
         console.error(err);
       });
   },

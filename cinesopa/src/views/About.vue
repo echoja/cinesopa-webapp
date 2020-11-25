@@ -297,8 +297,8 @@ export default {
       names: ['person'],
     });
     const result = res.data.siteOptions;
-    console.log('# About = mounted');
-    console.log(result);
+    // console.log('# About = mounted');
+    // console.log(result);
     this.people = result[0].value.map((item) => ({
       name: item.name,
       nickname: item.nickname,

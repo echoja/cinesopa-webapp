@@ -400,8 +400,8 @@ export const makeSimpleRequestString = (endpoint, args, resultString) => {
   const result = `{
     ${endpoint}${argsString} ${resultString}
    }`;
-  console.log('# graphql-client makeSimpleRequestString');
-  console.log(result);
+  // console.log('# graphql-client makeSimpleRequestString');
+  // console.log(result);
   return result;
 };
 
@@ -424,8 +424,8 @@ export const makeSimpleMutation = (endpoint) => async (args, resultString) => {
     args,
     resultString,
   )}`;
-  console.log('# graphql-client makeSimpleMutation');
-  console.log(reqStr);
+  // console.log('# graphql-client makeSimpleMutation');
+  // console.log(reqStr);
   const res = await graphql(reqStr);
   return res.data[endpoint];
 };

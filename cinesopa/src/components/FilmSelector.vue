@@ -22,6 +22,8 @@
         ref="search-input"
         debounce="500"
         @update="updateSearchString"
+        @change="changeSearchString"
+        @input="inputSearchString"
         v-model="search"
         type="search"
         placeholder="영화제목, 감독, 배우 검색"
@@ -40,6 +42,16 @@
       role="listbox"
       :aria-busy="searchProcessing"
     >
+      <li class="notice-listitem" v-if="searchProcessing">
+        <b-spinner class="loading-spinner"> </b-spinner>데이터를 불러오는
+        중입니다.
+      </li>
+      <li
+        class="notice-listitem"
+        v-if="!searchProcessing && searchResults.length === 0"
+      >
+        영화 정보가 없습니다.
+      </li>
       <li
         class="listitem"
         v-for="(item, itemIndex) in searchResults"
@@ -73,7 +85,7 @@
 
 <script>
 import moment from 'moment';
-import { BFormInput } from 'bootstrap-vue';
+import { BFormInput, BSpinner } from 'bootstrap-vue';
 import { makeSimpleQuery } from '@/graphql-client';
 
 let gid = 0;
@@ -81,6 +93,7 @@ let gid = 0;
 export default {
   components: {
     BFormInput,
+    BSpinner,
   },
   data() {
     return {
@@ -89,16 +102,16 @@ export default {
       search: '',
       searchProcessing: false,
       searchResults: [
-        {
-          title: 'ho',
-          meta: ['감독 123', '개봉 호호'],
-          active: false,
-        },
-        {
-          title: '슈퍼제목',
-          meta: ['감독 123', '개봉 2020.3.1.', '기타등등'],
-          active: false,
-        },
+        // {
+        //   title: 'ho',
+        //   meta: ['감독 123', '개봉 호호'],
+        //   active: false,
+        // },
+        // {
+        //   title: '슈퍼제목',
+        //   meta: ['감독 123', '개봉 2020.3.1.', '기타등등'],
+        //   active: false,
+        // },
       ],
       id: '',
     };
@@ -113,11 +126,18 @@ export default {
   },
   methods: {
     selected(item) {
-      console.log(item);
+      // console.log('# FilmSelector selected');
+      // console.log(item);
       this.$emit('film-selected', item);
     },
 
     inputSearchString() {
+      // console.log('# FilmSelector inputSearchString');
+      this.searchProcessing = true;
+      this.searchResults = [];
+    },
+    changeSearchString() {
+      // console.log('# FilmSelector changeSearchString');
       // this.searchProcessing = true;
     },
     async updateSearchString() {
@@ -248,6 +268,19 @@ ul {
   margin-top: 40px;
   border-top: 1px solid #ddd;
   font-size: 14px;
+}
+
+.notice-listitem {
+  min-height: 100px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.loading-spinner {
+  width: 15px;
+  height: 15px;
+  margin-right: 7px;
 }
 
 .listitem {
