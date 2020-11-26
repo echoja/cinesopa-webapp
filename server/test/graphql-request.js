@@ -30,6 +30,7 @@ const filmResponse = `{
   star_cine21
   poster
   poster_url
+  poster_alt
   photos {
     mongo_file_id
     filename

@@ -267,6 +267,7 @@ const filmResponse = `{
   star_cine21
   poster
   poster_url
+  poster_alt
   photos {
     mongo_file_id
     filename
@@ -390,6 +391,7 @@ const prodBlock = `{
   related_film {
     id
 #    poster_url
+# poster_alt
 #    title
 #    title_en
 #    prod_date
@@ -431,15 +433,18 @@ const capitalize = (s) => {
  * @param {Object} obj
  */
 const stringify = (obj) => {
-  if (typeof obj !== 'object' || Array.isArray(obj)) {
+  if (obj === null || obj instanceof Date || typeof obj !== 'object') {
     // not an object, stringify using native function
     return JSON.stringify(obj);
+  }
+  if (Array.isArray(obj)) {
+    return `[${obj.map((c) => stringify(c)).join(', ')}]`;
   }
   // Implements recursive object serialization according to JSON spec
   // but without quotes around the keys.
   const props = Object.keys(obj)
     .map((key) => `${key}:${stringify(obj[key])}`)
-    .join(',');
+    .join(', ');
   return `{${props}}`;
 };
 

@@ -1,7 +1,7 @@
 <template>
   <div>
-    <h1 class="visually-hidden">상영신청</h1>
-    <h2 class="visually-hidden">안내사항</h2>
+    <h2 class="sr-only">상영신청</h2>
+    <h3 class="sr-only">안내사항</h3>
 
     <div class="guide">
       <p class="guide-main">
@@ -12,7 +12,7 @@
         메일 또는 전화로 연락을 드리오니,<br />잠시만 기다려주세요 :)
       </p>
       <hr />
-      <h3>상영 절차</h3>
+      <h4>상영 절차</h4>
       <ol>
         <li>상영 신청서를 작성해주세요.</li>
         <li>담당자가 신청서를 확인하여 상영 확정 메일을 드립니다.</li>
@@ -20,15 +20,16 @@
         <li>상영 후, 상영본을 반환합니다.</li>
         <li>상영료를 정산합니다.</li>
       </ol>
-      <h3>상영료 안내</h3>
+      <h4>상영료 안내</h4>
       <b-table
         class="guide-showing-fee"
         :items="showingFeeItems"
         :fields="showingFeeFields"
       >
+        <template #table-caption> 장단편 및 관객수에 따른 상영료 </template>
       </b-table>
 
-      <h3>유의사항</h3>h2
+      <h4>유의사항</h4>
       <ul>
         <li>본 상영료는 vat를 포함한 금액입니다.</li>
         <li>
@@ -48,13 +49,14 @@
         </li> -->
       </ul>
     </div>
-
+    <h3 class="sr-only">신청서 작성</h3>
     <validation-observer
       ref="observer"
+      slim
       v-slot="{ /* handleSubmit, */ validate /* errors */ }"
     >
       <b-form class="community-form" @submit.stop.prevent="submit(validate())">
-        <h2>행사 정보</h2>
+        <h4>행사 정보</h4>
         <b-form-group
           class="community-form-group"
           label="주최기관 / 단체 이름"
@@ -161,7 +163,7 @@
           ></b-form-input>
         </b-form-group>
 
-        <h2>신청인 정보</h2>
+        <h4>신청인 정보</h4>
 
         <b-form-group
           class="community-form-group"
@@ -221,7 +223,7 @@
           </template>
         </b-form-group>
 
-        <h2>상영본 정보</h2>
+        <h4>상영본 정보</h4>
         <!-- b-form-group started -->
         <b-form-group
           class="community-form-group"
@@ -252,11 +254,11 @@
                 <h3 class="film-title">{{ film.title }}</h3>
                 <b-button
                   class="close-button"
-                  @click="form.films.splice(filmIndex, 1)"
+                  @click="removeFilm(filmIndex)"
                   :aria-labelledby="`remove-film-${filmIndex}`"
                   >&times;</b-button
                 >
-                <p :id="`remove-film-${filmIndex}`" class="visually-hidden">
+                <p :id="`remove-film-${filmIndex}`" class="sr-only">
                   {{ film.title }} 삭제
                 </p>
               </div>
@@ -316,8 +318,9 @@
                     stacked
                   >
                     <b-form-checkbox
-                      v-for="(subtitle,
-                      subtitleIndex) in film.available_subtitles"
+                      v-for="(
+                        subtitle, subtitleIndex
+                      ) in film.available_subtitles"
                       :key="subtitleIndex"
                       :value="subtitle"
                       >{{ subtitle }}</b-form-checkbox
@@ -345,7 +348,7 @@
             id="film-select-modal"
             title="영화 선택"
             hide-footer
-            :return-focus="`#film-list-item-${lastFilmIndex}`"
+            :return-focus="filmSelectFocus"
           >
             <film-selector
               class="noto-sans"
@@ -364,7 +367,7 @@
         >
           
         </b-form-group> -->
-        <h2>비용 및 배송 관련 정보</h2>
+        <h4>비용 및 배송 관련 정보</h4>
         <b-form-group
           class="community-form-group"
           label="상영본 수령 방법"
@@ -564,7 +567,7 @@
           </b-form-datepicker-korean>
         </b-form-group>
         <div class="d-flex align-items-baseline">
-          <h2>정산 정보</h2>
+          <h4>정산 정보</h4>
           <b-form-checkbox
             class="ml-4"
             id="is-tax-same"
@@ -905,7 +908,7 @@ import LoadingButton from '@/components/LoadingButton.vue';
 extend('shouldCheck', (value) => value === true);
 
 export default {
-  title: '상영신청',
+  title: '상영신청 - 신청하기',
   name: 'Community',
   components: {
     Privacy,
@@ -1044,6 +1047,11 @@ export default {
     lastFilmIndex() {
       return this.form.films.length - 1;
     },
+    filmSelectFocus() {
+      return this.lastFilmIndex === -1
+        ? '#select-film-button'
+        : `#film-list-item-${this.lastFilmIndex}`;
+    },
   },
 
   mounted() {
@@ -1156,6 +1164,16 @@ export default {
       // });
       // console.log(this.$refs);
     },
+    removeFilm(index) {
+      this.form.films.splice(index, 1);
+      this.$nextTick(() => {
+        console.log('# community removeFilm nextick to set Focus');
+        console.log(this.filmSelectFocus);
+
+        // #이 포함되어 있으므로 첫번째 글자를 없앰.
+        document.getElementById(this.filmSelectFocus.slice(1)).focus();
+      });
+    },
     receiveDateDisabled(ymd, date) {
       const weekday = date.getDay();
       return weekday === 0 || weekday === 5 || weekday === 6;
@@ -1173,9 +1191,10 @@ export default {
   padding: 50px 0;
 
   max-width: 700px;
-  & h3 {
+  & h4 {
     margin-top: 40px;
-    font-size: 22px;
+    font-size: 20px;
+    font-weight: bold;
   }
   & li {
     font-size: 16px;
@@ -1211,8 +1230,10 @@ export default {
   text-align: center;
   margin-top: 20px;
 }
-.community-form h2 {
+.community-form h4 {
   margin-top: 70px;
+  font-size: 30px;
+  font-weight: bold;
   color: #009eda;
 }
 

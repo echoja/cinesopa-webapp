@@ -193,6 +193,7 @@ list {
   open_date
   poster
   poster_url
+  poster_alt
   featured_synopsis
   featured_color
   featured_steel
@@ -249,6 +250,7 @@ const filmDetail = `{
   star_cine21
   poster
   poster_url
+  poster_alt
   photos {
     mongo_file_id
     filename

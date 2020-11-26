@@ -1,5 +1,6 @@
 <template>
   <div class="container-fluid">
+    <h1 class="sr-only">신청하기</h1>
     <nav class="request-menu">
       <ol class="request-menu-list">
         <!-- linkRefMap[$route.name].$el.offsetLeft -->
@@ -21,13 +22,16 @@
           >
         </li>
         <li class="request-menu-listitem">
-          <b-link class="request-router-link smooth-hover" ref="link2" :to="{ name: 'Community' }"
+          <b-link
+            class="request-router-link smooth-hover"
+            ref="link2"
+            :to="{ name: 'Community' }"
             >상영신청</b-link
           >
         </li>
       </ol>
     </nav>
-    
+
     <!-- <div role="heading" aria-level="1">This is a main page heading</div> -->
 
     <transition name="fade" mode="out-in">
@@ -71,9 +75,7 @@ export default {
       return this.linkRefMap[this.$route.name]?.$el.offsetHeight;
     },
   },
-  methods: {
-
-  },
+  methods: {},
 };
 </script>
 

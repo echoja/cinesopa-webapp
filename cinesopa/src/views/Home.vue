@@ -1,6 +1,6 @@
 <template>
   <div id="home" ref="home">
-    <h1 class="visually-hidden">홈</h1>
+    <h1 class="sr-only">홈</h1>
     <!-- <b-button @click="pageScrollMoveStart(0, 2)">테스트</b-button>
     <b-button @click="howv = !howv">테스트2</b-button>
     <div>{{ how('v') }}</div> -->
@@ -60,12 +60,16 @@
                   data-animation-number="3"
                   class="position-relative w-100 h-100"
                 >
+                  <!-- <img -->
                   <b-img
                     alt=""
                     aria-hidden="true"
                     class="img0-3 position-absolute"
                     src="../assets/home/3.png"
-                  ></b-img>
+                  >
+                    <!--
+                    -->
+                  </b-img>
                 </div>
               </parallax>
             </div>
@@ -227,10 +231,10 @@
                 aria-label="새 소식"
                 aria-describedby="main-new-post-described"
               >
-                <div id="main-new-post-described" class="visually-hidden">
+                <div id="main-new-post-described" class="sr-only">
                   씨네소파의 최근 소식 5개를 확인할 수 있습니다.
                 </div>
-                <div class="visually-hidden" role="rowgroup">
+                <div class="sr-only" role="rowgroup">
                   <div role="row">
                     <div role="columnheader">날짜</div>
                     <div role="columnheader">제목</div>
@@ -423,7 +427,7 @@ export default {
   //     if (rellaxInstance?.refresh) {
   //       this.$nextTick(() => {
   //         rellaxInstance.refresh();
-          // console.log('rellaxInstance refreshed!');
+  // console.log('rellaxInstance refreshed!');
   //       });
   //     }
   //   },
@@ -447,7 +451,7 @@ export default {
 
     // if (rellaxInstance?.refresh) {
     //   rellaxInstance.refresh();
-      // console.log('refreshed!');
+    // console.log('refreshed!');
     // } else {
     //
 

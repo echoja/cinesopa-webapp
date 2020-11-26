@@ -11,7 +11,7 @@
     </span>
     <div class="spinner-wrapper" v-if="loading">
       <b-spinner class="spinner" size="sm"></b-spinner>
-      <span class="visually-hidden">
+      <span class="sr-only">
         {{ loadingLabel }}
       </span>
     </div>

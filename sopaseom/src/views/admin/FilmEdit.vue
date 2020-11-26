@@ -823,6 +823,7 @@ export default {
         star_cine21: null,
         poster: null, // File에 대한 id
         poster_url: '',
+        poster_alt: '',
         photos: [], // File에 대한 ObjectId의 배열
         videos: [], // video
         synopsis: '',
@@ -996,6 +997,7 @@ export default {
       const poster = files[0];
       // console.log(files[0]);
       this.film.poster_url = poster.fileurl;
+      this.film.poster_alt = poster.alt;
       // eslint-disable-next-line no-underscore-dangle
       this.film.poster = poster._id;
       // this.film.poster = files[0]

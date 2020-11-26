@@ -4,6 +4,9 @@
     transition: none;
     text-decoration: none;
   }
+  &:focus {
+    transition: none;
+  }
 }
 // %smooth-move {
 //   transition: 0.5s ease;

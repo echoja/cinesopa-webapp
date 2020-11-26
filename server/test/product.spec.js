@@ -51,6 +51,7 @@ const prodBlock = `{
   }
   related_film {
     poster_url
+    poster_alt
     title
     title_en
     prod_date

@@ -27,10 +27,11 @@
             :to="{ name: 'Home' }"
             :class="{ white: $store.state.logoWhite }"
           >
-            <span class="visually-hidden">홈으로 이동</span>
+            <span class="sr-only">홈으로 이동</span>
             <svg
               xmlns="http://www.w3.org/2000/svg"
               class="transition-header"
+              focusable="false"
               viewBox="0 0 226.77 47.02"
               role="img"
               aria-hidden="true"
@@ -163,13 +164,17 @@
           </b-link>
           <b-sidebar
             id="sidebar-menu"
-            title="MENU"
+            title="메뉴"
             :backdrop-variant="'dark'"
             backdrop
             shadow
             aria-label="메뉴"
             close-label="닫기"
           >
+            <template #header-close>
+              <span class="close-figure" aria-hidden="true">&times;</span>
+              <span class="sr-only"> 닫기 </span>
+            </template>
             <div class="px-3 py-2">
               <p>
                 <b-link class="px-4" :to="{ name: 'About' }">회사소개 </b-link>
@@ -233,7 +238,7 @@
             target="_blank"
             rel="external"
           >
-            <span class="visually-hidden">씨네소파 인스타그램 이동</span>
+            <span class="sr-only">씨네소파 인스타그램 이동</span>
             <font-awesome-icon :icon="['fab', 'instagram']" />
           </b-link>
           <b-link
@@ -241,7 +246,7 @@
             target="_blank"
             rel="external"
           >
-            <span class="visually-hidden">씨네소파 페이스북 이동</span>
+            <span class="sr-only">씨네소파 페이스북 이동</span>
             <font-awesome-icon :icon="['fab', 'facebook']" />
           </b-link>
           <!-- <b-img class="m-2" src="./assets/naver-blog.svg"></b-img> -->
@@ -250,7 +255,7 @@
             target="_blank"
             rel="external"
           >
-            <span class="visually-hidden">씨네소파 네이버 블로그 이동</span>
+            <span class="sr-only">씨네소파 네이버 블로그 이동</span>
             <!-- aria-describedby="설명id" -->
             <svg
               width="30"
@@ -617,13 +622,13 @@ export default {
     color: #fff;
     opacity: 0.7;
   }
-  & a {
+  a {
     @extend %smooth-hover;
     font-weight: 500;
     padding: 16px;
   }
 
-  & a:hover {
+  a:hover {
     color: #009eda;
   }
   // & a:last-child {
@@ -788,6 +793,11 @@ button:hover {
 
 .menu-button {
   color: #2b3e4a;
+}
+
+.close-figure {
+  font-size: 30px;
+  color: #000;
 }
 
 /* footer !footer */
@@ -977,6 +987,42 @@ button:hover {
   border: 0;
   border-radius: 0;
   border-bottom: 1px solid #ddd;
+}
+
+// focus
+
+// for test
+// :focus {
+//   outline: 3px solid #009eda;
+//   // transition: 0s;
+// }
+a:focus {
+  outline: 3px solid #000;
+  // transition: 0s;
+}
+
+.carousel-control-prev:focus,
+.carousel-control-next:focus {
+  border: 3px solid #000;
+  // outline: 3px solid #000;
+}
+
+a:focus {
+  transition: 0s;
+}
+
+// common legend and caption
+
+legend, caption {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
 }
 </style>
 

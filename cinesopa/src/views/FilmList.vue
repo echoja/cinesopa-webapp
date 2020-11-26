@@ -1,12 +1,12 @@
 <template>
   <div>
     <!-- placeholder -->
-    <h1 class="visually-hidden">작품 소개</h1>
+    <h1 class="sr-only">작품 소개</h1>
     <div
       class="featured-wrapper position-relative fullwidth"
       v-if="featured.length !== 0"
     >
-      <h2 class="visually-hidden">특집 작품 목록</h2>
+      <h2 class="sr-only">특집 작품 목록</h2>
       <div class="featured-height"></div>
       <div
         class="featured featured-height d-flex align-items-center justify-content-center text-center"
@@ -63,10 +63,14 @@
                       class="d-block w-100 h-100"
                       :to="{ name: 'IndividualFilm', params: { id: film.id } }"
                     >
+                      <span class="sr-only">{{film.title}} 자세히 보기</span>
                       <b-img
                         class="mw-100 mh-100"
                         :src="parseUploadLink(film.poster_url)"
+                        alt=""
                       ></b-img>
+                        <!-- :alt="film.poster_alt" -->
+                        <!-- :alt="`${film.title} 포스터`" -->
                     </b-link>
                   </b-col>
                   <b-col
@@ -136,7 +140,7 @@
         </b-carousel>
       </div>
     </div>
-    <h2 class="visually-hidden">필터 및 검색창</h2>
+    <h2 class="sr-only">필터 및 검색창</h2>
     <div class="filter">
       <!-- 모바일 때만 보이는 필터 -->
       <template v-if="$store.state.isMobile">
@@ -161,7 +165,7 @@
             </b-link>
           </div>
         </div> -->
-        <h3 class="visually-hidden">개봉 상태에 따른 분류</h3>
+        <h3 class="sr-only">개봉 상태에 따른 분류</h3>
         <b-form-radio-group
           v-model="opened"
           @change="openedChanged"
@@ -173,7 +177,7 @@
         </b-form-radio-group>
 
         <!-- 검색창 -->
-        <h3 class="visually-hidden">검색창</h3>
+        <h3 class="sr-only">검색창</h3>
         <div
           class="search text-center mx-auto my-2 position-relative d-flex align-items-center"
         >
@@ -266,7 +270,7 @@
       </div> -->
 
     <!-- 영화 목록 -->
-    <h2 class="visually-hidden">영화 목록</h2>
+    <h2 class="sr-only">영화 목록</h2>
     <b-row class="filmlist" ref="filmlist">
       <transition name="filmlist-fade">
         <div
@@ -309,8 +313,9 @@
             <img
               v-if="film.poster_url"
               :src="parseUploadLink(film.poster_url)"
-              :alt="`${film.title} 포스터`"
+              :alt="film.poster_alt"
             />
+              <!-- :alt="`${film.poster_alt} 포스터`" -->
             <span class="no-poster" v-else>포스터<br />준비 중입니다</span>
           </b-link>
         </div>
@@ -426,6 +431,12 @@ export default {
         //   badge_text: '개봉예정',
         // },
       ],
+      openedOptionsStringMap: {
+        all: '모두',
+        opened: '개봉작',
+        owned: '보유작',
+      },
+      vuePageTitle: '',
       tags: [
         {
           key: 1,
@@ -554,6 +565,7 @@ export default {
 
   async mounted() {
     this.opened = this.type;
+    this.vuePageTitle = `${this.openedOptionsStringMap[this.opened]} - 영화소개`;
     this.currnetPage = parseInt(this.page, 10);
     AOS.init();
     this.fetchFeaturedFilms();
@@ -590,10 +602,13 @@ export default {
     },
     async openedChanged(value) {
       this.$router.push({ name: 'FilmList', params: { type: value } });
+      this.vuePageTitle = `${this.openedOptionsStringMap[value]} - 영화소개`;
       this.opened = value;
       this.currentPage = 1;
       await this.fetchFilms();
     },
+
+    // 슬라이더에 오는 영화들을 가져오는 함수.
     async fetchFeaturedFilms() {
       const res = await graphql(filmsFeaturedQuery);
       // console.log(res);
@@ -608,6 +623,7 @@ export default {
           title: film.title,
           title_en: film.title_en,
           poster_url: film.poster_url,
+          poster_alt: film.poster_alt,
           featured_excerpt: film.featured_synopsis,
           open_date: new Date(film.open_date),
           badge_text: film.badge_text,
@@ -658,6 +674,7 @@ export default {
           id: film.id,
           title: film.title,
           poster_url: film.poster_url,
+          poster_alt: film.poster_alt,
           title_en: film.title_en,
           badge_text: film.badge_text,
           badge_color: film.badge_color,
@@ -886,6 +903,11 @@ export default {
     opacity: 0.7;
   }
 
+  .poster-link:focus {
+    transition: none;
+    outline-offset: -3px;
+  }
+
   .poster-wrapper {
     height: 500px;
     overflow: hidden;
@@ -905,15 +927,15 @@ export default {
     max-height: 500px;
     border: 1px solid #ddd;
   }
+
   h3 a {
+    @extend %smooth-hover;
     font-size: 36px;
     color: #009eda;
     font-weight: bold;
   }
   h3 a:hover {
     color: #2b3e4a;
-    transition: none;
-    text-decoration: none;
   }
 
   p {

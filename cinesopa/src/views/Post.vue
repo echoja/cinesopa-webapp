@@ -87,7 +87,6 @@ export default {
 
     this.post = post;
     const boardId = this.post?.board;
-    this.vuePageTitle = this.post.title;
 
     if (boardId) {
       const boardRes = await graphql(boardQuery, {
@@ -104,6 +103,8 @@ export default {
       this.boardPermalink = boardPermalink;
       this.boardWrapper = boardWrapperMap[boardPermalink];
     }
+    // 페이지 제목 설정
+    this.vuePageTitle = `${this.post.title} 내용 - ${this.boardTitle} - ${this.boardWrapper.name}`;
   },
 };
 </script>

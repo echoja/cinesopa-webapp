@@ -8,14 +8,18 @@
         target="_blank"
         :href="parseUploadLink(film.poster_url)"
       >
+        <!-- :alt="`${film.title} 포스터`" -->
         <b-img
           v-if="film.poster_url"
-          :alt="`${film.title} 포스터`"
+          :alt="film.poster_alt"
           :src="parseUploadLink(film.poster_url)"
           class="shadow"
         ></b-img>
         <div v-else>메인 포스터를 준비 중입니다.</div>
-        <font-awesome-icon class="zoom-icon" :icon="['fas', 'search-plus']"></font-awesome-icon>
+        <font-awesome-icon
+          class="zoom-icon"
+          :icon="['fas', 'search-plus']"
+        ></font-awesome-icon>
       </b-link>
     </div>
     <!-- 각종 신청 -->
@@ -28,14 +32,16 @@
         <h1>{{ film.title }}</h1>
         <p class="title-en">
           <span> {{ film.title_en }}</span
-          ><span class="head-seperator" v-if="film.title_en && filmProdYear">, </span
+          ><span class="head-seperator" v-if="film.title_en && filmProdYear"
+            >, </span
           ><span v-if="filmProdYear">
             {{ filmProdYear }}
           </span>
         </p>
       </div>
-      <p id="basic-info-table-summary" class="visually-hidden">
-        영화 {{ film.title }}의 장르, 상영시간, 감독, 출연진 등의 기본 정보입니다.
+      <p id="basic-info-table-summary" class="sr-only">
+        영화 {{ film.title }}의 장르, 상영시간, 감독, 출연진 등의 기본
+        정보입니다.
       </p>
       <div
         class="body"
@@ -44,7 +50,7 @@
         :aria-label="`${film.title} 기본 정보`"
         aria-describedby="basic-info-table-summary"
       >
-        <div role="rowgroup" class="visually-hidden">
+        <div role="rowgroup" class="sr-only">
           <div class="basic-body-row d-flex" role="row">
             <span role="columnheader">구분</span>
             <span role="columnheader">내용</span>
@@ -56,9 +62,7 @@
             class="basic-body-row d-flex"
             role="row"
           >
-            <span class="title" role="rowheader">
-              개요
-            </span>
+            <span class="title" role="rowheader"> 개요 </span>
             <span class="content" role="cell">
               <template v-for="(output, index) in filmSummary">
                 <span :key="`${index}0`">{{ output }}</span>
@@ -80,25 +84,23 @@
             </span>
           </div>
           <div v-if="filmDirector" class="basic-body-row d-flex" role="row">
-            <span class="title" role="rowheader">
-              감독
-            </span>
+            <span class="title" role="rowheader"> 감독 </span>
             <span class="content" role="cell">
               {{ filmDirector }}
             </span>
           </div>
-          <div v-if="filmActors.length > 0" class="basic-body-row d-flex" role="row">
-            <span class="title" role="rowheader">
-              출연
-            </span>
+          <div
+            v-if="filmActors.length > 0"
+            class="basic-body-row d-flex"
+            role="row"
+          >
+            <span class="title" role="rowheader"> 출연 </span>
             <span class="content" role="cell">
               {{ filmActors }}
             </span>
           </div>
           <div v-if="film.watch_grade" class="basic-body-row d-flex" role="row">
-            <span class="title" role="rowheader">
-              등급
-            </span>
+            <span class="title" role="rowheader"> 등급 </span>
             <span class="content" role="cell">
               {{ film.watch_grade }}
             </span>
@@ -135,37 +137,66 @@
           :duration="500"
           bezier-easing-value=".5,0,.35,1"
           class="scrollactive d-flex justify-content-start align-items-center"
+          @itemchanged="onScrollactiveItemChanged"
+          @click="onScrollactiveClicked"
         >
-          <b-link href="#synopsis" class="scrollactive-item first" v-if="filmSynopsis"
+          <b-link
+            href="#synopsis"
+            class="scrollactive-item first"
+            v-if="filmSynopsis"
             >시놉시스</b-link
           >
-          <b-link href="#people" class="scrollactive-item" v-if="filmPeople.length !== 0"
+          <b-link
+            href="#people"
+            class="scrollactive-item"
+            v-if="filmPeople.length !== 0"
             >배우/제작진</b-link
           >
-          <b-link href="#awards" class="scrollactive-item" v-if="film.awards.length !== 0"
+          <b-link
+            href="#awards"
+            class="scrollactive-item"
+            v-if="film.awards.length !== 0"
             >수상내역</b-link
           >
-          <b-link href="#steel" class="scrollactive-item" v-if="film.photos.length !== 0"
+          <b-link
+            href="#steel"
+            class="scrollactive-item"
+            v-if="film.photos.length !== 0"
             >포토</b-link
           >
-          <b-link href="#reviews" class="scrollactive-item" v-if="film.reviews.length !== 0"
+          <b-link
+            href="#reviews"
+            class="scrollactive-item"
+            v-if="film.reviews.length !== 0"
             >리뷰</b-link
           >
-          <b-link href="#note" class="scrollactive-item" v-if="film.note">제작노트</b-link>
+          <b-link href="#note" class="scrollactive-item" v-if="film.note"
+            >제작노트</b-link
+          >
         </scrollactive>
       </affix>
     </div>
     <!-- 상세정보 -->
     <div id="detailed-info" class="detailed-info">
       <!-- 시놉시스 -->
-      <div v-if="filmSynopsis" class="detailed-info-item" id="synopsis">
+      <div
+        v-if="filmSynopsis"
+        class="detailed-info-item"
+        id="synopsis"
+        tabindex="-1"
+      >
         <h2>시놉시스</h2>
         <div v-html="filmSynopsis"></div>
       </div>
       <!-- 배우/제작진 -->
-      <div class="detailed-info-item" id="people" v-if="filmPeople.length !== 0">
+      <div
+        class="detailed-info-item"
+        id="people"
+        tabindex="-1"
+        v-if="filmPeople.length !== 0"
+      >
         <h2 id="people-caption">배우/제작진</h2>
-        <p id="people-summar" class="visually-hidden">
+        <p id="people-summar" class="sr-only">
           역할이나 직무에 따른 사람들을 소개합니다.
         </p>
         <b-table
@@ -173,10 +204,11 @@
           :items="filmPeople"
           borderless
           small
-          thead-class="visually-hidden"
+          thead-class="sr-only"
           aria-describedby="people-summary"
           aria-labelledby="people-caption"
         >
+          <template #table-caption> 배우 및 제작진 정보 </template>
           <!-- <template #cell(role)="row">
             <div class="text-right">
               {{ row.item.role }}
@@ -186,13 +218,18 @@
       </div>
 
       <!-- 수상내역 -->
-      <div class="detailed-info-item" id="awards" v-if="film.awards.length !== 0">
-        <h2>
-          수상내역
-        </h2>
+      <div
+        class="detailed-info-item"
+        id="awards"
+        tabindex="-1"
+        v-if="film.awards.length !== 0"
+      >
+        <h2>수상내역</h2>
         <div class="awards-table">
           <div
-            v-for="(year, index) in Object.keys(filmAwards).sort((a, b) => b - a)"
+            v-for="(year, index) in Object.keys(filmAwards).sort(
+              (a, b) => b - a,
+            )"
             :key="index"
             class="year-block d-flex flex-column"
           >
@@ -221,10 +258,13 @@
         <div class="row"></div>
       </div>
       <!-- 포토 -->
-      <div class="detailed-info-item" id="steel" v-if="film.photos.length !== 0">
-        <h2 class="no-divider">
-          포토
-        </h2>
+      <div
+        class="detailed-info-item"
+        id="steel"
+        tabindex="-1"
+        v-if="film.photos.length !== 0"
+      >
+        <h2 class="no-divider">포토</h2>
         <b-carousel
           class="row-fullwidth film-photos-wrapper"
           id="carousel"
@@ -246,24 +286,39 @@
         </b-carousel>
       </div>
       <!-- 리뷰 -->
-      <div class="detailed-info-item" id="reviews" v-if="film.reviews.length !== 0">
-        <h2>
-          리뷰
-        </h2>
+      <div
+        class="detailed-info-item"
+        id="reviews"
+        tabindex="-1"
+        v-if="film.reviews.length !== 0"
+      >
+        <h2>리뷰</h2>
         <div class="row">
-          <div class="col-12 review-row" v-for="(review, index) in film.reviews" :key="index">
+          <div
+            class="col-12 review-row"
+            v-for="(review, index) in film.reviews"
+            :key="index"
+          >
             <p class="review-title">
-              <b-link target="_blank" rel="external" :href="review.url">{{ review.title }}</b-link>
+              <b-link target="_blank" rel="external" :href="review.url">{{
+                review.title
+              }}</b-link>
             </p>
-            <p class="review-source">{{ review.source }}, {{ review.author }}</p>
+            <p class="review-source">
+              {{ review.source }}, {{ review.author }}
+            </p>
           </div>
         </div>
       </div>
       <!-- 제작노트 -->
-      <div v-if="film.note" class="detailed-info-item" style="height: 10000px" id="note">
-        <h2>
-          제작노트
-        </h2>
+      <div
+        v-if="film.note"
+        class="detailed-info-item"
+        tabindex="-1"
+        style="height: 10000px"
+        id="note"
+      >
+        <h2>제작노트</h2>
         <div v-html="film.note"></div>
       </div>
     </div>
@@ -310,6 +365,7 @@ export default {
           },
         ],
         poster_url: '',
+        poster_alt: '',
         watch_grade: '전체관람가',
         show_time: 6491,
         genres: [],
@@ -442,7 +498,9 @@ export default {
       return null;
     },
     mainTrailerIframe() {
-      const main = this.film.videos.find((video) => video.is_main_trailer === true);
+      const main = this.film.videos.find(
+        (video) => video.is_main_trailer === true,
+      );
       // console.log(main);
       if (main) {
         return main.youtube_iframe;
@@ -576,7 +634,34 @@ export default {
   },
   methods: {
     gotoCommunity() {
-      this.$router.push({ name: 'Community', query: { name: this.film.title } });
+      this.$router.push({
+        name: 'Community',
+        query: { name: this.film.title },
+      });
+    },
+    onScrollactiveItemChanged(event, currentItem, lastActiveItem) {
+      /** @type {Element} */
+      let a;
+
+      console.log('# Film.vue onScrollactiveItemChanged');
+      // console.log(currentItem);
+      // console.log(event);
+      // 클릭으로 넘어간 경우는 그냥 event 가 null 이더라.
+      // 클릭이 아닌 경우는, scroll 등이 있다.
+      if (event === null) {
+        const selector = currentItem.attributes?.href?.value;
+        console.log(selector);
+        const id = selector.slice(1);
+        document.getElementById(id).focus();
+        // currentItem.
+      }
+    },
+    onScrollactiveClicked(event, a, b, c) {
+      console.log('# Film.vue onScrollactiveClicked');
+      console.log(event);
+      console.log(a);
+      console.log(b);
+      console.log(c);
     },
     parseUploadLink,
   },
@@ -820,11 +905,10 @@ export default {
 
 .review-row {
   display: flex;
+  justify-content: space-between;
   align-items: center;
-  // border: 1px soild #ddd;
   border-top: 1px solid #ddd;
   border-bottom: 1px solid #ddd;
-  // max-width: 700px;
   padding: 20px 10px;
   margin-top: -1px;
 }
@@ -837,9 +921,6 @@ export default {
 .review-title {
   text-decoration: underline;
   padding-right: 10px;
-  white-space: nowrap;
-  flex: 1;
-  overflow: hidden;
   text-overflow: ellipsis;
 
   & a {

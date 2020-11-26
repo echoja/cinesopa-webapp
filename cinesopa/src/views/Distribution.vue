@@ -1,7 +1,7 @@
 <template>
   <div>
-    <h1 class="visually-hidden">배급 의뢰</h1>
-    <h2 class="visually-hidden">안내사항</h2>
+    <h2 class="sr-only">배급의뢰</h2>
+    <h3 class="sr-only">안내사항</h3>
     <p class="main-summary">작품 의뢰 주셔서 감사드립니다.</p>
     <p class="sub-summary">
       본 신청서를 작성하시면 2주 이내 연락을 드리니, 잠시만 기다려주세요 :)
@@ -20,9 +20,10 @@
     <p class="how-to">*시사용 DVD를 우편으로 발송할 경우에는 포장 겉면에 반드시 <배급의뢰신청>이라고 기재하시고 아래 주소로 보내주세요.
   부산광역시 해운대구 재반로</p>
     <p class="how-to">내부 시사 후 15일 이내에 메일로 연락드립니다.</p> -->
-    <h2 class="visually-hidden">신청 폼</h2>
+    <h3 class="sr-only">신청 폼</h3>
     <validation-observer
       ref="observer"
+      slim
       v-slot="{ /*handleSubmit, */ validate /*errors*/ }"
     >
       <!-- <b-button @click="log(validate(), errors)">체크체크</b-button> -->
@@ -33,7 +34,7 @@
         <!-- <b-input type="text" required></b-input> -->
 
         <hr />
-        <h2>신청인</h2>
+        <h4>신청인</h4>
         <b-form-group
           class="distribution-form-group"
           label="이름"
@@ -110,7 +111,7 @@
           </b-form-select>
         </b-form-group>
 
-        <h2>작품 정보</h2>
+        <h4>작품 정보</h4>
         <b-form-group
           class="distribution-form-group"
           label="한글 제목"
@@ -409,7 +410,7 @@ import LoadingButton from '@/components/LoadingButton.vue';
 extend('shouldCheck', (value) => value === true);
 
 export default {
-  title: '배급의뢰',
+  title: '배급의뢰 - 신청하기',
   name: 'Distribution',
   components: {
     privacy: Privacy,
@@ -521,8 +522,10 @@ export default {
 <!---------------------------------------------------------------->
 
 <style lang="scss" scoped>
-.distribution-form h2 {
+.distribution-form h4 {
   margin-top: 70px;
+  font-size: 30px;
+  font-weight: bold;
   color: #009eda;
 }
 .underlined-box {

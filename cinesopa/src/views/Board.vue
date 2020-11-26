@@ -123,7 +123,7 @@
               :to="{ name: 'Post', params: { id: post.id } }"
               class="thumbnail-link"
             >
-              <span class="visually-hidden">{{ post.title }}</span>
+              <span class="sr-only">{{ post.title }}</span>
 
               <img
                 v-if="post.featured_image_link"
