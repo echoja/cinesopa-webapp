@@ -58,6 +58,7 @@ type Film {
   star_cine21: Int
   poster: String # File에 대한 ObjectId
   poster_url: String
+  poster_alt: String
   photos: [Photo] # File에 대한 ObjectId의 배열
   id: Int
   videos: [Video]
@@ -144,6 +145,7 @@ input FilmInput {
   star_cine21: Int
   poster: String # File에 대한 ObjectId
   poster_url: String
+  poster_alt: String
   photos: [PhotoInput] 
   videos: [VideoInput]
   awards: [AwardInput]

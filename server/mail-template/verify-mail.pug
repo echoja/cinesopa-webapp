@@ -1,0 +1,110 @@
+doctype transitional
+
+mixin mtable
+  //- table(class!=attributes.class border="0" cellpadding="0" cellspacing="0" width=attributes.width ? attributes.width : "100%")&attributes(attributes)
+  table(class!=attributes.class border="0" cellpadding="0" cellspacing="0" width="100%")&attributes(attributes)
+    block
+
+
+mixin tableBody
+  +mtable#contentTable
+    tr
+      td(style='padding-bottom: 50px')
+        +mtable
+          tr
+            td(align="center")
+              img(src=sopaseomLogoSrc alt=sopaseomLogoAlt width="200" height="156")
+    tr
+      td 
+        +mtable
+          tr
+            td 안녕하세요, 영화향유플랫폼 소파섬과 함께 해주셔서 감사드립니다.
+    tr
+      td
+        +mtable
+          tr
+            td(style="padding-top: 5px") 아래 링크를 클릭하여 이메일을 인증하고 회원가입을 완료해주세요.
+    tr
+      td(style='padding-top: 50px; padding-bottom: 50px;')
+        +mtable
+          tr
+            td 
+              a(style={color: '#fff', 
+                display:'inline-block', 
+                'background-color': '#000', 
+                padding: '10px 15px 10px 15px',
+                'text-decoration': 'none',
+                'font-weight': 'bold',
+              }, href=verifyUrl) 이메일 인증하기
+    tr
+      td
+        +mtable
+          tr
+            td 인증을 하신다면 소파섬의 모든 서비스를 제한 없이 이용하실 수 있습니다.
+    tr
+      td
+        +mtable
+          tr
+            td.sub-notice(style="padding-top: 10px") 본 메일은 영화향유플랫폼 소파섬 계성 생성시 이메일 인증을 위해 발신되었습니다. 
+    tr
+      td
+        +mtable
+          tr
+            td.sub-notice 만약 본인이 아니시라면, 본 메일을 무시해주시기 바랍니다.
+    tr
+      td(align="center" style="padding-top:30px")
+        img(src=cinesopaLogoSrc, alt=cinesopaLogoAlt, width="150" height="108")
+    tr
+      td(align="center" style="font-size:12px; color:#999999")
+        a.other(href=policyUrl) 이용약관
+        | &nbsp;|&nbsp;
+        a.other(href=privacyUrl) 개인정보처리방침
+    tr
+      td(align="center" style="font-size:12px; padding-top: 20px;") Copyright ⓒ #{year} Cinesopa All Rights Reserved. 
+
+
+html(lang="ko")
+  head
+    meta(charset="UTF-8")
+    meta(name="viewport" content="width=device-width, initial-scale=1.0")
+    title EMAIL HTML
+  body
+    style.
+      /* GENERAL STYLE RESETS */
+      body, #bodyTable { width:100% !important; height:100% !important; margin:0; padding:0; color:#000000 }
+
+      img, a img { border:0; outline:none; text-decoration:none; }
+      .imageFix { display:block; }
+      table, td { border-collapse:collapse; }
+      /* CLIENT-SPECIFIC RESETS */
+      /* Outlook.com(Hotmail)의 전체 너비 및 적절한 줄 높이를 허용 */
+      .ReadMsgBody{ width: 100%; }
+      .ExternalClass{ width: 100%; }
+      .ExternalClass, .ExternalClass p, .ExternalClass span, .ExternalClass font, .ExternalClass td, .ExternalClass div { line-height: 100%; }
+      /* Outlook 2007 이상에서 Outlook이 추가하는 테이블 주위의 간격을 제거 */
+      table, td { mso-table-lspace: 0pt; mso-table-rspace: 0pt; }
+      td { padding: 0; font-size: 14px;}
+      /* Internet Explorer에서 크기가 조정된 이미지를 렌더링하는 방식을 수정 */
+      img { -ms-interpolation-mode: bicubic; }
+      /* Webkit 및 Windows 기반 클라이언트가 텍스트 크기를 자동으로 조정하지 않도록 수정 */
+      body, table, td, p, a, li, blockquote { -ms-text-size-adjust: 100%; -webkit-text-size-adjust: 100%; }
+      .sub-notice {
+        font-size: 12px;
+        color: #777777;
+      }
+      a {
+        color: #777777;
+      }
+      a:visited {
+        color: #777777;
+      }
+      #bodyTable { padding: 20px 0 30px 0; font-size:16px; background-color: #f3f3f3;  }
+
+    +mtable#bodyTable
+      tr
+        td(align="center" style="padding-top: 30px; padding-bottom: 30px;")
+          +mtable#wrapTable(width="600")
+            tr
+              td(style="padding: 30px; background-color:#ffffff;" )
+                +tableBody
+

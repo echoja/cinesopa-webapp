@@ -529,6 +529,7 @@ class DBManager {
   /**
    * 사이트 옵션의 이름으로 파일을 구합니다.
    * @param {string} name
+   * @returns {Promise<Fileinfo>}
    */
   async getFilebyOptionName(name) {
     const option = await model.SiteOption.findOne({ name }).lean().exec();
@@ -641,7 +642,10 @@ class DBManager {
     // 페이지 설정 및 open_date 로 정렬
     if (page !== null && perpage) {
       console.log('getFilms: page, perpage!!');
-      query = query.limit(perpage).skip(perpage * page).sort({open_date: -1});
+      query = query
+        .limit(perpage)
+        .skip(perpage * page)
+        .sort({ open_date: -1 });
     }
 
     return {
@@ -884,7 +888,7 @@ class DBManager {
     const total = (await query.exec()).length;
 
     // pagination
-    if (page && perpage) {
+    if (typeof page === 'number' && typeof perpage === 'number') {
       // console.log('getPosts: pagenation!!');
       query = query.limit(perpage).skip(perpage * page);
     }
@@ -956,6 +960,63 @@ class DBManager {
   async removePost(id) {
     const doc = await model.Post.findOne({ id }).lean().exec();
     await model.Post.deleteOne({ id }).exec();
+    return doc;
+  }
+  /*= ====================================
+  소파킷 키워드 Sopakit
+  ===================================== */
+
+  /**
+   * 소파킷 정보들을 얻습니다.
+   * @param {SopakitSearch} condition
+   */
+  async getSopakits(condition = {}) {
+    const { page, perpage, status } = condition;
+    let query = model.Sopakit.find().sort({ managing_date: -1 });
+
+    // status 처리
+    if (status) {
+      query = query.find({ status });
+    }
+    const total = (await query.lean().exec()).length;
+
+    // page, perpage 처리
+    if (typeof page === 'number' && typeof perpage === 'number') {
+      query = query.limit(perpage).skip(perpage * page);
+    }
+
+    const list = await query.lean().exec();
+    return {
+      total,
+      list,
+    };
+  }
+
+  /**
+   * 소파킷 키워드를 새로 만듭니다.
+   * @param {SopakitInfo} input
+   */
+  async createSopakit(input) {
+    return model.Sopakit.create(input);
+  }
+
+  /**
+   * 해당 소파킷 키워드의 정보를 갱신합니다.
+   * @param {number} id
+   * @param {SopakitInfo}} input
+   */
+  async updateSopakit(id, input) {
+    await model.Sopakit.updateOne({ id }, input).exec();
+    return model.Sopakit.findOne({ id }).lean().exec();
+  }
+
+  /**
+   * 소파킷 키워드를 삭제합니다.
+   * @param {number} id
+   */
+  async removeSopakit(id) {
+    const doc = await model.Sopakit.findOne({ id }).lean().exec();
+    await model.Sopakit.deleteOne({ id }).exec();
     return doc;
   }
 
@@ -1157,7 +1218,7 @@ class DBManager {
    */
   async updateCartitemOption(id, optionId, count, current, email) {
     const item = await model.Cartitem.findOne({ id, user: email });
-    
+
     // 아이템이 존재하지 않는다면 에러.
     if (!item) return { success: false, code: 'no_item' };
 

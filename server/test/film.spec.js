@@ -11,9 +11,7 @@ const {
   removeFilmMutation,
   filmsFeaturedQuery,
 } = require('./graphql-request');
-const { initTestServer, graphqlSuper, doLogin, doLogout, makeSimpleQuery } = require('./tool');
-const o = require('./tool');
-console.log(o);
+const { initTestServer, graphqlSuper, doLogin, doLogout, makeSimpleQuery, randomDate } = require('./tool');
 describe('film', function () {
   // eslint-disable-next-line mocha/no-setup-in-describe
   const { agent } = initTestServer({ before, beforeEach, after, afterEach });
@@ -201,11 +199,7 @@ describe('film', function () {
           promises.push(
             model.Film.create({
               title: `ho${i + 1}`,
-              open_date: new Date(
-                random.int(1990, 2020),
-                random.int(1, 12),
-                random.int(1, 20),
-              ),
+              open_date: randomDate(),
             }),
           );
         }

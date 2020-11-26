@@ -83,6 +83,7 @@ module.exports = function (mongoose) {
     star_cine21: Number,
     poster: { type: mongoose.Schema.Types.ObjectId, ref: 'File' },
     poster_url: String,
+    poster_alt: String,
     photos: [Photo],
     // id: Number, AutoIncrement 로 인해서 명시적으로 적어줄 필요 없음.
     videos: [Video],

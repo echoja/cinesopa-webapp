@@ -59,6 +59,10 @@ const enumFilmAvailableSubtitle = makeEnum([
   '한글자막',
   '배리어프리자막',
 ]);
+const enumSopakitStatus = makeEnum([
+  'show',
+  'hide'
+]);
 module.exports = {
   enumAuthmap,
   enumPeopleRoleType,
@@ -75,4 +79,5 @@ module.exports = {
   enumFilmStatus,
   enumSiteOptionType,
   enumFilmAvailableSubtitle,
+  enumSopakitStatus,
 };

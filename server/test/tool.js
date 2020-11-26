@@ -10,6 +10,7 @@ const mongoose = require('mongoose');
 const passport = require('passport');
 const uuidv4 = require('uuid').v4;
 const request = require('supertest');
+const random = require('random');
 
 // const auth = require('../service/auth');
 const authValidatorMaker = require('../auth/validator');
@@ -304,15 +305,18 @@ const capitalize = (s) => {
  * @param {Object} obj
  */
 const stringify = (obj) => {
-  if (typeof obj !== 'object' || Array.isArray(obj)) {
+  if (obj === null || obj instanceof Date || typeof obj !== 'object') {
     // not an object, stringify using native function
     return JSON.stringify(obj);
+  }
+  if (Array.isArray(obj)) {
+    return `[${obj.map((c) => stringify(c)).join(', ')}]`;
   }
   // Implements recursive object serialization according to JSON spec
   // but without quotes around the keys.
   const props = Object.keys(obj)
     .map((key) => `${key}:${stringify(obj[key])}`)
-    .join(',');
+    .join(', ');
   return `{${props}}`;
 };
 
@@ -447,6 +451,14 @@ const upload = (url, fd) => {
   });
 };
 
+const randomDate = () => {
+  return new Date(
+    random.int(1990, 2020),
+    random.int(1, 12),
+    random.int(1, 20),
+  );
+};
+
 // /**
 //  * @typedef {object} MockFile
 //  * @property {string} name
@@ -474,4 +486,5 @@ module.exports = {
   makeSimpleMutation,
   makeSimpleQuery,
   upload,
+  randomDate,
 };

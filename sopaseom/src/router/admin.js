@@ -95,6 +95,17 @@ export default [
     component: () => import('@/views/admin/ApplicationEdit.vue'),
   },
 
+  /** sopakit */
+
+  {
+    ...adminRoute('/admin/sopaseom/sopakit', 'AdminSopakit'),
+    component: () => import('@/views/admin/Sopakit.vue'),
+  },
+  {
+    ...adminRoute('/admin/sopaseom/sopakit/page/:page', 'AdminSopakitPaged'),
+    component: () => import('@/views/admin/Sopakit.vue'),
+  },
+
   /** design */
   {
     ...adminRoute('/admin/cinesopa/design', 'DesignCinesopa'),

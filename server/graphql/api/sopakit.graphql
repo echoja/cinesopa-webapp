@@ -1,0 +1,57 @@
+type Sopakit {
+  num: String
+  title: String
+  year: Int
+  managing_date: DateTime
+  description: String
+  image_url: String
+  image_alt: String
+  status: String
+}
+
+type SopakitsResult {
+  total: Int
+  list: [Sopakit]
+}
+
+type createSopakitResult {
+  success: Boolean
+  code: String
+}
+
+type updateSopakitResult {
+  success: Boolean
+  code: String
+}
+
+type removeSopakitResult {
+  success: Boolean
+  code: String
+}
+
+input SopakitInput {
+  num: String
+  title: String
+  year: Int
+  managing_date: DateTime
+  description: String
+  image_url: String
+  image_alt: String
+  status: String
+}
+
+input SopakitSearch {
+  page: Int
+  perpage: Int
+  status: String
+}
+
+extend type Query {
+  sopakits(condition: SopakitSearch!): SopakitsResult
+}
+
+extend type Mutation {
+  createSopakit(input: SopakitInput!): createSopakitResult
+  updateSopakit(id: Int, input: SopakitInput!): updateSopakitResult
+  removeSopakit(id: Int!): removeSopakitResult
+}
