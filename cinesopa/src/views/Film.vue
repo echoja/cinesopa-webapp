@@ -640,28 +640,28 @@ export default {
       });
     },
     onScrollactiveItemChanged(event, currentItem, lastActiveItem) {
-      /** @type {Element} */
-      let a;
+      // /** @type {Element} */
+      // let a;
 
-      console.log('# Film.vue onScrollactiveItemChanged');
+      // console.log('# Film.vue onScrollactiveItemChanged');
       // console.log(currentItem);
       // console.log(event);
       // 클릭으로 넘어간 경우는 그냥 event 가 null 이더라.
       // 클릭이 아닌 경우는, scroll 등이 있다.
       if (event === null) {
         const selector = currentItem.attributes?.href?.value;
-        console.log(selector);
+        // console.log(selector);
         const id = selector.slice(1);
         document.getElementById(id).focus();
         // currentItem.
       }
     },
     onScrollactiveClicked(event, a, b, c) {
-      console.log('# Film.vue onScrollactiveClicked');
-      console.log(event);
-      console.log(a);
-      console.log(b);
-      console.log(c);
+      // console.log('# Film.vue onScrollactiveClicked');
+      // console.log(event);
+      // console.log(a);
+      // console.log(b);
+      // console.log(c);
     },
     parseUploadLink,
   },
