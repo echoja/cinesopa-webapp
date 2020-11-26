@@ -1167,8 +1167,8 @@ export default {
     removeFilm(index) {
       this.form.films.splice(index, 1);
       this.$nextTick(() => {
-        console.log('# community removeFilm nextick to set Focus');
-        console.log(this.filmSelectFocus);
+        // console.log('# community removeFilm nextick to set Focus');
+        // console.log(this.filmSelectFocus);
 
         // #이 포함되어 있으므로 첫번째 글자를 없앰.
         document.getElementById(this.filmSelectFocus.slice(1)).focus();
