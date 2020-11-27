@@ -3,6 +3,11 @@
 const mongoose = require('mongoose');
 const nodemailer = require('nodemailer');
 
+/* mail template */
+
+const mailGenerator = require('./mail-template/generate');
+console.log(mailGenerator('verify-mail', {}));
+
 /* manager */
 const mailManagerMaker = require('./manager/mail');
 const { gmailEmail, gmailPassword } = require('./config/common');

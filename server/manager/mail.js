@@ -70,6 +70,17 @@ class MailManager {
       });
     });
   }
+
+  /**
+   * 
+   * @param {MailGate} gate 
+   * @param {subject} subject 제목
+   * @param {string} templateName 템플릿 이름
+   * @param {Object} args 템플릿에 렌더링 시 들어갈 것들.
+   */
+  async sendMailTemplate(gate, subject, templateName, args) {
+    
+  }
 }
 
 module.exports = {

@@ -77,16 +77,20 @@ const doLogin = async (agent, email, pwd) =>
     email,
     pwd,
   });
-const doAdminLogin = async (agent) =>
-  graphqlSuper(agent, loginQuery, {
+const doAdminLogin = async (agent) => {
+  if (!agent) throw Error('agent 가 설정되지 않았습니다.');
+  return graphqlSuper(agent, loginQuery, {
     email: adminEmail,
     pwd: 'abc',
   });
-const doGuestLogin = async (agent) =>
-  graphqlSuper(agent, loginQuery, {
+};
+const doGuestLogin = async (agent) => {
+  if (!agent) throw Error('agent 가 설정되지 않았습니다.');
+  return graphqlSuper(agent, loginQuery, {
     email: guestEmail,
     pwd: 'abc',
   });
+};
 
 const testDatabaseServer = (hookFunctions) => {
   const mongod = new MongoMemoryServer({ binary: { version: '4.2.9' } });
@@ -452,11 +456,7 @@ const upload = (url, fd) => {
 };
 
 const randomDate = () => {
-  return new Date(
-    random.int(1990, 2020),
-    random.int(1, 12),
-    random.int(1, 20),
-  );
+  return new Date(random.int(1990, 2020), random.int(1, 12), random.int(1, 20));
 };
 
 // /**

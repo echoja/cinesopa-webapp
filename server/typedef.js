@@ -41,6 +41,28 @@
  *
  */
 
+ /**
+  * 키워드 정보를 담는 객체
+  * @typedef {Object} SopakitInfo
+  * @property {string} num : String, // 숫자
+  * @property {string} title : String, // 제목
+  * @property {number} year : Number, // 년도
+  * @property {Date} managing_date : 관리용 날짜 정보
+  * @property {string} description : String, // 설명
+  * @property {string} image_url : String, // 이미지 url
+  * @property {string} image_alt : String, // 이미지 설명
+  * @property {string} status : { type: String, enum: enumSopakitStatus.raw_str_list },
+  */
+
+  /**
+   * 소파킷을 찾을 때 쓰는 조건 객체
+   * @typedef {Object} SopakitSearch
+   * @property {number} page // 0이 1페이지를 의미함.
+   * @property {number} perpage 
+   * @property {String} status 
+   * 
+   */
+
 /**
  * 목적지 정보를 담는 객체
  * @typedef {Object} Destinfo

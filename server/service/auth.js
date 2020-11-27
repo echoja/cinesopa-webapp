@@ -52,8 +52,8 @@ class AuthService {
    * @returns 유저 정보와 리다이렉트할 링크
    */
   async login(email, pwd, context, option = {}) {
-    console.log('# auth login');
-    console.log(option);
+    // console.log('# auth login option');
+    // console.log(option);
     const { disableSession = false } = option;
     const redirectLink = context.req?.session?.redirectLink;
     const userFound = await this.#db.getUserByEmail(email);

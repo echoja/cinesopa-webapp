@@ -93,21 +93,35 @@ class FileService {
     const { filename } = req.params;
     if (!filename) return res.status(404).send();
 
+    // 우선 파일 이름을 .으로 나누기.
+    const splitted = filename.split('.');
+    let fileNameNoExt = filename;
+
+    // 만약 확장자가 들어왔다면?
+    if (splitted.length === 2) {
+      fileNameNoExt = splitted[0];
+    }
+
     // 파일이름으로 찾기 시도. 찾을시 바로 보냄.
-    const foundByFilename = await this.#db.getFile(filename);
+    const foundByFilename = await this.#db.getFile(fileNameNoExt);
     // console.log(foundByFilename.path);
     // console.log(__dirname);
-    if (foundByFilename) return res.sendFile(absPath(foundByFilename.path));
+    if (foundByFilename) {
+      res.set('Content-Type', foundByFilename.mimetype);
+      return res.sendFile(absPath(foundByFilename.path));
+    }
 
-    // 옵션으로 파일 찾기 시도. 못찾을시 404
+    // 옵션으로 파일 찾기 시도.
     const optionName = filename;
     const fileByOption = await this.#db.getFilebyOptionName(optionName);
     // if (!fileByOption) return res.status(404).send();
 
     // // 옵션이 주어진다면, 해당하는 파일 보내기.
     // const fileByOption = await this.#db.getFile(foundOption.value);
-    if (fileByOption) return res.sendFile(absPath(fileByOption.path));
-
+    if (fileByOption) {
+      res.set('Content-Type', fileByOption.mimetype);
+      return res.sendFile(absPath(fileByOption.path));
+    }
     // 해당하는 옵션의 파일도 존재하지 않는다면, 404
     return res.status(404).send();
   });
@@ -117,10 +131,9 @@ class FileService {
   //  */
   // getFileByNameMiddleware = aw(async (req, res, next) => {
   //   const { name } = req.params;
-    
-  //   // name 이 주어지지 않았을 경우 
-  //   if (!name) return res.status(404).send();
 
+  //   // name 이 주어지지 않았을 경우
+  //   if (!name) return res.status(404).send();
 
   // })
 

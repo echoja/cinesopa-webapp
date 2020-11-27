@@ -47,7 +47,9 @@ input SopakitSearch {
 }
 
 extend type Query {
+  sopakitsAdmin(condition: SopakitSearch!): SopakitsResult
   sopakits(condition: SopakitSearch!): SopakitsResult
+
 }
 
 extend type Mutation {
