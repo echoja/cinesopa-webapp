@@ -678,6 +678,7 @@ $gallery-item-padding: 30px;
 
 .thumbnail-link {
   position: absolute;
+  flex-direction: column;
   display: flex;
   align-items: center;
   justify-content: center;

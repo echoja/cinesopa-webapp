@@ -1024,6 +1024,17 @@ legend, caption {
     white-space: nowrap;
     border: 0;
 }
+
+// modal x button size setting
+
+.modal-header .close {
+  font-size: 35px;
+  padding: 10px 20px 10px 10px;
+  opacity: 0.8;
+}
+
+
+
 </style>
 
 <style>
