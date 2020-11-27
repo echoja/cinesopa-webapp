@@ -1,4 +1,5 @@
 type Sopakit {
+  id: Int
   num: String
   title: String
   year: Int

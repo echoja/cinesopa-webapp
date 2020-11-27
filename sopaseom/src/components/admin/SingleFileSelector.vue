@@ -38,6 +38,11 @@ import { BImg, BModal, BButton } from 'bootstrap-vue';
 // blog 같은 종류의 컴포넌트간 uuid 를 구현하는 방법 방법
 let uuid = 0;
 
+/**
+ * 파일 하나를 선택할 수 있는 컴포넌트 (admin 용)
+ *
+ * @emits file-selected  파일이 선택되었을 때
+ */
 export default {
   components: {
     BModal,
@@ -47,7 +52,7 @@ export default {
   },
   props: {
     initFilename: String,
-    initObj: Object,
+    initFileurl: String,
   },
 
   data() {
@@ -73,15 +78,27 @@ export default {
     },
   },
   beforeCreate() {},
-  
+
   async mounted() {
     // uuid 불러오기
     this.uuid = uuid.toString();
     uuid += 1;
 
     // initFilename props 로 받아온 파일을 기반으로 초기화하기.
+    let filename = '';
+    if (this.initFilename) {
+      filename = this.initFilename;
+    } else if (this.initFileurl) {
+      const splitted = this.initFileurl.split('/');
+
+      // fileurl 이 '/'로 split 한 결과의 3번째에 filename 이 있다는 것이 보장되어야 본 코드가 유효함.
+      // 만약 서버에서 fileurl 을 저장하는 방식이 바뀐다면 이것도 영향을 미침.
+      // eslint-disable-next-line prefer-destructuring
+      filename = splitted[2];
+    }
+
     const res = await graphql(getFileInfoQuery, {
-      filename: this.initFilename,
+      filename,
     });
     const { file } = res.data;
     if (file) {

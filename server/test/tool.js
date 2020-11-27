@@ -435,7 +435,7 @@ const makeSimpleQuery = (agent, endpoint) => {
       args,
       resultString,
     )}`;
-    console.log(str);
+    // console.log(str);
     const res = await graphqlSuper(agent, str);
     return res.body.data[endpoint];
   };

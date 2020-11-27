@@ -108,7 +108,7 @@ describe('cartitem', function () {
           }}`,
         );
         // 기본적으로 정렬이 잘 나야 함.
-        console.log(result);
+        // console.log(result);
         expect(result.total).to.equal(10);
         expect(result.list.length).to.equal(3);
         expect(new Date(result.list[0].managing_date)).to.be.greaterThan(
@@ -148,7 +148,7 @@ describe('cartitem', function () {
         );
         expect(result.total).to.equal(5);
         expect(result.list.length).to.equal(5);
-        console.log(result);
+        // console.log(result);
       });
     });
     describe('createSopakit', function () {
@@ -171,12 +171,12 @@ describe('cartitem', function () {
           },
           '{success code}',
         );
-        console.log(res);
+        // console.log(res);
         expect(res.success).to.be.true;
         expect(res.code).to.be.null;
 
         const found = await model.Sopakit.findOne({ year: 2020 });
-        console.log(found);
+        // console.log(found);
         expect(found).to.not.be.null;
       });
     });

@@ -2,6 +2,7 @@
   <b-button
     :disabled="disabled || loading"
     v-bind="$attrs"
+    v-on="$listeners"
     class="loading-button"
     :aria-busy="loading"
     :class="{ loading }"

@@ -4,6 +4,7 @@
       <h2>게시판 목록</h2>
     </header>
 
+    <!-- 모달 -->
     <b-modal
       @ok="removeRow()"
       id="check-remove"

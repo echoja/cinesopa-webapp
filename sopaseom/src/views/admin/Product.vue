@@ -190,15 +190,18 @@ export default {
       return this.items.some((value) => value.checked === true);
     },
     totalPages() {
-      return Math.ceil(this.total / this.perpage);
+      const o = Math.ceil(this.total / this.perpage);
+      if (o === 0) return 1;
+      // console.log(o);
+      return o;
     },
     hasData() {
       return this.items.length !== 0;
     },
   },
   watch: {
-    $route(val) {
-      this.page = val.params.page;
+    $route(value) {
+      this.page = value.params.page;
       this.fetchData();
     },
   },
@@ -239,7 +242,7 @@ export default {
       this.pushMessage({
         type: 'success',
         msg: `${results.length} 개의 상품을 성공적으로 삭제했습니다.`,
-        id: 'removeSuccess',
+        id: 'removeProductSuccess',
       });
       this.fetchData();
     },

@@ -38,6 +38,9 @@
           <b-list-group-item to="/admin/sopaseom/page">
             페이지
           </b-list-group-item>
+          <b-list-group-item :to="{name: 'AdminSopakit'}">
+            소파킷 리스트
+          </b-list-group-item>
           <b-list-group-item to="/admin/sopaseom/product">
             소파킷 상품
           </b-list-group-item>
