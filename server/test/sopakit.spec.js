@@ -151,6 +151,68 @@ describe('cartitem', function () {
         // console.log(result);
       });
     });
+    describe('sopakitsShown', function () {
+      it.only('제대로 동작해야 함', async function () {
+        const promises = [
+          model.Film.create({ title: 'film1' }),
+          model.Film.create({ title: 'film2' }),
+          model.Sopakit.create({ title: 'hi1', status: 'show' }),
+          model.Sopakit.create({ title: 'hi2', status: 'show' }),
+          model.Sopakit.create({ title: 'hi3', status: 'show' }),
+          model.Product.create({
+            product_type: 'sopakit',
+            kit_id: 1,
+            name: 'prod1',
+            related_film: 1,
+          }),
+          model.Product.create({
+            product_type: 'sopakit',
+            kit_id: 1,
+            name: 'prod2',
+          }),
+          model.Product.create({
+            product_type: 'sopakit',
+            kit_id: 2,
+            name: 'prod3',
+            related_film: 2,
+          }),
+          model.Product.create({
+            product_type: 'sopakit',
+            kit_id: 2,
+            name: 'prod4',
+          }),
+          model.Product.create({
+            product_type: 'sopakit',
+            kit_id: 3,
+            name: 'prod5',
+          }),
+          model.Product.create({
+            product_type: 'sopakit',
+            kit_id: 3,
+            name: 'prod6',
+          }),
+          model.Product.create({ product_type: 'sopakit', name: 'prod7' }),
+          model.Product.create({ product_type: 'sopakit', name: 'prod8' }),
+          model.Product.create({ product_type: 'sopakit', name: 'prod9' }),
+        ];
+        await Promise.allSettled(promises);
+        await doAdminLogin(agent);
+        const reqServer = makeSimpleQuery(agent, 'sopakitsShown');
+        const res = await reqServer(
+          {},
+          '{sopakitsShownItems { sopakit {id title} products { id name related_film { id title } }} noKeywordProducts { id name  } }',
+        );
+        console.dir(res, { depth: 5 });
+        expect(res.sopakitsShownItems.length).to.equal(3);
+        expect(res.sopakitsShownItems[0].sopakit.id).to.be.a('number');
+        expect(res.sopakitsShownItems[1].sopakit.id).to.be.a('number');
+        expect(res.sopakitsShownItems[2].sopakit.id).to.be.a('number');
+        expect(res.sopakitsShownItems[0].sopakit.title).to.be.a('string');
+        expect(res.sopakitsShownItems[1].sopakit.title).to.be.a('string');
+        expect(res.sopakitsShownItems[2].sopakit.title).to.be.a('string');
+        expect(res.noKeywordProducts.length).to.equal(3);
+      });
+    });
     describe('createSopakit', function () {
       it('잘 동작해야 함', async function () {
         await doAdminLogin(agent);

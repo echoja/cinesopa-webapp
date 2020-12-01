@@ -47,10 +47,20 @@ input SopakitSearch {
   status: String
 }
 
+type SopakitsShownItem {
+  sopakit: Sopakit,
+  products: [Product],
+}
+
+type SopakitsShownResult {
+  sopakitsShownItems: [SopakitsShownItem]
+  noKeywordProducts: [Product]
+}
+
 extend type Query {
   sopakitsAdmin(condition: SopakitSearch!): SopakitsResult
   sopakits(condition: SopakitSearch!): SopakitsResult
-
+  sopakitsShown: SopakitsShownResult # 소파킷 목록에서 보여지는 것들을 얻는 endpoint
 }
 
 extend type Mutation {

@@ -16,7 +16,7 @@ module.exports = function (mongoose) {
 
   const schema = new mongoose.Schema({
     product_type: { type: String, enum: enumProductType.raw_str_list },
-    status: { type: String, enum: enumFilmStatus.raw_str_list}, // 일반 사람들에게 공개할 건지 여부
+    status: { type: String, enum: enumFilmStatus.raw_str_list, default: 'public'}, // 일반 사람들에게 공개할 건지 여부
     featured_image_url: String,
     featured_image_alt: String,
     content_main: String,
@@ -32,8 +32,7 @@ module.exports = function (mongoose) {
     related_cartitems: [Number], // 영화 정보는 기본적으로 여기서 전부 가지고 온다. cartitem id.
     // related_cartitems: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Cartitem' }], // 영화 정보는 기본적으로 여기서 전부 가지고 온다.
     meta: mongoose.Schema.Types.Mixed,
-    kit_number: String,
-    kit_title: String,
+    kit_id: Number,
     search: String,
   });
   autoIdSetter(schema, mongoose, 'product', 'id');

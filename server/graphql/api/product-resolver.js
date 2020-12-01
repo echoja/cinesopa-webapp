@@ -12,7 +12,10 @@ module.exports = {
   Query: {
     product: makeResolver(async (obj, args, context, info) => {
       const { id } = args;
-      return db.getProduct(id);
+      const prodDoc = db.getProduct(id);
+      // private 일 경우는 null 을 리턴함.
+      if (prodDoc.status === 'private') return null;
+      return prodDoc;
     }).only(ACCESS_ALL),
     productAdmin: makeResolver(async (obj, args, context, info) => {
       const { id } = args;
@@ -20,6 +23,7 @@ module.exports = {
     }).only(ACCESS_ADMIN),
     products: makeResolver(async (obj, args, context, info) => {
       const { condition } = args;
+      condition.status = 'public';
       return db.getProducts(condition);
     }).only(ACCESS_ALL),
     productsAdmin: makeResolver(async (obj, args, context, info) => {

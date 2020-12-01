@@ -6,18 +6,20 @@
       </div>
       <div class="form-content">
         <slot></slot>
+        <div class="description">
+          {{ description }}
+        </div>
       </div>
     </div>
     <div class="form-row fake">
-      <div class="form-header">
-      </div>
+      <div class="form-header"></div>
     </div>
   </div>
 </template>
 
 <script>
 export default {
-  props: ['title'],
+  props: ['title', 'description'],
 };
 </script>
 
@@ -39,6 +41,11 @@ export default {
   padding: 0 30px;
   margin-right: 30px;
   font-weight: bold;
+}
+
+.description {
+  font-size: 14px;
+  color: #777;
 }
 
 .form-row.fake .form-header {

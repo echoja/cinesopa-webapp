@@ -63,6 +63,7 @@ const enumSopakitStatus = makeEnum([
   'show',
   'hide'
 ]);
+const enumCartItemUsage = makeEnum(['normal', 'instant_payment'])
 module.exports = {
   enumAuthmap,
   enumPeopleRoleType,
@@ -80,4 +81,5 @@ module.exports = {
   enumSiteOptionType,
   enumFilmAvailableSubtitle,
   enumSopakitStatus,
+  enumCartItemUsage,
 };

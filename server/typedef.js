@@ -13,6 +13,7 @@
 /**
  * @typedef {Object} ProductSearch
  * @property {string} product_type
+ * @property {string} status
  * @property {number} page
  * @property {number} perpage
  */
@@ -35,33 +36,32 @@
  * @property {number} related_film  : [{ type : mongoose.Schema.Types.ObjectId, ref : 'Film' }], // 영화 정보는 기본적으로 여기서 전부 가지고 온다.
  * @property {string} related_cartitems : 관련된 카트 아이템.
  * @property {object} meta : mongoose.Schema.Types.Mixed,
- * @property {string} kit_number : String,
- * @property {string} kit_title : String,
+ * @property {string} kit_id: Number,
  * @property {string} search : String,
  *
  */
 
- /**
-  * 키워드 정보를 담는 객체
-  * @typedef {Object} SopakitInfo
-  * @property {string} num : String, // 숫자
-  * @property {string} title : String, // 제목
-  * @property {number} year : Number, // 년도
-  * @property {Date} managing_date : 관리용 날짜 정보
-  * @property {string} description : String, // 설명
-  * @property {string} image_url : String, // 이미지 url
-  * @property {string} image_alt : String, // 이미지 설명
-  * @property {string} status : { type: String, enum: enumSopakitStatus.raw_str_list },
-  */
+/**
+ * 키워드 정보를 담는 객체
+ * @typedef {Object} SopakitInfo
+ * @property {string} num : String, // 숫자
+ * @property {string} title : String, // 제목
+ * @property {number} year : Number, // 년도
+ * @property {Date} managing_date : 관리용 날짜 정보
+ * @property {string} description : String, // 설명
+ * @property {string} image_url : String, // 이미지 url
+ * @property {string} image_alt : String, // 이미지 설명
+ * @property {string} status : { type: String, enum: enumSopakitStatus.raw_str_list },
+ */
 
-  /**
-   * 소파킷을 찾을 때 쓰는 조건 객체
-   * @typedef {Object} SopakitSearch
-   * @property {number} page // 0이 1페이지를 의미함.
-   * @property {number} perpage 
-   * @property {String} status 
-   * 
-   */
+/**
+ * 소파킷을 찾을 때 쓰는 조건 객체
+ * @typedef {Object} SopakitSearch
+ * @property {number} page // 0이 1페이지를 의미함.
+ * @property {number} perpage
+ * @property {String} status
+ *
+ */
 
 /**
  * 목적지 정보를 담는 객체
@@ -99,6 +99,7 @@
  * @property {string}  user : String, // 유저 이메일
  * @property {Date}  added : { type: Date, default: Date.now },
  * @property {Date}  modified : { type: Date, default: Date.now },
+ * @property {string}  usage 용도. 즉시 구매용 구분용.
  * @property {number}  product_id
  * @property {CartItemProductinfo}  product : CartItemProduct,
  * @property {CartItemOptioninfo[]}  options : [CartItemOption],
@@ -119,16 +120,48 @@
 /**
  * 주문 정보를 담는 객체
  * @typedef {Object} Orderinfo
- # @property {string}   status
- # @property {string}   method
- # @property {Date}   c_date
- # @property {Date}   expected_date
- # @property {string}   cash_receipt
- # @property {string}   transport_number
- # @property {string}   transport_company
- # @property {object}   meta
- # @property {CartIteminfo[]}   items
- # @property {string}   dest
+ * @property {string}   user 유저의 이메일
+ * @property {string}   status
+ * @property {string}   method
+ * @property {Date}   c_date
+ * @property {Date}   expected_date
+ * @property {Date}   cancelled_date
+ * @property {Date}   return_req_date
+ * @property {string}   cash_receipt
+ * @property {string}   transport_number
+ * @property {string}   transport_company
+ * @property {object}   meta
+ * @property {CartIteminfo[]}   items
+ * @property {Destinfo}   dest
+ */
+
+/**
+ * 주문 정보를 담는 객체
+ * @typedef {Object} OrderInput
+ * @property {string}   user 유저의 이메일
+ * @property {string}   status
+ * @property {string}   method
+ * @property {Date}   c_date
+ * @property {Date}   expected_date
+ * @property {Date}   cancelled_date
+ * @property {Date}   return_req_date
+ * @property {string}   cash_receipt
+ * @property {string}   transport_number
+ * @property {string}   transport_company
+ * @property {object}   meta
+ * @property {number[]}   items 카트아이템 id 목록
+ * @property {Destinfo}   dest
+ */
+
+/**
+ * 주문 검색을 담는 객체
+ * @typedef {Object} OrderSearch
+ * @property {Date}   date_gte
+ * @property {Date}   date_lte
+ * @property {string}   status
+ * @property {number}   page
+ * @property {number}   perpage
+ * @property {string}   user 유저 이메일
  */
 
 /**
@@ -149,7 +182,6 @@
  * @property {Date} blocked_date
  * @property {number} blocked_count
  * @property {string} role
- * @property {Orderinfo[]} orders
  * @property {string} kakao_access_token
  * @property {string} kakao_refresh_token
  * @property {string} kakao_id

@@ -51,38 +51,56 @@
                 :key="index"
               >
                 <div class="swiper-slide-inner-wrapper">
+                  <!-- <pre class="test">{{keyword}}</pre> -->
+
                   <div class="mobile-main-mock">
                     <div class="image-resizer">
                       <div
                         class="inner"
                         :style="{
-                          'background-image': `url('${keyword.mock_url}')`,
+                          'background-image': `url('${keyword.image_url}')`,
                         }"
                       ></div>
                     </div>
                   </div>
                   <div class="title-section">
-                    <div class="title-number">{{ keyword.number }}</div>
+                    <div class="title-number">{{ keyword.num }}</div>
                     <div class="title-seperator">
                       <!-- | -->
                     </div>
                     <div class="title-text">{{ keyword.title }}</div>
-                    <div class="title-films">
-                      {{ keyword.films.map((film) => film.title).join(', ') }}
+                    <div class="title-products">
+                      {{
+                        keyword.products
+                          .map((product) =>
+                            product.related_film
+                              ? product.related_film.title
+                              : null,
+                          )
+                          .join(', ')
+                      }}
                     </div>
                     <div class="title-year">{{ keyword.year }}.</div>
                   </div>
-                  <div class="mobile-title-films">
-                    {{ keyword.films.map((film) => film.title).join(', ') }}
+                  <div class="mobile-title-products">
+                    {{
+                      keyword.products
+                        .map((product) =>
+                          product.related_film
+                            ? product.related_film.title
+                            : null,
+                        )
+                        .join(', ')
+                    }}
                   </div>
                   <div class="content-section">
                     <div class="content-main">
                       <div class="main-mock">
-                        <b-img :src="keyword.mock_url"></b-img>
+                        <b-img :src="keyword.image_url"></b-img>
                       </div>
                       <div
                         class="main-text"
-                        v-html="keyword.explain.replace(/\n/g, '<br />')"
+                        v-html="keyword.description.replace(/\n/g, '<br />')"
                       ></div>
                     </div>
                     <div class="content-product">
@@ -90,32 +108,32 @@
                       <div class="product-items">
                         <div
                           class="product-item"
-                          v-for="(film, filmIndex) in keyword.films"
-                          :key="filmIndex"
+                          v-for="(product, productIndex) in keyword.products"
+                          :key="productIndex"
                         >
                           <b-link
                             class="product-img-link"
                             :to="{
                               name: 'SopakitDetail',
-                              params: { id: '123' },
+                              params: { id: product.id },
                             }"
                           >
                             <div
                               class="product-img"
                               :style="{
-                                'background-image': `url(${film.img_url})`,
+                                'background-image': `url(${product.featured_image_url})`,
                               }"
                             ></div>
                           </b-link>
-                          <!-- <b-img :src="film.img_url"></b-img> -->
+                          <!-- <b-img :src="film.image_url"></b-img> -->
                           <div class="product-film-title">
                             <b-link
                               :to="{
                                 name: 'SopakitDetail',
-                                params: { id: '123' },
+                                params: { id: product.id },
                               }"
                             >
-                              {{ film.title }}</b-link
+                              {{ product.name }}</b-link
                             >
                           </div>
                         </div>
@@ -150,8 +168,10 @@ import 'swiper/swiper.scss';
 import 'swiper/components/navigation/navigation.scss';
 import 'swiper/components/pagination/pagination.scss';
 import 'swiper/components/scrollbar/scrollbar.scss';
+import { makeSimpleQuery } from '@/api/graphql-client';
 
 SwiperCore.use([Navigation, Pagination, Scrollbar, A11y]);
+const sopakitsShownGetter = makeSimpleQuery('sopakitsShown');
 
 export default {
   title: '소파킷',
@@ -167,59 +187,60 @@ export default {
   data() {
     return {
       swiper: null,
+      noKeywordProducts: [],
       keywords: [
         {
-          number: '01',
+          num: '01',
           title: '고독',
-          films: [
+          products: [
             {
-              title: '여름날',
+              film_title: '여름날',
               link: 'https://naver.com',
               id: '1',
               // eslint-disable-next-line global-require
-              img_url:
+              featured_image_url:
                 'https://sopaseom.com/upload/e9e865dfb901fbc11709df8d1511ca3d',
             },
             {
-              title: '기억할만한 지나침',
+              film_title: '기억할만한 지나침',
               link: 'https://naver.com',
               id: '1',
               // eslint-disable-next-line global-require
-              img_url:
+              featured_image_url:
                 'https://sopaseom.com/upload/a206886e8633c12caf7a795a842d7f65',
             },
           ],
-          explain:
+          description:
             '‘고독’에 숨겨진 뜻이\n‘만남’이라고 제안하고 싶습니다.\n외로운 사람만이 만남의 진정한\n가치를 알 수 있듯\n고독할 때에야 비로소 나와\n타인을 생각하게 되니까요.',
           year: 2020,
           // eslint-disable-next-line global-require
-          mock_url:
+          image_url:
             'https://sopaseom.com/upload/b3e7a3fc69f30216ff55049e5c61eba8',
         },
         {
-          number: '01',
+          num: '01',
           title: '고독',
-          films: [
+          products: [
             {
-              title: '여름날',
+              film_title: '여름날',
               link: 'https://naver.com',
               // eslint-disable-next-line global-require
-              img_url:
+              featured_image_url:
                 'https://sopaseom.com/upload/e9e865dfb901fbc11709df8d1511ca3d',
             },
             {
-              title: '기억할만한 지나침',
+              film_title: '기억할만한 지나침',
               link: 'https://naver.com',
               // eslint-disable-next-line global-require
-              img_url:
+              featured_image_url:
                 'https://sopaseom.com/upload/a206886e8633c12caf7a795a842d7f65',
             },
           ],
-          explain:
+          description:
             '‘고독’에 숨겨진 뜻이\n‘만남’이라고 제안하고 싶습니다.\n외로운 사람만이 만남의 진정한\n가치를 알 수 있듯\n고독할 때에야 비로소 나와\n타인을 생각하게 되니까요.',
           year: 2020,
           // eslint-disable-next-line global-require
-          mock_url:
+          image_url:
             'https://sopaseom.com/upload/b3e7a3fc69f30216ff55049e5c61eba8',
         },
       ],
@@ -260,7 +281,34 @@ export default {
     onSlideChange() {
       console.log('slide change');
     },
-    async fetchData() {},
+    async fetchData() {
+      const res = await sopakitsShownGetter(
+        {},
+        `{
+          sopakitsShownItems { 
+            sopakit { id title num description year image_url } 
+            products { 
+              id name featured_image_url related_film {
+                title
+              }
+            }
+          } 
+          noKeywordProducts { 
+            id name featured_image_url related_film {
+              title
+            } 
+          }
+        }`,
+      );
+      console.log('# SopakitItems fetchData res');
+      console.log(res);
+      this.keywords = res.sopakitsShownItems.map((item) => ({
+        ...item.sopakit,
+        products: item.products,
+      }));
+      this.noKeywordProducts = res.noKeywordProducts;
+      // this.keywords = res.sopakitsshownItems;
+    },
   },
 };
 </script>
@@ -512,13 +560,13 @@ export default {
   }
 }
 
-.title-films {
+.title-products {
   margin-left: 21px;
   font-size: 21px;
   font-weight: 500;
 }
 
-.mobile-title-films {
+.mobile-title-products {
   display: none;
   font-size: 14px;
   padding: 5px 0;
@@ -527,11 +575,11 @@ export default {
 }
 
 @include max-with(md) {
-  .title-films,
+  .title-products,
   .title-year {
     display: none;
   }
-  .mobile-title-films {
+  .mobile-title-products {
     display: block;
   }
 }
@@ -568,6 +616,8 @@ export default {
   height: 174px;
   margin-right: 20px;
   margin-top: 2px;
+  pointer-events: none;
+  z-index: -1;
 }
 
 @include max-with(md) {

@@ -686,7 +686,8 @@ class DBManager {
    * @returns {Promise<Filminfo>}
    */
   async updateFilm(id, filminfo) {
-    console.log(filminfo);
+    // console.log('# db updateFilm');
+    // console.log(filminfo);
     return model.Film.updateOne({ id }, filminfo).lean().exec();
   }
 
@@ -967,6 +968,14 @@ class DBManager {
   ===================================== */
 
   /**
+   * 소파킷 키워드 정보를 얻습니다.
+   * @param {number} id 소파킷 키워드 id
+   */
+  async getSopakit(id) {
+    return model.Sopakit.findOne({ id }).lean().exec();
+  }
+
+  /**
    * 소파킷 정보들을 얻습니다.
    * @param {SopakitSearch} condition
    */
@@ -1021,15 +1030,25 @@ class DBManager {
   }
 
   /*= ====================================
-  상품
+  상품. 
   ===================================== */
 
+  /**
+   * 상품 하나에 대한 정보를 얻습니다. 관련된 영화 정보와 소파킷 키워드 까지 얻습니다.
+   * @param {number} id
+   */
   async getProduct(id) {
     const product = await model.Product.findOne({ id }).lean().exec();
     // console.log("# db getProduct");
     // console.log(product);
-    const filmId = product.related_film;
-    const film = await model.Film.findOne({ id: filmId }).lean().exec();
+    const promises = [
+      model.Film.findOne({ id: product.related_film }).lean().exec(),
+      model.Sopakit.findOne({ id: product.kit_id }).lean().exec(),
+    ];
+    const [{ value: film }, { value: sopakit }] = await Promise.allSettled(
+      promises,
+    );
+    product.kit = sopakit;
     product.related_film = film;
     return product;
   }
@@ -1040,10 +1059,13 @@ class DBManager {
    * @param {ProductSearch} condition
    */
   async getProducts(condition = {}) {
-    const { product_type, page, perpage } = condition;
+    const { product_type, page, perpage, status } = condition;
     let query = model.Product.find();
     if (product_type) {
       query = query.find({ product_type });
+    }
+    if (status) {
+      query = query.find({ status });
     }
     const total = (await query.lean().exec()).length;
     if (typeof page === 'number' && typeof perpage === 'number') {
@@ -1250,6 +1272,93 @@ class DBManager {
   /*= ====================================
   주문
   ===================================== */
+
+  /**
+   * 주문 여러개를 얻습니다.
+   * @param {OrderSearch} condition
+   */
+  async getOrders(condition = {}) {
+    const {
+      date_gte = new Date(0),
+      date_lte = new Date(),
+      page,
+      perpage,
+      status,
+      user,
+    } = condition;
+
+    // 우선 정렬
+    let query = model.Order.find().sort({ c_date: -1 });
+
+    // 유저 이메일 필터
+    if (user) {
+      query = query.find({ user });
+    }
+
+    // 날짜 필터
+    if (date_gte instanceof Date && date_lte instanceof Date) {
+      query = query.find({
+        c_date: {
+          $gte: date_gte,
+          $lte: date_lte,
+        },
+      });
+    }
+
+    // 상태 필터
+    if (status) {
+      query = query.find({ status });
+    }
+
+    // 총 갯수 구하기
+    const total = (await query.exec()).length; // todo;
+
+    // 페이지별로 잘라내기
+    if ((typeof page === 'number', typeof perpage === 'number')) {
+      query = query.limit(perpage).skip(perpage * page);
+    }
+
+    const list = await query.lean().exec();
+
+    // 결과 리턴
+    return {
+      total,
+      list,
+    };
+  }
+  /**
+   * 주문 하나에 대한 상세 정보를 얻습니다.
+   * @returns {Promise<Orderinfo>}
+   */
+  async getOrder(id) {
+    return model.Order.findOne({ id }).lean().exec();
+  }
+
+  /**
+   * 주문을 새롭게 만듭니다.
+   * @param {OrderInput} input
+   */
+  async createOrder(input) {
+    const order = await model.Order.create(input);
+    if (order) return order.toObject();
+    return null;
+  }
+  /**
+   * 주문 정보를 갱신합니다.
+   * @param {number} id
+   * @param {OrderInput} input
+   */
+  async updateOrder(id, input) {
+    return model.Order.updateOne({ id }, input).lean().exec();
+  }
+   
+  /**
+   * 주문을 삭제합니다.
+   * @param {number} id 
+   */
+  async removeOrder(id) {
+    return model.Order.deleteOne({ id });
+  }
 
   /*= ====================================
   사이트 옵션 site option

@@ -18,8 +18,8 @@
       <b-spinner variant="secondary" small class="m-2 small"></b-spinner>
       <p class="m-0">에디터 로딩중입니다.</p>
     </div>
-      <!-- v-model="value" -->
-      <!-- v-model="content" -->
+    <!-- v-model="value" -->
+    <!-- v-model="content" -->
     <editor
       api-key="gt5higoqzglgrwcu9r7cdbmj408cva4csd4aj2y6qvcr5i5r"
       :init="editorInit"
@@ -88,14 +88,13 @@ export default {
     // this.value = this.initContent;
     this.uuid = uuid.toString();
     uuid += 1;
-    console.log(this.uuid);
+    // console.log(this.uuid);
   },
   methods: {
     onInput(value) {
       this.$emit('input', value);
     },
     onEditorInit(event, tinymce) {
-      
       this.editor = tinymce;
       this.state.editorLoaded = true;
       this.$emit('onInit');

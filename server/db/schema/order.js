@@ -1,0 +1,35 @@
+const { enumAuthmap, enumOrderMethod, enumOrderStatus } = require('./enum');
+const makeCartItem = require('./cartitem');
+const makeDestinfo = require('./destinfo');
+const { Mongoose } = require('mongoose');
+const autoIdSetter = require('./auto-id-setter');
+
+/**
+ *
+ * @param {Mongoose} mongoose
+ */
+module.exports = (mongoose) => {
+  const CartItem = makeCartItem(mongoose, false);
+  const Destinfo = makeDestinfo(mongoose);
+  const Order = new mongoose.Schema({
+    user: { type: String, required: true }, // 유저의 이메일
+    status: { type: String, enum: enumOrderStatus.raw_str_list },
+    method: { type: String, enum: enumOrderMethod.raw_str_list },
+    c_date: { type: Date, default: Date.now }, // 주문일
+    expected_date: Date, // 도착 예정일
+    cancelled_date: Date, // 주문 취소일
+    return_req_date: Date, // 반품 신청일
+    cash_receipt: String, // 현금영수증 번호
+    transport_number: String, // 송장 번호
+    transport_company: String, // 택배 회사 (코드)
+    meta: mongoose.Schema.Types.Mixed,
+    items: [CartItem],
+    dest: Destinfo,
+  });
+
+  Order.index({ user: 1, c_date: -1 });
+  
+  autoIdSetter(Order, mongoose, 'order', 'id');
+  
+  return Order;
+};

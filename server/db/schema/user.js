@@ -1,28 +1,14 @@
 const { enumAuthmap, enumOrderMethod, enumOrderStatus } = require('./enum');
-const makeCartItem = require('./cartitem');
 const makeDestinfo = require('./destinfo');
 
 const role = enumAuthmap.raw_str_list.slice(0, -1);
 
 module.exports = function (mongoose) {
-  const CartItem = makeCartItem(mongoose, false);
   const Destinfo = makeDestinfo(mongoose);
   const UserAgreed = new mongoose.Schema({
     privacy: Boolean,
     policy: Boolean,
     advertisement: Boolean,
-  });
-  const Order = new mongoose.Schema({
-    status: { type: String, enum: enumOrderStatus.raw_str_list },
-    method: { type: String, enum: enumOrderMethod.raw_str_list },
-    c_date: { type: Date, default: Date.now },
-    expected_date: Date, // 도착 예정일
-    cash_receipt: String, // 현금영수증 번호
-    transport_number: String, // 송장 번호
-    transport_company: String, // 택배 회사
-    meta: mongoose.Schema.Types.Mixed,
-    items: [CartItem],
-    dest: Destinfo,
   });
 
   const User = new mongoose.Schema({
@@ -37,7 +23,6 @@ module.exports = function (mongoose) {
       type: String,
       enum: role,
     },
-    orders: [Order],
     kakao_access_token: String,
     kakao_refresh_token: String,
     kakao_id: String,

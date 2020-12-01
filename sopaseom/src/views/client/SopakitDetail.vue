@@ -8,10 +8,92 @@
     <div class="wrapper">
       <div class="left-blank"></div>
       <div class="content">
-        {{ content }}
+        <div class="featured-image-wrapper">
+          <b-img
+            :src="product.featured_image_url"
+            :alt="product.featured_image_alt"
+          ></b-img>
+        </div>
+        <div class="content-sub" v-html="product.content_sub">
+          <!-- {{ product.content_sub }} -->
+        </div>
+        <h2 class="content-header">영화 소개</h2>
+        <div
+          class="film-info"
+          role="table"
+          aria-colcount="2"
+          :aria-label="`${film.title} 기본 정보`"
+          aria-describedby="basic-info-table-summary"
+        >
+          <div role="rowgroup" class="sr-only">
+            <div class="basic-body-row d-flex" role="row">
+              <span role="columnheader">구분</span>
+              <span role="columnheader">내용</span>
+            </div>
+          </div>
+          <div role="rowgroup">
+            <div
+              v-if="filmGenres || filmShowMinutes || film.is_opened"
+              class="basic-body-row d-flex"
+              role="row"
+            >
+              <span class="title" role="rowheader"> 개요 </span>
+              <span class="content" role="cell">
+                <template v-for="(output, index) in filmSummary">
+                  <span :key="`${index}0`">{{ output }}</span>
+                  <span
+                    v-if="index !== filmSummary.length - 1"
+                    class="seperator"
+                    role="separator"
+                    :key="`${index}1`"
+                    >|</span
+                  >
+                </template>
+                <!-- <span v-if="filmGenres">{{ filmGenres }}</span>
+              <span v-if="filmGenres && filmShowMinutes" class="seperator" role="separator">|</span>
+              <span v-if="filmShowMinutes > 0">{{ filmShowMinutes }}분</span>
+              <span v-if="filmShowMinutes && film.is_opened" class="seperator" role="separator"
+                >|</span
+              >
+              <span v-if="film.is_opened">{{ filmOpenDate }} 개봉</span> -->
+              </span>
+            </div>
+            <div v-if="filmDirector" class="basic-body-row d-flex" role="row">
+              <span class="title" role="rowheader"> 감독 </span>
+              <span class="content" role="cell">
+                {{ filmDirector }}
+              </span>
+            </div>
+            <div
+              v-if="filmActors.length > 0"
+              class="basic-body-row d-flex"
+              role="row"
+            >
+              <span class="title" role="rowheader"> 출연 </span>
+              <span class="content" role="cell">
+                {{ filmActors }}
+              </span>
+            </div>
+            <div
+              v-if="film.watch_grade"
+              class="basic-body-row d-flex"
+              role="row"
+            >
+              <span class="title" role="rowheader"> 등급 </span>
+              <span class="content" role="cell">
+                {{ film.watch_grade }}
+              </span>
+            </div>
+          </div>
+        </div>
+        <h2 class="content-header">상세 정보</h2>
+        <div class="content-main" v-html="product.content_main">
+          <!-- {{ product.content_main }} -->
+        </div>
+        <h2 class="content-header" id="notice-content">유의사항</h2>
         <div class="phrase-wrapper">
           <div class="phrase">
-            {{ sidePhrase }}
+            {{ product.side_phrase }}
           </div>
           <div class="phrase-line"></div>
         </div>
@@ -20,19 +102,23 @@
         <div class="desktop-order">
           <h2>주문 내용</h2>
           <div class="order-content">
-            <div class="order-item" v-for="(item, index) in items" :key="index">
+            <div
+              class="order-item"
+              v-for="(option, optionIndex) in product.options"
+              :key="optionIndex"
+            >
               <div class="item-name">
-                <span>{{ item.name }}</span>
+                <span>{{ option.content }}</span>
               </div>
               <div class="inf-row">
                 <number-controller
-                  v-model="item.count"
+                  v-model="option.count"
                   class="inf-cell"
                 ></number-controller>
                 <!-- <div class="inf-cell number-controller">
                 </div> -->
                 <div class="inf-cell money">
-                  ￦ {{ numberWithCommas(item.price) }}
+                  ￦ {{ numberWithCommas(option.price) }}
                 </div>
               </div>
             </div>
@@ -48,12 +134,20 @@
               <div class="inf-cell money all-price">{{ allPriceView }}</div>
             </div>
           </div>
-          <div class="last-guide">
-            <p><b-link>유의사항</b-link>을 읽고 확인했습니다.</p>
-          </div>
+          <!-- <div class="last-guide">
+            <p> -->
+          <!-- <b-form-checkbox v-model="noticeChecked">
+                <b-link href="#notice-content">유의사항</b-link> 및
+                주문내용을<br />
+                확인했습니다.
+              </b-form-checkbox> -->
+          <!-- </p>
+          </div> -->
           <div class="order-buttons">
-            <b-button @click="desktopCartClicked">장바구니</b-button>
-            <b-button @click="desktopBuyClicked">구매하기</b-button>
+            <!-- :disabled="!noticeChecked" -->
+            <b-button @click="desktopCartClicked"> 장바구니 </b-button>
+            <!-- :disabled="!noticeChecked" -->
+            <b-button @click="desktopBuyClicked"> 구매하기 </b-button>
           </div>
         </div>
       </div>
@@ -69,11 +163,13 @@
           @click.prevent="mobileCartClicked"
           >장바구니</b-button
         >
+        <!-- :disabled="mobileOrderModalVisible && !noticeChecked" -->
         <b-button
           @touchstart.prevent="mobileBuyClicked"
           @click.prevent="mobileBuyClicked"
           >구매하기</b-button
         >
+        <!-- :disabled="mobileOrderModalVisible && !noticeChecked" -->
       </div>
       <!-- @change="mobileOrderModalChanged" -->
       <b-modal
@@ -93,15 +189,19 @@
           <h2>주문 내용</h2>
 
           <div class="order-content">
-            <div class="order-item" v-for="(item, index) in items" :key="index">
+            <div
+              class="order-item"
+              v-for="(option, optionIndex) in product.options"
+              :key="optionIndex"
+            >
               <div class="item-name">
-                <span>{{ item.name }}</span>
+                <span>{{ option.name }}</span>
               </div>
               <div class="inf-row">
-                <number-controller v-model="item.count" class="inf-cell">
+                <number-controller v-model="option.count" class="inf-cell">
                 </number-controller>
                 <div class="inf-cell money">
-                  ￦ {{ numberWithCommas(item.price) }}
+                  ￦ {{ numberWithCommas(option.price) }}
                 </div>
               </div>
             </div>
@@ -118,9 +218,9 @@
               <div class="inf-cell money all-price">{{ allPriceView }}</div>
             </div>
           </div>
-          <div class="last-guide">
+          <!-- <div class="last-guide">
             <p><b-link>유의사항</b-link>을 읽고 확인했습니다.</p>
-          </div>
+          </div> -->
         </div>
       </b-modal>
     </div>
@@ -128,19 +228,25 @@
 </template>
 
 <script>
-import { BModal, BButton, BLink } from 'bootstrap-vue';
+import { BModal, BButton, BLink, BImg, BFormCheckbox } from 'bootstrap-vue';
 import { mapMutations } from 'vuex';
+import moment from 'moment';
+
 import { numberWithCommas } from '@/util';
+import { makeSimpleQuery } from '@/api/graphql-client';
 
 // const numberWithCommas = (x) =>
 //   x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
 
 export default {
+  name: 'SopakitDetail',
   title: (vm) => vm.title,
   components: {
     BButton,
     BLink,
     BModal,
+    BImg,
+    BFormCheckbox,
     PageHeader: () => import('@/components/PageHeader'),
     // SvgNext: () => import('@/components/SvgNext'),
     CloseFigure: () => import('@/components/CloseFigure'),
@@ -148,40 +254,57 @@ export default {
   },
   data() {
     return {
+      filmSummary: [],
+      noticeChecked: false,
       transportFee: 5000,
       mobileOrderModalVisible: false,
-      content: '콘텐트',
-      notice: '안내사항',
-      keyword: { number: '01', name: '고독' },
-      film_name: '여름날',
-      name: '여름날',
-      sidePhrase: '누구에게나 유배된 시간이 있다',
-      items: [
-        {
-          name: '소파킷 01_고독 여름내',
-          count: 1,
-          price: 500000,
-        },
-        {
-          name: '소파킷 02_고독 haha',
-          count: 1,
-          price: 10000,
-        },
-      ],
+      // content: '콘텐트',
+      // notice: '안내사항',
+      // keyword: { number: '01', name: '고독' },
+      // film_name: '여름날',
+      // name: '여름날',
+      film: {
+        genres: [],
+        people: [],
+      },
+      product: {
+        options: [],
+      },
+      sopakit: {},
+      // sidePhrase: '누구에게나 유배된 시간이 있다',
+      // items: [
+      //   {
+      //     name: '소파킷 01_고독 여름내',
+      //     count: 1,
+      //     price: 500000,
+      //   },
+      //   {
+      //     name: '소파킷 02_고독 haha',
+      //     count: 1,
+      //     price: 10000,
+      //   },
+      // ],
     };
   },
   computed: {
     title() {
-      return `소파킷 ${this.keyword.number} ${this.keyword.name} - ${this.name}`;
+      return `소파킷 ${this.sopakit.num} ${this.sopakit.title} - ${this.product.name}`;
+    },
+    vuePageTitle() {
+      return `소파킷 ${this.sopakit.num} ${this.sopakit.title} - ${this.product.name}`;
     },
     headerTitle() {
-      return `소파킷 ${this.keyword.number} - ${this.keyword.name} - ${this.name}`;
+      return `소파킷 ${this.sopakit.num} - ${this.sopakit.title} - ${this.product.name}`;
+    },
+
+    id() {
+      return parseInt(this.$route.params.id, 10);
     },
 
     allSum() {
       let result = 0;
-      this.items.forEach((item) => {
-        result += item.price * item.count;
+      this.product.options.forEach((option) => {
+        result += option.price * option.count;
       });
       return result;
     },
@@ -192,9 +315,53 @@ export default {
     allPriceView() {
       return `￦ ${this.numberWithCommas(this.allSum + this.transportFee)}`;
     },
+    filmDirector() {
+      return this.film.people
+        .filter((person) => person.role_type === 'director')
+        .map((person) => person.name)
+        .join(', ');
+    },
+    filmOpenYear() {
+      // console.log(this.film.open_date);
+      if (this.film.open_date.getTime() > 0) {
+        return this.film.open_date.getFullYear();
+      }
+      return null;
+    },
+    filmProdYear() {
+      if (this.film.prod_date.getTime() > 0) {
+        return this.film.prod_date.getFullYear();
+      }
+      return null;
+    },
+    filmActors() {
+      return this.film.people
+        .filter((person) => person.role_type === 'actor')
+        .map((person) => `${person.name}(${person.role})`)
+        .join(', ');
+    },
+    filmGenres() {
+      return this.film.genres.join(', ');
+    },
+    filmShowMinutes() {
+      return Math.floor(this.film.show_time / 60);
+    },
+    filmOpenDate() {
+      if (this.film.open_date.getTime() === 0) {
+        return null;
+      }
+      return moment(this.film.open_date).format('yyyy.MM.DD');
+    },
+    filmSynopsis() {
+      if (this.film.synopsis) {
+        return this.film.synopsis.replace(/\n/gi, '<br>');
+      }
+      return null;
+    },
   },
-  mounted() {
+  async mounted() {
     this.setAdditionalFooterPaddingBottom(40);
+    this.fetchData();
   },
   beforeDestroy() {
     this.setAdditionalFooterPaddingBottom(0);
@@ -203,13 +370,13 @@ export default {
     ...mapMutations(['setAdditionalFooterPaddingBottom']),
     numberWithCommas,
     upClicked(index) {
-      if (this.items[index].count < 99) {
-        this.items[index].count += 1;
+      if (this.product.options[index].count < 99) {
+        this.product.options[index].count += 1;
       }
     },
     downClicked(index) {
-      if (this.items[index].count > 0) {
-        this.items[index].count -= 1;
+      if (this.product.options[index].count > 0) {
+        this.product.options[index].count -= 1;
       }
     },
     // mobileOrderModalChanged(isVisible) {
@@ -220,7 +387,7 @@ export default {
       event.target.blur();
       if (this.mobileOrderModalVisible) {
         console.log('카트에 담는다!!');
-        this.desktopCartClicked();
+        this.startCartProcess();
       } else {
         this.$bvModal.show('mobile-order');
       }
@@ -231,14 +398,76 @@ export default {
       // });
       if (this.mobileOrderModalVisible) {
         console.log('산다!!');
-        this.desktopBuyClicked();
+        this.startBuyProcess();
       } else {
         this.$bvModal.show('mobile-order');
       }
     },
+    async fetchData() {
+      const getProductReq = makeSimpleQuery('product');
+      const received = await getProductReq(
+        { id: this.id },
+        `{
+          featured_image_url featured_image_alt content_main content_sub side_phrase notice name 
+          options {
+            id content left price
+          }
+          related_film {
+            title title_en open_date prod_date genres watch_grade poster_url poster_alt show_time synopsis
+            people {
+              role_type name role
+            }
+          }
+          kit {
+            num year title
+          }
+        }`,
+      );
+      console.log('# SopakitDetail fetchData received');
+      console.log(received);
 
-    desktopCartClicked() {},
-    desktopBuyClicked() {},
+      // data 바인딩
+      this.film = { ...received.related_film };
+      this.sopakit = { ...received.kit };
+      delete received.related_film;
+      delete received.kit;
+
+      // 영화 개요 만들기
+      if (this.filmGenres) {
+        this.filmSummary.push(this.filmGenres);
+      }
+      if (this.filmShowMinutes > 0) {
+        this.filmSummary.push(`${this.filmShowMinutes}분`);
+      }
+      if (this.film.is_opened) {
+        this.filmSummary.push(`${this.filmOpenDate} 개봉`);
+      }
+
+      // 옵션의 카운트를 0으로 초기화
+      if (received.options) {
+        received.options = received.options.map((option) => ({
+          ...option,
+          count: 1,
+        }));
+      }
+      this.product = {
+        ...received,
+      };
+      // this.id;
+    },
+
+    desktopCartClicked() {
+      this.startCartProcess();
+    },
+    desktopBuyClicked() {
+      this.startBuyProcess();
+    },
+    startCartProcess() {
+      // todo
+    },
+    startBuyProcess() {
+      // todo
+    },
   },
 };
 </script>
@@ -258,9 +487,13 @@ $content-margin-top: 30px;
 .content {
   // max-width: 700px;
   flex: 0 1 800px;
-  height: 10000px;
+  // height: 10000px;
   padding: 0 45px 0 80px;
   position: relative;
+  h2 {
+    font-size: 23px;
+    font-weight: bold;
+  }
 }
 
 @include max-with(md) {
@@ -303,7 +536,7 @@ $content-margin-top: 30px;
     $desktop-subheader-height;
 }
 
-@include prevent-break-top0(".desktop-order");
+@include prevent-break-top0('.desktop-order');
 
 .desktop-order,
 .mobile-order {
@@ -354,11 +587,21 @@ $content-margin-top: 30px;
 .last-guide {
   margin-top: 30px;
   p {
-    text-align: center;
-    font-size: 17px;
+    text-align: left;
+    font-size: 14px;
   }
   a {
     text-decoration: underline;
+  }
+}
+
+.order-info {
+  margin-bottom: 20px;
+}
+
+@include max-with(md) {
+  .order-info {
+    margin-bottom: 50px;
   }
 }
 

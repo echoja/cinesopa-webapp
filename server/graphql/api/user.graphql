@@ -7,7 +7,6 @@ type User {
   blocked_date: DateTime
   blocked_count: Int
   role: String
-  orders: [Order]
   kakao_access_token: String
   kakao_refresh_token: String
   kakao_id: String

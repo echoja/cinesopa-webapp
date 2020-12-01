@@ -1,11 +1,11 @@
 const { Mongoose } = require('mongoose');
-const { enumProductType } = require('./enum');
+const { enumProductType, enumCartItemUsage } = require('./enum');
 const autoIdSetter = require('./auto-id-setter');
 
 /**
- * 
- * @param {Monboose} mongoose 
- * @param {boolean} setId auto-id-setter 로 id 필드를 설정할 건지를 결정. 
+ *
+ * @param {Mongoose} mongoose
+ * @param {boolean} setId auto-id-setter 로 id 필드를 설정할 건지를 결정.
  */
 module.exports = function (mongoose, setId = true) {
   const CartItemProduct = new mongoose.Schema({
@@ -28,6 +28,11 @@ module.exports = function (mongoose, setId = true) {
     modified: { type: Date, default: Date.now },
     product_id: Number,
     // product_id: { type: mongoose.Schema.Types.ObjectId, ref: 'Product' },
+    usage: {
+      type: String,
+      enum: enumCartItemUsage.raw_str_list,
+      default: 'normal',
+    }, // 용도. 즉시 구매용 구분용.
     product: CartItemProduct,
     options: [CartItemOption],
     meta: mongoose.Schema.Types.Mixed,
