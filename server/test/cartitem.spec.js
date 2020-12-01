@@ -8,10 +8,10 @@ const {
   doGuestLogin,
   adminEmail,
   guestEmail,
+  makeSimpleMutation,
 } = require('./tool');
 const { graphql } = require('graphql');
 const { model, db } = require('../loader');
-
 
 const cartitemsQuery = `
 query cartitemsQuery {
@@ -36,7 +36,7 @@ query cartitemsQuery {
     id
   }
 }
-`
+`;
 
 //addCartitem(input: CartitemInput!): AddCartitemResult
 const addCartitemMutation = `
@@ -66,7 +66,6 @@ mutation updateOptionCountMutation(
   }
 }
 `;
-
 
 describe('cartitem', function () {
   // eslint-disable-next-line mocha/no-setup-in-describe
@@ -346,7 +345,7 @@ describe('cartitem', function () {
         // console.log(result);
         expect(result.length).to.equal(1);
       });
-      it.only('다른 유저의 cartitem 을 얻지 않아야 함.',async  function () {
+      it.only('다른 유저의 cartitem 을 얻지 않아야 함.', async function () {
         await doAdminLogin(agent);
         const cartitem = await model.Cartitem.create({
           user: guestEmail,
@@ -394,6 +393,60 @@ describe('cartitem', function () {
         expect(made.options[0].price).to.equal(10000);
       });
       it('product 가 존재하지 않는다면 동작하지 않아야 함', async function () {});
+    });
+    describe('makeInstancePaymentCartitem', function () {
+      it.only(`제대로 동작해야 함. 이미 같은 종류의 product 가 존재하더라도, 
+      기존의 것에 추가되는 것 없이 별도로 잘 동작해야 함.`, async function () {
+        await doGuestLogin(agent);
+        // 테스트용 상품
+        const prod = await model.Product.create({
+          content_main: '콘텐트메인',
+          product_type: 'sopakit',
+          options: [
+            {
+              id: 'ho',
+              content: '호호',
+              price: 10000,
+            },
+          ],
+        });
+        // 기존의 것
+        await model.Cartitem.create({
+          user: guestEmail,
+          usage: 'normal',
+          product_id: prod.id,
+        });
+        const req = makeSimpleMutation(agent, 'makeInstancePaymentCartitem');
+        const res = await req(
+          {
+            input: {
+              product_id: prod.id,
+              options: [
+                {
+                  id: 'ho',
+                  count: 3,
+                },
+              ],
+            },
+          },
+          `
+        { success code 
+          doc {
+            user added modified usage 
+            product {
+              product_type name
+            }
+          }
+        }`,
+        );
+        // console.log(res);
+        expect(res.success).to.be.true;
+        expect(res.code).to.equal('created');
+        expect(res.doc.usage).to.equal('instant_payment');
+        const lastFound = await model.Cartitem.find().lean().exec();
+        // console.log(lastFound);
+        expect(lastFound.length).to.equal(2);
+      });
     });
     describe('updateOptionCount', function () {
       it('제대로 동작해야 함', async function () {

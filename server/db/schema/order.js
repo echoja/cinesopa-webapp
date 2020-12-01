@@ -9,7 +9,7 @@ const autoIdSetter = require('./auto-id-setter');
  * @param {Mongoose} mongoose
  */
 module.exports = (mongoose) => {
-  const CartItem = makeCartItem(mongoose, false);
+  const CartItem = makeCartItem(mongoose, false, false);
   const Destinfo = makeDestinfo(mongoose);
   const Order = new mongoose.Schema({
     user: { type: String, required: true }, // 유저의 이메일
@@ -22,6 +22,7 @@ module.exports = (mongoose) => {
     cash_receipt: String, // 현금영수증 번호
     transport_number: String, // 송장 번호
     transport_company: String, // 택배 회사 (코드)
+    bootpay_id: String, // 부트페이 검증용 id
     meta: mongoose.Schema.Types.Mixed,
     items: [CartItem],
     dest: Destinfo,

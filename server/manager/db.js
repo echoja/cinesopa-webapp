@@ -1147,6 +1147,13 @@ class DBManager {
   /*= ====================================
   장바구니 cart cartitem
   ===================================== */
+  /**
+   * Cartitem 을 id 값에 따라서 불러옵니다.
+   * @param {number} id id 값
+   */
+  async getCartitem(id) {
+    return model.Cartitem.findOne({ id }).lean().exec();
+  }
 
   async getCartitems(email) {
     // const all = await model.Cartitem.find().lean().exec();
@@ -1160,8 +1167,8 @@ class DBManager {
    * @param {CartIteminfo} input
    */
   async addCartitem(input = {}) {
-    const { user, options, product_id, modified } = input;
-    const keysForCopy = ['content', 'price'];
+    const { user, options, product_id, modified, usage } = input;
+
     // const productId = input.product_id;
     // 인수 검사
     if (
@@ -1177,8 +1184,18 @@ class DBManager {
       return { success: false, code: 'no_product' };
     }
 
-    const cartitem = await model.Cartitem.findOne({ user, product_id }).exec();
-    // 이미 카트에 담겨있는 물품일 경우 (옵션은 무조건 존재함)
+    // 이미 카트에 담겨있는 물품일 경우를 찾음. (user와 product_id를 기준으로 함)
+    // 이 때, 즉시 구매(usage가 instant_payment)일 경우에는 무조건 카트를 생성해야 하므로,
+    // if 문을 건너뛸 수 있도록 null 로 설정.
+    const cartitem =
+      usage !== 'instant_payment'
+        ? await model.Cartitem.findOne({
+            user,
+            product_id,
+            usage: 'normal',
+          }).exec()
+        : null;
+
     if (cartitem) {
       // input 으로 들어왔던 각 option을 순회
       options.forEach((option) => {
@@ -1196,7 +1213,7 @@ class DBManager {
       // 수정일 갱신
       cartitem.modified = modified;
       await cartitem.save();
-      return { success: true, code: 'added' };
+      return { success: true, code: 'added', doc: cartitem.toObject() };
     }
 
     // 카트에 없다면 새로 만들면 됨.
@@ -1207,6 +1224,7 @@ class DBManager {
     // console.log(newInput);
 
     // 이미 존재하는 product 의 option 관련 정보 (price, content 등)를 newInput에 넣어줌.
+    const keysForCopy = ['content', 'price'];
     newInput.options.forEach((newOption) => {
       const { id } = newOption;
 
@@ -1225,7 +1243,7 @@ class DBManager {
     product.related_cartitems.push(created.id);
     await product.save();
 
-    return { success: true, code: 'created' };
+    return { success: true, code: 'created', doc: created.toObject() };
   }
 
   /**
@@ -1351,10 +1369,10 @@ class DBManager {
   async updateOrder(id, input) {
     return model.Order.updateOne({ id }, input).lean().exec();
   }
-   
+
   /**
    * 주문을 삭제합니다.
-   * @param {number} id 
+   * @param {number} id
    */
   async removeOrder(id) {
     return model.Order.deleteOne({ id });

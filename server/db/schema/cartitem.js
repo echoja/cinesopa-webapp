@@ -7,7 +7,7 @@ const autoIdSetter = require('./auto-id-setter');
  * @param {Mongoose} mongoose
  * @param {boolean} setId auto-id-setter 로 id 필드를 설정할 건지를 결정.
  */
-module.exports = function (mongoose, setId = true) {
+module.exports = function (mongoose, setId = true, preventForceIdField = true) {
   const CartItemProduct = new mongoose.Schema({
     product_type: { type: String, enum: enumProductType.raw_str_list },
     name: String,
@@ -22,7 +22,7 @@ module.exports = function (mongoose, setId = true) {
     count: Number,
   });
 
-  const CartItem = new mongoose.Schema({
+  const cartitemSchemaInput = {
     user: String, // 유저 이메일
     added: { type: Date, default: Date.now },
     modified: { type: Date, default: Date.now },
@@ -36,7 +36,13 @@ module.exports = function (mongoose, setId = true) {
     product: CartItemProduct,
     options: [CartItemOption],
     meta: mongoose.Schema.Types.Mixed,
-  });
+  };
+
+  // autoIdSetter 를 사용하지는 않지만 id 필드가 필요할 때
+  if (!preventForceIdField) {
+    cartitemSchemaInput.id = Number;
+  }
+  const CartItem = new mongoose.Schema(cartitemSchemaInput);
 
   if (setId) {
     autoIdSetter(CartItem, mongoose, 'cartitem', 'id');

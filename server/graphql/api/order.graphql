@@ -15,29 +15,92 @@ input DestinfoInput {
 }
 
 type Order {
+  user: String # 유저 이메일
   status: String
   method: String
   c_date: DateTime
   expected_date: DateTime # 도착 예정일
+  cancelled_date: DateTime # 주문 취소일
+  return_req_date: DateTime # 반품 신청일
   cash_receipt: String # 현금영수증 번호
   transport_number: String # 송장 번호
   transport_company: String # 택배 회사
+  bootpay_id: String
   meta: JSON
   items: [CartItem]
   dest: Destinfo
 }
 
+input OrderInput {
+  user: String # 유저 이메일
+  status: String
+  method: String
+  c_date: DateTime
+  expected_date: DateTime # 도착 예정일
+  cancelled_date: DateTime # 주문 취소일
+  return_req_date: DateTime # 반품 신청일
+  cash_receipt: String # 현금영수증 번호
+  transport_number: String # 송장 번호
+  transport_company: String # 택배 회사
+  bootpay_id: String
+  meta: JSON
+  dest: DestinfoInput
+}
+
 input OrderSearch {
+  date_gte: DateTime
+  date_lte: DateTime
   status: String
   method: String
   page: Int
   perpage: Int
+  user: String
+}
+
+input CreateOrderFromCartInput {
+  items_id: [Int]!
+  method: String!
+  dest: DestinfoInput!
+  bootpay_id: String
+}
+
+type OrdersResult {
+  total: Int
+  list: [Order]
+}
+
+type CreateOrderFromCartResult {
+  success: Boolean
+  code: String
+}
+
+type removeOrderResult {
+  success: Boolean
+  code: String
+}
+
+type updateOrderResult {
+  success: Boolean
+  code: String
+}
+
+type ReqCancelOrderResult {
+  success: Boolean
+  code: String
 }
 
 extend type Query {
-  orders(condition: OrderSearch): [Order]
+  orderAdmin(id: Int!): Order
+  ordersAdmin(condition: OrderSearch!): OrdersResult
+  myOrders(condition: OrderSearch!): OrdersResult
 }
 
 extend type Mutation {
-  createOrderFromCart: Order
+  # createOrderFromCart: Order
+  createOrderFromCart(
+    input: CreateOrderFromCartInput!
+  ): CreateOrderFromCartResult # 이미 결제 완료된 상태임. 영수증 검증 + 새 주문 생성
+  reqCancelOrder(id: Int!): ReqCancelOrderResult
+  updateOrder(id: Int!, input: OrderInput!): updateOrderResult
+  removeOrder(id: Int!): removeOrderResult
 }

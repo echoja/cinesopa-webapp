@@ -7,6 +7,7 @@ const {
   makeResolver,
   db,
 } = require('../../loader');
+require('../../typedef');
 
 module.exports = {
   Query: {
@@ -33,8 +34,19 @@ module.exports = {
       const serverCurrent = new Date();
       return db.updateCartitemOption(id, optionId, count, serverCurrent, email);
     }).only(ACCESS_AUTH),
-    removeCartitem: makeResolver(async (obj, args, context, info) => {}).only(
-      ACCESS_AUTH,
-    ),
+    removeCartitem: makeResolver(async (obj, args, context, info) => {
+      const { id } = args;
+      return db.removeCartitem(id);
+    }).only(ACCESS_AUTH),
+    makeInstancePaymentCartitem: makeResolver(
+      async (obj, args, context, info) => {
+        const { email } = context.getUser();
+        const { input } = args;
+        input.user = email;
+        input.modified = new Date();
+        input.usage = 'instant_payment';
+        return db.addCartitem(input);
+      },
+    ).only(ACCESS_AUTH),
   },
 };

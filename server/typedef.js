@@ -130,6 +130,7 @@
  * @property {string}   cash_receipt
  * @property {string}   transport_number
  * @property {string}   transport_company
+ * @property {string}   bootpay_id
  * @property {object}   meta
  * @property {CartIteminfo[]}   items
  * @property {Destinfo}   dest
@@ -148,6 +149,7 @@
  * @property {string}   cash_receipt
  * @property {string}   transport_number
  * @property {string}   transport_company
+ * @property {string}   bootpay_id
  * @property {object}   meta
  * @property {number[]}   items 카트아이템 id 목록
  * @property {Destinfo}   dest
@@ -159,6 +161,7 @@
  * @property {Date}   date_gte
  * @property {Date}   date_lte
  * @property {string}   status
+ * @property {string}   method
  * @property {number}   page
  * @property {number}   perpage
  * @property {string}   user 유저 이메일

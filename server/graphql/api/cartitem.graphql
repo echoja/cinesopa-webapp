@@ -17,6 +17,7 @@ type CartItem {
   added: DateTime
   modified: DateTime
   product_id: Int
+  usage: String
   product: CartItemProduct
   options: [CartItemOption]
   meta: JSON
@@ -26,6 +27,13 @@ type CartItem {
 type AddCartitemResult {
   success: Boolean
   code: String
+  doc: CartItem
+}
+
+type MakeInstancePaymentCartitemResult {
+  success: Boolean
+  code: String
+  doc: CartItem
 }
 type UpdateOptionCountResult {
   success: Boolean
@@ -50,6 +58,7 @@ input CartitemInput {
   added: DateTime
   modified: DateTime
   product_id: Int
+  usage: String
   product: CartitemProductInput
   options: [CartitemOptionInput]
   meta: JSON
@@ -70,6 +79,7 @@ input CartitemProductInput {
   featured_image_alt: String
 }
 
+# cartitem 은 Admin 차원에서 관리가 필요없겠지..
 extend type Query {
   cartitems: [CartItem] # 현재 유저의 모든 cartitem 을 불러옴.
 }
@@ -83,4 +93,7 @@ extend type Mutation {
     current: DateTime!
   ): UpdateOptionCountResult # Cartitem id, 옵션 id, 카운트
   removeCartitem(id: Int!): RemoveCartitemResult
+  makeInstancePaymentCartitem(
+    input: CartitemInput!
+  ): MakeInstancePaymentCartitemResult # 즉시 구매용 Cartitem 을 만들고, 해당 id를 반환합니다.
 }
