@@ -22,7 +22,16 @@
             /> -->
           </div>
           <div class="title-wrapper">
-            <h2 class="title">{{ cartitem.product.name }}</h2>
+            <h2 class="title">
+              <b-link
+                :to="{
+                  name: 'SopakitDetail',
+                  params: { id: cartitem.product_id },
+                }"
+              >
+                {{ cartitem.product.name }}
+              </b-link>
+            </h2>
           </div>
           <div class="options">
             <div
@@ -90,6 +99,7 @@
 <script>
 import { BLink, BButton } from 'bootstrap-vue';
 import { toPrice } from '@/util';
+import { makeSimpleQuery } from '@/api/graphql-client';
 
 export default {
   title: '장바구니',
@@ -103,27 +113,28 @@ export default {
   data() {
     return {
       cartitems: [
-        {
-          id: 1,
-          user: 'eszqsc112@naver.com', // 유저 이메일
-          added: new Date('2020-10-12'),
-          modified: new Date('2020-10-13'),
-          product: {
-            product_type: 'sopakit',
-            name: '소파킷 - 고독',
-            featured_image_url: 'https://sopaseom.com/upload/5d55a90942e7e191f1a5225c62ee4f3a',
-            featured_image_alt: '이미지 설명',
-          },
-          options: [
-            {
-              id: 'hello',
-              content: '키트',
-              price: 500000,
-              count: 4,
-            },
-          ],
-          meta: {},
-        },
+        // {
+        //   id: 1,
+        //   user: 'eszqsc112@naver.com', // 유저 이메일
+        //   added: new Date('2020-10-12'),
+        //   modified: new Date('2020-10-13'),
+        //   product: {
+        //     product_type: 'sopakit',
+        //     name: '소파킷 - 고독',
+        //     featured_image_url:
+        //       'https://sopaseom.com/upload/5d55a90942e7e191f1a5225c62ee4f3a',
+        //     featured_image_alt: '이미지 설명',
+        //   },
+        //   options: [
+        //     {
+        //       id: 'hello',
+        //       content: '키트',
+        //       price: 500000,
+        //       count: 4,
+        //     },
+        //   ],
+        //   meta: {},
+        // },
       ],
     };
   },
@@ -150,11 +161,31 @@ export default {
       return this.totalProductPrice + this.totalTransportationFee;
     },
   },
+  async mounted() {
+    this.fetchData();
+  },
   methods: {
     toPrice,
     removeCartitem(index) {
-      console.log('# OrderCart removeCartiten');
+      console.log('# OrderCart removeCartitem');
       console.log(index);
+    },
+    async fetchData() {
+      const req = makeSimpleQuery('cartitems');
+      const res = await req(
+        {},
+        `{id user added modified product_id usage
+        product { 
+          product_type name featured_image_url featured_image_alt
+        }
+        options {
+          id content price count
+        }      
+      }`,
+      );
+      this.cartitems = res;
+      // console.log('# OrderCart fetchData');
+      // console.log(res);
     },
   },
 };

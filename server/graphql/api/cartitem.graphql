@@ -6,7 +6,7 @@ type CartItemProduct {
 }
 
 type CartItemOption {
-  id: Int
+  id: String
   content: String
   price: Int
   count: Int

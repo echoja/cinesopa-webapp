@@ -1155,11 +1155,26 @@ class DBManager {
     return model.Cartitem.findOne({ id }).lean().exec();
   }
 
-  async getCartitems(email) {
+  /**
+   * @typedef {Object} GetCartitemsCondition
+   * @property {string} [usage=normal] normal or instant_payment
+   */
+
+  /**
+   * 카트아이템을 얻습니다. instant_payment 는 걸러야 하므로 normal 만 가져옵니다.
+   * @param {string} email
+   * @param {GetCartitemsCondition} condition
+   */
+  async getCartitems(email, condition = {}) {
+    const { usage = 'normal' } = condition;
+    let query = model.Cartitem.find({ user: email });
+    if (usage) {
+      query = query.find({ usage });
+    }
     // const all = await model.Cartitem.find().lean().exec();
     // console.log('# db - getCartitems');
     // console.log(all);
-    return model.Cartitem.find({ user: email }).lean().exec();
+    return query.lean().exec();
   }
   /**
    * 카트 아이템을 추가한다. 만약 이미 존재한다면 개수만 추가한다.
@@ -1285,6 +1300,25 @@ class DBManager {
   async removeCartitem(id) {
     await model.Cartitem.deleteOne({ id }).lean().exec();
     return { success: true };
+  }
+
+  /**
+   * 오래된 instant_payment cartitem 을 삭제합니다. 기본 기준 값은 14일입니다.
+   * @param {number} dateBefore 
+   */
+  async removeOldInstantPaymentCartitem(dateBefore = 14) {
+    const now = new Date();
+    const lte = new Date(
+      now.getFullYear(),
+      now.getMonth(),
+      now.getDate() - dateBefore,
+    );
+    await model.Cartitem.deleteMany({
+      usage: 'instant_payment',
+      added: {
+        $lte: lte,
+      },
+    });
   }
 
   /*= ====================================

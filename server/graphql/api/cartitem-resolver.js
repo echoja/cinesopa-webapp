@@ -40,6 +40,9 @@ module.exports = {
     }).only(ACCESS_AUTH),
     makeInstancePaymentCartitem: makeResolver(
       async (obj, args, context, info) => {
+        // 기존에 오래된 것 삭제
+        await db.removeOldInstantPaymentCartitem();
+
         const { email } = context.getUser();
         const { input } = args;
         input.user = email;

@@ -75,9 +75,17 @@ describe('cartitem', function () {
       it('잘 동작해야 함', async function () {
         await model.Cartitem.create({
           user: guestEmail,
+          options: [
+            {
+              id: 'oh',
+              content: '테스트콘텐트옵션',
+              count: 2,
+              price: 1235,
+            },
+          ],
         });
         const cartitems = await db.getCartitems(guestEmail);
-        // console.log(cartitems);
+        console.dir(cartitems, { depth: 4 });
         expect(cartitems.length).to.equal(1);
       });
     });
@@ -115,8 +123,10 @@ describe('cartitem', function () {
         const afterProd = await model.Product.findOne({ id: prod.id })
           .lean()
           .exec();
-        console.log(created);
-        console.log(afterProd);
+        // console.log('created');
+        // console.log(created);
+        // console.log('afterProd');
+        // console.log(afterProd);
         expect(created.user).to.equal(guestEmail);
         expect(created.options[0].id).to.equal('ho');
         expect(created.options[0].content).to.equal('호');
@@ -335,17 +345,25 @@ describe('cartitem', function () {
   });
   describe('api', function () {
     describe('cartitems', function () {
-      it.only('현재 유저 기준으로 제대로 동작해야 함', async function () {
+      it('현재 유저 기준으로 제대로 동작해야 함', async function () {
         await doAdminLogin(agent);
         const cartitem = await model.Cartitem.create({
           user: adminEmail,
+          options: [
+            {
+              id: 'ho',
+              content: 'test',
+              count: 1,
+              price: 2000,
+            },
+          ],
         });
         const res = await graphqlSuper(agent, cartitemsQuery, {});
         const result = res.body.data.cartitems;
-        // console.log(result);
+        console.dir(result, { depth: 4 });
         expect(result.length).to.equal(1);
       });
-      it.only('다른 유저의 cartitem 을 얻지 않아야 함.', async function () {
+      it('다른 유저의 cartitem 을 얻지 않아야 함.', async function () {
         await doAdminLogin(agent);
         const cartitem = await model.Cartitem.create({
           user: guestEmail,
@@ -395,7 +413,23 @@ describe('cartitem', function () {
       it('product 가 존재하지 않는다면 동작하지 않아야 함', async function () {});
     });
     describe('makeInstancePaymentCartitem', function () {
-      it.only(`제대로 동작해야 함. 이미 같은 종류의 product 가 존재하더라도, 
+      // eslint-disable-next-line mocha/no-setup-in-describe
+      const req = makeSimpleMutation(agent, 'makeInstancePaymentCartitem');
+      const resultString = `
+      { success code 
+        doc {
+          user added modified usage 
+          product_id
+          product {
+            product_type name
+          }
+          options {
+            id count price content
+          }
+        }
+      }`;
+
+      it(`제대로 동작해야 함. 이미 같은 종류의 product 가 존재하더라도, 
       기존의 것에 추가되는 것 없이 별도로 잘 동작해야 함.`, async function () {
         await doGuestLogin(agent);
         // 테스트용 상품
@@ -416,7 +450,6 @@ describe('cartitem', function () {
           usage: 'normal',
           product_id: prod.id,
         });
-        const req = makeSimpleMutation(agent, 'makeInstancePaymentCartitem');
         const res = await req(
           {
             input: {
@@ -429,15 +462,7 @@ describe('cartitem', function () {
               ],
             },
           },
-          `
-        { success code 
-          doc {
-            user added modified usage 
-            product {
-              product_type name
-            }
-          }
-        }`,
+          resultString,
         );
         // console.log(res);
         expect(res.success).to.be.true;
@@ -446,6 +471,70 @@ describe('cartitem', function () {
         const lastFound = await model.Cartitem.find().lean().exec();
         // console.log(lastFound);
         expect(lastFound.length).to.equal(2);
+      });
+      it('접근하는 순간 오래된 instant_payment cartitem 은 삭제되어야 함', async function () {
+        await doGuestLogin(agent);
+        // 테스트용 상품
+        const prod = await model.Product.create({
+          content_main: '콘텐트메인',
+          product_type: 'sopakit',
+          options: [
+            {
+              id: 'ho',
+              content: '호호',
+              price: 10000,
+            },
+          ],
+        });
+        const o1 = await model.Cartitem.create({
+          user: guestEmail,
+          usage: 'instant_payment',
+          product_id: prod.id,
+          added: new Date('2019-12-31'),
+          options: [
+            {
+              id: 'ho',
+              count: 3,
+            },
+          ],
+        });
+        const o1Id = o1.id;
+        const o2 = await model.Cartitem.create({
+          user: guestEmail,
+          usage: 'instant_payment',
+          product_id: prod.id,
+          added: new Date(),
+          options: [
+            {
+              id: 'ho',
+              count: 10,
+            },
+          ],
+        });
+        const o2Id = o2.id;
+        const res = await req(
+          {
+            input: {
+              product_id: prod.id,
+              options: [
+                {
+                  id: 'ho',
+                  count: 5,
+                },
+              ],
+            },
+          },
+          resultString,
+        );
+        const o3 = res.doc;
+        console.log(o3);
+        // console.log(docs);
+        expect(res.success).to.be.true;
+        const shouldNotBeFound = await model.Cartitem.findOne({id: o1Id});
+        expect(shouldNotBeFound).to.be.null;
+        const shouldFound = await model.Cartitem.findOne({id: o2Id});
+        expect(shouldFound).to.be.not.null;
+        // const docs = await model.Cartitem.find({ usage: 'instant_payment' });
       });
     });
     describe('updateOptionCount', function () {
@@ -463,7 +552,7 @@ describe('cartitem', function () {
           id: item.id,
           optionId: 'abc',
           count: 3,
-          current: newDate,
+          current: newDate, // 이건 이제 의미가 없음.
         });
         const result = res.body.data.updateOptionCount;
         const after = await model.Cartitem.findOne({ id: item.id })
@@ -471,7 +560,7 @@ describe('cartitem', function () {
           .exec();
         expect(result.success).to.be.true;
         expect(after.options[0].count).to.equal(3);
-        expect(after.modified.getTime()).to.equal(newDate.getTime());
+        // expect(after.modified.getTime()).to.equal(newDate.getTime()); // 클라이언트에서 시간을 조작하지 못하도록 그냥 막자. 
       });
     });
     describe('removeCartitem', function () {

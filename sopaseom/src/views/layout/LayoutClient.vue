@@ -76,10 +76,9 @@ export default {
     // },
     shouldOverflowBeHidden() {
       const footerStyle = this.$route?.meta?.footerStyle || BodyFixedFooter;
-      console.log('# LayoutClient shouldOverflowBeHidden');
-      console.log(footerStyle);
-      // console.log(footerstyle());
-      console.log(BodyFixedFooter);
+      // console.log('# LayoutClient shouldOverflowBeHidden');
+      // console.log(footerStyle);
+      // console.log(BodyFixedFooter);
       if (footerStyle === BodyNoFooter) {
         return false;
       }
@@ -101,7 +100,7 @@ export default {
     // 오버플로 scroll > 오버플로 hidden : route 가 변경되는 즉시 hidden 으로 변경
 
     fsBeforeEnter(el) {
-      console.log('# LayoutClient fsBeforeEnter');
+      // console.log('# LayoutClient fsBeforeEnter');
       // console.log(el);
       // console.log(this.$route);
       if (!this.shouldOverflowBeHidden) {
@@ -113,7 +112,7 @@ export default {
         // this.layoutStyle = { overflow: 'inherit' };
         // this.layoutStyle = { 'overflow-x': 'hidden', 'overflow-y': 'inherit' };
       }
-      console.log('# LayoutClient fsBeforeLeave');
+      // console.log('# LayoutClient fsBeforeLeave');
       // console.log(el);
       // console.log(this.$route);
     },

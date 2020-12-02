@@ -233,11 +233,15 @@ import { mapMutations } from 'vuex';
 import moment from 'moment';
 
 import { numberWithCommas } from '@/util';
-import { makeSimpleQuery } from '@/api/graphql-client';
+import { makeSimpleQuery, makeSimpleMutation } from '@/api/graphql-client';
 
 // const numberWithCommas = (x) =>
 //   x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
 
+const addCartitemReq = makeSimpleMutation('addCartitem');
+const makeInstancePaymentCartitemReq = makeSimpleMutation(
+  'makeInstancePaymentCartitem',
+);
 export default {
   name: 'SopakitDetail',
   title: (vm) => vm.title,
@@ -462,10 +466,39 @@ export default {
     desktopBuyClicked() {
       this.startBuyProcess();
     },
-    startCartProcess() {
+    async startCartProcess() {
+      const res = await addCartitemReq(
+        {
+          input: {
+            product_id: this.id,
+            options: this.product.options.map((option) => ({
+              id: option.id,
+              count: option.count,
+            })),
+          },
+        },
+        '{success code}',
+      );
+      console.log('# SopakitDetail startCartProcess res');
+      console.log(res);
+
       // todo
     },
-    startBuyProcess() {
+    async startBuyProcess() {
+      const res = await makeInstancePaymentCartitemReq(
+        {
+          input: {
+            product_id: this.id,
+            options: this.product.options.map((option) => ({
+              id: option.id,
+              count: option.count,
+            })),
+          },
+        },
+        '{success code doc}',
+      );
+      console.log('# SopakitDetail startBuyProcess res');
+      console.log(res);
       // todo
     },
   },
