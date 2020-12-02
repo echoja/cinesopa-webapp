@@ -173,7 +173,7 @@ export default [
         meta: { ...BodyFixedFooterMeta },
       },
       {
-        path: 'payment',
+        path: 'payment/:ids',
         name: 'Payment',
         component: () => import('@/views/client/OrderPayment.vue'),
         beforeEnter: requireAuth({ role: 'guest', shouldVerified: 'true' }),

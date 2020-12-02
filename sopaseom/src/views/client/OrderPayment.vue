@@ -81,10 +81,8 @@
             v-for="(order, orderIndex) in orderList"
             :key="orderIndex"
           >
-            <div
-              class="has-option-wrapper"
-              v-if="order.option_type === 'has_options'"
-            >
+            <!-- 옵션이 하나 두개 이상일 때 여러개의 옵션을 보여주고 각각에 대한 가격을 표시 -->
+            <div class="has-option-wrapper" v-if="order.options.length > 1">
               <div class="order-has-options-title">
                 {{ order.name }}
               </div>
@@ -100,6 +98,7 @@
                 </div>
               </div>
             </div>
+            <!-- 옵션이 오직 하나일 경우 옵션 이름은 패스하고 그냥 가격만 표시 -->
             <div class="order-row-inner-wrapper" v-else>
               <div class="order-cell name">{{ order.name }}</div>
               <div class="order-cell count">{{ order.options[0].count }}</div>
@@ -192,6 +191,7 @@
         <div class="last-notice">위 주문 내용으로 결제에 동의합니다.</div>
         <div class="go-payment-wrapper">
           <oval-button class="go-payment">결제하기</oval-button>
+          <!-- {{ cartitems }} -->
         </div>
       </div>
       <!-- <div class="test">
@@ -239,7 +239,7 @@ export default {
       orderList: [
         {
           name: '소파킷 고독',
-          option_type: 'has_options',
+          // option_type: 'has_options',
           options: [
             {
               id: '123',
@@ -257,7 +257,7 @@ export default {
         },
         {
           name: '소파킷 파워',
-          option_type: 'no_options',
+          // option_type: 'no_options',
           options: [
             {
               id: '123',
@@ -292,6 +292,17 @@ export default {
     addressOld() {
       return this.form.address.jibunAddress;
     },
+    cartitems() {
+      const { ids } = this.$route.params;
+      if (ids) return ids.split(',');
+      return [];
+    },
+  },
+  async mounted () {
+    // 만약 cartitem 의 길이가 0이라면, 유효하지 않은 cartitem 이므로 실패 처리.
+    if (this.cartitems.length === 0) {
+
+    }
   },
   methods: {
     toPrice,
@@ -464,7 +475,7 @@ $content-margin-top: 30px;
     $desktop-subheader-height;
 }
 
-@include prevent-break-top0(".payment-info");
+@include prevent-break-top0('.payment-info');
 
 .payment-info hr {
   border-color: #000;

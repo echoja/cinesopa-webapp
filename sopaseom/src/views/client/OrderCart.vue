@@ -2,6 +2,12 @@
   <div class="cart">
     <div class="cartitem-list">
       <div
+        v-if="cartitems.length === 0"
+        class="blank-cartitems cartitem-wrapper"
+      >
+        <p class="text-center m-0">장바구니가 비어있습니다.</p>
+      </div>
+      <div
         class="cartitem-wrapper"
         v-for="(cartitem, cartitemIndex) in cartitems"
         :key="cartitemIndex"
@@ -36,8 +42,8 @@
           <div class="options">
             <div
               class="option"
-              v-for="(option, index) in cartitem.options"
-              :key="index"
+              v-for="(option, optionIndex) in cartitem.options"
+              :key="optionIndex"
             >
               <div class="option-name">{{ option.content }}</div>
               <div class="count-box">
@@ -48,14 +54,18 @@
             </div>
           </div>
           <div class="remove-button-wrapper">
-            <b-button @click="$bvModal.show('remove-cartitem-modal')">
+            <b-button
+              @click="$bvModal.show(`remove-cartitem-modal${cartitemIndex}`)"
+            >
               &times;
             </b-button>
           </div>
           <b-modal
-            id="remove-cartitem-modal"
-            hide-footer
+            :id="`remove-cartitem-modal${cartitemIndex}`"
             @ok="removeCartitem(cartitemIndex)"
+            title="장바구니 삭제 확인"
+            ok-title="네, 삭제합니다."
+            cancel-title="취소"
           >
             정말로 삭제하시겠습니까?
           </b-modal>
@@ -87,7 +97,11 @@
     </div>
     <div class="button-box">
       <!-- <oval-button>둘러보기</oval-button> -->
-      <oval-button :to="{ name: 'Payment' }">주문하기</oval-button>
+      <oval-button
+        :disabled="cartitems.length === 0"
+        @click="orderButtonClicked"
+        >주문하기</oval-button
+      >
     </div>
     <!-- {{ totalTransportationFee }} -->
     <!-- <div class="test">
@@ -99,7 +113,10 @@
 <script>
 import { BLink, BButton } from 'bootstrap-vue';
 import { toPrice } from '@/util';
-import { makeSimpleQuery } from '@/api/graphql-client';
+import { makeSimpleMutation, makeSimpleQuery } from '@/api/graphql-client';
+import { mapActions } from 'vuex';
+
+const removeCartitemReq = makeSimpleMutation('removeCartitem');
 
 export default {
   title: '장바구니',
@@ -165,10 +182,30 @@ export default {
     this.fetchData();
   },
   methods: {
+    ...mapActions(['pushMessage']),
     toPrice,
-    removeCartitem(index) {
+    async removeCartitem(index) {
       console.log('# OrderCart removeCartitem');
       console.log(index);
+      const { id } = this.cartitems[index];
+      const result = await removeCartitemReq({ id }, '{success code}');
+      // 삭제 성공했을 시
+      if (result.success) {
+        this.pushMessage({
+          type: 'success',
+          msg: '장바구니가 성공적으로 삭제되었습니다.',
+          id: 'removeCartitemSuccess',
+        });
+        this.fetchData();
+      }
+      // 삭제 실패시
+      else {
+        this.pushMessage({
+          type: 'danger',
+          msg: `장바구니를 삭제하는 도중 ${result.code}가 발생했습니다.`,
+          id: 'removeCartitemFail',
+        });
+      }
     },
     async fetchData() {
       const req = makeSimpleQuery('cartitems');
@@ -186,6 +223,15 @@ export default {
       this.cartitems = res;
       // console.log('# OrderCart fetchData');
       // console.log(res);
+    },
+    async orderButtonClicked() {
+      console.log('# OrderCart.vue orderButtonClicked');
+      this.$router.push({
+        name: 'Payment',
+        params: {
+          ids: this.cartitems.map((cartitem) => cartitem.id).join(','),
+        },
+      });
     },
   },
 };

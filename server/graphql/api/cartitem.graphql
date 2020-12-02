@@ -44,6 +44,12 @@ type RemoveCartitemResult {
   code: String
 }
 
+type CartitemByIdResult {
+  success: Boolean
+  code: String
+  list: [CartItem]
+}
+
 input CartitemUpdate {
   modified: DateTime
 }
@@ -81,7 +87,13 @@ input CartitemProductInput {
 
 # cartitem 은 Admin 차원에서 관리가 필요없겠지..
 extend type Query {
-  cartitems: [CartItem] # 현재 유저의 모든 cartitem 을 불러옴.
+  # 현재 유저의 모든 cartitem 을 불러옴..
+  cartitems: [CartItem] 
+
+  # 현재 유저의 해당 cartitem 을 불러옴. 
+  # 만약 해당 유저의 cartitem 이 아니라면 에러. 
+  # 결제 화면에서 cartitem 관련 정보를 가져올 때 사용됨.
+  cartitemById(ids: [Int!]!): CartitemByIdResult
 }
 
 extend type Mutation {

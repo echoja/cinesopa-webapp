@@ -9,6 +9,7 @@ const {
   adminEmail,
   guestEmail,
   makeSimpleMutation,
+  makeSimpleQuery,
 } = require('./tool');
 const { graphql } = require('graphql');
 const { model, db } = require('../loader');
@@ -85,7 +86,7 @@ describe('cartitem', function () {
           ],
         });
         const cartitems = await db.getCartitems(guestEmail);
-        console.dir(cartitems, { depth: 4 });
+        // console.dir(cartitems, { depth: 4 });
         expect(cartitems.length).to.equal(1);
       });
     });
@@ -176,8 +177,8 @@ describe('cartitem', function () {
         const afterProd = await model.Product.findOne({ id: prod.id })
           .lean()
           .exec();
-        console.log(added);
-        console.log(afterProd);
+        // console.log(added);
+        // console.log(afterProd);
         expect(added.options[0].count).to.equal(5);
       });
       it('인수가 잘못되었을 경우 실행되지 않아야 함', async function () {
@@ -360,7 +361,7 @@ describe('cartitem', function () {
         });
         const res = await graphqlSuper(agent, cartitemsQuery, {});
         const result = res.body.data.cartitems;
-        console.dir(result, { depth: 4 });
+        // console.dir(result, { depth: 4 });
         expect(result.length).to.equal(1);
       });
       it('다른 유저의 cartitem 을 얻지 않아야 함.', async function () {
@@ -372,6 +373,112 @@ describe('cartitem', function () {
         const result = res.body.data.cartitems;
         // console.log(result);
         expect(result.length).to.equal(0);
+      });
+    });
+    describe('cartitemById', function () {
+      // eslint-disable-next-line mocha/no-setup-in-describe
+      const req = makeSimpleQuery(agent, 'cartitemById');
+      const resultString = `{
+        success code 
+        list {
+          user added modified product_id meta id
+          product {
+            product_type name featured_image_url featured_image_alt
+          }
+          options {
+            id content price count
+          }
+        }
+      }`;
+      it('제대로 동작하야 함', async function () {
+        await doGuestLogin(agent);
+        const cartitem1 = await model.Cartitem.create({
+          user: guestEmail,
+          options: [
+            {
+              id: 'ho',
+              content: 'test',
+              count: 1,
+              price: 2000,
+            },
+          ],
+        });
+        const cartitem2 = await model.Cartitem.create({
+          user: guestEmail,
+          options: [
+            {
+              id: 'ho',
+              content: 'test',
+              count: 1,
+              price: 2000,
+            },
+          ],
+        });
+        const ids = [cartitem1.id, cartitem2.id];
+        const res = await req({ ids }, resultString);
+        // console.log(res);
+        expect(res.success).to.be.true;
+        expect(res.list.length).to.equal(2);
+      });
+      it('제대로 된 id가 아닐 경우 실패해야 함.', async function () {
+        await doGuestLogin(agent);
+        const cartitem1 = await model.Cartitem.create({
+          user: guestEmail,
+          options: [
+            {
+              id: 'ho',
+              content: 'test',
+              count: 1,
+              price: 2000,
+            },
+          ],
+        });
+        const cartitem2 = await model.Cartitem.create({
+          user: guestEmail,
+          options: [
+            {
+              id: 'ho',
+              content: 'test',
+              count: 1,
+              price: 2000,
+            },
+          ],
+        });
+        const ids = [cartitem1.id, 12345];
+        const res = await req({ ids }, resultString);
+        // console.log(res);
+        expect(res.success).to.be.false;
+        expect(res.list).to.be.null;
+      });
+      it('남의 cartitem 일 경우 실패해야 함.', async function () {
+        await doGuestLogin(agent);
+        const cartitem1 = await model.Cartitem.create({
+          user: guestEmail,
+          options: [
+            {
+              id: 'ho',
+              content: 'test',
+              count: 1,
+              price: 2000,
+            },
+          ],
+        });
+        const cartitem2 = await model.Cartitem.create({
+          user: adminEmail, // guestEmail 이 아님.
+          options: [
+            {
+              id: 'ho',
+              content: 'test',
+              count: 1,
+              price: 2000,
+            },
+          ],
+        });
+        const ids = [cartitem1.id, cartitem2.id];
+        const res = await req({ ids }, resultString);
+        // console.log(res);
+        expect(res.success).to.be.false;
+        expect(res.list).to.be.null;
       });
     });
     describe('addCartitem', function () {
@@ -412,6 +519,7 @@ describe('cartitem', function () {
       });
       it('product 가 존재하지 않는다면 동작하지 않아야 함', async function () {});
     });
+
     describe('makeInstancePaymentCartitem', function () {
       // eslint-disable-next-line mocha/no-setup-in-describe
       const req = makeSimpleMutation(agent, 'makeInstancePaymentCartitem');
@@ -527,12 +635,12 @@ describe('cartitem', function () {
           resultString,
         );
         const o3 = res.doc;
-        console.log(o3);
+        // console.log(o3);
         // console.log(docs);
         expect(res.success).to.be.true;
-        const shouldNotBeFound = await model.Cartitem.findOne({id: o1Id});
+        const shouldNotBeFound = await model.Cartitem.findOne({ id: o1Id });
         expect(shouldNotBeFound).to.be.null;
-        const shouldFound = await model.Cartitem.findOne({id: o2Id});
+        const shouldFound = await model.Cartitem.findOne({ id: o2Id });
         expect(shouldFound).to.be.not.null;
         // const docs = await model.Cartitem.find({ usage: 'instant_payment' });
       });
@@ -560,7 +668,7 @@ describe('cartitem', function () {
           .exec();
         expect(result.success).to.be.true;
         expect(after.options[0].count).to.equal(3);
-        // expect(after.modified.getTime()).to.equal(newDate.getTime()); // 클라이언트에서 시간을 조작하지 못하도록 그냥 막자. 
+        // expect(after.modified.getTime()).to.equal(newDate.getTime()); // 클라이언트에서 시간을 조작하지 못하도록 그냥 막자.
       });
     });
     describe('removeCartitem', function () {

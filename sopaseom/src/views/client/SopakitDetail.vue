@@ -145,7 +145,22 @@
           </div> -->
           <div class="order-buttons">
             <!-- :disabled="!noticeChecked" -->
-            <b-button @click="desktopCartClicked"> 장바구니 </b-button>
+            <b-button
+              @click="desktopCartClicked"
+              :disabled="addCartTooltipShow"
+              id="desktop-add-cartitem-button"
+            >
+              장바구니
+            </b-button>
+            <b-tooltip
+              triggers="manual"
+              :show="addCartTooltipShow"
+              target="desktop-add-cartitem-button"
+              placement="bottom"
+            >
+              성공적으로 장바구니에<br />추가했습니다.
+            </b-tooltip>
+
             <!-- :disabled="!noticeChecked" -->
             <b-button @click="desktopBuyClicked"> 구매하기 </b-button>
           </div>
@@ -159,10 +174,19 @@
     >
       <div class="order-buttons">
         <b-button
+          id="mobile-add-cartitem-button"
           @touchstart.prevent="mobileCartClicked"
           @click.prevent="mobileCartClicked"
+          :disabled="addCartTooltipShow"
           >장바구니</b-button
         >
+        <b-tooltip
+          triggers="manual"
+          :show="addCartTooltipShow"
+          target="mobile-add-cartitem-button"
+        >
+          성공적으로 장바구니에<br />추가했습니다.
+        </b-tooltip>
         <!-- :disabled="mobileOrderModalVisible && !noticeChecked" -->
         <b-button
           @touchstart.prevent="mobileBuyClicked"
@@ -228,7 +252,14 @@
 </template>
 
 <script>
-import { BModal, BButton, BLink, BImg, BFormCheckbox } from 'bootstrap-vue';
+import {
+  BModal,
+  BButton,
+  BLink,
+  BImg,
+  BFormCheckbox,
+  BTooltip,
+} from 'bootstrap-vue';
 import { mapMutations } from 'vuex';
 import moment from 'moment';
 
@@ -251,6 +282,7 @@ export default {
     BModal,
     BImg,
     BFormCheckbox,
+    BTooltip,
     PageHeader: () => import('@/components/PageHeader'),
     // SvgNext: () => import('@/components/SvgNext'),
     CloseFigure: () => import('@/components/CloseFigure'),
@@ -288,6 +320,7 @@ export default {
       //     price: 10000,
       //   },
       // ],
+      addCartTooltipShow: false,
     };
   },
   computed: {
@@ -482,7 +515,10 @@ export default {
       console.log('# SopakitDetail startCartProcess res');
       console.log(res);
 
-      // todo
+      this.addCartTooltipShow = true;
+      setTimeout(() => {
+        this.addCartTooltipShow = false;
+      }, 2500);
     },
     async startBuyProcess() {
       const res = await makeInstancePaymentCartitemReq(
@@ -519,7 +555,7 @@ $content-margin-top: 30px;
 
 .content {
   // max-width: 700px;
-  flex: 0 1 800px;
+  flex: 0 0 800px;
   // height: 10000px;
   padding: 0 45px 0 80px;
   position: relative;
@@ -527,6 +563,10 @@ $content-margin-top: 30px;
     font-size: 23px;
     font-weight: bold;
   }
+}
+
+.featured-image-wrapper img {
+  max-width: 100%;
 }
 
 @include max-with(md) {

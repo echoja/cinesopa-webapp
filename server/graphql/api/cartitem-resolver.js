@@ -17,6 +17,23 @@ module.exports = {
       // console.log(email);
       return db.getCartitems(email);
     }).only(ACCESS_AUTH),
+    cartitemById: makeResolver(async (obj, args, context, info) => {
+      const { email } = context.getUser();
+      const { ids } = args;
+      // console.log('cartiemsResolver!!');
+      // console.log(email);
+      const all = await db.getCartitems(email);
+      const filtered = all.filter((cartitem) => ids.includes(cartitem.id));
+
+      // 필터된 것과 ids 의 길이가 다르다면,
+      // 즉 ids 에 이 유저의 것이 아닌 다른 이상한 cartitem id 가 포함되어 있을 경우
+      if (filtered.length !== ids.length) {
+        return { success: false, code: 'invalid_id' };
+      }
+
+      return { success: true, code: 'normal', list: filtered };
+      
+    }).only(ACCESS_AUTH),
   },
   Mutation: {
     addCartitem: makeResolver(async (obj, args, context, info) => {
