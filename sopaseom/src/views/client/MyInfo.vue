@@ -33,7 +33,7 @@
       <div class="info-row">
         <div class="info-cell head">이름</div>
         <div class="info-cell body">
-          <b-form-input v-model="defaultDelivery.name"></b-form-input>
+          <b-form-input v-model="default_dest.name"></b-form-input>
         </div>
       </div>
       <div class="info-row">
@@ -44,9 +44,9 @@
             <finding-address-button size="sm" @address-loaded="addressLoaded">
               주소 찾기
             </finding-address-button>
-            <b-form-input v-model="defaultDelivery.address"></b-form-input>
-            <p v-if="defaultDelivery.jibunAddress" class="description">
-              지번: {{ defaultDelivery.jibunAddress }}
+            <b-form-input v-model="default_dest.address"></b-form-input>
+            <p v-if="jibunAddress" class="description">
+              지번: {{ jibunAddress }}
             </p>
           </div>
         </div>
@@ -54,34 +54,35 @@
       <div class="info-row">
         <div class="info-cell head">상세 주소</div>
         <div class="info-cell body">
-          <b-form-input
-            v-model="defaultDelivery.detailedAddress"
-          ></b-form-input>
+          <b-form-input v-model="default_dest.address_detail"></b-form-input>
         </div>
       </div>
       <div class="info-row">
         <div class="info-cell head">전화번호</div>
         <div class="info-cell body">
-          <b-form-input v-model="defaultDelivery.phone"></b-form-input>
+          <b-form-input v-model="default_dest.phone"></b-form-input>
           <p class="description">예: 010-1234-5678</p>
         </div>
       </div>
       <div class="info-row">
         <div class="info-cell head">배송시<br />요청사항</div>
         <div class="info-cell body">
-          <b-form-textarea v-model="defaultDelivery.request"></b-form-textarea>
+          <b-form-textarea v-model="default_dest.request"></b-form-textarea>
         </div>
       </div>
     </div>
     <hr />
-    <b-button @click="saveDefaultDeliveryClicked"> 변경사항 저장 </b-button>
+    <b-button @click="saveDefaultDest"> 변경사항 저장 </b-button>
   </div>
 </template>
 
 <script>
 import { BFormInput, BButton, BFormTextarea } from 'bootstrap-vue';
 import moment from 'moment';
-import { mapState } from 'vuex';
+import { mapActions, mapState } from 'vuex';
+import { makeSimpleMutation } from '@/api/graphql-client';
+
+const updateMeReq = makeSimpleMutation('updateMe');
 
 export default {
   components: {
@@ -94,10 +95,11 @@ export default {
   data() {
     return {
       // isConnectedWithKakao: true,
-      defaultDelivery: {
+      jibunAddress: '',
+      default_dest: {
         name: '',
         address: '',
-        detailedAddress: '',
+        address_detail: '',
         phone: '',
         request: '',
       },
@@ -105,20 +107,45 @@ export default {
   },
   computed: {
     ...mapState(['currentUser']),
+    default_destInitValue() {
+      return this.currentUser?.default_dest;
+    },
     isConnectedWithKakao() {
-      return this.currentUser.has_pwd === false;
+      return this.currentUser?.has_pwd === false;
     },
   },
+  async mounted() {
+    const user = await this.getCurrentUser();
+    const dest = user?.default_dest;
+    if (dest) {
+      this.default_dest = dest;
+    }
+  },
+  // watch: {
+  //   // 새롭게 갱신되는 기본 주소 정보를 가져옴.
+  //   currentUser(user) {
+  //     this.default_dest = user.default_dest;
+  //   },
+  // },
   methods: {
+    ...mapActions(['getCurrentUser']),
     disableKakaoClicked() {},
-    saveDefaultDeliveryClicked() {},
+    async saveDefaultDest() {
+      const res = await updateMeReq(
+        { userinfo: { default_dest: this.default_dest } },
+        `
+      {success code}`,
+      );
+      console.log('# Myinfo.vue saveDefaultDest');
+      console.log(res);
+    },
     connectKakaoClicked() {},
     addressLoaded(data) {
       console.log('MyInfo addressLoaded');
       console.log(data);
-      this.defaultDelivery.address = `${data.roadAddress} (${data.bname})`;
-      this.defaultDelivery.jibunAddress = data.jibunAddress;
-      this.defaultDelivery.detailedAddress = data.buildingName;
+      this.default_dest.address = `${data.roadAddress} (${data.bname})`;
+      this.jibunAddress = data.jibunAddress;
+      this.default_dest.address_detail = data.buildingName;
     },
   },
 };

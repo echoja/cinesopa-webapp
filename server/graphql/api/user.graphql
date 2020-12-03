@@ -70,6 +70,11 @@ type AgreementForKakaoUserResult {
   code: String
 }
 
+type UpdateMeResult {
+  success: Boolean
+  code: String
+}
+
 enum UserRole {
   ADMIN
   GUEST
@@ -145,7 +150,7 @@ extend type Mutation {
   agreementForKakaoUser(
     user_agreed: UserAgreedInput!
   ): AgreementForKakaoUserResult
-  updateMe(userinfo: UpdateMeInput!): User
+  updateMe(userinfo: UpdateMeInput!): UpdateMeResult
   requestVerifyEmail(debug: Boolean): RequestVerifyEmailResult
   requestChangePassword(debug: Boolean): RequestChangePasswordResult
   changePassword(token: String!, pwd: String!): ChangePasswordResult

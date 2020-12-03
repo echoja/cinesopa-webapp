@@ -154,10 +154,16 @@ const agreementForKakaoUser = makeResolver(async (obj, args, context, info) => {
 }).only(ACCESS_AUTH);
 
 const updateMe = makeResolver(async (obj, args, context, info) => {
-  if (context.isUnauthenticated()) return null;
+  if (context.isUnauthenticated()) {
+    return { success: false, code: 'unauthenticated' };
+}
   const { email } = context.getUser();
   const { userinfo } = args;
-  return db.updateUser(email, userinfo);
+  // const result = 
+  await db.updateUser(email, userinfo);
+  // console.log('# user-resolver updateMe result');
+  // console.log(result);
+  return { success: true };
 }).only(ACCESS_AUTH);
 
 const users = makeResolver(async (obj, args, context, info) => {

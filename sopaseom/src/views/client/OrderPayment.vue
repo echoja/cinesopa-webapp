@@ -7,7 +7,10 @@
         </div>
 
         <div class="select-delivery-place">
-          <b-form-radio-group>
+          <b-form-radio-group
+            v-model="selectDeliveryPlace"
+            @change="selectDeliveryPlaceChanged"
+          >
             <b-form-radio :value="'default'"> 기본 배송지 </b-form-radio>
             <b-form-radio :value="'manual'"> 직접 입력 </b-form-radio>
           </b-form-radio-group>
@@ -16,7 +19,11 @@
         <div class="form-item name">
           <div class="form-title">이름</div>
           <div class="form-content">
-            <b-form-input size="sm" v-model="form.name"></b-form-input>
+            <b-form-input
+              size="sm"
+              v-model="form.name"
+              @update="nameUpdated"
+            ></b-form-input>
           </div>
         </div>
         <div class="form-item address">
@@ -36,8 +43,9 @@
             <b-form-input
               size="sm"
               disabled
-              v-model="addressNew"
+              v-model="form.address"
               class="address-new"
+              @update="addressUpdated"
             ></b-form-input>
             <div v-if="addressOld" class="address-old">
               지번: {{ addressOld }}
@@ -49,14 +57,19 @@
           <div class="form-content">
             <b-form-input
               size="sm"
-              v-model="form.detailedAddress"
+              v-model="form.address_detail"
+              @update="addressDetailUpdated"
             ></b-form-input>
           </div>
         </div>
         <div class="form-item phone">
           <div class="form-title">전화번호</div>
           <div class="form-content">
-            <b-form-input size="sm" v-model="form.phone"></b-form-input>
+            <b-form-input
+              size="sm"
+              v-model="form.phone"
+              @update="phoneUpdated"
+            ></b-form-input>
             <span class="form-example">예: 010-1234-5678</span>
           </div>
         </div>
@@ -64,7 +77,11 @@
         <div class="form-item request">
           <div class="form-title">배송시 요청사항</div>
           <div class="form-content">
-            <b-form-textarea size="sm" v-model="form.request"></b-form-textarea>
+            <b-form-textarea
+              size="sm"
+              v-model="form.request"
+              @update="requestUpdated"
+            ></b-form-textarea>
           </div>
         </div>
         <div class="header">
@@ -217,6 +234,7 @@ import {
 } from 'bootstrap-vue';
 import { toPrice } from '@/util';
 import { makeSimpleQuery } from '@/api/graphql-client';
+import { mapActions } from 'vuex';
 
 const cartitemsByIdsReq = makeSimpleQuery('cartitemById');
 
@@ -235,13 +253,15 @@ export default {
   },
   data() {
     return {
+      selectDeliveryPlace: 'default',
       cartitemFetched: false,
       // addressNew: '',
       // addressOld: '',
+      addressObj: {},
       form: {
         name: '',
-        address: {},
-        detailedAddress: '',
+        address: '',
+        address_detail: '',
         phone: '',
         request: '',
         paymentMethod: '',
@@ -282,7 +302,11 @@ export default {
   },
   computed: {
     totalProductPrice() {
-      return 500000;
+      const options = this.orderList.map((cartitem) => cartitem.options).flat();
+      console.log('# OrderPayment.vue totalProductPrice options');
+      console.dir(options);
+      const sum = options.reduce((acc, now) => acc + now.count * now.price, 0);
+      return sum;
     },
     transportationFee() {
       return 3000;
@@ -294,13 +318,13 @@ export default {
       return this.totalProductPrice + this.transportationFee;
     },
     addressNew() {
-      if (this.form.address.roadAddress) {
-        return `${this.form.address.roadAddress} (${this.form.address.bname})`;
+      if (this.addressObj.roadAddress) {
+        return `${this.addressObj.roadAddress} (${this.addressObj.bname})`;
       }
       return '';
     },
     addressOld() {
-      return this.form.address.jibunAddress;
+      return this.addressObj.jibunAddress;
     },
     cartitems() {
       const { ids } = this.$route.params;
@@ -310,8 +334,11 @@ export default {
   },
   async mounted() {
     this.fetchCartitemData();
+    this.fetchDefaultDest();
   },
+
   methods: {
+    ...mapActions(['getCurrentUser']),
     toPrice,
     async fetchCartitemData() {
       // 만약 cartitem 의 길이가 0이라면, 유효하지 않은 cartitem 이므로 실패 처리.
@@ -354,11 +381,21 @@ export default {
       // this.orderList = [];
       this.cartitemFetched = true;
     },
+    async fetchDefaultDest() {
+      const user = await this.getCurrentUser();
+      const dest = user?.default_dest;
+      if (dest) {
+        Object.keys(dest).forEach((destInfoKey) => {
+          this.form[destInfoKey] = dest[destInfoKey];
+        });
+      }
+    },
     addressLoaded(data) {
       console.log('# OrderPayment addressLoaded');
       console.log(data);
-      this.form.address = data;
-      this.form.detailedAddress = data.buildingName;
+      this.addressObj = data;
+      this.form.address = this.addressNew;
+      this.form.address_detail = data.buildingName;
       // self.addressNew = `${data.roadAddress} (${data.bname})`;
       // self.addressOld = data.jibunAddress;
       // self.form.addressDetailed = data.buildingName;
@@ -369,6 +406,37 @@ export default {
     },
     getFail(reason = '') {
       this.$router.push({ name: 'PaymentFail', params: { reason } });
+    },
+    selectDeliveryPlaceChanged(value) {
+      // console.log('# OrderPayment selectDeliveryPlaceChanged value')
+      // console.log(value);
+      if (value === 'default') {
+        this.fetchDefaultDest();
+      } else {
+        this.form.name = '';
+        this.form.address = '';
+        this.form.address_detail = '';
+        this.form.phone = '';
+        this.form.request = '';
+      }
+    },
+    nameUpdated() {
+      this.cancelDefaultDeliveryPlace();
+    },
+    addressUpdated() {
+      this.cancelDefaultDeliveryPlace();
+    },
+    addressDetailUpdated() {
+      this.cancelDefaultDeliveryPlace();
+    },
+    phoneUpdated() {
+      this.cancelDefaultDeliveryPlace();
+    },
+    requestUpdated() {
+      this.cancelDefaultDeliveryPlace();
+    },
+    cancelDefaultDeliveryPlace() {
+      this.selectDeliveryPlace = 'manual';
     },
   },
 };

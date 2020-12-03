@@ -45,17 +45,13 @@ export const dataGraphql = async (query, variables) => {
 export const currentUserQuery = `
 query currentUserQuery {
   currentUser {
-    email
-    c_date
-    role
-    verified
-    kakao_id
+    email c_date role verified kakao_id has_pwd
     user_agreed {
-      policy
-      privacy
-      advertisement
+      policy privacy advertisement
     }
-    has_pwd
+    default_dest {
+      name address address_detail phone request
+    }
   }
 }
 `;
@@ -565,7 +561,7 @@ export const checkAuth = async () => {
   console.log('# grpahql-client checkauth Called');
   const currentUserAsync = (async () => (await graphql(currentUserQuery, {})).data.currentUser)();
   store.commit('setCurrentUserAsync', currentUserAsync);
-  console.log('# grpahql-client currentUserAsync committed');
+  // console.log('# grpahql-client currentUserAsync committed');
   let currentUser = await currentUserAsync;
   if (!currentUser) currentUser = null;
   store.commit('setCurrentUser', { currentUser });

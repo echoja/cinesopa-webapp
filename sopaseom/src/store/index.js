@@ -111,6 +111,9 @@ const s = new Vuex.Store({
    * 액션 내부에서
    */
   actions: {
+    async getCurrentUser(store) {
+      return store.state.currentUserAsync || store.state.currentUser;
+    },
     async setCurrentUser(store, { user }) {
       store.commit('setCurrentUser', { currentUser: user });
     },
