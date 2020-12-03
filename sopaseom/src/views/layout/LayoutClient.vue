@@ -86,11 +86,11 @@ export default {
     },
   },
   watch: {
-    $route(to, from) {
-      // console.log('# Layoutclient watch route');
-      // console.log(to);
-      // console.log(from);
-    },
+    // $route(to, from) {
+    //   // console.log('# Layoutclient watch route');
+    //   // console.log(to);
+    //   // console.log(from);
+    // },
   },
   methods: {
     // todo 상황:
@@ -131,24 +131,29 @@ export default {
   display: flex;
   flex-direction: column;
 }
+
+.alert {
+  pointer-events: all;
+}
+
 .alert-success {
   background-color: #fff;
   border-width: 2px;
   border-color: #000;
-  pointer-events: all;
 }
 
 .message-wrapper {
-  margin: 0 auto;
-  width: 50%;
-  max-width: 300px;
+  margin: 0 10px;
+  width: auto;
+  display: flex;
+  justify-content: center;
 }
 
-@include max-with(sm) {
-  .message-wrapper {
-    width: 100%;
-  }
-}
+// @include max-with(sm) {
+//   .message-wrapper {
+//     width: 100%;
+//   }
+// }
 
 .message-box {
   pointer-events: none;

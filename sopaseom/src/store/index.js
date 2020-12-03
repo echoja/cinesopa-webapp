@@ -118,11 +118,12 @@ const s = new Vuex.Store({
       store.commit('setTestString', { value: text });
     },
     async pushMessage(store, { type, id, msg }) {
+      // id가 겹치지 않을 때애만 추가
       if (store.state.messages.findIndex((value) => value.id === id) === -1) {
         store.commit('addMessage', { type, id, msg });
         setTimeout(() => {
           store.commit('removeMessage', { id });
-        }, 2000);
+        }, 2500);
       }
     },
     async removeMessage(store, { id }) {

@@ -260,7 +260,7 @@ import {
   BFormCheckbox,
   BTooltip,
 } from 'bootstrap-vue';
-import { mapMutations } from 'vuex';
+import { mapActions, mapMutations, mapState } from 'vuex';
 import moment from 'moment';
 
 import { numberWithCommas } from '@/util';
@@ -324,6 +324,7 @@ export default {
     };
   },
   computed: {
+    ...mapState(['currentUser']),
     title() {
       return `소파킷 ${this.sopakit.num} ${this.sopakit.title} - ${this.product.name}`;
     },
@@ -404,6 +405,7 @@ export default {
     this.setAdditionalFooterPaddingBottom(0);
   },
   methods: {
+    ...mapActions(['pushMessage']),
     ...mapMutations(['setAdditionalFooterPaddingBottom']),
     numberWithCommas,
     upClicked(index) {
@@ -500,6 +502,14 @@ export default {
       this.startBuyProcess();
     },
     async startCartProcess() {
+      if (!this.currentUser) {
+        this.pushMessage({
+          type: 'danger',
+          msg: '로그인이 필요한 서비스입니다.',
+          id: 'needLoginAlert',
+        });
+        return;
+      }
       const res = await addCartitemReq(
         {
           input: {
@@ -521,6 +531,14 @@ export default {
       }, 2500);
     },
     async startBuyProcess() {
+      if (!this.currentUser) {
+        this.pushMessage({
+          type: 'danger',
+          msg: '로그인이 필요한 서비스입니다.',
+          id: 'needLoginAlert',
+        });
+        return;
+      }
       const res = await makeInstancePaymentCartitemReq(
         {
           input: {
@@ -531,11 +549,25 @@ export default {
             })),
           },
         },
-        '{success code doc}',
+        `{success code doc {
+          id
+        }}`,
       );
       console.log('# SopakitDetail startBuyProcess res');
       console.log(res);
-      // todo
+
+      if (res.success) {
+        this.$router.push({
+          name: 'Payment',
+          params: { ids: `${res.doc.id}` },
+        });
+      } else {
+        this.pushMessage({
+          type: 'danger',
+          msg: '즉시 구매 데이터 요청 중 오류가 발생했습니다.',
+          id: 'makeInstancePaymentError',
+        });
+      }
     },
   },
 };

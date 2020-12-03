@@ -16,13 +16,14 @@
         <div class="info-cell head">카카오 계정</div>
         <div class="info-cell body kakao">
           <template v-if="isConnectedWithKakao">
-            <span class="isConnected">연동됨</span>
-            <b-button @click="disableKakaoClicked" size="sm">
+            <span class="is-connected">연동됨</span>
+            <!-- <b-button @click="disableKakaoClicked" size="sm">
               연동 해제
-            </b-button>
+            </b-button> -->
           </template>
           <template v-else>
-            <b-button @click="connectKakaoClicked">연동하기</b-button>
+            <span class="is-connected">연동되지 않음</span>
+            <!-- <b-button @click="connectKakaoClicked">연동하기</b-button> -->
           </template>
         </div>
       </div>
@@ -80,6 +81,7 @@
 <script>
 import { BFormInput, BButton, BFormTextarea } from 'bootstrap-vue';
 import moment from 'moment';
+import { mapState } from 'vuex';
 
 export default {
   components: {
@@ -91,7 +93,7 @@ export default {
   title: '내 정보',
   data() {
     return {
-      isConnectedWithKakao: true,
+      // isConnectedWithKakao: true,
       defaultDelivery: {
         name: '',
         address: '',
@@ -100,6 +102,12 @@ export default {
         request: '',
       },
     };
+  },
+  computed: {
+    ...mapState(['currentUser']),
+    isConnectedWithKakao() {
+      return this.currentUser.has_pwd === false;
+    },
   },
   methods: {
     disableKakaoClicked() {},
@@ -165,7 +173,7 @@ p {
   }
 }
 
-span.isConnected {
+span.is-connected {
   padding-right: 10px;
   font-weight: bold;
 }

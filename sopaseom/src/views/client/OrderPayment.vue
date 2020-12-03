@@ -76,6 +76,10 @@
             <div class="order-cell count">수량</div>
             <div class="order-cell price">금액</div>
           </div>
+          <div class="order-row loading" v-if="orderList.length === 0">
+            <b-spinner class="spinner"></b-spinner>
+            상품 정보를 가져오는 중입니다.
+          </div>
           <div
             class="order-row"
             v-for="(order, orderIndex) in orderList"
@@ -209,13 +213,18 @@ import {
   BFormRadioGroup,
   BFormTextarea,
   BButton,
+  BSpinner,
 } from 'bootstrap-vue';
 import { toPrice } from '@/util';
+import { makeSimpleQuery } from '@/api/graphql-client';
+
+const cartitemsByIdsReq = makeSimpleQuery('cartitemById');
 
 export default {
   title: '주문결제',
   components: {
     BLink,
+    BSpinner,
     BButton,
     BFormInput,
     BFormRadio,
@@ -226,6 +235,7 @@ export default {
   },
   data() {
     return {
+      cartitemFetched: false,
       // addressNew: '',
       // addressOld: '',
       form: {
@@ -294,18 +304,56 @@ export default {
     },
     cartitems() {
       const { ids } = this.$route.params;
-      if (ids) return ids.split(',');
+      if (ids) return ids.split(',').map((item) => parseInt(item, 10));
       return [];
     },
   },
-  async mounted () {
-    // 만약 cartitem 의 길이가 0이라면, 유효하지 않은 cartitem 이므로 실패 처리.
-    if (this.cartitems.length === 0) {
-
-    }
+  async mounted() {
+    this.fetchCartitemData();
   },
   methods: {
     toPrice,
+    async fetchCartitemData() {
+      // 만약 cartitem 의 길이가 0이라면, 유효하지 않은 cartitem 이므로 실패 처리.
+      if (this.cartitems.length === 0) {
+        this.getFail('결제할 대상 데이터가 없습니다.');
+        return;
+      }
+      if (this.cartitems.some((item) => Number.isNaN(item))) {
+        this.getFail('유효한 상품 코드가 아닙니다.');
+        return;
+      }
+      // 데이터 가져오기
+      const res = await cartitemsByIdsReq(
+        { ids: this.cartitems },
+        `{
+      success code
+      list { id user added modified product_id usage
+        product { 
+          product_type name featured_image_url featured_image_alt
+        }
+        options {
+          id content price count
+        }      
+      }
+    }`,
+      );
+      console.log('# OrderPayment mounted res');
+      console.log(res);
+      // 실패 했을 때 처리
+      if (!res.success) {
+        if (res.code === 'invalid_id') {
+          this.getFail('상품 코드를 찾을 수 없거나 권한이 없습니다.');
+        }
+        return;
+      }
+      this.orderList = res.list.map((cartitem) => ({
+        name: cartitem.product.name,
+        options: cartitem.options,
+      }));
+      // this.orderList = [];
+      this.cartitemFetched = true;
+    },
     addressLoaded(data) {
       console.log('# OrderPayment addressLoaded');
       console.log(data);
@@ -318,6 +366,9 @@ export default {
     setPaymentMethod(method, event) {
       this.form.paymentMethod = method;
       event.target.blur();
+    },
+    getFail(reason = '') {
+      this.$router.push({ name: 'PaymentFail', params: { reason } });
     },
   },
 };
@@ -393,6 +444,16 @@ export default {
 }
 
 /** order list */
+
+.order-row.loading {
+  align-items: center;
+  justify-content: center;
+  .spinner {
+    width: 20px;
+    height: 20px;
+    margin-right: 10px;
+  }
+}
 
 .order-row {
   display: flex;

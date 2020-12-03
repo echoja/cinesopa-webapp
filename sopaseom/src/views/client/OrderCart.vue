@@ -47,7 +47,16 @@
             >
               <div class="option-name">{{ option.content }}</div>
               <div class="count-box">
-                <number-controller v-model="option.count"></number-controller>
+                <number-controller
+                  v-model="option.count"
+                  @input="countChanged(cartitemIndex, optionIndex)"
+                  :id="`number-controller-${cartitemIndex}-${optionIndex}`"
+                ></number-controller>
+                <b-tooltip
+                  triggers="manual"
+                  :target="`number-controller-${cartitemIndex}-${optionIndex}`"
+                  :show="option.tooltipShow"
+                ></b-tooltip>
               </div>
               <div class="count-and-price-blank"></div>
               <div class="price">{{ toPrice(option.price) }}</div>
@@ -111,17 +120,21 @@
 </template>
 
 <script>
-import { BLink, BButton } from 'bootstrap-vue';
+import { BLink, BButton, BTooltip } from 'bootstrap-vue';
 import { toPrice } from '@/util';
 import { makeSimpleMutation, makeSimpleQuery } from '@/api/graphql-client';
 import { mapActions } from 'vuex';
+import { debounce } from 'debounce';
 
 const removeCartitemReq = makeSimpleMutation('removeCartitem');
+const updateOptionCountReq = makeSimpleMutation('updateOptionCount');
+const debouncedFuncMap = new Map();
 
 export default {
   title: '장바구니',
 
   components: {
+    BTooltip,
     BLink,
     BButton,
     NumberController: () => import('@/components/NumberController'),
@@ -221,8 +234,8 @@ export default {
       }`,
       );
       this.cartitems = res;
-      // console.log('# OrderCart fetchData');
-      // console.log(res);
+      console.log('# OrderCart fetchData');
+      console.log(res);
     },
     async orderButtonClicked() {
       console.log('# OrderCart.vue orderButtonClicked');
@@ -232,6 +245,55 @@ export default {
           ids: this.cartitems.map((cartitem) => cartitem.id).join(','),
         },
       });
+    },
+    async countChanged(cartitemIndex, optionIndex) {
+      // debounced 된 함수가 없을 경우 새롭게 만듬.
+      const key = `${cartitemIndex}-${optionIndex}`;
+      if (!debouncedFuncMap.has(key)) {
+        debouncedFuncMap.set(
+          key,
+          debounce(() => {
+            this.updateOptionCount(cartitemIndex, optionIndex);
+          }, 500),
+        );
+      }
+      const func = debouncedFuncMap.get(key);
+      func();
+      // console.dir(debouncedFuncMap);
+    },
+    async updateOptionCount(cartitemIndex, optionIndex) {
+      const cartitem = this.cartitems[cartitemIndex];
+      const { options, id: cartitemId } = cartitem;
+      const option = options[optionIndex];
+      const { id: optionId, count } = option;
+      const res = await updateOptionCountReq(
+        {
+          id: cartitemId,
+          optionId,
+          count,
+          current: new Date(),
+        },
+        '{success code}',
+      );
+      console.log('# OrderCart updateOptionCount');
+      console.log(res);
+      // 업데이트 성공시
+      if (res.success) {
+        // this.pushMessage({
+        //   type: 'success',
+        //   msg: '장바구니의 개수가 성공적으로 삭제되었습니다.',
+        //   id: 'removeCartitemSuccess',
+        // });
+        // this.fetchData();
+      }
+      // 업데이트 실패시
+      else {
+        this.pushMessage({
+          type: 'danger',
+          msg: `장바구니 개수를 조정하는 도중 ${res.code}가 발생했습니다.`,
+          id: 'updateCartitemFail',
+        });
+      }
     },
   },
 };
@@ -258,7 +320,10 @@ export default {
   right: 0;
   bottom: 0;
   display: flex;
-  justify-content: flex-end;
+  flex-direction: column;
+  // justify-content: flex-end;
+  align-items: flex-end;
+  
 }
 
 h2.title {

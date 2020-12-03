@@ -22,7 +22,7 @@ module.exports = {
       const { ids } = args;
       // console.log('cartiemsResolver!!');
       // console.log(email);
-      const all = await db.getCartitems(email);
+      const all = await db.getCartitems(email, { usage: null });
       const filtered = all.filter((cartitem) => ids.includes(cartitem.id));
 
       // 필터된 것과 ids 의 길이가 다르다면,
@@ -32,7 +32,6 @@ module.exports = {
       }
 
       return { success: true, code: 'normal', list: filtered };
-      
     }).only(ACCESS_AUTH),
   },
   Mutation: {

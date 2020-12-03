@@ -420,6 +420,26 @@ describe('cartitem', function () {
         expect(res.success).to.be.true;
         expect(res.list.length).to.equal(2);
       });
+      it.only("instant_payment 도 제대로 잘 성공해야 함.", async function () {
+        const cartitem = await model.Cartitem.create({
+          usage: 'instant_payment',
+          user: guestEmail,
+          options: [
+            {
+              id: 'ho',
+              content: 'test',
+              count: 1,
+              price: 2000,
+            },
+          ],
+        });
+        await doGuestLogin(agent);
+        const ids = [cartitem.id];
+        const res = await req({ids}, resultString);
+        console.log(res);
+        expect(res.success).to.be.true;
+        expect(res.list.length).to.equal(1);
+      });
       it('제대로 된 id가 아닐 경우 실패해야 함.', async function () {
         await doGuestLogin(agent);
         const cartitem1 = await model.Cartitem.create({
@@ -480,8 +500,22 @@ describe('cartitem', function () {
         expect(res.success).to.be.false;
         expect(res.list).to.be.null;
       });
+      
     });
     describe('addCartitem', function () {
+      const resultString = `{ success code 
+        doc {
+          user added modified usage 
+          product_id
+          product {
+            product_type name
+          }
+          options {
+            id count price content
+          }
+        }
+      }`;
+
       it('현재 유저 기준으로 잘 동작해야 함.', async function () {
         await doGuestLogin(agent);
         const prod = await model.Product.create({
@@ -506,7 +540,7 @@ describe('cartitem', function () {
           },
         });
         const result = res.body.data.addCartitem;
-        console.log(res.body.data);
+        // console.log(res.body.data);
         expect(result.success).to.be.true;
         const mades = await model.Cartitem.find().lean().exec();
         expect(mades.length).to.equal(1);
@@ -517,7 +551,156 @@ describe('cartitem', function () {
         expect(made.options[0].content).to.equal('호호');
         expect(made.options[0].price).to.equal(10000);
       });
-      it('product 가 존재하지 않는다면 동작하지 않아야 함', async function () {});
+      it('product 가 존재하지 않는다면 동작하지 않아야 함', async function () {
+        await doGuestLogin(agent);
+        const req = makeSimpleMutation(agent, 'addCartitem');
+        const res = await req(
+          {
+            input: {
+              product_id: 12345,
+              options: [
+                {
+                  id: 'ho',
+                  count: 3,
+                },
+              ],
+            },
+          },
+          resultString,
+        );
+        // console.log(res);
+        expect(res.success).to.be.false;
+        expect(res.code).to.equal('no_product');
+        expect(res.doc).to.be.null;
+      });
+      it('여러가지 option 이 있더라도 잘 동작해야 함.', async function () {
+        const prod1 = await model.Product.create({
+          content_main: '콘텐트메인',
+          options: [
+            {
+              id: 'ho',
+              content: '호호',
+              price: 10000,
+            },
+            {
+              id: 'ha',
+              content: '하하',
+              price: 12600,
+            },
+          ],
+        });
+        await doGuestLogin(agent);
+        const req = makeSimpleMutation(agent, 'addCartitem');
+        const res = await req(
+          {
+            input: {
+              product_id: prod1.id,
+              options: [
+                {
+                  id: 'ho',
+                  count: 3,
+                },
+                {
+                  id: 'ha',
+                  count: 6,
+                },
+              ],
+            },
+          },
+          resultString,
+        );
+        // console.dir(res, { depth: 4 });
+        const cartitems = await model.Cartitem.find().lean().exec();
+        // console.dir(cartitems, { depth: 4 });
+        expect(cartitems.length).to.equal(1);
+        expect(cartitems[0].options.length).to.equal(2);
+        expect(cartitems[0].options[0].id).to.equal('ho');
+        expect(cartitems[0].options[1].id).to.equal('ha');
+      });
+      it('이미 존재하는 cartitem 에 추가할 옵션이 없으면, 새로 추가되어야 함.', async function () {
+        const prod1 = await model.Product.create({
+          content_main: '콘텐트메인',
+          options: [
+            {
+              id: 'ho',
+              content: '호호',
+              price: 10000,
+            },
+            {
+              id: 'ha',
+              content: '하하',
+              price: 12600,
+            },
+          ],
+        });
+        await doGuestLogin(agent);
+        const req = makeSimpleMutation(agent, 'addCartitem');
+        const res1 = await req(
+          {
+            input: {
+              product_id: prod1.id,
+              options: [
+                {
+                  id: 'ho',
+                  count: 3,
+                },
+              ],
+            },
+          },
+          resultString,
+        );
+        const res2 = await req(
+          {
+            input: {
+              product_id: prod1.id,
+              options: [
+                {
+                  id: 'ha',
+                  count: 6,
+                },
+              ],
+            },
+          },
+          resultString,
+        );
+        const cartitems = await model.Cartitem.find().lean().exec();
+        // console.dir(cartitems[0], { depth: 3 });
+        expect(cartitems[0].options.length).to.equal(2);
+        expect(cartitems[0].options[0].id).to.equal('ho');
+        expect(cartitems[0].options[1].id).to.equal('ha');
+      });
+      it('상품은 존재하지만 option 이 존재하지 않을 때 동작하지 않아야 함', async function () {
+        await doGuestLogin(agent);
+
+        const prod = await model.Product.create({
+          content_main: '콘텐트메인',
+          options: [
+            {
+              id: 'ho',
+              content: '호호',
+              price: 10000,
+            },
+          ],
+        });
+        const req = makeSimpleMutation(agent, 'addCartitem');
+        const res = await req(
+          {
+            input: {
+              product_id: prod.id,
+              options: [
+                {
+                  id: 'hello',
+                  count: 3,
+                },
+              ],
+            },
+          },
+          resultString,
+        );
+        // console.log(res);
+        expect(res.success).to.be.false;
+        expect(res.code).to.equal('invalid_option');
+      });
     });
 
     describe('makeInstancePaymentCartitem', function () {
@@ -676,6 +859,5 @@ describe('cartitem', function () {
         // todo
       });
     });
-    describe('', function () {});
   });
 });

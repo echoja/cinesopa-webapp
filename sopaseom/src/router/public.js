@@ -187,7 +187,7 @@ export default [
         meta: { ...BodyFixedFooterMeta },
       },
       {
-        path: 'fail',
+        path: 'fail/:reason?',
         name: 'PaymentFail',
         component: () => import('@/views/client/OrderFail.vue'),
         beforeEnter: requireAuth({ role: 'guest', shouldVerified: 'true' }),

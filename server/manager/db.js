@@ -1157,7 +1157,7 @@ class DBManager {
 
   /**
    * @typedef {Object} GetCartitemsCondition
-   * @property {string} [usage=normal] normal or instant_payment
+   * @property {string} [usage=normal] normal or instant_payment. 기본값이 'normal' 이므로 모든 usage 를 찾으려면 null 로 설정해야 함.
    */
 
   /**
@@ -1176,6 +1176,7 @@ class DBManager {
     // console.log(all);
     return query.lean().exec();
   }
+
   /**
    * 카트 아이템을 추가한다. 만약 이미 존재한다면 개수만 추가한다.
    * input 에 user, options, product_id, modified 인수가 들어와야 한다.
@@ -1194,14 +1195,28 @@ class DBManager {
     ) {
       return { success: false, code: 'invalid_arg' };
     }
+
+    // product 가 있는지 검사
     const product = await model.Product.findOne({ id: product_id }).exec();
     if (!product) {
       return { success: false, code: 'no_product' };
     }
 
+    // 관리하기 쉽도록 id 기반으로 option map 을 만듬.
+    const prodOptionMap = new Map(
+      product.options.map((option) => [option.id, option]),
+    );
+
+    // option 이 있는지 검사. 하나라도 실제 product 에 없는 option 이 검출된다면
+    // 가차없이 종료
+    if (!options.every((option) => prodOptionMap.has(option.id))) {
+      return { success: false, code: 'invalid_option' };
+    }
+
     // 이미 카트에 담겨있는 물품일 경우를 찾음. (user와 product_id를 기준으로 함)
-    // 이 때, 즉시 구매(usage가 instant_payment)일 경우에는 무조건 카트를 생성해야 하므로,
-    // if 문을 건너뛸 수 있도록 null 로 설정.
+    // 이 때, 즉시 구매(usage가 instant_payment)일 경우에는
+    // 물품이 중복되든 안 되든 기존에 있던 카트에는 영향을 끼치지 않고
+    // 무조건 카트를 생성해야 하므로, if 문을 건너뛸 수 있도록 null 로 설정.
     const cartitem =
       usage !== 'instant_payment'
         ? await model.Cartitem.findOne({
@@ -1223,6 +1238,16 @@ class DBManager {
         if (foundOption) {
           foundOption.count += option.count;
         }
+
+        // 만약 못 찾았다면 새로운 옵션을 추가했다는 뜻이므로
+        // 새롭게 push 해줌.
+        else {
+          cartitem.options.push({
+            ...option,
+            price: prodOptionMap.get(option.id)?.price,
+            content: prodOptionMap.get(option.id)?.content,
+          });
+        }
       });
 
       // 수정일 갱신
@@ -1232,26 +1257,42 @@ class DBManager {
     }
 
     // 카트에 없다면 새로 만들면 됨.
-    const newInput = { ...input };
-    newInput.product = { ...product._doc };
+    // 이미 존재하는 product 의 option 관련 정보 (price, content 등)를 newInput에 넣어줌.
+    const newInput = {
+      ...input,
+      options: options.map((option) => ({
+        ...option,
+        price: prodOptionMap.get(option.id)?.price,
+        content: prodOptionMap.get(option.id)?.content,
+      })),
+      product: { ...product._doc }
+    };
+    // newInput.product = ;
     delete newInput.product._id; // product 복사하돼 mongodb id 값은 삭제함.
     // console.log('newInput!!');
     // console.log(newInput);
 
     // 이미 존재하는 product 의 option 관련 정보 (price, content 등)를 newInput에 넣어줌.
-    const keysForCopy = ['content', 'price'];
-    newInput.options.forEach((newOption) => {
-      const { id } = newOption;
+    // const newOptions = options.map((option) => ({
+    //   ...option,
+    //   price: prodOptionMap.get(option.id)?.price,
+    //   content: prodOptionMap.get(option.id)?.content,
+    // }));
+    // newInput.options = newOptions;
 
-      const foundProdOption = product.options.find(
-        (prodOption) => prodOption.id === id,
-      );
-      if (foundProdOption) {
-        keysForCopy.forEach((key) => {
-          newOption[key] = foundProdOption[key];
-        });
-      }
-    });
+    // const keysForCopy = ['content', 'price'];
+    // newInput.options.forEach((newOption) => {
+    //   const { id } = newOption;
+
+    //   const foundProdOption = product.options.find(
+    //     (prodOption) => prodOption.id === id,
+    //   );
+    //   if (foundProdOption) {
+    //     keysForCopy.forEach((key) => {
+    //       newOption[key] = foundProdOption[key];
+    //     });
+    //   }
+    // });
     const created = await model.Cartitem.create(newInput);
 
     // product에 해당하는 cartitem 추가
@@ -1304,7 +1345,7 @@ class DBManager {
 
   /**
    * 오래된 instant_payment cartitem 을 삭제합니다. 기본 기준 값은 14일입니다.
-   * @param {number} dateBefore 
+   * @param {number} dateBefore
    */
   async removeOldInstantPaymentCartitem(dateBefore = 14) {
     const now = new Date();

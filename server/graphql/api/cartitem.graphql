@@ -99,8 +99,8 @@ extend type Query {
 extend type Mutation {
   addCartitem(input: CartitemInput!): AddCartitemResult
   updateOptionCount(
-    id: Int!
-    optionId: String!
+    id: Int! # cartitem id
+    optionId: String! 
     count: Int!
     current: DateTime!
   ): UpdateOptionCountResult # Cartitem id, 옵션 id, 카운트

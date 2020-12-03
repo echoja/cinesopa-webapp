@@ -20,6 +20,7 @@ export default {
         msg: '성공적으로 로그아웃 하였습니다.',
         id: 'logoutSuccess',
       });
+      this.$router.push({ name: 'Home' });
     },
   },
 };
