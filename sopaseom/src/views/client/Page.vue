@@ -1,34 +1,94 @@
 <template>
-  <div>
-    <h2>이것은 페이지입니다.</h2>
+  <div class="page">
+    <page-header>
+      <div class="page-header-inner-wrapper">
+        <h1>{{ page.title }}</h1>
+      </div>
+    </page-header>
 
-    <article class="content" v-html="content"></article>
+    <div class="page-content" v-html="page.content"></div>
   </div>
 </template>
 
 <script>
-import { graphql, getPageQuery } from '@/api/graphql-client';
+import { makeSimpleQuery } from '@/api/graphql-client';
+import PageHeader from '@/components/PageHeader.vue';
+
+const getPageReq = makeSimpleQuery('page');
 
 export default {
-  name: 'Page',
-  computed: {
-    permalink() {
-      return this.$route.params.permalink;
-    },
+  // title: '개인정보처리방침',
+  components: {
+    PageHeader,
   },
+  props: ['permalink'],
   data() {
     return {
-      title: '',
-      m_date: '',
-      content: '',
-      loaded: 'false',
+      page: {
+        title: '',
+        content: '',
+      },
+      vuePageTitle: '',
     };
   },
-  async created() {
-    const res = await graphql(getPageQuery, { permalink: this.permalink, belongs_to: 'sopaseom' });
-    this.content = res?.data?.page?.content;
+
+  async mounted() {
+    this.fetchData();
+  },
+  methods: {
+    async fetchData() {
+      const page = await getPageReq(
+        { permalink: this.permalink, belongs_to: 'sopaseom' },
+        `
+      { 
+        id title content permalink c_date m_date role belongs_to meta_json
+      }
+      `,
+      );
+      // console.log('# fetchData page');
+      // console.log(page);
+      this.page = page;
+      this.vuePageTitle = page.title;
+    },
   },
 };
 </script>
+
+<style lang="scss" scoped>
+</style>
+
+<style scoped></style>
+
+<style lang="scss">
+.page-content {
+  max-width: 700px;
+  margin: 30px auto;
+  font-size: 14px;
+  h1 {
+    font-size: 24px;
+    font-weight: bold;
+  }
+  h2 {
+    font-size: 21px;
+    font-weight: bold;
+  }
+  h3 {
+    font-size: 18px;
+    font-weight: bold;
+  }
+  h4 {
+    font-size: 17px;
+    font-weight: bold;
+  }
+  h5 {
+    font-size: 16px;
+    font-weight: bold;
+  }
+  h6 {
+    font-size: 15px;
+    font-weight: bold;
+  }
+}
+</style>
 
 <style></style>

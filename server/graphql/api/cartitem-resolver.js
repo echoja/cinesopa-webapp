@@ -48,6 +48,12 @@ module.exports = {
       // 원래 클라이언트에서 current date 값을 받아서 사용하려고 했으나,
       // 올바르지 않은 Date가 올 가능성이 있으므로 그냥 서버에서 처리하도록 함.
       const serverCurrent = new Date();
+      // console.log('# cartitem-resolver updateOptionCount');
+      // console.log(id);
+      // console.log(optionId);
+      // console.log(count);
+      // console.log(email);
+
       return db.updateCartitemOption(id, optionId, count, serverCurrent, email);
     }).only(ACCESS_AUTH),
     removeCartitem: makeResolver(async (obj, args, context, info) => {

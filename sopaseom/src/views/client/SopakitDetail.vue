@@ -18,79 +18,116 @@
           <!-- {{ product.content_sub }} -->
         </div>
         <h2 class="content-header">영화 소개</h2>
-        <div
-          class="film-info"
-          role="table"
-          aria-colcount="2"
-          :aria-label="`${film.title} 기본 정보`"
-          aria-describedby="basic-info-table-summary"
-        >
-          <div role="rowgroup" class="sr-only">
-            <div class="basic-body-row d-flex" role="row">
-              <span role="columnheader">구분</span>
-              <span role="columnheader">내용</span>
-            </div>
+        <div class="film-description">
+          <!-- 영화 포스터 -->
+          <div class="film-poster">
+            <b-img
+              :src="film.poster_url"
+              :alt="film.poster_alt"
+            ></b-img>
           </div>
-          <div role="rowgroup">
+          <div class="film-right">
+            <!-- 제목 -->
+            <div class="film-ko-title">
+              <h2>{{ film.title }}</h2>
+              <span class="film-prod-year">{{ filmProdYear }}</span>
+            </div>
+            <div class="film-en-title">
+              {{ film.title_en }}
+            </div>
+            <!-- 설명 표 -->
             <div
-              v-if="filmGenres || filmShowMinutes || film.is_opened"
-              class="basic-body-row d-flex"
-              role="row"
+              class="film-info"
+              role="table"
+              aria-colcount="2"
+              :aria-label="`${film.title} 기본 정보`"
+              aria-describedby="basic-info-table-summary"
             >
-              <span class="title" role="rowheader"> 개요 </span>
-              <span class="content" role="cell">
-                <template v-for="(output, index) in filmSummary">
-                  <span :key="`${index}0`">{{ output }}</span>
-                  <span
-                    v-if="index !== filmSummary.length - 1"
-                    class="seperator"
-                    role="separator"
-                    :key="`${index}1`"
-                    >|</span
-                  >
-                </template>
-                <!-- <span v-if="filmGenres">{{ filmGenres }}</span>
+              <div role="rowgroup" class="sr-only">
+                <div class="basic-body-row d-flex" role="row">
+                  <span role="columnheader">구분</span>
+                  <span role="columnheader">내용</span>
+                </div>
+              </div>
+              <div role="rowgroup">
+                <div
+                  v-if="filmGenres || filmShowMinutes || film.is_opened"
+                  class="basic-body-row d-flex"
+                  role="row"
+                >
+                  <span class="basic-title" role="rowheader"> 개요 </span>
+                  <span class="basic-content" role="cell">
+                    <template v-for="(output, index) in filmSummary">
+                      <span :key="`${index}0`">{{ output }}</span>
+                      <span
+                        v-if="index !== filmSummary.length - 1"
+                        class="seperator"
+                        role="separator"
+                        :key="`${index}1`"
+                        >|</span
+                      >
+                    </template>
+                    <!-- <span v-if="filmGenres">{{ filmGenres }}</span>
               <span v-if="filmGenres && filmShowMinutes" class="seperator" role="separator">|</span>
               <span v-if="filmShowMinutes > 0">{{ filmShowMinutes }}분</span>
               <span v-if="filmShowMinutes && film.is_opened" class="seperator" role="separator"
                 >|</span
               >
               <span v-if="film.is_opened">{{ filmOpenDate }} 개봉</span> -->
-              </span>
+                  </span>
+                </div>
+                <div
+                  v-if="filmDirector"
+                  class="basic-body-row d-flex"
+                  role="row"
+                >
+                  <span class="basic-title" role="rowheader"> 감독 </span>
+                  <span class="basic-content" role="cell">
+                    {{ filmDirector }}
+                  </span>
+                </div>
+                <div
+                  v-if="filmActors.length > 0"
+                  class="basic-body-row d-flex"
+                  role="row"
+                >
+                  <span class="basic-title" role="rowheader"> 출연 </span>
+                  <span class="basic-content" role="cell">
+                    {{ filmActors }}
+                  </span>
+                </div>
+                <div
+                  v-if="film.watch_grade"
+                  class="basic-body-row d-flex"
+                  role="row"
+                >
+                  <span class="basic-title" role="rowheader"> 등급 </span>
+                  <span class="basic-content" role="cell">
+                    {{ film.watch_grade }}
+                  </span>
+                </div>
+              </div>
             </div>
-            <div v-if="filmDirector" class="basic-body-row d-flex" role="row">
-              <span class="title" role="rowheader"> 감독 </span>
-              <span class="content" role="cell">
-                {{ filmDirector }}
-              </span>
+            <!-- 시놉시스 -->
+            <div class="film-synopsis" v-html="film.synopsis">
+              <!-- <div class="film-synopsis" v-html="filmSynopsis"> -->
             </div>
-            <div
-              v-if="filmActors.length > 0"
-              class="basic-body-row d-flex"
-              role="row"
+            <!-- 더 보기 -->
+            <b-button
+              class="film-detail-button"
+              target="_blank"
+              :href="`https://cinesopa.kr/film/${film.id}`"
             >
-              <span class="title" role="rowheader"> 출연 </span>
-              <span class="content" role="cell">
-                {{ filmActors }}
-              </span>
-            </div>
-            <div
-              v-if="film.watch_grade"
-              class="basic-body-row d-flex"
-              role="row"
-            >
-              <span class="title" role="rowheader"> 등급 </span>
-              <span class="content" role="cell">
-                {{ film.watch_grade }}
-              </span>
-            </div>
+              더 보기 >
+            </b-button>
           </div>
         </div>
         <h2 class="content-header">상세 정보</h2>
         <div class="content-main" v-html="product.content_main">
           <!-- {{ product.content_main }} -->
         </div>
-        <h2 class="content-header" id="notice-content">유의사항</h2>
+        <div class="notice" v-html="product.notice"></div>
+        <!-- <h2 class="content-header" id="notice-content">유의사항</h2> -->
         <div class="phrase-wrapper">
           <div class="phrase">
             {{ product.side_phrase }}
@@ -126,7 +163,7 @@
           <div class="order-info">
             <div class="inf-row">
               <div class="inf-cell colheader">배송비</div>
-              <div class="inf-cell money">{{ transportFeeView }}</div>
+              <div class="inf-cell money">{{ transportationFeeView }}</div>
             </div>
             <hr />
             <div class="inf-row">
@@ -234,7 +271,7 @@
           <div class="order-info">
             <div class="inf-row">
               <div class="inf-cell colheader">배송비</div>
-              <div class="inf-cell money">{{ transportFeeView }}</div>
+              <div class="inf-cell money">{{ transportationFeeView }}</div>
             </div>
             <hr />
             <div class="inf-row">
@@ -273,6 +310,8 @@ const addCartitemReq = makeSimpleMutation('addCartitem');
 const makeInstancePaymentCartitemReq = makeSimpleMutation(
   'makeInstancePaymentCartitem',
 );
+const siteOptionsReq = makeSimpleQuery('siteOptions');
+
 export default {
   name: 'SopakitDetail',
   title: (vm) => vm.title,
@@ -292,7 +331,7 @@ export default {
     return {
       filmSummary: [],
       noticeChecked: false,
-      transportFee: 5000,
+      transportationFee: 0,
       mobileOrderModalVisible: false,
       // content: '콘텐트',
       // notice: '안내사항',
@@ -347,11 +386,13 @@ export default {
       return result;
     },
 
-    transportFeeView() {
-      return `￦ ${this.numberWithCommas(this.transportFee)}`;
+    transportationFeeView() {
+      return `￦ ${this.numberWithCommas(this.transportationFee)}`;
     },
     allPriceView() {
-      return `￦ ${this.numberWithCommas(this.allSum + this.transportFee)}`;
+      return `￦ ${this.numberWithCommas(
+        this.allSum + this.transportationFee,
+      )}`;
     },
     filmDirector() {
       return this.film.people
@@ -361,14 +402,16 @@ export default {
     },
     filmOpenYear() {
       // console.log(this.film.open_date);
-      if (this.film.open_date.getTime() > 0) {
-        return this.film.open_date.getFullYear();
+      const date = new Date(this.film.open_date);
+      if (date && date.getTime() > 0) {
+        return date.getFullYear();
       }
       return null;
     },
     filmProdYear() {
-      if (this.film.prod_date.getTime() > 0) {
-        return this.film.prod_date.getFullYear();
+      const date = new Date(this.film.prod_date);
+      if (date && date.getTime() > 0) {
+        return date.getFullYear();
       }
       return null;
     },
@@ -385,10 +428,13 @@ export default {
       return Math.floor(this.film.show_time / 60);
     },
     filmOpenDate() {
-      if (this.film.open_date.getTime() === 0) {
+      console.log('# SopakitDetail filmOpenDate');
+      console.log(this.film.open_date);
+      const date = new Date(this.film.open_date);
+      if (date && date.getTime() === 0) {
         return null;
       }
-      return moment(this.film.open_date).format('yyyy.MM.DD');
+      return moment(date).format('yyyy.MM.DD');
     },
     filmSynopsis() {
       if (this.film.synopsis) {
@@ -400,6 +446,7 @@ export default {
   async mounted() {
     this.setAdditionalFooterPaddingBottom(40);
     this.fetchData();
+    this.fetchTransportationFee();
   },
   beforeDestroy() {
     this.setAdditionalFooterPaddingBottom(0);
@@ -447,12 +494,12 @@ export default {
       const received = await getProductReq(
         { id: this.id },
         `{
-          featured_image_url featured_image_alt content_main content_sub side_phrase notice name 
+          featured_image_url featured_image_alt content_main content_sub side_phrase notice name is_notice_default
           options {
             id content left price
           }
           related_film {
-            title title_en open_date prod_date genres watch_grade poster_url poster_alt show_time synopsis
+            id title title_en open_date prod_date genres watch_grade poster_url poster_alt show_time synopsis is_opened
             people {
               role_type name role
             }
@@ -463,10 +510,11 @@ export default {
         }`,
       );
       console.log('# SopakitDetail fetchData received');
-      console.log(received);
+      console.log({ ...received });
 
       // data 바인딩
       this.film = { ...received.related_film };
+      console.log(this.film);
       this.sopakit = { ...received.kit };
       delete received.related_film;
       delete received.kit;
@@ -493,6 +541,23 @@ export default {
         ...received,
       };
       // this.id;
+
+      // 만약에 is_notice_default 가 true 라면 값을 가져옴.
+      if (received.is_notice_default) {
+        this.fetchDefaultNotice();
+      }
+    },
+
+    async fetchDefaultNotice() {
+      const res = await siteOptionsReq(
+        {
+          names: ['default_notice'],
+        },
+        '{ name value success code }',
+      );
+      console.log('# SopakitDetail fetchDefaultNotice res');
+      console.log(res);
+      this.product.notice = res[0].value;
     },
 
     desktopCartClicked() {
@@ -569,6 +634,19 @@ export default {
         });
       }
     },
+    async fetchTransportationFee() {
+      const res = await siteOptionsReq(
+        {
+          names: ['transportation_fee'],
+        },
+        '{ name value success code }',
+      );
+      console.log('# OrderPayment fetchTransporationFee res');
+      console.log(res);
+      if (res[0].success) {
+        this.transportationFee = res[0].value;
+      }
+    },
   },
 };
 </script>
@@ -599,11 +677,79 @@ $content-margin-top: 30px;
 
 .featured-image-wrapper img {
   max-width: 100%;
+  display: block;
+  margin: 0 auto; 
 }
 
 @include max-with(md) {
   .content {
     padding: 0;
+  }
+}
+
+.film-description {
+  display: flex;
+}
+
+.film-poster {
+  height: 300px;
+  margin-right: 30px;
+  img {
+    height: 100%;
+    max-width: 250px;
+    object-fit: cover;
+  }
+}
+
+.film-right {
+  font-size: 16px;
+
+  .basic-body-row {
+    margin-bottom: 3px;
+  }
+  .basic-title {
+    font-weight: bold;
+    padding-right: 15px;
+  }
+  .film-ko-title {
+    display: flex;
+    align-items: baseline;
+    h2 {
+      font-size: 24px;
+      font-weight: bold;
+      margin: 0;
+    }
+  }
+  .seperator {
+    padding: 0 10px;
+  }
+  .film-en-title {
+    color: #565656;
+    font-size: 14px;
+    font-weight: bold;
+    margin-bottom: 20px;
+  }
+  .film-prod-year {
+    font-size: 14px;
+    font-weight: bold;
+    padding-left: 5px;
+  }
+
+  .film-info {
+    margin-bottom: 20px;
+  }
+
+  .film-synopsis {
+    font-size: 14px;
+    margin-bottom: 15px;
+  }
+
+  .film-detail-button {
+    border: 0;
+    padding: 0;
+    font-size: 15px;
+    font-weight: bold;
+    color: #565656;
   }
 }
 
@@ -829,7 +975,36 @@ $content-margin-top: 30px;
 }
 </style>
 
+<style lang="scss">
+.sopakit-detail .content {
+  font-size: 16px;
+  h2 {
+    font-size: 23px;
+    font-weight: bold;
+    margin: 50px 0 30px;
+  }
+  h3 {
+    font-size: 18px;
+    font-weight: bold;
+    margin: 30px 0 15px;
+  }
+  h4 {
+    font-size: 16px;
+    font-weight: bold;
+    margin: 20px 0 15px;
+  }
+  table {
+    border-top: 1px solid #ddd;
+  }
+  td {
+    padding: 10px;
+    border-bottom: 1px solid #ddd;
+  }
 
+  .seperator {
+  }
+}
+</style>
 
 <style scoped></style>
 

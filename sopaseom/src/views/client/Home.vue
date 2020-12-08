@@ -465,12 +465,12 @@ export default {
     window.removeEventListener('scroll', this.onScroll);
   },
   beforeRouteEnter(to, from, next) {
-    console.log('home - beforeRouteEnter!!!');
+    // console.log('home - beforeRouteEnter!!!');
     store.commit('setLogoZoomed', true);
     next();
   },
   beforeRouteLeave(to, from, next) {
-    console.log('home - beforeRouteLeave!!!');
+    // console.log('home - beforeRouteLeave!!!');
     store.commit('setLogoZoomed', false);
     next();
   },

@@ -238,7 +238,7 @@ reset        () => void        A function that resets the validation state on th
 
 <script>
 import url from 'url';
-import { makeSimpleMutation } from '@/api/graphql-client';
+import { checkAuth, makeSimpleMutation } from '@/api/graphql-client';
 import router from '@/router';
 import {
   BForm,
@@ -328,7 +328,7 @@ export default {
     },
   },
   methods: {
-    ...mapActions(['pushMessage']),
+    ...mapActions(['pushMessage', 'getCurrentUser']),
     async initWhenLoginFail() {
       this.email = '';
       this.pwd = '';
@@ -412,19 +412,23 @@ export default {
       // }
       // // console.log(redirectLink);
 
-      // // 경로가 같지 않을 때에만 페이지로 이동
+      // // 경로가 같지 않을 때에만 페이지로 이동 >> 페이지 이동은 Login.vue 로 이관.
       // if (this.$route.fullPath !== redirectPath) router.push(redirectPath);
-      const redirect = this.$store.state.routeWhereLoginSuccess;
-      if (redirect && this.$route.fullPath !== redirect.fullPath) {
-        this.$store.commit('setRouteWhereLoginSuccess', null);
-        router.push(redirect);
-      }
+      // const redirect = this.$store.state.routeWhereLoginSuccess;
+      // if (redirect && this.$route.fullPath !== redirect.fullPath) {
+      //   this.$store.commit('setRouteWhereLoginSuccess', null);
+      //   router.push(redirect);
+      // }
 
       // 로그인 창 없애기
       this.closeModal();
 
       // 로그인 성공한 유저를 현재 상태에 저장
-      this.$store.commit('setCurrentUser', { currentUser: user });
+      // this.$store.commit('setCurrentUser', { currentUser: user });
+      checkAuth();
+
+      // 이벤트 발생
+      this.$emit('login-success', login);
 
       // 성공했다는 메시지 띄우기
       this.pushMessage({

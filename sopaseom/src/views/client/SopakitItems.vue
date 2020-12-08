@@ -43,33 +43,47 @@
           </p>
         </div>
         <div class="items">
-          <div class="swiper-container">
-            <div class="swiper-wrapper">
-              <div
-                class="swiper-slide"
-                v-for="(keyword, index) in keywords"
-                :key="index"
-              >
-                <div class="swiper-slide-inner-wrapper">
-                  <!-- <pre class="test">{{keyword}}</pre> -->
+          <div class="items-inner-wrapper">
+            <div class="swiper-container">
+              <div class="swiper-wrapper">
+                <div
+                  class="swiper-slide"
+                  v-for="(keyword, index) in keywords"
+                  :key="index"
+                >
+                  <div class="swiper-slide-inner-wrapper">
+                    <!-- <pre class="test">{{keyword}}</pre> -->
 
-                  <div class="mobile-main-mock">
-                    <div class="image-resizer">
-                      <div
-                        class="inner"
-                        :style="{
-                          'background-image': `url('${keyword.image_url}')`,
-                        }"
-                      ></div>
+                    <div class="mobile-main-mock">
+                      <div class="image-resizer">
+                        <div
+                          class="inner"
+                          :style="{
+                            'background-image': `url('${keyword.image_url}')`,
+                          }"
+                        ></div>
+                      </div>
                     </div>
-                  </div>
-                  <div class="title-section">
-                    <div class="title-number">{{ keyword.num }}</div>
-                    <div class="title-seperator">
-                      <!-- | -->
+                    <div class="title-section">
+                      <div class="title-number">{{ keyword.num }}</div>
+                      <div class="title-seperator">
+                        <!-- | -->
+                      </div>
+                      <div class="title-text">{{ keyword.title }}</div>
+                      <div class="title-products">
+                        {{
+                          keyword.products
+                            .map((product) =>
+                              product.related_film
+                                ? product.related_film.title
+                                : null,
+                            )
+                            .join(', ')
+                        }}
+                      </div>
+                      <div class="title-year">{{ keyword.year }}.</div>
                     </div>
-                    <div class="title-text">{{ keyword.title }}</div>
-                    <div class="title-products">
+                    <div class="mobile-title-products">
                       {{
                         keyword.products
                           .map((product) =>
@@ -80,79 +94,71 @@
                           .join(', ')
                       }}
                     </div>
-                    <div class="title-year">{{ keyword.year }}.</div>
-                  </div>
-                  <div class="mobile-title-products">
-                    {{
-                      keyword.products
-                        .map((product) =>
-                          product.related_film
-                            ? product.related_film.title
-                            : null,
-                        )
-                        .join(', ')
-                    }}
-                  </div>
-                  <div class="content-section">
-                    <div class="content-main">
-                      <div class="main-mock">
-                        <b-img :src="keyword.image_url"></b-img>
-                      </div>
-                      <div
-                        class="main-text"
-                        v-html="keyword.description.replace(/\n/g, '<br />')"
-                      ></div>
-                    </div>
-                    <div class="content-product">
-                      <div class="product-title">상품 보기</div>
-                      <div class="product-items">
+                    <div class="content-section">
+                      <div class="content-main">
+                        <div class="main-mock">
+                          <b-img :src="keyword.image_url"></b-img>
+                        </div>
                         <div
-                          class="product-item"
-                          v-for="(product, productIndex) in keyword.products"
-                          :key="productIndex"
-                        >
-                          <b-link
-                            class="product-img-link"
-                            :to="{
-                              name: 'SopakitDetail',
-                              params: { id: product.id },
-                            }"
+                          class="main-text"
+                          v-html="keyword.description.replace(/\n/g, '<br />')"
+                        ></div>
+                      </div>
+                      <div class="content-product">
+                        <div class="product-title">상품 보기</div>
+                        <div class="product-items">
+                          <div
+                            class="product-item"
+                            v-for="(product, productIndex) in keyword.products"
+                            :key="productIndex"
                           >
-                            <div
-                              class="product-img"
-                              :style="{
-                                'background-image': `url(${product.featured_image_url})`,
-                              }"
-                            ></div>
-                          </b-link>
-                          <!-- <b-img :src="film.image_url"></b-img> -->
-                          <div class="product-film-title">
                             <b-link
+                              class="product-img-link"
                               :to="{
                                 name: 'SopakitDetail',
                                 params: { id: product.id },
                               }"
                             >
-                              {{ product.name }}</b-link
-                            >
+                              <div
+                                class="product-img"
+                                :style="{
+                                  'background-image': `url(${product.featured_image_url})`,
+                                }"
+                              ></div>
+                            </b-link>
+                            <!-- <b-img :src="film.image_url"></b-img> -->
+                            <div class="product-film-title">
+                              <b-link
+                                :to="{
+                                  name: 'SopakitDetail',
+                                  params: { id: product.id },
+                                }"
+                              >
+                                {{ product.name }}</b-link
+                              >
+                            </div>
                           </div>
                         </div>
                       </div>
                     </div>
                   </div>
                 </div>
+                <div class="swiper-slide">ho</div>
               </div>
-              <div class="swiper-slide">ho</div>
+              <!-- If we need pagination -->
+              <div class="swiper-pagination"></div>
+
+              <!-- If we need navigation buttons -->
+              <div class="swiper-button-prev">
+                <left-big-arrow></left-big-arrow>
+              </div>
+              <div class="swiper-button-next">
+                <right-big-arrow></right-big-arrow>
+              </div>
+
+              <!-- If we need scrollbar -->
+              <!-- <div class="swiper-scrollbar"></div> -->
             </div>
-            <!-- If we need pagination -->
-            <div class="swiper-pagination"></div>
-
-            <!-- If we need navigation buttons -->
-            <div class="swiper-button-prev"></div>
-            <div class="swiper-button-next"></div>
-
-            <!-- If we need scrollbar -->
-            <!-- <div class="swiper-scrollbar"></div> -->
           </div>
         </div>
       </div>
@@ -163,11 +169,14 @@
 <script>
 import { BLink, BImg } from 'bootstrap-vue';
 import SwiperCore, { Navigation, Pagination, Scrollbar, A11y } from 'swiper';
+import LeftBigArrow from '@/components/LeftBigArrow.vue';
+import RightBigArrow from '@/components/RightBigArrow.vue';
 
-import 'swiper/swiper.scss';
-import 'swiper/components/navigation/navigation.scss';
-import 'swiper/components/pagination/pagination.scss';
-import 'swiper/components/scrollbar/scrollbar.scss';
+// import 'swiper/swiper.scss';
+// import 'swiper/components/navigation/navigation.scss';
+// import 'swiper/components/pagination/pagination.scss';
+// import 'swiper/components/scrollbar/scrollbar.scss';
+
 import { makeSimpleQuery } from '@/api/graphql-client';
 
 SwiperCore.use([Navigation, Pagination, Scrollbar, A11y]);
@@ -180,6 +189,8 @@ export default {
     SvgNext: () => import('@/components/SvgNext'),
     BLink,
     BImg,
+    LeftBigArrow,
+    RightBigArrow,
     // SwiperSlide,
     // Swiper,
     // BodyFixedFooter: () => import('@/views/layout/BodyFixedFooter.vue'),
@@ -189,60 +200,60 @@ export default {
       swiper: null,
       noKeywordProducts: [],
       keywords: [
-        {
-          num: '01',
-          title: '고독',
-          products: [
-            {
-              film_title: '여름날',
-              link: 'https://naver.com',
-              id: '1',
-              // eslint-disable-next-line global-require
-              featured_image_url:
-                'https://sopaseom.com/upload/e9e865dfb901fbc11709df8d1511ca3d',
-            },
-            {
-              film_title: '기억할만한 지나침',
-              link: 'https://naver.com',
-              id: '1',
-              // eslint-disable-next-line global-require
-              featured_image_url:
-                'https://sopaseom.com/upload/a206886e8633c12caf7a795a842d7f65',
-            },
-          ],
-          description:
-            '‘고독’에 숨겨진 뜻이\n‘만남’이라고 제안하고 싶습니다.\n외로운 사람만이 만남의 진정한\n가치를 알 수 있듯\n고독할 때에야 비로소 나와\n타인을 생각하게 되니까요.',
-          year: 2020,
-          // eslint-disable-next-line global-require
-          image_url:
-            'https://sopaseom.com/upload/b3e7a3fc69f30216ff55049e5c61eba8',
-        },
-        {
-          num: '01',
-          title: '고독',
-          products: [
-            {
-              film_title: '여름날',
-              link: 'https://naver.com',
-              // eslint-disable-next-line global-require
-              featured_image_url:
-                'https://sopaseom.com/upload/e9e865dfb901fbc11709df8d1511ca3d',
-            },
-            {
-              film_title: '기억할만한 지나침',
-              link: 'https://naver.com',
-              // eslint-disable-next-line global-require
-              featured_image_url:
-                'https://sopaseom.com/upload/a206886e8633c12caf7a795a842d7f65',
-            },
-          ],
-          description:
-            '‘고독’에 숨겨진 뜻이\n‘만남’이라고 제안하고 싶습니다.\n외로운 사람만이 만남의 진정한\n가치를 알 수 있듯\n고독할 때에야 비로소 나와\n타인을 생각하게 되니까요.',
-          year: 2020,
-          // eslint-disable-next-line global-require
-          image_url:
-            'https://sopaseom.com/upload/b3e7a3fc69f30216ff55049e5c61eba8',
-        },
+        // {
+        //   num: '01',
+        //   title: '고독',
+        //   products: [
+        //     {
+        //       film_title: '여름날',
+        //       link: 'https://naver.com',
+        //       id: '1',
+        //       // eslint-disable-next-line global-require
+        //       featured_image_url:
+        //         'https://sopaseom.com/upload/e9e865dfb901fbc11709df8d1511ca3d',
+        //     },
+        //     {
+        //       film_title: '기억할만한 지나침',
+        //       link: 'https://naver.com',
+        //       id: '1',
+        //       // eslint-disable-next-line global-require
+        //       featured_image_url:
+        //         'https://sopaseom.com/upload/a206886e8633c12caf7a795a842d7f65',
+        //     },
+        //   ],
+        //   description:
+        //     '‘고독’에 숨겨진 뜻이\n‘만남’이라고 제안하고 싶습니다.\n외로운 사람만이 만남의 진정한\n가치를 알 수 있듯\n고독할 때에야 비로소 나와\n타인을 생각하게 되니까요.',
+        //   year: 2020,
+        //   // eslint-disable-next-line global-require
+        //   image_url:
+        //     'https://sopaseom.com/upload/b3e7a3fc69f30216ff55049e5c61eba8',
+        // },
+        // {
+        //   num: '01',
+        //   title: '고독',
+        //   products: [
+        //     {
+        //       film_title: '여름날',
+        //       link: 'https://naver.com',
+        //       // eslint-disable-next-line global-require
+        //       featured_image_url:
+        //         'https://sopaseom.com/upload/e9e865dfb901fbc11709df8d1511ca3d',
+        //     },
+        //     {
+        //       film_title: '기억할만한 지나침',
+        //       link: 'https://naver.com',
+        //       // eslint-disable-next-line global-require
+        //       featured_image_url:
+        //         'https://sopaseom.com/upload/a206886e8633c12caf7a795a842d7f65',
+        //     },
+        //   ],
+        //   description:
+        //     '‘고독’에 숨겨진 뜻이\n‘만남’이라고 제안하고 싶습니다.\n외로운 사람만이 만남의 진정한\n가치를 알 수 있듯\n고독할 때에야 비로소 나와\n타인을 생각하게 되니까요.',
+        //   year: 2020,
+        //   // eslint-disable-next-line global-require
+        //   image_url:
+        //     'https://sopaseom.com/upload/b3e7a3fc69f30216ff55049e5c61eba8',
+        // },
       ],
     };
   },
@@ -345,7 +356,6 @@ export default {
   display: flex;
   align-items: stretch;
   flex: 1;
-  height: 100%;
 }
 
 @include max-with(lg) {
@@ -373,6 +383,7 @@ export default {
 }
 
 .summary {
+  flex-shrink: 0;
   padding-right: 60px;
   border-right: 2px solid #000;
   p {
@@ -458,16 +469,27 @@ export default {
 }
 
 // swiper
+.items-inner-wrapper {
+  width: 100%;
+  height: 100%;
+}
 
 .swiper-container {
-  width: 100%;
   height: 100%;
 }
 
 .items {
   flex: 1;
-  padding-left: 20px;
-  width: 10px;
+  margin-left: 20px;
+  overflow: hidden;
+  .swiper-button-prev:after,
+  .swiper-button-next:after {
+    display: none;
+  }
+  .swiper-button-prev svg,
+  .swiper-button-next svg {
+    width: 16.46px;
+  }
 }
 
 @include max-with(lg) {
@@ -497,6 +519,7 @@ export default {
   padding: 0 calc(20% - 120px);
   display: flex;
   align-items: center;
+  box-sizing: border-box;
 }
 
 @include max-with(xl) {
@@ -523,6 +546,7 @@ export default {
   border-bottom: 2px solid #000;
   margin-bottom: 30px;
   line-height: 1;
+  box-sizing: border-box;
 }
 
 @include max-with(md) {

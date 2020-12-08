@@ -14,15 +14,15 @@
         />
         <b-button @click="confirm">적용</b-button>
 
-        <b-form-file v-model="file2" @input="fileUpload" ref="file-input" class="mt-3">
+        <!-- <b-form-file v-model="file2" @input="fileUpload" ref="file-input" class="mt-3">
         </b-form-file>
         <p>{{ file2 }}</p>
         <p><b> content </b>: {{ content }}</p>
         <p>belongs_to : {{ belongs_to }}, mode: {{ mode }}</p>
-        <p>oldPermalink: {{ oldPermalink }}</p>
+        <p>oldPermalink: {{ oldPermalink }}</p> -->
       </template>
       <template #sidebar>
-        ...
+        Sidebar 영역
       </template>
     </wrap-with-editor>
   </div>

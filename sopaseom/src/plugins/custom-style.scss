@@ -1,5 +1,13 @@
+// fonts
 @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@100;300;400;500;700;900&family=Noto+Serif+KR:wght@200;300;400;500;600;700;900&display=swap');
 
+// swiper
+@import '../../node_modules/swiper/swiper.scss';
+@import '../../node_modules/swiper/components/navigation/navigation.scss';
+// @import '../../node_modules/swiper/components/pagination/pagination.scss';
+// @import '../../node_modules/swiper/components/scrollbar/scrollbar.scss';
+
+// bootstrap 에 포함된 변수를 재정의 (override)
 $primary: #000;
 $success: #000;
 $font-family-sans-serif: 'Noto Sans KR', -apple-system, system-ui,

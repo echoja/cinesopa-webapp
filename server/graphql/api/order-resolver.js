@@ -66,6 +66,7 @@ module.exports = {
           input.method !== 'nobank' ? 'payment_success' : 'payment_confirming',
         method: input.method,
         dest: input.dest,
+        transport_fee: input.transport_fee,
       });
 
       // 해당 cartitem 삭제

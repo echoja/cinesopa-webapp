@@ -72,7 +72,17 @@
       </div>
     </div>
     <hr />
-    <b-button @click="saveDefaultDest"> 변경사항 저장 </b-button>
+    <b-button
+      @click="saveDefaultDest"
+      :disabled="defaultDestUpdateSuccessMessageShow"
+    >
+      변경사항 저장
+    </b-button>
+    <span
+      class="button-response-text"
+      v-if="defaultDestUpdateSuccessMessageShow"
+      >{{ defaultDestUpdateSuccessMessage }}</span
+    >
   </div>
 </template>
 
@@ -94,6 +104,8 @@ export default {
   title: '내 정보',
   data() {
     return {
+      defaultDestUpdateSuccessMessageShow: false,
+      defaultDestUpdateSuccessMessage: '',
       // isConnectedWithKakao: true,
       jibunAddress: '',
       default_dest: {
@@ -128,7 +140,7 @@ export default {
   //   },
   // },
   methods: {
-    ...mapActions(['getCurrentUser']),
+    ...mapActions(['getCurrentUser', 'pushMessage']),
     disableKakaoClicked() {},
     async saveDefaultDest() {
       const res = await updateMeReq(
@@ -138,6 +150,21 @@ export default {
       );
       console.log('# Myinfo.vue saveDefaultDest');
       console.log(res);
+      this.defaultDestUpdateSuccessMessageShow = true;
+      this.defaultDestUpdateSuccessMessage = res.success
+        ? '기본 배송지 설정 성공했습니다.'
+        : '기본 배송지 설정을 실패했습니다.';
+
+      setTimeout(() => {
+        this.defaultDestUpdateSuccessMessageShow = false;
+      }, 2500);
+      // if (res.success) {
+      //   this.pushMessage({
+      //     type: 'success',
+      //     msg: '기본 배송지 설정 완료했습니다.',
+      //     id: 'defaultDestUpdateSuccess',
+      //   });
+      // }
     },
     connectKakaoClicked() {},
     addressLoaded(data) {
@@ -208,6 +235,11 @@ span.is-connected {
 .description {
   font-size: 13px;
   color: #aaa;
+}
+
+.button-response-text {
+  font-size: 13px;
+  margin-left: 15px;
 }
 </style>
 

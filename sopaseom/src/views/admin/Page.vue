@@ -2,9 +2,19 @@
   <div>
     <!-- field settings required -->
     <h2>{{ belongs_to }}의 페이지 목록</h2>
-    <div class="actions"><b-button :to="{ name: newPageName }">새 페이지</b-button></div>
-    <b-table hover :items="pages" @row-clicked="rowClicked"></b-table>
-    <p v-show="!state.dataLoaded"><b-spinner label="Spinning" />데이터를 불러오는 중입니다.</p>
+    <div class="actions">
+      <b-button :to="{ name: newPageName }">새 페이지</b-button>
+    </div>
+    <b-table
+      hover
+      :fields="pageFields"
+      :items="pages"
+      @row-clicked="rowClicked"
+      class="page-table"
+    ></b-table>
+    <p v-show="!state.dataLoaded">
+      <b-spinner label="Spinning" />데이터를 불러오는 중입니다.
+    </p>
     <p v-show="hasNoData">해당하는 페이지가 없습니다.</p>
   </div>
 </template>
@@ -62,6 +72,24 @@ export default {
         dataLoaded: false,
       },
       pages: [],
+      pageFields: [
+        {
+          key: 'checkbox',
+          label: '선택',
+        },
+        {
+          key: 'id',
+          label: '식별자',
+        },
+        {
+          key: 'permalink',
+          label: '식별이름',
+        },
+        {
+          key: 'title',
+          label: '제목',
+        },
+      ],
     };
   },
   methods: {
@@ -89,4 +117,9 @@ export default {
 };
 </script>
 
+<style lang="scss" scoped>
+.page-table {
+  width: auto;
+}
+</style>
 <style></style>

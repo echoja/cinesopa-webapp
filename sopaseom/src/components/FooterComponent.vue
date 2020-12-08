@@ -105,13 +105,12 @@ $gray-c2: #7a7a7a;
   width: 100%;
   height: $desktop-footer-height;
   border-top: 2px solid black;
-  padding: 30px 0 30px;
+  padding: 30px 0 0;
   color: $gray-c1;
 }
 
 .simple .site-footer {
   height: 100px;
-  
 }
 
 @include max-with(md) {
@@ -126,12 +125,12 @@ $gray-c2: #7a7a7a;
 }
 
 .name {
-  font-weight: 600;
-  font-size: 18px;
+  font-weight: bold;
+  font-size: 16px;
 }
 
 .copyright {
-  font-size: 15px;
+  font-size: 14px;
   font-weight: 500;
   margin-bottom: 10px;
 }
@@ -141,13 +140,17 @@ $gray-c2: #7a7a7a;
   color: $gray-c2;
 }
 
+.links {
+  font-size: 13px;
+}
+
 .links-seperator {
   padding: 0 7px;
 }
 
 .right {
   text-align: right;
-  font-size: 14px;
+  font-size: 13px;
 }
 
 .right-block {
@@ -181,13 +184,7 @@ $gray-c2: #7a7a7a;
   display: flex;
   align-items: flex-end;
   color: $cinesopa-logo-color;
-}
-
-.by {
-  display: block;
-  font-size: 21px;
-  font-weight: 500;
-  margin: 6px 10px 0 -20px;
+  transform: translateY(-20px);
 }
 
 @include max-with(md) {
@@ -199,19 +196,19 @@ $gray-c2: #7a7a7a;
     margin-left: 0;
     margin-right: 10px;
   }
-  // .right-block:last-child {
-  // }
 }
 
-.right,
-.left {
-  // flex: 1 1 0;
+.by {
+  display: block;
+  font-size: 16px;
+  font-weight: 400;
+  margin-right:4px;
 }
 
 .cineesopa-logo {
-  width: 100px;
+  width: 70px;
   display: block;
-  transform: translateY(-6px);
+  transform: translateY(-3px);
 }
 </style>
 

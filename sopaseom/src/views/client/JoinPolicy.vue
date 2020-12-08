@@ -6,7 +6,11 @@
     >
     <hr />
     <form>
-      <div class="check-item" v-for="(item, index) in checks" :key="index">
+      <div
+        class="check-item"
+        v-for="(item, itemIndex) in checks"
+        :key="itemIndex"
+      >
         <b-form-checkbox
           v-model="item.value"
           :required="item.required"
@@ -16,9 +20,9 @@
         >
           <span class="checkbox-text">{{ item.label }}</span></b-form-checkbox
         >
-        <b-link @click="buttonClicked" class="show-more"
-          ><svg-next></svg-next
-        ></b-link>
+        <b-link @click="buttonClicked(itemIndex)" class="show-more">
+          <svg-next></svg-next>
+        </b-link>
       </div>
       <div class="button-box">
         <b-button :to="{ name: 'Home' }">취소</b-button>
@@ -35,6 +39,24 @@
         </p>
       </div>
     </form>
+    <b-modal
+      id="advertisement-modal"
+      size="xl"
+      hide-footer
+      title="서비스·이벤트정보 제공을 위한 개인정보 수집 및 이용 동의"
+    >
+      <ol>
+        <li>항목: 마케팅</li>
+        <li>이용 목적: 상품 및 서비스 안내, 이벤트 정보 및 혜택 제공</li>
+        <li>수집항목: 이메일주소, 마케팅 수신 동의여부</li>
+        <li>보유기간: 회원탈퇴 또는 동의 철회 시</li>
+      </ol>
+      <p class="sub">
+        ※ 선택 개인정보의 경우 동의를 거부하실 수 있으며, 이 경우 회원가입은
+        가능하나 일부 서비스 이용 및 각종 광고, 이벤트 등의 혜택정보 제공이
+        제한될 수 있습니다.
+      </p>
+    </b-modal>
   </div>
 </template>
 
@@ -58,18 +80,21 @@ export default {
           label: '소파섬 이용약관 동의 (필수)',
           required: true,
           content: '<div>헬로</div>',
+          route: { name: 'Policy' },
         },
         {
           value: false,
           label: '소파섬 개인 정보 수집 / 이용 동의 (필수)',
           required: true,
           content: '<div>헬로</div>',
+          route: { name: 'Privacy' },
         },
         {
           value: false,
           label: '소파섬 광고성 정보 수집 / 이용 동의 (선택)',
           required: false,
           content: '<div>헬로</div>',
+          modalId: 'advertisement-modal',
         },
       ],
     };
@@ -91,7 +116,14 @@ export default {
     pieceCheckChanged() {
       this.allCheck = false;
     },
-    buttonClicked() {},
+    buttonClicked(itemIndex) {
+      const item = this.checks[itemIndex];
+      if (item.modalId) {
+        this.$bvModal.show(item.modalId);
+      } else if (item.route) {
+        this.$router.push(item.route);
+      }
+    },
     nextClicked() {
       this.$store.commit('setUserAgreed', {
         policy: this.checks[0].value,
@@ -105,7 +137,6 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-
 @import '@/common';
 
 h2 {
@@ -135,7 +166,7 @@ h2 {
 @include max-with(sm) {
   .checkbox-text {
     font-size: 14px;
-      transform: translateY(-3px);
+    transform: translateY(-3px);
   }
 }
 

@@ -1265,7 +1265,7 @@ class DBManager {
         price: prodOptionMap.get(option.id)?.price,
         content: prodOptionMap.get(option.id)?.content,
       })),
-      product: { ...product._doc }
+      product: { ...product._doc },
     };
     // newInput.product = ;
     delete newInput.product._id; // product 복사하돼 mongodb id 값은 삭제함.
@@ -1330,8 +1330,10 @@ class DBManager {
 
     found.count = count;
     item.modified = current;
-    await item.save();
+    const saved = await item.save();
 
+    // console.log('#db updateCartitemOption');
+    // console.log(saved);
     return { success: true, code: '' };
   }
   /**
@@ -1380,43 +1382,64 @@ class DBManager {
       user,
     } = condition;
 
-    // 우선 정렬
-    let query = model.Order.find().sort({ c_date: -1 });
+    const buildQuery = () => {
+      // 우선 정렬
+      let query = model.Order.find().sort({ c_date: -1 });
 
-    // 유저 이메일 필터
-    if (user) {
-      query = query.find({ user });
-    }
+      // 유저 이메일 필터
+      if (user) {
+        query.find({ user });
+      }
 
-    // 날짜 필터
-    if (date_gte instanceof Date && date_lte instanceof Date) {
-      query = query.find({
-        c_date: {
-          $gte: date_gte,
-          $lte: date_lte,
-        },
-      });
-    }
+      // 날짜 필터
+      if (date_gte instanceof Date && date_lte instanceof Date) {
+        query.find({
+          c_date: {
+            $gte: date_gte,
+            $lte: date_lte,
+          },
+        });
+      }
+      // 상태 필터
+      if (status) {
+        query = query.find({ status });
+      }
 
-    // 상태 필터
-    if (status) {
-      query = query.find({ status });
-    }
+      return query;
+    };
+
+    const orderQuery = buildQuery();
 
     // 총 갯수 구하기
-    const total = (await query.exec()).length; // todo;
+    const total = (await orderQuery.exec()).length;
+
+    // 총 배송중 개수 구하기 (지금까지의 조건에 추가하여 적용. 별도로 작동되는 건 아님.)
+    const transporting = (
+      await buildQuery().find({ status: 'transporting' }).lean().exec()
+    ).length;
+
+    // const transportingQuery = query.find({status: 'transporting"});
+    // const transportingQuery = query.find({status: 'payment_success'});
+    // const transporting = (await transportingQuery.lean().exec()).length
+
+    // console.log('# db getOrders transporting, condition');
+    // console.log(transporting);
+    // console.log(condition);
 
     // 페이지별로 잘라내기
     if ((typeof page === 'number', typeof perpage === 'number')) {
-      query = query.limit(perpage).skip(perpage * page);
+      orderQuery.limit(perpage).skip(perpage * page);
     }
+    const list = await orderQuery.lean().exec();
 
-    const list = await query.lean().exec();
+    // console.log('# db getOrders transporting');
+    // console.log(list);
 
     // 결과 리턴
     return {
       total,
       list,
+      transporting,
     };
   }
   /**
@@ -1442,6 +1465,8 @@ class DBManager {
    * @param {OrderInput} input
    */
   async updateOrder(id, input) {
+    console.log('#db updateOrder input');
+    console.log(input);
     return model.Order.updateOne({ id }, input).lean().exec();
   }
 

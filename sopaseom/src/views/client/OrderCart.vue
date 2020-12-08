@@ -92,7 +92,7 @@
         <div class="total-row">
           <div class="total-cell header">배송비</div>
           <div class="total-cell price">
-            {{ toPrice(totalTransportationFee) }}
+            {{ toPrice(transportationFee) }}
           </div>
         </div>
         <hr />
@@ -112,7 +112,7 @@
         >주문하기</oval-button
       >
     </div>
-    <!-- {{ totalTransportationFee }} -->
+    <!-- {{ transportationFee }} -->
     <!-- <div class="test">
       <b-link :to="{ name: 'Payment' }">다음</b-link>
     </div> -->
@@ -128,6 +128,7 @@ import { debounce } from 'debounce';
 
 const removeCartitemReq = makeSimpleMutation('removeCartitem');
 const updateOptionCountReq = makeSimpleMutation('updateOptionCount');
+const siteOptionsReq = makeSimpleQuery('siteOptions');
 const debouncedFuncMap = new Map();
 
 export default {
@@ -142,6 +143,7 @@ export default {
   },
   data() {
     return {
+      transportationFee: 0,
       cartitems: [
         // {
         //   id: 1,
@@ -180,19 +182,13 @@ export default {
         0,
       );
     },
-    totalTransportationFee() {
-      return this.cartitems.reduce(
-        (total, cartitem) =>
-          total + cartitem.transportationFee ? cartitem.transportationFee : 0,
-        0,
-      );
-    },
     totalPayment() {
-      return this.totalProductPrice + this.totalTransportationFee;
+      return this.totalProductPrice + this.transportationFee;
     },
   },
   async mounted() {
     this.fetchData();
+    this.fetchTransportationFee();
   },
   methods: {
     ...mapActions(['pushMessage']),
@@ -247,19 +243,19 @@ export default {
       });
     },
     async countChanged(cartitemIndex, optionIndex) {
-      // debounced 된 함수가 없을 경우 새롭게 만듬.
-      const key = `${cartitemIndex}-${optionIndex}`;
-      if (!debouncedFuncMap.has(key)) {
-        debouncedFuncMap.set(
-          key,
-          debounce(() => {
-            this.updateOptionCount(cartitemIndex, optionIndex);
-          }, 500),
-        );
-      }
-      const func = debouncedFuncMap.get(key);
-      func();
-      // console.dir(debouncedFuncMap);
+      // debounced version ... 실패. 원인불명. 자꾸 새롭게 갱신이 안됨.
+      // // debounced 된 함수가 없을 경우 새롭게 만듬.
+      // const key = `${cartitemIndex}-${optionIndex}`;
+      // if (!debouncedFuncMap.has(key)) {
+      //   debouncedFuncMap.set(
+      //     key,
+      //     debounce(this.updateOptionCount, 500),
+      //   );
+      // }
+      // const func = debouncedFuncMap.get(key);
+      // func(cartitemIndex, optionIndex);
+      // // console.dir(debouncedFuncMap);
+      this.updateOptionCount(cartitemIndex, optionIndex);
     },
     async updateOptionCount(cartitemIndex, optionIndex) {
       const cartitem = this.cartitems[cartitemIndex];
@@ -295,6 +291,19 @@ export default {
         });
       }
     },
+    async fetchTransportationFee() {
+      const res = await siteOptionsReq(
+        {
+          names: ['transportation_fee'],
+        },
+        '{ name value success code }',
+      );
+      console.log('# OrderCart fetchTransporationFee res');
+      console.log(res);
+      if (res[0].success) {
+        this.transportationFee = res[0].value;
+      }
+    },
   },
 };
 </script>
@@ -323,7 +332,6 @@ export default {
   flex-direction: column;
   // justify-content: flex-end;
   align-items: flex-end;
-  
 }
 
 h2.title {

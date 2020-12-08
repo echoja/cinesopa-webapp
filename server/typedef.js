@@ -149,6 +149,7 @@
  * @property {string}   cash_receipt
  * @property {string}   transport_number
  * @property {string}   transport_company
+ * @property {string}   transport_fee
  * @property {string}   bootpay_id
  * @property {object}   meta
  * @property {number[]}   items 카트아이템 id 목록

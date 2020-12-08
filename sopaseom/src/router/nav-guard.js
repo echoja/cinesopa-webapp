@@ -127,6 +127,7 @@ export const requireAuth = (condition = {}, failRN = {}) => async (to, from, nex
 
   console.log('# requireAuth processing...');
   console.log(condition);
+  console.log(to);
   console.log(failRN);
 
   // role 에 해당하지 않는다면,
@@ -138,6 +139,7 @@ export const requireAuth = (condition = {}, failRN = {}) => async (to, from, nex
 
     // 로그인을 안했다면 로그인이 필요함. 로그인하기 전 redirectRoute를 설정함.
     store.commit('setRouteWhereLoginSuccess', to);
+    // console.log()
     return next({ name: loginRequiredRN });
   }
 

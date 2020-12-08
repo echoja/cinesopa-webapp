@@ -22,6 +22,7 @@ module.exports = (mongoose) => {
     cash_receipt: String, // 현금영수증 번호
     transport_number: String, // 송장 번호
     transport_company: String, // 택배 회사 (코드)
+    transport_fee: Number,
     bootpay_id: String, // 부트페이 검증용 id
     meta: mongoose.Schema.Types.Mixed,
     items: [CartItem],

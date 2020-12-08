@@ -81,12 +81,26 @@ export default [
   {
     path: '/privacy',
     name: 'Privacy',
-    component: () => import('@/views/client/Privacy.vue'),
+    component: () => import('@/views/client/Page.vue'),
+    props: {
+      permalink: 'privacy',
+    },
   },
   {
     path: '/policy',
     name: 'Policy',
-    component: () => import('@/views/client/Policy.vue'),
+    component: () => import('@/views/client/Page.vue'),
+    props: {
+      permalink: 'policy',
+    },
+  },
+  {
+    path: '/advertisement',
+    name: 'Advertisement',
+    component: () => import('@/views/client/Page.vue'),
+    props: {
+      permalink: 'advertisement',
+    },
   },
   {
     path: '/404',

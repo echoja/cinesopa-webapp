@@ -25,6 +25,7 @@ type Order {
   cash_receipt: String # 현금영수증 번호
   transport_number: String # 송장 번호
   transport_company: String # 택배 회사
+  transport_fee: Int
   bootpay_id: String
   meta: JSON
   items: [CartItem]
@@ -42,6 +43,7 @@ input OrderInput {
   cash_receipt: String # 현금영수증 번호
   transport_number: String # 송장 번호
   transport_company: String # 택배 회사
+  transport_fee: Int
   bootpay_id: String
   meta: JSON
   dest: DestinfoInput
@@ -61,12 +63,19 @@ input CreateOrderFromCartInput {
   items_id: [Int]!
   method: String!
   dest: DestinfoInput!
+  transport_fee: Int!
   bootpay_id: String
 }
 
 type OrdersResult {
   total: Int
   list: [Order]
+}
+
+type MyOrdersResult {
+  total: Int
+  list: [Order]
+  transporting: Int
 }
 
 type CreateOrderFromCartResult {
@@ -92,7 +101,7 @@ type ReqCancelOrderResult {
 extend type Query {
   orderAdmin(id: Int!): Order
   ordersAdmin(condition: OrderSearch!): OrdersResult
-  myOrders(condition: OrderSearch!): OrdersResult
+  myOrders(condition: OrderSearch!): MyOrdersResult
 }
 
 extend type Mutation {

@@ -23,7 +23,12 @@
               size="sm"
               v-model="form.name"
               @update="nameUpdated"
+              :state="validate.name.status"
+              ref="name"
             ></b-form-input>
+            <div class="input-error-msg" v-if="validate.name.status === false">
+              {{ validate.name.msg }}
+            </div>
           </div>
         </div>
         <div class="form-item address">
@@ -45,10 +50,18 @@
               disabled
               v-model="form.address"
               class="address-new"
+              :state="validate.address.status"
+              ref="address"
               @update="addressUpdated"
             ></b-form-input>
             <div v-if="addressOld" class="address-old">
               지번: {{ addressOld }}
+            </div>
+            <div
+              class="input-error-msg"
+              v-if="validate.address.status === false"
+            >
+              {{ validate.address.msg }}
             </div>
           </div>
         </div>
@@ -59,7 +72,15 @@
               size="sm"
               v-model="form.address_detail"
               @update="addressDetailUpdated"
+              :state="validate.address_detail.status"
+              ref="address_detail"
             ></b-form-input>
+            <div
+              class="input-error-msg"
+              v-if="validate.address_detail.status === false"
+            >
+              {{ validate.address_detail.msg }}
+            </div>
           </div>
         </div>
         <div class="form-item phone">
@@ -69,7 +90,12 @@
               size="sm"
               v-model="form.phone"
               @update="phoneUpdated"
+              :state="validate.phone.status"
+              ref="phone"
             ></b-form-input>
+            <div class="input-error-msg" v-if="validate.phone.status === false">
+              {{ validate.phone.msg }}
+            </div>
             <span class="form-example">예: 010-1234-5678</span>
           </div>
         </div>
@@ -84,6 +110,7 @@
             ></b-form-textarea>
           </div>
         </div>
+        <!-- todo: 위 정보를 기본 배송지로 설정합니다. (선택) -->
         <div class="header">
           <h2>주문내역</h2>
         </div>
@@ -132,7 +159,13 @@
         <div class="header">
           <h2>결제 방법</h2>
         </div>
-        <div class="payment-method row">
+        <div
+          class="input-error-msg"
+          v-if="validate.paymentMethod.status === false"
+        >
+          {{ validate.paymentMethod.msg }}
+        </div>
+        <div class="payment-method row" ref="paymentMethod" tabindex="-1">
           <div class="col-6 payment-method-option">
             <div class="option-inner-wrapper">
               <b-button
@@ -210,8 +243,12 @@
           </div>
         </div>
         <div class="last-notice">위 주문 내용으로 결제에 동의합니다.</div>
+        <!-- 주문 내용을 확인 하였으며, 회원 본인은 결제에 동의합니다. 
+         -->
         <div class="go-payment-wrapper">
-          <oval-button class="go-payment">결제하기</oval-button>
+          <oval-button @click="paymentClicked" class="go-payment"
+            >결제하기</oval-button
+          >
           <!-- {{ cartitems }} -->
         </div>
       </div>
@@ -233,10 +270,12 @@ import {
   BSpinner,
 } from 'bootstrap-vue';
 import { toPrice } from '@/util';
-import { makeSimpleQuery } from '@/api/graphql-client';
+import { makeSimpleMutation, makeSimpleQuery } from '@/api/graphql-client';
 import { mapActions } from 'vuex';
 
 const cartitemsByIdsReq = makeSimpleQuery('cartitemById');
+const siteOptionsReq = makeSimpleQuery('siteOptions');
+const createOrderFromCartReq = makeSimpleMutation('createOrderFromCart');
 
 export default {
   title: '주문결제',
@@ -253,6 +292,7 @@ export default {
   },
   data() {
     return {
+      transportationFee: 123,
       selectDeliveryPlace: 'default',
       cartitemFetched: false,
       // addressNew: '',
@@ -265,6 +305,48 @@ export default {
         phone: '',
         request: '',
         paymentMethod: '',
+      },
+      validate: {
+        name: {
+          status: null,
+          msg: '',
+          validateFunction: (value) => {
+            if (value !== '') return { status: true };
+            return { status: false, msg: '필수 입력사항 입니다.' };
+          },
+        },
+        address: {
+          status: null,
+          msg: '',
+          validateFunction: (value) => {
+            if (value !== '') return { status: true };
+            return { status: false, msg: '필수 입력사항 입니다.' };
+          },
+        },
+        address_detail: {
+          status: null,
+          msg: '',
+          validateFunction: (value) => {
+            if (value !== '') return { status: true };
+            return { status: false, msg: '필수 입력사항 입니다.' };
+          },
+        },
+        phone: {
+          status: null,
+          msg: '',
+          validateFunction: (value) => {
+            if (value !== '') return { status: true };
+            return { status: false, msg: '필수 입력사항 입니다.' };
+          },
+        },
+        paymentMethod: {
+          status: null,
+          msg: '',
+          validateFunction: (value) => {
+            if (value !== '') return { status: true };
+            return { status: false, msg: '하나를 반드시 선택해주세요.' };
+          },
+        },
       },
       orderList: [
         {
@@ -300,16 +382,22 @@ export default {
       ],
     };
   },
+  watch: {
+    formAddress() {
+      // this.cancelDefaultDeliveryPlace();
+      this.resetStatus('address');
+    },
+  },
   computed: {
+    formAddress() {
+      return this.form.address;
+    },
     totalProductPrice() {
       const options = this.orderList.map((cartitem) => cartitem.options).flat();
       console.log('# OrderPayment.vue totalProductPrice options');
       console.dir(options);
       const sum = options.reduce((acc, now) => acc + now.count * now.price, 0);
       return sum;
-    },
-    transportationFee() {
-      return 3000;
     },
     totalCount() {
       return 2;
@@ -335,6 +423,7 @@ export default {
   async mounted() {
     this.fetchCartitemData();
     this.fetchDefaultDest();
+    this.fetchTransportationFee();
   },
 
   methods: {
@@ -403,6 +492,7 @@ export default {
     setPaymentMethod(method, event) {
       this.form.paymentMethod = method;
       event.target.blur();
+      this.resetStatus('paymentMethod');
     },
     getFail(reason = '') {
       this.$router.push({ name: 'PaymentFail', params: { reason } });
@@ -422,21 +512,127 @@ export default {
     },
     nameUpdated() {
       this.cancelDefaultDeliveryPlace();
+      this.resetStatus('name');
     },
     addressUpdated() {
       this.cancelDefaultDeliveryPlace();
+      this.resetStatus('address');
     },
     addressDetailUpdated() {
       this.cancelDefaultDeliveryPlace();
+      this.resetStatus('address_detail');
     },
     phoneUpdated() {
       this.cancelDefaultDeliveryPlace();
+      this.resetStatus('phone');
     },
     requestUpdated() {
       this.cancelDefaultDeliveryPlace();
     },
     cancelDefaultDeliveryPlace() {
       this.selectDeliveryPlace = 'manual';
+    },
+    async resetStatus(formName) {
+      const validateObj = this.validate[formName];
+      validateObj.status = null;
+    },
+    async fetchTransportationFee() {
+      const res = await siteOptionsReq(
+        {
+          names: ['transportation_fee'],
+        },
+        '{ name value success code }',
+      );
+      console.log('# OrderPayment fetchTransporationFee res');
+      console.log(res);
+      if (res[0].success) {
+        this.transportationFee = res[0].value;
+      }
+    },
+    async validateInputs() {
+      // validate 할 데이터에 대한 의존성 존재.
+      const dataNames = [
+        'name',
+        'address',
+        'address_detail',
+        'phone',
+        'paymentMethod',
+      ];
+      let validated = true;
+      for (const dataName of dataNames) {
+        if (this.validate[dataName] !== undefined) {
+          // console.log(`# OrderPayment validateInputs ${dataName}`);
+          const validateObj = this.validate[dataName];
+          const { validateFunction } = validateObj;
+
+          // this.form 에 대한 의존성 존재. 데이터를 불러오는 것에 대한 의존성이 있음.
+          const data = this.form[dataName];
+
+          // validate 결과를 적용
+          const { status, msg } = validateFunction(data);
+          // console.dir({ status, msg });
+          validateObj.status = status ? null : false;
+          validateObj.msg = msg;
+
+          // 최초로 status 가 false 인 것에 대해 focus 해준다.
+          if (validated && status === false) {
+            this.$nextTick(() => {
+              this.$refs[dataName].focus();
+              console.log(this.$refs[dataName]);
+              console.log('focuessed!!!!');
+            });
+          }
+
+          // 전부 true 여야 최종 validated 가 true 일 수 있도록 && 연산을 먹여줌.
+          validated = validated && status;
+        }
+      }
+      return validated;
+    },
+
+    async setValidateMessage() {},
+
+    async paymentClicked() {
+      const validated = await this.validateInputs();
+      console.log('# OrderPayment paymentClicked validated');
+      console.log(validated);
+
+      // 만약 validated 되지 않았다면, 즉시 종료.
+      if (!validated) {
+        this.setValidateMessage();
+        return;
+      }
+
+      // nobank 일 경우 페이지 보내는 것 다름.
+      let bootpay_id = null;
+      if (this.form.paymentMethod === 'nobank') {
+        // something..
+      } else {
+        bootpay_id = '123';
+        // todo: card, bank, phone 일 경우 bootpay 를 진행함.
+      }
+
+      // 진행한 후 bootpay 에서 receipt_id 를 이용해 검증 및 order 생성
+      const dest = { ...this.form };
+      delete dest.paymentMethod;
+      const res = await createOrderFromCartReq({
+        input: {
+          items_id: this.cartitems,
+          method: this.form.paymentMethod,
+          dest,
+          bootpay_id, // todo 수정해야 함.
+          transport_fee: this.transportationFee,
+        },
+      }, `{
+        success code
+      }`);
+      console.log('# OrderPayment paymentClicked res');
+      console.log(res);
+
+      // 다음 페이지 전환
+      if (this.form.paymentMethod === 'nobank') {
+        // ...
+      }
     },
   },
 };
@@ -642,6 +838,12 @@ $content-margin-top: 30px;
 }
 .btn.go-payment {
   border-width: 1px;
+}
+
+.input-error-msg {
+  font-size: 13px;
+  color: $red;
+  font-weight: bold;
 }
 </style>
 

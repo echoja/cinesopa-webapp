@@ -138,6 +138,16 @@
             v-model="form[option].value"
             height="500"
           ></common-editor>
+
+                    <!-- 만약 현재 요소가 number 라면 number 용 input 생성 -->
+          <b-form-input
+            :id="`input-${option}`"
+            v-else-if="form[option].type === 'number'"
+            v-model="form[option].value"
+            number
+            type="number"
+          ></b-form-input>
+
         </td>
       </tr>
     </table>
@@ -252,11 +262,18 @@ export default {
         },
       },
       form: {
+        transportation_fee: {
+          label: '기본 배송비',
+          value: null,
+          type: 'number',
+        },
+
         default_notice: {
           label: '상품 안내사항 기본값',
           value: null,
           type: 'editor',
         },
+
         // address: {
         //   label: '주소',
         //   value: null,
@@ -454,6 +471,10 @@ export default {
 .input-content td {
   vertical-align: top;
   padding-top: 20px;
+}
+
+.input-content input {
+  width: auto;
 }
 // .input-item {
 //   display: flex;
