@@ -15,7 +15,7 @@ type User {
 }
 
 type UsersResult {
-  count: Int
+  total: Int
   list: [User]
 }
 
@@ -117,8 +117,15 @@ input UserAgreedInput {
   advertisement: Boolean
 }
 
+input UsersCondition {
+  email: String,
+  page: Int,
+  perpage: Int,
+}
+
+
 extend type Query {
-  users: UsersResult
+  users(condition: UsersCondition): UsersResult
   user(email: String!): User
   currentUser: User
   userExists(email: String!): UserExistsResult

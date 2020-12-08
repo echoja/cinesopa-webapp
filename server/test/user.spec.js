@@ -8,6 +8,8 @@ const {
   doAdminLogin,
   doGuestLogin,
   doLogout,
+  makeSimpleQuery,
+  adminEmail,
 } = require('./tool');
 
 const { model, db } = require('../loader');
@@ -15,9 +17,9 @@ const passport = require('../auth/passport');
 const { resetBehavior } = require('sinon');
 
 const usersQuery = `
-query usersQuery {
-  users {
-    count
+query usersQuery($condition: UsersCondition) {
+  users(condition: $condition) {
+    total
     list {
       email
       role
@@ -531,14 +533,33 @@ describe('user', function () {
           const users = await model.User.find();
           expect(users.length).to.equal(2);
 
-          const result = await graphqlSuper(agent, usersQuery);
+          const result = await graphqlSuper(agent, usersQuery, {
+            condition: {},
+          });
+          // console.log(resut)
           const resultUsers = result.body.data.users;
-          expect(resultUsers.count).to.equal(2);
+          expect(resultUsers.total).to.equal(2);
           expect(resultUsers.list.length).to.equal(2);
           expect(resultUsers.list[0].email).to.be.string;
           expect(resultUsers.list[1].email).to.be.string;
         });
+        it('검색이 제대로 동작해야 함', async function () {
+          await doAdminLogin(agent);
+          const usersReq = makeSimpleQuery(agent, 'users');
+          const { total, list } = await usersReq(
+            {
+              condition: {
+                email: 'stA',
+              },
+            },
+            `{total list {email role verified}}`,
+          );
+          console.log({ total, list });
+          expect(total).to.equal(1);
+          expect(list[0].email).to.equal(adminEmail);
+        });
       });
+
       describe('user', function () {
         it('제대로 동작해야함.', async function () {
           await doAdminLogin(agent);

@@ -147,16 +147,21 @@ class DBManager {
    * @param {number} page 0 이 1페이지를 뜻함.
    * @param {number} perpage 1페이지당 유저 개수
    */
-  async getUsers(page, perpage) {
+  async getUsers(condition) {
+    const { page, perpage, email } = condition;
     let query = model.User.find();
-    const count = (await query.lean().exec()).length;
+
+    if (typeof email === 'string') {
+      query.find({email: new RegExp(`${email}`)})
+    }
+    const total = (await query.lean().exec()).length;
     // page와 perpage 가 동시에 있어야만 페이지네이션 가능
     if (typeof page === 'number' && typeof perpage === 'number') {
       query = query.limit(perpage).skip(perpage * page);
     }
     const list = await query.lean().exec();
     return {
-      count,
+      total,
       list,
     };
   }
