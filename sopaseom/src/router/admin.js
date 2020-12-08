@@ -145,6 +145,13 @@ export default [
     props: true,
   },
 
+  /** order */
+  {
+    ...adminRoute('/admin/orders', 'AdminOrders'),
+    component: () => import('@/views/admin/Orders.vue'),
+    props: true,
+  },
+
   /** site */
   {
     ...adminRoute('/admin/cinesopa/site', 'SiteOptionCinesopa'),

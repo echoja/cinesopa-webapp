@@ -65,7 +65,6 @@ const aw = (asyncFunc) => async (req, res, next) => {
  * string 만 있는 배열을 이용하여 enum 객체를 만듭니다.
  * 이 객체는 raw_str_list 멤버가 있습니다. 순수 javascript string array 입니다.
  * @param {string[]} str_list enum할 것들의 string 배열
- * @deprecated
  */
 const makeEnum = (str_list) => {
   const result = {};

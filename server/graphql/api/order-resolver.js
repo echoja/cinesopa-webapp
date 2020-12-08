@@ -79,5 +79,15 @@ module.exports = {
     reqCancelOrder: makeResolver(async (obj, args, context, info) => {
       const { id } = args;
     }).only(ACCESS_AUTH),
+    updateOrder: makeResolver(async (obj, args, context, info) => {
+      const { id, input } = args;
+      await db.updateOrder(id, input);
+      return { success: true };
+    }).only(ACCESS_ADMIN),
+    removeOrder: makeResolver(async (obj, args, context, info) => {
+      const { id } = args;
+      await db.removeOrder(id);
+      return { success: true };
+    }).only(ACCESS_ADMIN),
   },
 };

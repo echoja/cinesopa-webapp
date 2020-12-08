@@ -59,11 +59,13 @@ const enumFilmAvailableSubtitle = makeEnum([
   '한글자막',
   '배리어프리자막',
 ]);
-const enumSopakitStatus = makeEnum([
-  'show',
-  'hide'
+const enumSopakitStatus = makeEnum(['show', 'hide']);
+const enumCartItemUsage = makeEnum(['normal', 'instant_payment']);
+const enumTransportCompany = makeEnum([
+  'kr.epost', // 우체국택배
+  'kr.cjlogistics', // cj 대한통운
+  'kr.lotte', // 롯데택배
 ]);
-const enumCartItemUsage = makeEnum(['normal', 'instant_payment'])
 module.exports = {
   enumAuthmap,
   enumPeopleRoleType,
@@ -82,4 +84,5 @@ module.exports = {
   enumFilmAvailableSubtitle,
   enumSopakitStatus,
   enumCartItemUsage,
+  enumTransportCompany,
 };

@@ -534,21 +534,35 @@ export default {
 
       // 입력값 다듬기
       list.forEach((order) => {
-        order.productsPrice = order.items.reduce(
-          (cartitemAcc, cartitem) =>
-            cartitemAcc +
-            cartitem.options.reduce(
-              (optionAcc, option) => optionAcc + option.price * option.count,
-              0,
-            ),
-          0,
-        );
+        order.productsPrice = this.getProductsPrice(order);
         order.amount = order.productsPrice + order.transport_fee ?? 0; // 배송비가 있다면 추가시켜주기.
       });
 
       // observable 데이터와 바인드
       this.orders = list;
       this.transporting = transporting;
+    },
+    getProductsPrice(order) {
+      return order.items.reduce(
+        (cartitemAcc, cartitem) =>
+          cartitemAcc +
+          cartitem.options.reduce(
+            (optionAcc, option) => optionAcc + option.price * option.count,
+            0,
+          ),
+        0,
+      );
+    },
+    getAllCount(order) {
+      return order.items.reduce(
+        (cartitemAcc, cartitem) =>
+          cartitemAcc +
+          cartitem.options.reduce(
+            (optionAcc, option) => optionAcc + option.count,
+            0,
+          ),
+        0,
+      );
     },
     showTransportSearchButton(status) {
       return [

@@ -38,11 +38,14 @@
           <b-list-group-item to="/admin/sopaseom/page">
             페이지
           </b-list-group-item>
-          <b-list-group-item :to="{name: 'AdminSopakit'}">
+          <b-list-group-item :to="{ name: 'AdminSopakit' }">
             소파킷 리스트
           </b-list-group-item>
           <b-list-group-item to="/admin/sopaseom/product">
             소파킷 상품
+          </b-list-group-item>
+          <b-list-group-item :to="{ name: 'AdminOrders', query: { a: 123 } }">
+            주문
           </b-list-group-item>
           <b-list-group-item to="/admin/sopaseom/application">
             신청

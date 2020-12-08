@@ -1386,6 +1386,8 @@ class DBManager {
       status,
       user,
     } = condition;
+    console.log('# db getOrders condition');
+    console.log(condition);
 
     const buildQuery = () => {
       // 우선 정렬
@@ -1397,7 +1399,14 @@ class DBManager {
       }
 
       // 날짜 필터
+      
+      // console.log(date_gte);
+      // console.log(date_lte);
       if (date_gte instanceof Date && date_lte instanceof Date) {
+        // const refinedDateCondition = {
+        //   $gte: new Date(date_gte.getFullYear(), date_gte.getMonth(), date_gte.getDate(), 0, 0, 0, 0),
+        //   $lte: new Date(date_lte.getFullYear(), date_lte.getMonth(), date_lte.getDate() + 1, 0, 0, 0, 0),
+        // }
         query.find({
           c_date: {
             $gte: date_gte,

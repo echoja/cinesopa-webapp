@@ -56,35 +56,35 @@ export default {
 <style scoped></style>
 
 <style lang="scss">
-.content {
-  max-width: 700px;
-  margin: 30px auto;  
-  font-size: 14px;
-  h1 {
-    font-size: 24px;
-    font-weight: bold;
-  }
-  h2 {
-    font-size: 21px;
-    font-weight: bold;
-  }
-  h3 {
-    font-size: 18px;
-    font-weight: bold;
-  }
-  h4 {
-    font-size: 17px;
-    font-weight: bold;
-  }
-  h5 {
-    font-size: 16px;
-    font-weight: bold;
-  }
-  h6 {
-    font-size: 15px;
-    font-weight: bold;
-  }
-}
+// .content {
+//   max-width: 700px;
+//   margin: 30px auto;  
+//   font-size: 14px;
+//   h1 {
+//     font-size: 24px;
+//     font-weight: bold;
+//   }
+//   h2 {
+//     font-size: 21px;
+//     font-weight: bold;
+//   }
+//   h3 {
+//     font-size: 18px;
+//     font-weight: bold;
+//   }
+//   h4 {
+//     font-size: 17px;
+//     font-weight: bold;
+//   }
+//   h5 {
+//     font-size: 16px;
+//     font-weight: bold;
+//   }
+//   h6 {
+//     font-size: 15px;
+//     font-weight: bold;
+//   }
+// }
 </style>
 
 <style></style>

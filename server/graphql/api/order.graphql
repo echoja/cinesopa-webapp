@@ -15,6 +15,7 @@ input DestinfoInput {
 }
 
 type Order {
+  id: Int
   user: String # 유저 이메일
   status: String
   method: String

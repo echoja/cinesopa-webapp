@@ -49,7 +49,7 @@ export default {
 }
 
 .form-row.fake .form-header {
-  padding: 20px;
+  padding: 10px;
   flex: 0 0 200px;
 }
 </style>

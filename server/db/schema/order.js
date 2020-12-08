@@ -1,4 +1,9 @@
-const { enumAuthmap, enumOrderMethod, enumOrderStatus } = require('./enum');
+const {
+  enumAuthmap,
+  enumOrderMethod,
+  enumOrderStatus,
+  enumTransportCompany,
+} = require('./enum');
 const makeCartItem = require('./cartitem');
 const makeDestinfo = require('./destinfo');
 const { Mongoose } = require('mongoose');
@@ -21,7 +26,10 @@ module.exports = (mongoose) => {
     return_req_date: Date, // 반품 신청일
     cash_receipt: String, // 현금영수증 번호
     transport_number: String, // 송장 번호
-    transport_company: String, // 택배 회사 (코드)
+    transport_company: {
+      type: String,
+      enum: enumTransportCompany.raw_str_list,
+    }, // 택배 회사 (코드)
     transport_fee: Number,
     bootpay_id: String, // 부트페이 검증용 id
     meta: mongoose.Schema.Types.Mixed,
@@ -30,8 +38,8 @@ module.exports = (mongoose) => {
   });
 
   Order.index({ user: 1, c_date: -1 });
-  
+
   autoIdSetter(Order, mongoose, 'order', 'id');
-  
+
   return Order;
 };
