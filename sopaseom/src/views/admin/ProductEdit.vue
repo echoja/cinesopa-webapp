@@ -377,7 +377,7 @@ export default {
       // data에 바인딩되기 전에 해야 함. 왜냐하면 vue 인스턴스에서 관리하는 observable 변수들은
       // delete 가 제대로 안 먹음.
       if (product.kit !== undefined) {
-        const kit_id = product.kit?.id;
+        const kit_id = product.kit?.id ?? null;
         product.kit_id = kit_id;
         delete product.kit;
       }
@@ -414,6 +414,10 @@ export default {
         value: sopakit.id,
         text: `${sopakit.num} ${sopakit.title}`,
       }));
+      this.availableSopakits.push({
+        value: null,
+        text: '키워드가 없습니다.',
+      });
     },
   },
 };

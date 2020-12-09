@@ -28,24 +28,19 @@ export default {
 }
 
 .main-wrapper {
-  // margin-top: $desktop-header-height;
-  padding: 0 $desktop-min-x-margin 30px;
+  padding: 0 $desktop-min-x-margin $main-wrapper-padding-bottom;
   min-height: calc(
     100vh - #{$desktop-header-height + $desktop-simple-footer-height + 2px}
   );
-  // margin-bottom: $desktop-simple-footer-height;
   display: flex;
   flex-direction: column;
-  // overflow:hidden;
 }
 
 @include max-with(sm) {
   .main-wrapper {
-    // margin-top: $mobile-header-height;
-    padding: 0 $mobile-min-x-margin 30px;
+    padding: 0 $mobile-min-x-margin $main-wrapper-padding-bottom;
     margin-bottom: auto;
     min-height: auto;
-    // margin-bottom: $mobile-simple-footer-height;
   }
 }
 

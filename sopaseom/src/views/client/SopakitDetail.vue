@@ -21,10 +21,7 @@
         <div class="film-description">
           <!-- 영화 포스터 -->
           <div class="film-poster">
-            <b-img
-              :src="film.poster_url"
-              :alt="film.poster_alt"
-            ></b-img>
+            <b-img :src="film.poster_url" :alt="film.poster_alt"></b-img>
           </div>
           <div class="film-right">
             <!-- 제목 -->
@@ -365,13 +362,19 @@ export default {
   computed: {
     ...mapState(['currentUser']),
     title() {
-      return `소파킷 ${this.sopakit.num} ${this.sopakit.title} - ${this.product.name}`;
+      return `소파킷 ${this.sopakit.num ?? ''} ${this.sopakit.title ?? ''} - ${
+        this.product.name ?? ''
+      }`;
     },
     vuePageTitle() {
-      return `소파킷 ${this.sopakit.num} ${this.sopakit.title} - ${this.product.name}`;
+      return `소파킷 ${this.sopakit.num ?? ''} ${this.sopakit.title ?? ''} - ${
+        this.product.name ?? ''
+      }`;
     },
     headerTitle() {
-      return `소파킷 ${this.sopakit.num} - ${this.sopakit.title} - ${this.product.name}`;
+      return `소파킷 ${this.sopakit.num ?? ''} - ${
+        this.sopakit.title ?? ''
+      } - ${this.product.name ?? ''}`;
     },
 
     id() {
@@ -678,7 +681,7 @@ $content-margin-top: 30px;
 .featured-image-wrapper img {
   max-width: 100%;
   display: block;
-  margin: 0 auto; 
+  margin: 0 auto;
 }
 
 @include max-with(md) {

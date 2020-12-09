@@ -6,23 +6,32 @@
         <div class="page-header-inner-wrapper">
           <h1>소파킷</h1>
           <span class="seperator">|</span>
+          <b-link class="emp header-link"> 키워드 </b-link>
           <b-link class="header-link" :to="{ name: 'SopakitAllItems' }">
             상품 목록
           </b-link>
-
         </div>
       </div>
       <div class="desktop">
         <div class="page-header-inner-wrapper">
           <h1>소파킷</h1>
           <span class="seperator">|</span>
-          <b-link class="emp header-link">
-            키워드
-          </b-link>
+          <b-link class="emp header-link"> 키워드 </b-link>
           <b-link class="header-link" :to="{ name: 'SopakitAllItems' }">
             상품 목록
           </b-link>
-          <div class="search-box"></div>
+          <div class="search-box">
+            <b-form-input
+              @keyup.enter="searchEnterKeyupped"
+              class="search-input"
+              placeholder="검색"
+              v-model="search"
+            ></b-form-input>
+            <b-button class="search-button" @click="searchButtonClicked">
+              <font-awesome-icon class="search-icon" :icon="['fas', 'search']">
+              </font-awesome-icon>
+            </b-button>
+          </div>
         </div>
       </div>
     </page-header>
@@ -147,7 +156,57 @@
                     </div>
                   </div>
                 </div>
-                <div class="swiper-slide">ho</div>
+                <!-- <div class="swiper-slide">ho</div> -->
+                <div class="swiper-slide">
+                  <div class="last-page">
+                    <div class="no-keyword-products-wrapper">
+                      <div class="no-keyword-header">SPECIALS</div>
+                      <div class="no-keyword-products">
+                        <div
+                          class="no-keyword-product"
+                          v-for="(product, productIndex) in noKeywordProducts"
+                          :key="product.id"
+                        >
+                          <div class="no-keyword-featured-image">
+                            <b-link
+                              :to="{
+                                name: 'SopakitDetail',
+                                params: { id: product.id },
+                              }"
+                            >
+                              <b-img
+                                :src="product.featured_image_url"
+                                :alt="product.featured_image_alt"
+                              ></b-img>
+                            </b-link>
+                          </div>
+                          <div class="no-keyword-text">
+                            <div class="no-keyword-title">
+                              <b-link
+                                :to="{
+                                  name: 'SopakitDetail',
+                                  params: { id: product.id },
+                                }"
+                              >
+                                {{ product.name }}
+                              </b-link>
+                            </div>
+                            <div class="no-keyword-meta">
+                              {{ product.c_date }} {{ product.side_phrase }}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="footer-box">
+                      <sopakit-list-footer-info
+                        right
+                        class="footer-box-content"
+                      >
+                      </sopakit-list-footer-info>
+                    </div>
+                  </div>
+                </div>
               </div>
               <!-- If we need pagination -->
               <div class="swiper-pagination"></div>
@@ -171,10 +230,11 @@
 </template>
 
 <script>
-import { BLink, BImg } from 'bootstrap-vue';
+import { BLink, BImg, BButton, BFormInput } from 'bootstrap-vue';
 import SwiperCore, { Navigation, Pagination, Scrollbar, A11y } from 'swiper';
 import LeftBigArrow from '@/components/LeftBigArrow.vue';
 import RightBigArrow from '@/components/RightBigArrow.vue';
+import SopakitListFooterInfo from '@/components/SopakitListFooterInfo.vue';
 
 // import 'swiper/swiper.scss';
 // import 'swiper/components/navigation/navigation.scss';
@@ -191,8 +251,11 @@ export default {
   components: {
     PageHeader: () => import('@/components/PageHeader.vue'),
     SvgNext: () => import('@/components/SvgNext'),
+    SopakitListFooterInfo,
     BLink,
     BImg,
+    BButton,
+    BFormInput,
     LeftBigArrow,
     RightBigArrow,
     // SwiperSlide,
@@ -259,6 +322,7 @@ export default {
         //     'https://sopaseom.com/upload/b3e7a3fc69f30216ff55049e5c61eba8',
         // },
       ],
+      search: '',
     };
   },
   computed: {},
@@ -309,7 +373,7 @@ export default {
             }
           } 
           noKeywordProducts { 
-            id name featured_image_url related_film {
+            id name featured_image_url side_phrase related_film {
               title
             } 
           }
@@ -323,6 +387,31 @@ export default {
       }));
       this.noKeywordProducts = res.noKeywordProducts;
       // this.keywords = res.sopakitsshownItems;
+    },
+    searchEnterKeyupped() {
+      this.searchProcess();
+    },
+    searchButtonClicked() {
+      this.searchProcess();
+    },
+    async searchProcess() {
+      try {
+        this.$router
+          .push({
+            name: 'SopakitAllItems',
+            query: {
+              search: this.search,
+            },
+          })
+          .catch((err) => {
+            console.log('ho');
+            console.dir(err);
+            this.fetchData();
+          });
+      } catch (e) {
+        console.dir(e);
+        console.log('error!!');
+      }
     },
   },
 };
@@ -338,7 +427,8 @@ export default {
 @import '@/common';
 
 .content-wrapper {
-  margin-top: 50px;
+  // margin-top: 50px;
+  margin-top: $dt-sopakit-content-wrapper-mt;
   flex: 1;
   display: flex;
   flex-direction: column;
@@ -434,6 +524,24 @@ export default {
   margin-left: auto;
   height: 100%;
   border-left: 2px solid #000;
+  display: flex;
+  align-items: center;
+}
+
+.search-button.btn-secondary {
+  display: inline-block;
+  border: 0;
+  height: 100%;
+}
+
+.search-input.form-control {
+  max-width: 300px;
+  height: 100%;
+  display: inline-block;
+  border: 0;
+}
+
+.search-icon {
 }
 .seperator {
   padding: 0 18px;
@@ -449,24 +557,24 @@ export default {
   height: 100%;
 }
 
-@include max-with(sm) {
+@include max-with(md) {
   .desktop {
     display: none;
   }
 }
-@include min-with(sm) {
+@include min-with(md) {
   .mobile {
     display: none;
   }
 }
 
-@include max-with(sm) {
+@include max-with(md) {
   .page-header-inner-wrapper.desktop {
     display: none;
   }
 }
 
-@include min-with(sm) {
+@include min-with(md) {
   .page-header-inner-wrapper.mobile {
     display: none;
   }
@@ -474,16 +582,21 @@ export default {
 
 .header-link {
   font-size: 18px;
-  color: #666;
+  color: #999;
   margin-right: 20px;
   padding-top: 3px;
+  font-weight: bold;
   &.emp {
     color: #000;
     font-weight: bold;
   }
 }
 
-
+@include max-with(md) {
+  .header-link {
+    font-size: 16px;
+  }
+}
 
 // swiper
 .items-inner-wrapper {
@@ -511,7 +624,7 @@ export default {
 
 @include max-with(lg) {
   .items {
-    padding-left: 0;
+    margin-left: 0;
     width: 100%;
   }
 }
@@ -560,7 +673,7 @@ export default {
   height: 60px;
   align-items: flex-end;
   padding-bottom: 25px;
-  border-bottom: 2px solid #000;
+  border-bottom: 1px solid #000;
   margin-bottom: 30px;
   line-height: 1;
   box-sizing: border-box;
@@ -722,7 +835,7 @@ export default {
 
 .content-product {
   flex: 1;
-  border-left: 2px solid #000;
+  border-left: 1px solid #000;
   padding: 10px 0 30px 30px;
   max-width: 350px;
 }
@@ -772,6 +885,98 @@ export default {
   font-size: 16px;
   margin-bottom: 10px;
   font-weight: 500;
+}
+
+// 마지막 페이지
+
+.last-page {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  align-items: stretch;
+}
+
+@include max-with(md) {
+  .last-page {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+}
+
+.no-keyword-products-wrapper {
+  padding-right: 30px;
+  border-right: 1px solid #000;
+  margin-right: 30px;
+  height: calc(100vh - #{$dt-sopakit-last-page-neg});
+  overflow: auto;
+  flex: 1;
+}
+
+@include max-with(md) {
+  .no-keyword-products-wrapper {
+    padding-right: 0;
+    border-right: 0;
+    margin-right: 0;
+    height: auto;
+  }
+}
+
+.no-keyword-header {
+  font-size: 18px;
+  font-weight: bold;
+  margin-bottom: 30px;
+}
+
+.no-keyword-product {
+  display: flex;
+  padding-bottom: 30px;
+  border-bottom: 1px solid #000;
+  margin-bottom: 30px;
+}
+
+.no-keyword-featured-image {
+  height: 100px;
+  margin-right: 20px;
+  flex: 0 0 auto;
+  width: 150px;
+  border: 1px solid #ddd;
+  box-sizing: border-box;
+
+  a {
+    width: 100%;
+    height: 100%;
+    display: block;
+  }
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+}
+
+.no-keyword-text {
+  flex: 1;
+}
+.no-keyword-meta {
+  font-size: 14px;
+  color: #585858;
+}
+
+.footer-box {
+  margin-left: auto;
+  display: flex;
+  width: 300px;
+}
+@include max-with(md) {
+  .footer-box {
+    margin-left: 0;
+  }
+}
+
+.footer-box-content {
+  margin-top: auto;
 }
 </style>
 

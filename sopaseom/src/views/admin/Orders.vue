@@ -460,8 +460,8 @@ export default {
       const { perpage } = this.receivedCondition;
       const o = Math.ceil(this.total / perpage);
       if (o === 0) return 1;
-      console.log('# Orders totalPages o');
-      console.log(o);
+      // console.log('# Orders totalPages o');
+      // console.log(o);
       return o;
     },
     hasData() {

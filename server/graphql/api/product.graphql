@@ -94,6 +94,7 @@ input ProductSearch {
   product_type: String
   page: Int
   perpage: Int
+  search: String
 }
 
 type ProductsResult {

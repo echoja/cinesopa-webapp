@@ -1064,13 +1064,16 @@ class DBManager {
    * @param {ProductSearch} condition
    */
   async getProducts(condition = {}) {
-    const { product_type, page, perpage, status } = condition;
+    const { product_type, page, perpage, status, search} = condition;
     let query = model.Product.find();
     if (product_type) {
       query = query.find({ product_type });
     }
     if (status) {
       query = query.find({ status });
+    }
+    if (typeof search === 'string' && search.length > 0) {
+      query = query.find({ search: new RegExp(`${search}`) });
     }
     const total = (await query.lean().exec()).length;
 

@@ -165,7 +165,7 @@
           </link-strikethrough>
         </div>
         <div
-          class="menu-mobile d-block d-sm-none h-100 d-flex align-items-center"
+          class="menu-mobile d-block d-md-none h-100 d-flex align-items-center"
         >
           <b-link v-b-toggle.sidebar-menu class="menu-button">
             <font-awesome-icon size="2x" :icon="['fas', 'bars']" />
@@ -239,7 +239,7 @@ export default {
   background-color: #fff;
 }
 
-@include max-with(sm) {
+@include max-with(md) {
   .nav-main-menu-wrapper {
     padding: 0 $mobile-min-x-margin;
   }
@@ -255,7 +255,7 @@ export default {
   border-bottom: 2px solid black;
 }
 
-@include max-with(sm) {
+@include max-with(md) {
   .nav-main-menu {
     border-bottom: 0;
   }
@@ -268,7 +268,7 @@ export default {
   height: $desktop-header-height;
 }
 
-@include max-with(sm) {
+@include max-with(md) {
   .flex-items {
     height: $mobile-header-height;
   }
@@ -281,6 +281,35 @@ export default {
   border: 20px solid transparent;
   border-width: 20px 10px;
   border-radius: 100px;
+}
+
+.coming-soon {
+  position: relative;
+
+  &:after {
+    font-size: 90%;
+    opacity: 0;
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    color: #000;
+    content: '커밍쑨!';
+    white-space: nowrap;
+    transition: 0.5s;
+  }
+
+  &:hover,
+  &:focus {
+    color: #ddd;
+    transition: 0.5s;
+  }
+
+  &:hover:after,
+  &:focus:after {
+    transform: translate(-50%, -50%) rotateZ(-10deg);
+    opacity: 1;
+  }
 }
 
 // .logo-wrapper {
@@ -296,7 +325,7 @@ export default {
 //   justify-content: center;
 // }
 
-// @include max-with(sm) {
+// @include max-with(md) {
 //   .logo {
 //     width: 70px;
 //   }
@@ -334,7 +363,7 @@ export default {
   }
 }
 
-@include max-with(sm) {
+@include max-with(md) {
   .logo-abs {
     width: 70px;
     img {
@@ -361,7 +390,7 @@ export default {
   }
 }
 
-@include max-with(sm) {
+@include max-with(md) {
   .zoomed .logo-abs img {
     transform: translate(0, calc(50vh - 50%)) scale(2);
   }
@@ -392,7 +421,7 @@ export default {
   text-align: right;
 }
 
-@include max-with(sm) {
+@include max-with(md) {
   .left,
   .right {
     display: none;

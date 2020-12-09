@@ -24,6 +24,15 @@ $mobile-simple-footer-height: $simple-footer-height;
 
 $cinesopa-logo-color: #323e48;
 
+$main-wrapper-padding-bottom: 30px;
+/* only for sopakit */
+
+$dt-sopakit-content-wrapper-mt: 50px;
+$dt-sopakit-content-neg: $desktop-header-height + $desktop-simple-footer-height +
+  2px;
+$dt-sopakit-last-page-neg: $dt-sopakit-content-neg + $desktop-subheader-height +
+  $dt-sopakit-content-wrapper-mt + $main-wrapper-padding-bottom;
+
 // for animation break with sticky
 
 // $animation-classes: (
@@ -32,6 +41,12 @@ $cinesopa-logo-color: #323e48;
 //   left-right-enter-active,
 //   left-right-leave-active
 // );
+
+// 페이지 전환 transition 시,
+// position: sitkcy 인 요소의
+// top이 이상하게 계산되는 문제 수정.
+// transition 하는 동안에는 top을 0으로 설정하여 위치가 어긋나지 않도록 함.
+// (이유는 본인도 모르겠다.)
 
 @mixin prevent-break-top0($selector) {
   .fade-enter-active #{$selector},
@@ -46,9 +61,9 @@ $cinesopa-logo-color: #323e48;
 
 // @each $class in $animation-classes {
 //   .#{$value} {
-    
-//   } 
-// } 
+
+//   }
+// }
 // $grid-breakpoints: custom-style.$grid-breakpoints;
 // @include respond-above(sm) {}
 @mixin min-with($breakpoint) {

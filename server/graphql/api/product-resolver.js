@@ -23,7 +23,13 @@ module.exports = {
     }).only(ACCESS_ADMIN),
     products: makeResolver(async (obj, args, context, info) => {
       const { condition } = args;
+
+      // search 한글 해체
+      if (typeof condition.search === 'string' && condition.search.length > 0) {
+        condition.search = Hangul.disassembleToString(condition.search);
+      }
       condition.status = 'public';
+
       return db.getProducts(condition);
     }).only(ACCESS_ALL),
     productsAdmin: makeResolver(async (obj, args, context, info) => {

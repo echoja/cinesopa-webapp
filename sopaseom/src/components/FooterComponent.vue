@@ -15,10 +15,10 @@
             <span>
               <b-link :to="{ name: 'Privacy' }">개인정보처리방침</b-link>
             </span>
-            <span class="links-seperator">|</span>
-            <span>
-              <b-link :to="{ name: 'Policy' }">이메일무단수집거부</b-link>
-            </span>
+            <!-- <span class="links-seperator">|</span> -->
+            <!-- <span> -->
+              <!-- <b-link :to="{ name: 'Policy' }">이메일무단수집거부</b-link> -->
+            <!-- </span> -->
             <span class="links-seperator">|</span>
             <span>
               <b-link :to="{ name: 'Policy' }">사이트맵</b-link>

@@ -39,10 +39,10 @@ export default {};
 //   top: $desktop-header-height + 2px;
 // }
 
-@include max-with(sm) {
+@include max-with(md) {
   .page-header {
     font-size: $mobile-subheader-font-size;
-    // top: $mobile-header-height;
+    top: $mobile-header-height;
     height: $mobile-subheader-height;
     margin-bottom: 20px;
     border-top: 2px solid #000;
@@ -59,7 +59,7 @@ export default {};
   margin: 0;
 }
 
-@include max-with(sm) {
+@include max-with(md) {
   .page-header h1 {
     font-size: $mobile-subheader-font-size;
   }
