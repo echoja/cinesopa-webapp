@@ -4,6 +4,11 @@ const Hangul = require('hangul-js');
 const { MongooseDocument, Schema } = require('mongoose');
 const stripHtml = require('string-strip-html');
 
+/**
+ * 문자열 배열을 한글해체된 문자열 하나로 만들어주는 함수
+ * @param {string[]} arr 문자열 배열
+ * @returns {string} 한글.
+ */
 const searchArrToStr = (arr) =>
   Hangul.disassembleToString(arr.join('#').replace(/ /g, ''));
 
@@ -63,6 +68,12 @@ const getFilmSearchStr = (FilmDoc) => {
   ]);
 };
 
+
+/**
+ * 
+ * @param {MongooseDocument} prodDoc 
+ */
+
 const getPostSearchStr = (postDoc) => {
   // console.log(`getPostSearchStr called! title: ${postDoc.title}`);
   const strArray = [];
@@ -73,6 +84,18 @@ const getPostSearchStr = (postDoc) => {
   //   strArray.join('#').replace(/ /g, ''),
   // );
   // console.log(`result: ${result}`);
+  return searchArrToStr(strArray);
+};
+
+/**
+ * 
+ * @param {MongooseDocument} prodDoc 
+ */
+
+const getProductSearchStr = (prodDoc) => {
+  const strArray = [];
+  const { content_main = '', content_sub = '', name = '' } = prodDoc;
+  strArray.push(name, stripHtml(content_sub).result, stripHtml(content_main).result);
   return searchArrToStr(strArray);
 };
 
@@ -97,9 +120,36 @@ const makeSchemaHaveSearch = (schema, searchField, fields) => {
   });
 };
 
+
+/**
+ * @callback SearchStrGetter
+ * @param {MongooseDocument} doc
+ * @returns {string} 
+ */
+
+
+/**
+ * 해당 스키마에게 getter 를 이용해 search 기능을 만드는 함수
+ * @param {Schema} schema
+ * @param {string} searchField
+ *  @param {SearchStrGetter} getter
+ */
+const makeSchemaHaveSearchByGetter = (schema, searchField, getter) => {
+  schema.pre('save', function () {
+    this[searchField] = getter(this);
+  });
+
+  schema.post('updateOne', async function () {
+    const docToUpdate = await this.model.findOne(this.getFilter());
+    if (docToUpdate) await docToUpdate.save();
+  });
+}
+
 module.exports = {
   getFilmSearchStr,
   getPostSearchStr,
+  getProductSearchStr,
   getValueOfField,
   makeSchemaHaveSearch,
+  makeSchemaHaveSearchByGetter
 };

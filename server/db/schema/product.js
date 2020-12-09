@@ -1,6 +1,7 @@
 const { Mongoose } = require('mongoose');
 const autoIdSetter = require('./auto-id-setter');
 const { enumProductType, enumFilmStatus } = require('./enum');
+const { makeSchemaHaveSearchByGetter, getProductSearchStr} = require('./tool')
 
 /**
  *
@@ -37,6 +38,8 @@ module.exports = function (mongoose) {
   });
   autoIdSetter(schema, mongoose, 'product', 'id');
   schema.index({ id: 1 });
+
+  makeSchemaHaveSearchByGetter(schema, 'search', getProductSearchStr);
   
   return schema;
 };

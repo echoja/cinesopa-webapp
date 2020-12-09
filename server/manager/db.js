@@ -152,7 +152,7 @@ class DBManager {
     let query = model.User.find();
 
     if (typeof email === 'string') {
-      query.find({email: new RegExp(`${email}`)})
+      query.find({ email: new RegExp(`${email}`) });
     }
     const total = (await query.lean().exec()).length;
     // page와 perpage 가 동시에 있어야만 페이지네이션 가능
@@ -1073,10 +1073,30 @@ class DBManager {
       query = query.find({ status });
     }
     const total = (await query.lean().exec()).length;
+
     if (typeof page === 'number' && typeof perpage === 'number') {
       query = query.limit(perpage).skip(perpage * page);
     }
     const list = await query.lean().exec();
+
+    // 각 상품에 대한 영화 정보와 sopakit 정보를 불러온다.
+    const nested_promises = list.map((product) => {
+      const promises = [
+        model.Film.findOne({ id: product.related_film }).lean().exec(),
+        model.Sopakit.findOne({ id: product.kit_id }).lean().exec(),
+      ];
+      return Promise.allSettled(promises);
+    });
+
+    const results = await Promise.allSettled(nested_promises);
+    console.dir(results, { depth: 5 });
+
+    results.forEach((result, index) => {
+      const { value } = result;
+      const [{ value: film }, { value: sopakit }] = value;
+      list[index].kit = sopakit;
+      list[index].related_film = film;
+    });
     return { total, list };
   }
   /**
@@ -1399,14 +1419,7 @@ class DBManager {
       }
 
       // 날짜 필터
-      
-      // console.log(date_gte);
-      // console.log(date_lte);
       if (date_gte instanceof Date && date_lte instanceof Date) {
-        // const refinedDateCondition = {
-        //   $gte: new Date(date_gte.getFullYear(), date_gte.getMonth(), date_gte.getDate(), 0, 0, 0, 0),
-        //   $lte: new Date(date_lte.getFullYear(), date_lte.getMonth(), date_lte.getDate() + 1, 0, 0, 0, 0),
-        // }
         query.find({
           c_date: {
             $gte: date_gte,

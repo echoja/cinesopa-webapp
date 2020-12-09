@@ -6,16 +6,20 @@
         <div class="page-header-inner-wrapper">
           <h1>소파킷</h1>
           <span class="seperator">|</span>
-          <b-link class="list" :to="{ name: 'SopakitAllItems' }">
+          <b-link class="header-link" :to="{ name: 'SopakitAllItems' }">
             상품 목록
           </b-link>
+
         </div>
       </div>
       <div class="desktop">
         <div class="page-header-inner-wrapper">
           <h1>소파킷</h1>
           <span class="seperator">|</span>
-          <b-link class="list" :to="{ name: 'SopakitAllItems' }">
+          <b-link class="emp header-link">
+            키워드
+          </b-link>
+          <b-link class="header-link" :to="{ name: 'SopakitAllItems' }">
             상품 목록
           </b-link>
           <div class="search-box"></div>
@@ -38,9 +42,9 @@
             />
             소개합니다.
           </p>
-          <p class="go-detail">
+          <!-- <p class="go-detail">
             <b-link>자세히 보기 <svg-next></svg-next></b-link>
-          </p>
+          </p> -->
         </div>
         <div class="items">
           <div class="items-inner-wrapper">
@@ -467,6 +471,19 @@ export default {
     display: none;
   }
 }
+
+.header-link {
+  font-size: 18px;
+  color: #666;
+  margin-right: 20px;
+  padding-top: 3px;
+  &.emp {
+    color: #000;
+    font-weight: bold;
+  }
+}
+
+
 
 // swiper
 .items-inner-wrapper {
