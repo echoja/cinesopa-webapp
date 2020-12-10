@@ -6,7 +6,6 @@ import {
   // emailVerifyBeforeEnter,
   logoutBeforeEnter,
   onlyNoLoginBeforeEnter,
-  myBeforeEnter,
   requireAuth,
 } from './nav-guard';
 

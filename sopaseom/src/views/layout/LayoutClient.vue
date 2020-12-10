@@ -10,7 +10,7 @@
     >
       <component :is="footerStyle">
         <transition name="fade" mode="out-in">
-          <router-view id="main" :key="$route.fullPath.split('/')[1]" />
+          <router-view id="main" :key="$route.fullPath.split('/')[1].split('?')[0]" />
           <!-- :style="{ overflow: 'visible' }" -->
         </transition>
       </component>
@@ -99,7 +99,7 @@ export default {
     // 오버플로 scroll > 오버플로 scroll : 아무것도 할 것 없음.
     // 오버플로 scroll > 오버플로 hidden : route 가 변경되는 즉시 hidden 으로 변경
 
-    fsBeforeEnter(el) {
+    fsBeforeEnter(/* el */) {
       // console.log('# LayoutClient fsBeforeEnter');
       // console.log(el);
       // console.log(this.$route);
@@ -107,7 +107,7 @@ export default {
         // this.layoutStyle = { overflow: 'inherit' };
       }
     },
-    fsBeforeLeave(el) {
+    fsBeforeLeave(/* el */) {
       if (this.shouldOverflowBeHidden) {
         // this.layoutStyle = { overflow: 'inherit' };
         // this.layoutStyle = { 'overflow-x': 'hidden', 'overflow-y': 'inherit' };
@@ -116,7 +116,7 @@ export default {
       // console.log(el);
       // console.log(this.$route);
     },
-    fsAfterLeave(el) {},
+    fsAfterLeave(/* el */) {},
   },
 };
 </script>
@@ -238,7 +238,6 @@ export default {
   opacity: 0;
 }
 </style>
-
 
 <style>
 .left-right-enter-active .page-header,

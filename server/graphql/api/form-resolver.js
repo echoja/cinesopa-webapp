@@ -38,6 +38,7 @@ const requestShowingLabelMap = {
   taxOthers: '정산 비고',
   additionalPapers: '서류 요청',
   others: '기타 요청 사항',
+  debug: '(개발모드)',
 };
 const requestDistributionLabelMap = {
   user_name: '신청인 이름',
@@ -72,6 +73,7 @@ module.exports = {
           inputValue,
         )}</td></tr>`;
       });
+      const { debug } = input;
 
       const html = `<table>${trs.join('')}</table>`;
       console.log('# form-resolver requestShowing html');
@@ -82,12 +84,15 @@ module.exports = {
         .join(', ')} 상영 신청`;
       console.log(subject);
 
-      await mail.sendMail(
-        // todo 주소를 관리자 주소로 해야 함.
-        { recipientEmail: 'eszqsc112@naver.com' },
-        subject,
-        html,
-      );
+      // 디버그 모드일 때에는 메일을 보내지 않습니다.
+      if (!debug) {
+        await mail.sendMail(
+          // todo 주소를 관리자 주소로 해야 함.
+          { recipientEmail: 'eszqsc112@naver.com' },
+          subject,
+          html,
+        );
+      }
       return { success: true };
     }).only(ACCESS_ALL),
     requestDistribution: makeResolver(async (obj, args, context, info) => {
@@ -110,11 +115,10 @@ module.exports = {
         };
       });
       const entries = [...userEntries, ...filmEntries];
-      const trs = entries
-        .map(
-          (entry) =>
-            `<tr><td style="min-width: 150px;">${entry.title}</td><td>${entry.content}</td></tr>`,
-        );
+      const trs = entries.map(
+        (entry) =>
+          `<tr><td style="min-width: 150px;">${entry.title}</td><td>${entry.content}</td></tr>`,
+      );
       const html = `<table>${trs.join('')}</table>`;
       console.log('# form-resolver requestDistribution html');
       console.log(html);
@@ -129,10 +133,9 @@ module.exports = {
         html,
       );
 
-
       // const { id } = args;
       // return db.removeFilm(id);
-      return {success: true};
+      return { success: true };
     }).only(ACCESS_ALL),
   },
 };

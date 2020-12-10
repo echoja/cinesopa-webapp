@@ -423,11 +423,11 @@ export default {
 };
 </script>
 
-
 <style lang="scss" scoped>
 h2 {
   margin-bottom: 20px;
 }
 </style>
+
 <style>
 </style>

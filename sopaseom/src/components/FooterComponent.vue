@@ -1,5 +1,9 @@
 <template>
-  <footer class="site-footer-wrapper" :class="{simple: isSimple}" :style="{'padding-bottom': `${additionalFooterPaddingBottom}px`}">
+  <footer
+    class="site-footer-wrapper"
+    :class="{ simple: isSimple }"
+    :style="{ 'padding-bottom': `${additionalFooterPaddingBottom}px` }"
+  >
     <div class="site-footer container-fluid">
       <div v-if="!isSimple" class="row">
         <div class="left col-12 col-md-6">
@@ -17,7 +21,7 @@
             </span>
             <!-- <span class="links-seperator">|</span> -->
             <!-- <span> -->
-              <!-- <b-link :to="{ name: 'Policy' }">이메일무단수집거부</b-link> -->
+            <!-- <b-link :to="{ name: 'Policy' }">이메일무단수집거부</b-link> -->
             <!-- </span> -->
             <span class="links-seperator">|</span>
             <span>
@@ -202,7 +206,7 @@ $gray-c2: #7a7a7a;
   display: block;
   font-size: 16px;
   font-weight: 400;
-  margin-right:4px;
+  margin-right: 4px;
 }
 
 .cineesopa-logo {

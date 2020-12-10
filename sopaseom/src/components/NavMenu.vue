@@ -217,7 +217,9 @@ export default {
         VueScrollTo.scrollTo('body', 300);
       }
     },
-    async mobileMenuButtonClicked(event) {},
+    async mobileMenuButtonClicked() {
+      // todo
+    },
   },
 };
 </script>

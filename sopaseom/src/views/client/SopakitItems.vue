@@ -164,7 +164,7 @@
                       <div class="no-keyword-products">
                         <div
                           class="no-keyword-product"
-                          v-for="(product, productIndex) in noKeywordProducts"
+                          v-for="product in noKeywordProducts"
                           :key="product.id"
                         >
                           <div class="no-keyword-featured-image">
@@ -250,7 +250,7 @@ export default {
   title: '소파킷',
   components: {
     PageHeader: () => import('@/components/PageHeader.vue'),
-    SvgNext: () => import('@/components/SvgNext'),
+    // SvgNext: () => import('@/components/SvgNext'),
     SopakitListFooterInfo,
     BLink,
     BImg,
@@ -289,7 +289,9 @@ export default {
         //     },
         //   ],
         //   description:
-        //     '‘고독’에 숨겨진 뜻이\n‘만남’이라고 제안하고 싶습니다.\n외로운 사람만이 만남의 진정한\n가치를 알 수 있듯\n고독할 때에야 비로소 나와\n타인을 생각하게 되니까요.',
+        //     '‘고독’에 숨겨진 뜻이\n‘만남’이라고 제안하고 싶습니다.\n외로
+        // 운 사람만이 만남의 진정한\n가치를 알 수 있듯\n고독할 때에야 비로소
+        // 나와\n타인을 생각하게 되니까요.',
         //   year: 2020,
         //   // eslint-disable-next-line global-require
         //   image_url:
@@ -315,7 +317,9 @@ export default {
         //     },
         //   ],
         //   description:
-        //     '‘고독’에 숨겨진 뜻이\n‘만남’이라고 제안하고 싶습니다.\n외로운 사람만이 만남의 진정한\n가치를 알 수 있듯\n고독할 때에야 비로소 나와\n타인을 생각하게 되니까요.',
+        //     '‘고독’에 숨겨진 뜻이\n‘만남’이라고 제안하고 싶
+        // 습니다.\n외로운 사람만이 만남의 진정한\n가치를 알 수
+        // 있듯\n고독할 때에야 비로소 나와\n타인을 생각하게 되니까요.',
         //   year: 2020,
         //   // eslint-disable-next-line global-require
         //   image_url:

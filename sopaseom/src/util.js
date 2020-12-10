@@ -33,3 +33,13 @@ export const transportCompanyMap = {
   'kr.cjlogistics': 'CJ 대한통운',
   'kr.lotte': '롯데택배',
 };
+
+export const groupBy = (array, keyFinder) => {
+  const result = {};
+  array.forEach((item) => {
+    const key = keyFinder(item);
+    if (!result[key]) result[key] = [];
+    result[key].push(item);
+  });
+  return result;
+};

@@ -14,7 +14,7 @@ input ShowingFilmInput {
   title: String
   format: String
   selected_subtitles: [String]
-  meta: [String]
+  meta: JSON
 }
 
 input ShowingInput {
@@ -44,6 +44,7 @@ input ShowingInput {
   taxOthers: String
   additionalPapers: [String]
   others: String
+  debug: Boolean
 }
 
 input DistributionUserInput {

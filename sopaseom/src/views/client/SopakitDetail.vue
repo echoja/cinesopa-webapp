@@ -291,7 +291,7 @@ import {
   BButton,
   BLink,
   BImg,
-  BFormCheckbox,
+  // BFormCheckbox,
   BTooltip,
 } from 'bootstrap-vue';
 import { mapActions, mapMutations, mapState } from 'vuex';
@@ -317,7 +317,7 @@ export default {
     BLink,
     BModal,
     BImg,
-    BFormCheckbox,
+    // BFormCheckbox,
     BTooltip,
     PageHeader: () => import('@/components/PageHeader'),
     // SvgNext: () => import('@/components/SvgNext'),

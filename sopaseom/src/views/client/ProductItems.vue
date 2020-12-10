@@ -26,7 +26,7 @@
       </div>
       <div class="row products-row">
         <div
-          v-for="(product, productIndex) in products"
+          v-for="product in products"
           :key="product.id"
           class="col col-12 col-xl-3 col-lg-4 col-md-6 item"
         >

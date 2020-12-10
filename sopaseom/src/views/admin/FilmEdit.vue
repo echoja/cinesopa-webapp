@@ -227,7 +227,7 @@
               rows="6"
             ></b-form-textarea>
             <!-- <p v-html="film.synopsis.replaceAll('\n','<br>')">
-              <!-- {{ film.synopsis }}
+               {{ film.synopsis }}
             </p> -->
           </b-form-group>
           <!----- form group start --->
@@ -1142,5 +1142,4 @@ h2 {
 #input-genres .b-form-tags-button {
   flex: 0 0 auto;
 }
-
 </style>
