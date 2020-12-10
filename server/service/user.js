@@ -75,13 +75,16 @@ class UserService {
    */
   async createGuest(email, pwd, user_agreed, debug) {
     const user = await this.#db.getUserByEmail(email);
-    if( !user) {
+    // 만약 유저가 없으면 새롭게 만듭니다.
+    if (!user) {
       await this.#db.createUser(email, pwd, { role: 'GUEST', user_agreed });
       await this.startEmailVerifying(email, debug);
-    } else {
+    } 
+    // 만약 유저가 있다면 (카카오 계정이라면) 새롭게 추가합니다. (실제로는 쓰이지 않음.)
+    else if (typeof user.kakao_id === 'string') {
       await this.#db.updateUser(email, {
         has_pwd: true,
-      })
+      });
       await this.#db.upsertOnlyLogin(email, pwd);
     }
   }
@@ -130,7 +133,6 @@ class UserService {
    * @param {string} pwd 암호화 되기 전 패스워드
    */
   async changePassword(token, pwd) {
-    
     /** @type {Tokeninfo} */
     let tokenDoc = null;
     try {

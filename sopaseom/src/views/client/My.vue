@@ -42,12 +42,12 @@
 
 <script>
 import { mapState } from 'vuex';
-import { BLink } from 'bootstrap-vue';
+// import { BLink } from 'bootstrap-vue';
 
 export default {
   name: 'My',
   components: {
-    BLink,
+    // BLink,
     LinkStrikethrough: () => import('@/components/LinkStrikethrough.vue'),
     PageHeader: () => import('@/components/PageHeader.vue'),
   },
@@ -66,7 +66,7 @@ export default {
         // {
         //   to: { name: 'MyApplication' },
         //   label: '상영 신청 내역',
-        // }, 
+        // },
         // todo: 상영 신청 내역은 상영 관련 데이터베이스를 짜고 나서 해야 함.
       ],
     };

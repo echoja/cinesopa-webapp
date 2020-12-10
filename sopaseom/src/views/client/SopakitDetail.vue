@@ -383,7 +383,7 @@ export default {
 
     allSum() {
       let result = 0;
-      this.product.options.forEach((option) => {
+      (this.product.options ?? []).forEach((option) => {
         result += option.price * option.count;
       });
       return result;
@@ -398,7 +398,7 @@ export default {
       )}`;
     },
     filmDirector() {
-      return this.film.people
+      return (this.film.people ?? [])
         .filter((person) => person.role_type === 'director')
         .map((person) => person.name)
         .join(', ');
@@ -419,13 +419,13 @@ export default {
       return null;
     },
     filmActors() {
-      return this.film.people
+      return (this.film.people ?? [])
         .filter((person) => person.role_type === 'actor')
         .map((person) => `${person.name}(${person.role})`)
         .join(', ');
     },
     filmGenres() {
-      return this.film.genres.join(', ');
+      return (this.film.genres ?? []).join(', ');
     },
     filmShowMinutes() {
       return Math.floor(this.film.show_time / 60);

@@ -429,6 +429,10 @@ export default {
           key: 'dest_address',
           label: '수취자 주소',
         },
+        {
+          key: 'payer',
+          label: '입금자명',
+        },
       ],
       items: [
         // {
@@ -639,7 +643,7 @@ export default {
         `{
           total
           list { 
-            id user status method c_date expected_date cancelled_date return_req_date 
+            id user status method c_date expected_date cancelled_date return_req_date payer
             cash_receipt transport_number transport_company transport_fee bootpay_id meta 
             items {
               id user added modified product_id usage

@@ -223,7 +223,7 @@ reset        () => void        A function that resets the validation state on th
         </div>
         <div class="join-guide">
           <p class="join-guide-text">아직 회원이 아니신가요?</p>
-          <b-button :to="{ name: 'Join' }" class="join-button"
+          <b-button :to="{ name: 'Join' }" @click="closeModal" class="join-button"
             >소파섬 회원가입</b-button
           >
         </div>

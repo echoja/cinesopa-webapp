@@ -134,7 +134,7 @@ export default [
     beforeEnter(to, from, next) {
       console.log(from);
       if (from.name === 'MyInfo') {
-        console.log('hohofsdofhd');
+        // console.log('hohofsdofhd');
         return next(false);
       }
       if (to.fullPath === '/my') {
@@ -196,6 +196,13 @@ export default [
         path: 'success',
         name: 'PaymentSuccess',
         component: () => import('@/views/client/OrderSuccess.vue'),
+        beforeEnter: requireAuth({ role: 'guest', shouldVerified: 'true' }),
+        meta: { ...BodyFixedFooterMeta },
+      },
+      {
+        path: 'success',
+        name: 'PaymentSuccessNoBank',
+        component: () => import('@/views/client/OrderSuccessNoBank.vue'),
         beforeEnter: requireAuth({ role: 'guest', shouldVerified: 'true' }),
         meta: { ...BodyFixedFooterMeta },
       },

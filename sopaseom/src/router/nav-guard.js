@@ -1,13 +1,14 @@
+// eslint-disable-next-line no-unused-vars
+import VueRouter from 'vue-router';
 import store from '../store';
 // eslint-disable-next-line object-curly-newline
 import {
   graphql,
-  checkAuthQuery,
+  // checkAuthQuery,
   logoutMeQuery,
   emailVerifyMutation,
   checkAuth,
 } from '../api/graphql-client';
-import VueRouter from 'vue-router';
 
 export const logoutBeforeEnter = async (to, from, next) => {
   await graphql(logoutMeQuery, {});
@@ -167,7 +168,7 @@ export const requireAuth = (condition = {}, failRN = {}) => async (to, from, nex
   }
 
   // 모든 조건을 다 통과했다면 정상적으로 진행
-  next();
+  return next();
 
   // if (permissionStatus === 'LOGIN_REQUIRED') {
   //   next({ name: loginRequiredRN });

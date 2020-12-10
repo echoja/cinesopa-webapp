@@ -53,6 +53,7 @@ export default {
   props: {
     initFilename: String,
     initFileurl: String,
+    initObj: Object,
   },
 
   data() {
@@ -95,6 +96,12 @@ export default {
       // 만약 서버에서 fileurl 을 저장하는 방식이 바뀐다면 이것도 영향을 미침.
       // eslint-disable-next-line prefer-destructuring
       filename = splitted[2];
+    } else if (this.initObj) {
+      const { fileurl } = this.initObj;
+      if (fileurl) {
+        // eslint-disable-next-line prefer-destructuring
+        filename = fileurl.split('/')[2];
+      }
     }
 
     const res = await graphql(getFileInfoQuery, {

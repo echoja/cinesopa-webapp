@@ -14,7 +14,7 @@
             주문/결제
           </span>
           <span class="seperator"> > </span>
-          <span :class="{ current: $route.name === 'PaymentSuccess' }">
+          <span :class="{ current: $route.name === 'PaymentSuccess' || $route.name === 'PaymentSuccessNoBank' }">
             주문완료
           </span>
         </div>

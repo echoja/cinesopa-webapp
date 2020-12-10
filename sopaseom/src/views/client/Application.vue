@@ -75,6 +75,9 @@
         {{ applicationFilm }}
       </pre> -->
       <!-- <b-button class="test" @click="formSubmitted">테스트</b-button> -->
+      <div class="sr-only">
+        <b-button>test</b-button>
+      </div>
     </b-modal>
   </div>
 </template>

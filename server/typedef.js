@@ -131,6 +131,7 @@
  * @property {string}   transport_number
  * @property {string}   transport_company
  * @property {string}   bootpay_id
+ * @property {string}   payer
  * @property {object}   meta
  * @property {CartIteminfo[]}   items
  * @property {Destinfo}   dest

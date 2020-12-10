@@ -35,6 +35,7 @@ module.exports = (mongoose) => {
     meta: mongoose.Schema.Types.Mixed,
     items: [CartItem],
     dest: Destinfo,
+    payer: String, // 무통장 입금시 입금자명
   });
 
   Order.index({ user: 1, c_date: -1 });

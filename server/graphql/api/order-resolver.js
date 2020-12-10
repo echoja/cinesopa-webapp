@@ -26,12 +26,26 @@ module.exports = {
       condition.user = email;
       return db.getOrders(condition);
     }).only(ACCESS_AUTH),
+    // 무통장 입금시 정보를 추가적으로 출력해야 하는 페이지에서 사용됨
+    nobankOrderInfo: makeResolver(async (obj, args, context, info) => {
+      const { id } = args;
+      const { email } = context.getUser();
+      const order = await db.getOrder(id);
+      if (order.user !== email) {
+        return { success: false, code: 'no_permission' };
+      }
+      if (order.method !== 'nobank') {
+        return { success: false, code: 'no_nobank' };
+      }
+      return { success: true, order };
+    }).only(ACCESS_AUTH),
   },
   Mutation: {
     // 결제 성공시의 요청 endpoint
     createOrderFromCart: makeResolver(async (obj, args, context, info) => {
       const { email } = context.getUser();
-      const { input } = args;
+      const { input, payer } = args;
+
       // 우선 cartitem id 가 전부 자신의 소유가 맞는지 검증
       const promises = input.items_id.map((id) => db.getCartitem(id));
       const results = await Promise.allSettled(promises);
@@ -45,7 +59,12 @@ module.exports = {
       ) {
         return { success: false, code: 'cartitem_not_owned_by_user' };
       }
-      // todo: bootpay_id(receipt_id) 검증. 단, payment_method가 무통장입금(nobank)일 때에는 바로 그냥 주문 만들기.
+      // todo: 지금 시점으론 이미 결제가 완료된 상태인데, 결제하고 있었던 도중
+      // product 의 가격 정보가 수정된다면 앞으로 생성될 order에 적힌 product
+      // 의 가격과 실제 주문한 가격이 달라짐. (그럴 때는 어케?)
+
+      // todo: bootpay_id(receipt_id) 검증. 단, payment_method가 무통장입금(nobank)일
+      // 때에는 바로 그냥 주문 만들기.
 
       // order 생성.
       const cartitems = results.map(({ value: cartitem }) => {
@@ -58,8 +77,8 @@ module.exports = {
       // console.log(cartitems);
       // delete cartitems._id;
 
-      // items와 dest 의 _id 가 겹치는 문제가 있지만, 패스. warning
-      await db.createOrder({
+      // todo: dest 의 _id 가 겹치는 문제가 있지만, 패스. warning
+      const order = await db.createOrder({
         user: email,
         items: cartitems,
         status:
@@ -67,6 +86,7 @@ module.exports = {
         method: input.method,
         dest: input.dest,
         transport_fee: input.transport_fee,
+        payer,
       });
 
       // 해당 cartitem 삭제
@@ -74,7 +94,7 @@ module.exports = {
         db.removeCartitem(cartitem.id),
       );
       await Promise.allSettled(removePromises);
-      return { success: true, code: 'normal' };
+      return { success: true, code: 'normal', order_id: order.id };
     }).only(ACCESS_AUTH),
     reqCancelOrder: makeResolver(async (obj, args, context, info) => {
       const { id } = args;

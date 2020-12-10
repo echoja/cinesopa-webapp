@@ -207,6 +207,48 @@
             </div>
           </div>
         </div>
+        <template v-if="form.paymentMethod === 'nobank'">
+          <div class="form-item payer">
+            <div class="form-title">입금자명</div>
+            <div class="form-content">
+              <b-form-input
+                size="sm"
+                v-model="form.payer"
+                @update="payerUpdated"
+                :state="validate.payer.status"
+                ref="payer"
+              ></b-form-input>
+              <div
+                class="input-error-msg"
+                v-if="validate.payer.status === false"
+              >
+                {{ validate.payer.msg }}
+              </div>
+            </div>
+          </div>
+          <div class="header">
+            <h2>무통장입금 안내사항</h2>
+          </div>
+          <div class="nobank-notice">
+            <ul>
+              <li>
+                입금자명 혹은 입금액이 다를 경우 입금 확인이 어려워 배송이 지연될
+                수 있습니다.
+              </li>
+              <li>
+                주문 후 48시간 이내에 입금하지 않으실 경우 주문이 취소될 수
+                있습니다.
+              </li>
+              <!-- <li>기타 문의사항은 이메일로 문의해주시기 바랍니다.</li> -->
+            </ul>
+          </div>
+          <!-- <div class="form-item ">
+            <div class="form-title">입금액</div>
+            <div class="form-content">
+              {{ toPrice(totalPrice) }}
+            </div>
+          </div> -->
+        </template>
       </div>
     </div>
     <div class="payment-info-wrapper">
@@ -305,6 +347,7 @@ export default {
         phone: '',
         request: '',
         paymentMethod: '',
+        payer: '',
       },
       validate: {
         name: {
@@ -345,6 +388,21 @@ export default {
           validateFunction: (value) => {
             if (value !== '') return { status: true };
             return { status: false, msg: '하나를 반드시 선택해주세요.' };
+          },
+        },
+        payer: {
+          status: null,
+          msg: '',
+          validateFunction: (value) => {
+            // nobank 가 아니면 상관이 없으므로 바로 리턴.
+            if (this.form.paymentMethod !== 'nobank') {
+              return { status: true };
+            }
+            // nobank 일 때 값이 있어야 함.
+            if (value !== '') {
+              return { status: true };
+            }
+            return { status: false, msg: '필수 사항입니다' };
           },
         },
       },
@@ -394,8 +452,8 @@ export default {
     },
     totalProductPrice() {
       const options = this.orderList.map((cartitem) => cartitem.options).flat();
-      console.log('# OrderPayment.vue totalProductPrice options');
-      console.dir(options);
+      // console.log('# OrderPayment.vue totalProductPrice options');
+      // console.dir(options);
       const sum = options.reduce((acc, now) => acc + now.count * now.price, 0);
       return sum;
     },
@@ -493,6 +551,12 @@ export default {
       this.form.paymentMethod = method;
       event.target.blur();
       this.resetStatus('paymentMethod');
+      // 무통장 입금일 경우 입금자 input 에 focus 하기.
+      if (method === 'nobank') {
+        this.$nextTick(() => {
+          this.$refs.payer.focus();
+        });
+      }
     },
     getFail(reason = '') {
       this.$router.push({ name: 'PaymentFail', params: { reason } });
@@ -526,6 +590,10 @@ export default {
       this.cancelDefaultDeliveryPlace();
       this.resetStatus('phone');
     },
+    payerUpdated() {
+      this.cancelDefaultDeliveryPlace();
+      this.resetStatus('payer');
+    },
     requestUpdated() {
       this.cancelDefaultDeliveryPlace();
     },
@@ -557,6 +625,7 @@ export default {
         'address_detail',
         'phone',
         'paymentMethod',
+        'payer',
       ];
       let validated = true;
       for (const dataName of dataNames) {
@@ -579,7 +648,7 @@ export default {
             this.$nextTick(() => {
               this.$refs[dataName].focus();
               console.log(this.$refs[dataName]);
-              console.log('focuessed!!!!');
+              // console.log('focuessed!!!!');
             });
           }
 
@@ -615,23 +684,45 @@ export default {
       // 진행한 후 bootpay 에서 receipt_id 를 이용해 검증 및 order 생성
       const dest = { ...this.form };
       delete dest.paymentMethod;
-      const res = await createOrderFromCartReq({
-        input: {
-          items_id: this.cartitems,
-          method: this.form.paymentMethod,
-          dest,
-          bootpay_id, // todo 수정해야 함.
-          transport_fee: this.transportationFee,
+      delete dest.payer;
+
+      const res = await createOrderFromCartReq(
+        {
+          input: {
+            items_id: this.cartitems,
+            method: this.form.paymentMethod,
+            dest,
+            bootpay_id, // todo 수정해야 함.
+            transport_fee: this.transportationFee,
+          },
+          payer: this.form.payer,
         },
-      }, `{
-        success code
-      }`);
+        `{
+        success code order_id
+      }`,
+      );
       console.log('# OrderPayment paymentClicked res');
       console.log(res);
 
-      // 다음 페이지 전환
-      if (this.form.paymentMethod === 'nobank') {
-        // ...
+      // 결제에 성공했을 경우 다음 페이지 전환
+      if (res.success) {
+        // 무통장 입금일 경우
+        if (this.form.paymentMethod === 'nobank') {
+          this.$router.push({
+            name: 'PaymentSuccessNoBank',
+            query: { orderId: res.order_id },
+          });
+          // ...PaymentSuccessNoBank
+        }
+
+        // 그 외 결제일 경우
+        else {
+          this.$router.push({ name: 'PaymentSuccess' });
+        }
+      }
+      // 결제에 실패했을 경우
+      else {
+        this.getFail(res.code);
       }
     },
   },

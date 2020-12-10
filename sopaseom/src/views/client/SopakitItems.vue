@@ -231,7 +231,7 @@
 
 <script>
 import { BLink, BImg, BButton, BFormInput } from 'bootstrap-vue';
-import SwiperCore, { Navigation, Pagination, Scrollbar, A11y } from 'swiper';
+import SwiperCore, { Navigation, A11y, Mousewheel } from 'swiper';
 import LeftBigArrow from '@/components/LeftBigArrow.vue';
 import RightBigArrow from '@/components/RightBigArrow.vue';
 import SopakitListFooterInfo from '@/components/SopakitListFooterInfo.vue';
@@ -243,7 +243,7 @@ import SopakitListFooterInfo from '@/components/SopakitListFooterInfo.vue';
 
 import { makeSimpleQuery } from '@/api/graphql-client';
 
-SwiperCore.use([Navigation, Pagination, Scrollbar, A11y]);
+SwiperCore.use([Navigation, A11y, Mousewheel]);
 const sopakitsShownGetter = makeSimpleQuery('sopakitsShown');
 
 export default {
@@ -348,7 +348,8 @@ export default {
           nextEl: '.swiper-button-next',
           prevEl: '.swiper-button-prev',
         },
-        cssMode: true,
+        // cssMode: true,
+        mousewheel: true,
 
         // And if we need scrollbar
         // scrollbar: {
