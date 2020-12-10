@@ -42,6 +42,11 @@ export const onlyNoLoginBeforeEnter = async (to, from, next) => {
   if (store.state.currentUser === null) {
     next();
   } else {
+    store.dispatch('pushMessage', {
+      msg: '이미 로그인되어 있습니다.',
+      type: 'success',
+      id: 'alreadyLogined',
+    });
     next('/');
   }
 
@@ -120,7 +125,7 @@ export const requireAuth = (condition = {}, failRN = {}) => async (to, from, nex
     agreeRequiredRN = 'JoinOAuthUser',
   } = failRN;
 
-  const user = await store.state.currentUserAsync || store.state.currentUser;
+  const user = (await store.state.currentUserAsync) || store.state.currentUser;
   store.commit('setCurrentUserAsync', null);
   const currentRole = user?.role ? user.role : 'ANYONE';
   const userLogined = !!user;
@@ -140,6 +145,11 @@ export const requireAuth = (condition = {}, failRN = {}) => async (to, from, nex
     // 로그인을 안했다면 로그인이 필요함. 로그인하기 전 redirectRoute를 설정함.
     store.commit('setRouteWhereLoginSuccess', to);
     // console.log()
+    store.dispatch('pushMessage', {
+      msg: '로그인이 필요한 서비스입니다.',
+      type: 'success',
+      id: 'loginRequire',
+    });
     return next({ name: loginRequiredRN });
   }
 

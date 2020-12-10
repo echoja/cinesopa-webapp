@@ -25,7 +25,7 @@
             <!-- </span> -->
             <span class="links-seperator">|</span>
             <span>
-              <b-link :to="{ name: 'Policy' }">사이트맵</b-link>
+              <b-link :to="{ name: 'Sitemap' }">사이트맵</b-link>
             </span>
           </div>
         </div>

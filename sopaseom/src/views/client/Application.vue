@@ -33,7 +33,7 @@
     <div class="film-container container-fluid">
       <transition-group name="application-fade" tag="div" class="film-row row">
         <div
-          class="film-col col col-md-6 col-lg-4 col-xl-3"
+          class="film-col col col-12 col-md-6 col-lg-4 col-xl-3"
           v-for="film in films"
           :key="film.id"
         >
@@ -290,6 +290,13 @@ export default {
 
 // container, row, col
 .film-container.container-fluid {
+  // margin-left: -30px;
+  // margin-right: -30px;
+  // padding-right: 30px;
+  // padding-left: 30px;
+}
+
+.film-row.row {
   margin-left: -30px;
   margin-right: -30px;
 }

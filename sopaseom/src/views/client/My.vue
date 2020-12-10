@@ -63,10 +63,11 @@ export default {
           to: { name: 'MyOrdered' },
           label: '주문내역',
         },
-        {
-          to: { name: 'MyApplication' },
-          label: '상영 신청 내역',
-        },
+        // {
+        //   to: { name: 'MyApplication' },
+        //   label: '상영 신청 내역',
+        // }, 
+        // todo: 상영 신청 내역은 상영 관련 데이터베이스를 짜고 나서 해야 함.
       ],
     };
   },

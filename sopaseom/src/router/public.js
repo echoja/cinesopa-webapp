@@ -113,7 +113,7 @@ export default [
   },
   {
     path: '/sitemap',
-    name: 'sitemap',
+    name: 'Sitemap',
     component: () => import('@/views/client/Sitemap.vue'),
   },
   {
@@ -296,23 +296,23 @@ export default [
   },
   {
     path: '/change-password',
-    name: 'ChangdPassword',
-    component: () => import('@/views/client/ChangdPassword.vue'),
+    name: 'ChangePassword',
+    component: () => import('@/views/client/ChangePassword.vue'),
     children: [
       {
         path: 'auth',
-        name: 'ChangdPasswordAuth',
-        component: () => import('@/views/client/ChangdPasswordAuth.vue'),
+        name: 'ChangePasswordAuth',
+        component: () => import('@/views/client/ChangePasswordAuth.vue'),
       },
       {
         path: 'success',
-        name: 'ChangdPasswordSuccess',
-        component: () => import('@/views/client/ChangdPasswordSuccess.vue'),
+        name: 'ChangePasswordSuccess',
+        component: () => import('@/views/client/ChangePasswordSuccess.vue'),
       },
       {
         path: 'expired',
-        name: 'ChangdPasswordExpired',
-        component: () => import('@/views/client/ChangdPasswordExpired.vue'),
+        name: 'ChangePasswordExpired',
+        component: () => import('@/views/client/ChangePasswordExpired.vue'),
       },
     ],
   },
