@@ -35,6 +35,7 @@ const s = new Vuex.Store({
     joinFinished: false,
     additionalFooterPaddingBottom: 0,
     routeWhereLoginSuccess: null,
+    routeWhereAgreeSuccess: null,
   },
   /**
    * 게터.
@@ -102,6 +103,9 @@ const s = new Vuex.Store({
     },
     setRouteWhereLoginSuccess(state, route) {
       state.routeWhereLoginSuccess = route;
+    },
+    setRouteWhereAgreeSuccess(state, route) {
+      state.routeWhereAgreeSuccess = route;
     },
   },
   /**

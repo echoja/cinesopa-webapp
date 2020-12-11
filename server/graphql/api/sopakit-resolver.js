@@ -69,8 +69,8 @@ module.exports = {
           .filter(({ value }) => value)
           .map(({ value }) => [value.id, value]),
       );
-      console.log('# sopakit-resolver sopakitsShown filmMap');
-      console.log(filmMap);
+      // console.log('# sopakit-resolver sopakitsShown filmMap');
+      // console.log(filmMap);
 
 
       // 결과 형성하기. 키워드가 있느냐 없느냐에 따라서 상품을 둘로 나눔.
@@ -113,8 +113,8 @@ module.exports = {
         sopakitsShownItems,
         noKeywordProducts,
       };
-      console.log('# Sopakit-resolver sopakitsShown result');
-      console.log(result);
+      // console.log('# Sopakit-resolver sopakitsShown result');
+      // console.log(result);
       return result;
     }).only(ACCESS_ALL),
   },

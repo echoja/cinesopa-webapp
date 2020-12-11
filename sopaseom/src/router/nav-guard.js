@@ -118,6 +118,10 @@ export const requireAuth = (condition = {}, failRN = {}) => async (to, from, nex
   console.log('# requireAuth Called');
   const { role = 'anyone', shouldVerified = false, shouldAgreed = false } = condition;
   const roleArray = roleConditionMap[role];
+  if (!roleArray) {
+    console.error('# nav-guare requireAuth : role을 찾을 수 없습니다!');
+    return next();
+  }
   // const result = await requestCheckAuth(role, shouldVerified);
   const {
     loginRequiredRN = 'Login',
@@ -135,6 +139,14 @@ export const requireAuth = (condition = {}, failRN = {}) => async (to, from, nex
   console.log(condition);
   console.log(to);
   console.log(failRN);
+
+  // 일단 가장 먼저, 유저가 카카오로 로그인되어 있는 상태인데
+  // user_agreed 가 없다면, 우선 약관 동의부터 시킴.
+  // should agreed 무시.
+  if (userLogined && user.user_agreed === null) {
+    store.commit('setRouteWhereAgreeSuccess', to);
+    return next({ name: agreeRequiredRN });
+  }
 
   // role 에 해당하지 않는다면,
   if (!roleArray.includes(currentRole)) {

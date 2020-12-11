@@ -148,18 +148,21 @@ export default [
         path: 'info',
         name: 'MyInfo',
         component: () => import('@/views/client/MyInfo.vue'),
+        beforeEnter: requireAuth({ role: 'guest' }),
         meta: { ...BodyFixedFooterMeta },
       },
       {
         path: 'ordered',
         name: 'MyOrdered',
         component: () => import('@/views/client/MyOrdered.vue'),
+        beforeEnter: requireAuth({ role: 'guest' }),
         meta: { ...BodyFixedFooterMeta },
       },
       {
         path: 'application',
         name: 'MyApplication',
         component: () => import('@/views/client/MyApplication.vue'),
+        beforeEnter: requireAuth({ role: 'guest' }),
         meta: { ...BodyFixedFooterMeta },
       },
       {
@@ -265,7 +268,7 @@ export default [
     path: '/join/only-agreement',
     name: 'JoinOAuthUser',
     component: () => import('@/views/client/JoinOAuthUser.vue'),
-    beforeEnter: requireAuth({ role: 'guest', shouldVerified: 'true' }),
+    // beforeEnter: requireAuth({ role: 'guest', shouldVerified: 'true' }),
     meta: BodyFooterMeta,
   },
   {

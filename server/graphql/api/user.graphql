@@ -65,6 +65,12 @@ type UserAgreed {
   advertisement: Boolean
 }
 
+input UserAgreedInput {
+  privacy: Boolean
+  policy: Boolean
+  advertisement: Boolean
+}
+
 type AgreementForKakaoUserResult {
   success: Boolean
   code: String
@@ -109,6 +115,7 @@ input UpdateUserAdminInput {
 
 input UpdateMeInput {
   default_dest: DestinfoInput
+  user_agreed: UserAgreedInput
 }
 
 input UserAgreedInput {
@@ -118,11 +125,10 @@ input UserAgreedInput {
 }
 
 input UsersCondition {
-  email: String,
-  page: Int,
-  perpage: Int,
+  email: String
+  page: Int
+  perpage: Int
 }
-
 
 extend type Query {
   users(condition: UsersCondition): UsersResult

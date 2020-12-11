@@ -90,7 +90,7 @@
 import { BFormInput, BButton, BFormTextarea } from 'bootstrap-vue';
 import moment from 'moment';
 import { mapActions, mapState } from 'vuex';
-import { makeSimpleMutation } from '@/api/graphql-client';
+import { checkAuth, makeSimpleMutation } from '@/api/graphql-client';
 
 const updateMeReq = makeSimpleMutation('updateMe');
 
@@ -154,6 +154,9 @@ export default {
       this.defaultDestUpdateSuccessMessage = res.success
         ? '기본 배송지 설정 성공했습니다.'
         : '기본 배송지 설정을 실패했습니다.';
+
+      // currentUser 정보 업데이트
+      checkAuth();
 
       setTimeout(() => {
         this.defaultDestUpdateSuccessMessageShow = false;
