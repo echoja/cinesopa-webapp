@@ -70,8 +70,8 @@
             v-model="form.companyName"
             id="compnay-name"
             type="text"
-            placeholder=""
             :required="required"
+            title="주최기관 / 단체 이름"
           ></b-form-input>
         </b-form-group>
         <b-form-group
@@ -87,8 +87,8 @@
             v-model="form.festivalName"
             id="festival-name"
             type="text"
-            placeholder=""
             :required="required"
+            title="행사 이름"
           ></b-form-input>
         </b-form-group>
         <b-form-group
@@ -104,6 +104,7 @@
             v-model="form.playdateStart"
             :required="required"
             id="playdate-start"
+            title="상영 시작일 선택"
           >
           </b-form-datepicker-korean>
         </b-form-group>
@@ -122,6 +123,7 @@
               v-model="form.playdateEnd"
               :required="required"
               id="playdate-end"
+              title="상영 종료일 선택"
             >
             </b-form-datepicker-korean>
           </b-form-group>
@@ -139,9 +141,9 @@
             v-model="form.playtimes"
             id="playtimes"
             type="number"
-            placeholder=""
             :required="required"
             number
+            title="상영 회차"
           ></b-form-input>
           <template #description>영화 상영 횟수를 적어주세요.</template>
         </b-form-group>
@@ -160,6 +162,7 @@
             type="text"
             placeholder="예) 소파극장 (부산시 해운대구)"
             :required="required"
+            title="상영 장소. 예시) 소파극장 (부산시 해운대구)"
           ></b-form-input>
         </b-form-group>
 
@@ -178,8 +181,8 @@
             v-model="form.username"
             id="username"
             type="text"
-            placeholder=""
             :required="required"
+            title="이름"
           ></b-form-input>
         </b-form-group>
         <b-form-group
@@ -197,6 +200,7 @@
             type="text"
             placeholder="예) 01012345678"
             :required="required"
+            title="전화번호. 예) 01012345678"
           ></b-form-input>
           <template #description
             >반드시 연락 가능한 연락처를 적어주세요.
@@ -215,8 +219,8 @@
             v-model="form.useremail"
             id="useremail"
             type="email"
-            placeholder=""
             :required="required"
+            title="이메일"
           ></b-form-input>
           <template #description>
             반드시 수신 가능한 이메일을 적어주세요.
@@ -252,15 +256,19 @@
             >
               <div class="film-header">
                 <h3 class="film-title">{{ film.title }}</h3>
+                <!-- :aria-labelledby="`remove-film-${filmIndex}`" -->
                 <b-button
                   class="close-button"
                   @click="removeFilm(filmIndex)"
-                  :aria-labelledby="`remove-film-${filmIndex}`"
-                  >&times;</b-button
+                  :title="`${film.title} 삭제`"
+                  :aria-label="`${film.title} 삭제`"
                 >
-                <p :id="`remove-film-${filmIndex}`" class="sr-only">
+                  <span class="sr-only">{{ film.title }} 삭제</span>
+                  &times;</b-button
+                >
+                <!-- <p :id="`remove-film-${filmIndex}`" class="sr-only">
                   {{ film.title }} 삭제
-                </p>
+                </p> -->
               </div>
               <!-- <div class="meta">
                 {{ film.meta.join(' | ') }}
@@ -340,6 +348,7 @@
             size="sm"
             id="select-film-button"
             @click="$bvModal.show('film-select-modal')"
+            title="영화 추가"
           >
             영화 추가
           </b-button>
@@ -353,6 +362,7 @@
             <film-selector
               class="noto-sans"
               @film-selected="filmSelected"
+              modal-id="film-select-modal"
             ></film-selector>
           </b-modal>
         </b-form-group>
@@ -406,6 +416,7 @@
             :required="required"
             id="visit-date"
             :date-disabled-fn="receiveDateDisabled"
+            title="방문 예정일 선택"
           >
           </b-form-datepicker-korean>
         </b-form-group>
@@ -424,6 +435,7 @@
               variant="outline-dark"
               @click="openMap"
               aria-describedby="다음 주소창이 새 창으로 열립니다."
+              title="주소 검색"
               >주소 검색</b-button
             >
             <p v-if="addressNew !== ''" class="address-new">{{ addressNew }}</p>
@@ -448,8 +460,8 @@
               v-model="form.addressDetailed"
               id="addressDetailed"
               type="text"
-              placeholder=""
               :required="required"
+              title="상세 주소"
             ></b-form-input>
             <!-- <b-form-text
             >하나의 영화만 기재해주세요. 여러 영화를 상영하신다면, 각각 신청서를 작성해주시기
@@ -472,6 +484,7 @@
             v-model="form.receiveDate"
             id="receive-date"
             :required="required"
+            title="상영본 받을 날짜 선택"
           >
             <!-- <template #button-content :style="{ width: `300px` }"> -->
             <!-- <div class="w-100 h-100 d-flex align-items-center justify-content-center"> -->
@@ -512,7 +525,6 @@
             class="rounded-box w-50"
             v-model="form.expectedPopulation"
             id="expected-population"
-            placeholder=""
             :required="required"
           >
             <template v-slot:first>
@@ -542,8 +554,8 @@
             v-model="form.selfShowingFee"
             id="showingFee"
             type="text"
-            placeholder=""
             :required="required"
+            title="상영료 (부가세 포함)"
           ></b-form-input>
           <template #label>상영료<br />(부가세 포함) </template>
           <!-- <p id="showingFee">
@@ -563,6 +575,7 @@
             v-model="form.depositdate"
             id="depositdate"
             :required="required"
+            title="입금 예정일 선택"
           >
           </b-form-datepicker-korean>
         </b-form-group>
@@ -604,6 +617,7 @@
               id="tax-company"
               type="text"
               disabled
+              title="기관 이름"
             >
             </b-form-input>
           </b-form-group>
@@ -623,6 +637,7 @@
               id="tax-person"
               type="text"
               disabled
+              title="담당자 이름"
             >
             </b-form-input>
           </b-form-group>
@@ -641,6 +656,7 @@
               id="tax-phone"
               type="text"
               disabled
+              title="담당자 연락처"
             >
             </b-form-input>
           </b-form-group>
@@ -653,7 +669,12 @@
             label-for="tax-others"
           >
             <!-- class="underlined-box" -->
-            <b-form-textarea v-model="form.taxOthers" size="sm" id="tax-others">
+            <b-form-textarea
+              v-model="form.taxOthers"
+              size="sm"
+              id="tax-others"
+              title="비고"
+            >
             </b-form-textarea>
           </b-form-group>
         </template>
@@ -673,6 +694,7 @@
               id="tax-company"
               type="text"
               :required="required"
+              title="기관 이름"
             >
             </b-form-input>
           </b-form-group>
@@ -691,6 +713,7 @@
               id="tax-person"
               type="text"
               :required="required"
+              title="담당자 이름"
             >
             </b-form-input>
           </b-form-group>
@@ -708,6 +731,7 @@
               id="tax-phone"
               type="text"
               :required="required"
+              title="담당자 연락처"
             >
             </b-form-input>
           </b-form-group>
@@ -720,7 +744,12 @@
             label-for="tax-others"
           >
             <!-- class="underlined-box" -->
-            <b-form-textarea v-model="form.taxOthers" size="sm" id="tax-others">
+            <b-form-textarea
+              v-model="form.taxOthers"
+              size="sm"
+              id="tax-others"
+              title="비고"
+            >
             </b-form-textarea>
           </b-form-group>
         </template>
@@ -765,6 +794,7 @@
             size="sm"
             id="others"
             rows="5"
+            title="기타 요청 사항"
           ></b-form-textarea>
         </b-form-group>
 
@@ -804,6 +834,7 @@
                   scrollable
                   hide-footer
                   title="개인정보처리방침"
+                  @shown="modalPrivacyShown"
                 >
                   <privacy></privacy>
                 </b-modal>
@@ -849,6 +880,7 @@
                   scrollable
                   hide-footer
                   title="저작물이용동의서"
+                  @shown="modalCopyrightShown"
                 >
                   <!-- :film-name="form.filmname" -->
                   <copyright-consent
@@ -1178,6 +1210,20 @@ export default {
       const weekday = date.getDay();
       return weekday === 0 || weekday === 5 || weekday === 6;
     },
+    modalPrivacyShown() {
+      this.getFocusCloseButton('modal-privacy');
+    },
+    modalCopyrightShown() {
+      this.getFocusCloseButton('modal-copyright');
+    },
+    getFocusCloseButton(modalId) {
+      this.$nextTick(() => {
+        document
+          .getElementById(modalId)
+          .getElementsByClassName('close')[0]
+          .focus();
+      });
+    },
   },
 };
 </script>
@@ -1366,10 +1412,10 @@ export default {
   & .was-validated .custom-control-input:valid ~ .custom-control-label {
     color: #2b3e4a;
   }
-  & .custom-control-input:checked ~ .custom-control-label::before {
-    background-color: #009eda;
-    border-color: #009eda;
-  }
+  // & .custom-control-input:checked ~ .custom-control-label::before {
+  //   background-color: #009eda;
+  //   border-color: #009eda;
+  // }
 }
 
 .community-form .radio-group,

@@ -5,8 +5,24 @@
       ['route-' + $route.name]: true, -->
   <!--       mobile: isMobile,
       desktop: isDesktop, -->
+  <!-- cancelable: true, -->
+  <!-- onStart: onStart, -->
+  <!-- onDone: onDone, -->
+  <!-- onCancel: onCancel, -->
+  <!-- x: false, -->
+  <!-- y: true -->
+  <!-- easing: 'linear', -->
+  <!-- force: true, -->
+  <!-- v-scroll-to="{
+        el: '#main',
+        container: 'body',
+        duration: 500,
+        lazy: true,
+        offset: -200,
+      }" -->
   <div id="app" ref="app" class="top noto-sans">
-    <VueSkipTo to="#main" label="본문 바로가기" />
+    <!-- to="#main" -->
+    <b-link class="skip-to" @click="skipToClicked">본문 바로가기</b-link>
     <div class="loading" v-if="pageLoading">loading</div>
     <div class="h-header" v-show="is_site_public"></div>
     <!-- fixed header 를 위한 빈자리 -->
@@ -26,6 +42,7 @@
           <b-link
             :to="{ name: 'Home' }"
             :class="{ white: $store.state.logoWhite }"
+            @click="getBlur"
           >
             <span class="sr-only">홈으로 이동</span>
             <svg
@@ -132,24 +149,31 @@
             }"
           >
             <!-- :class="[isMenuShouldSmall ? 'px-3' : 'px-3', {}]" -->
-            <b-link :to="{ name: 'About' }">회사소개 </b-link>
-            <!-- :class="[isMenuShouldSmall ? 'px-3' : 'px-3']"  -->
-            <b-link :to="{ name: 'FilmList', params: { type: 'all' } }">
-              작품소개
-            </b-link>
-            <!-- :class="[isMenuShouldSmall ? 'px-3' : 'px-3']" -->
-            <b-link :to="{ name: 'BoardArchive', params: { board: 'all' } }"
-              >아카이브
-            </b-link>
-            <!-- :class="[isMenuShouldSmall ? 'px-3' : 'px-3']" -->
-            <b-link :to="{ name: 'BoardNotice', params: { board: 'all' } }"
-              >공지사항
-            </b-link>
-            <!-- :class="[isMenuShouldSmall ? 'px-3' : 'px-3']" -->
             <b-link
-              :to="{ name: 'Distribution', params: { permalink: 'about' } }"
-              >신청하기
-            </b-link>
+              v-for="(obj, objIndex) in menuItems"
+              :key="objIndex"
+              :to="obj.route"
+              @click="getBlur($event)"
+              >{{ obj.label }}</b-link
+            >
+            <!-- <b-link :to="{ name: 'About' }">회사소개 </b-link> -->
+            <!-- :class="[isMenuShouldSmall ? 'px-3' : 'px-3']"  -->
+            <!-- <b-link :to="{ name: 'FilmList', params: { type: 'all' } }"> -->
+            <!-- 작품소개 -->
+            <!-- </b-link> -->
+            <!-- :class="[isMenuShouldSmall ? 'px-3' : 'px-3']" -->
+            <!-- <b-link :to="{ name: 'BoardArchive', params: { board: 'all' } }" -->
+            <!-- >아카이브 -->
+            <!-- </b-link> -->
+            <!-- :class="[isMenuShouldSmall ? 'px-3' : 'px-3']" -->
+            <!-- <b-link :to="{ name: 'BoardNotice', params: { board: 'all' } }" -->
+            <!-- >공지사항 -->
+            <!-- </b-link> -->
+            <!-- :class="[isMenuShouldSmall ? 'px-3' : 'px-3']" -->
+            <!-- <b-link -->
+            <!-- :to="{ name: 'Distribution', params: { permalink: 'about' } }" -->
+            <!-- >신청하기 -->
+            <!-- </b-link> -->
             <!-- <router-link to="/">Home</router-link> |
           <router-link to="/about">About</router-link> -->
           </div>
@@ -160,6 +184,7 @@
           class="menu-mobile d-block d-md-none h-100 d-flex align-items-center"
         >
           <b-link v-b-toggle.sidebar-menu class="menu-button ml-3 p-0">
+            <span class="sr-only">메인메뉴 열기</span>
             <font-awesome-icon size="2x" :icon="['fas', 'bars']" />
           </b-link>
           <b-sidebar
@@ -170,42 +195,31 @@
             shadow
             aria-label="메뉴"
             close-label="닫기"
+            @shown="sidebarMenuShown"
           >
             <template #header-close>
               <span class="close-figure" aria-hidden="true">&times;</span>
               <span class="sr-only"> 닫기 </span>
             </template>
             <div class="px-3 py-2">
-              <p>
-                <b-link class="px-4" :to="{ name: 'About' }">회사소개 </b-link>
+              <p v-for="(obj, objIndex) in menuItems" :key="objIndex">
+                <b-link class="px-4" :to="obj.route" @click="getBlur($event)">{{
+                  obj.label
+                }}</b-link>
+              </p>
+              <!-- <p>
+                <b-link class="px-4" :to="">회사소개 </b-link>
               </p>
               <p>
-                <b-link
-                  class="px-4"
-                  :to="{ name: 'FilmList', params: { type: 'all' } }"
-                >
-                  작품소개
-                </b-link>
+                <b-link class="px-4" :to=""> 작품소개 </b-link>
               </p>
               <p>
-                <b-link
-                  class="px-4"
-                  :to="{ name: 'BoardArchive', params: { board: 'all' } }"
-                  >아카이브
-                </b-link>
+                <b-link class="px-4" :to=""> </b-link>
               </p>
               <p>
-                <b-link
-                  class="px-4"
-                  :to="{ name: 'BoardNotice', params: { board: 'all' } }"
-                  >공지사항
-                </b-link>
+                <b-link class="px-4" :to=""> </b-link>
               </p>
-              <p>
-                <b-link class="px-4" :to="{ name: 'Distribution' }"
-                  >신청하기
-                </b-link>
-              </p>
+              <p><b-link class="px-4" :to=""> </b-link></p> -->
             </div>
           </b-sidebar>
         </div>
@@ -264,6 +278,7 @@
               aria-labelledby="naver-blog-icon-title"
               xmlns="http://www.w3.org/2000/svg"
               viewBox="0 0 250.36 250.36"
+              focusable="false"
             >
               <title id="naver-blog-icon-title">네이버 블로그 아이콘</title>
               <path
@@ -353,6 +368,7 @@
 <script>
 import { makeRequest } from './graphql-client';
 // import cssVars from 'css-vars-ponyfill';
+import { fixFocusScroll } from '@/util';
 
 const getIsPublicFromServer = makeRequest('siteOption', {
   type: 'query',
@@ -369,6 +385,22 @@ export default {
   title: '영화배급협동조합 씨네소파',
   data() {
     return {
+      menuItems: [
+        { label: '회사소개', route: { name: 'About' } },
+        {
+          label: '작품소개',
+          route: { name: 'FilmList', params: { type: 'all' } },
+        },
+        {
+          label: '아카이브',
+          route: { name: 'BoardArchive', params: { board: 'all' } },
+        },
+        {
+          label: '공지사항',
+          route: { name: 'BoardNotice', params: { board: 'all' } },
+        },
+        { label: '신청하기', route: { name: 'Distribution' } },
+      ],
       is_site_public: true,
       prevHeight: 0,
       showA: true,
@@ -552,8 +584,9 @@ export default {
     enter(/* element */) {
       // console.log(`route name: ${this.$route.name}`);
       // console.log(`route full path split / [0]${this.$route.fullPath.split('/')[1]}`);
-      if (this.$route.name === 'Home')
+      if (this.$route.name === 'Home') {
         this.$refs.app.classList.add('route-home');
+      }
       // const { height } = getComputedStyle(element);
       // // eslint-disable-next-line no-param-reassign
       // element.style.height = this.prevHeight;
@@ -563,12 +596,48 @@ export default {
       // });
     },
     afterLeave() {
-      if (this.$route.name !== 'Home')
+      if (this.$route.name !== 'Home') {
         this.$refs.app.classList.remove('route-home');
+      }
     },
     afterEnter(/* element */) {
       // // eslint-disable-next-line no-param-reassign
       // element.style.height = 'auto';
+    },
+    skipToClicked() {
+      // this.$scrollTo('#main', 500);
+      this.$nextTick(() => {
+        const element = document.getElementById('main');
+        const offset = 300;
+
+        // 포커싱 비주얼적으로 보여주기 위해 -1 설정하고, 1초 뒤에 삭제
+        element.setAttribute('tabindex', '-1');
+        setTimeout(() => element.removeAttribute('tabindex'), 1000);
+
+        // setActive 는 인터넷 익스플로러 용.
+        if (element.setActive) {
+          element.setActive();
+        } else {
+          element.focus({ preventScroll: true });
+        }
+
+        // 실제 스크롤.
+        window.scroll(0, element.offsetTop - offset);
+      });
+    },
+    sidebarMenuShown() {
+      console.log('# App sidebarMenuShown called');
+      this.$nextTick(() => {
+        document
+          .getElementById('sidebar-menu')
+          .getElementsByClassName('close')[0]
+          .focus();
+      });
+    },
+    getBlur(e) {
+      this.$nextTick(() => {
+        document.activeElement.blur();
+      });
     },
   },
 };
@@ -585,6 +654,39 @@ export default {
   // text-align: center;
   color: #2b3e4a;
   overflow: hidden;
+}
+
+.skip-to * {
+  padding: 0;
+  margin: 0;
+  box-sizing: border-box;
+}
+
+.skip-to {
+  position: fixed;
+  z-index: 1000;
+  display: block;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+  font-weight: bold;
+  font-size: 20px;
+
+  &:focus {
+    left: 3px;
+    top: 3px;
+    clip: auto;
+    height: auto;
+    width: auto;
+    background-color: #fff;
+    border: 2px solid #333;
+    padding: 10px 20px;
+  }
 }
 
 // #app.route-home {
@@ -749,6 +851,7 @@ header {
 </style>
 
 <style lang="scss">
+@import '@/util';
 @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@100;300;400;500;700;900&family=Noto+Serif+KR:wght@200;300;400;500;600;700;900&display=swap');
 
 :root {
@@ -783,6 +886,16 @@ button:hover {
 
 #nav a.router-link-exact-active {
   color: #009eda;
+  position: relative;
+  &:after {
+    content: '';
+    position: absolute;
+    left: 16px;
+    right: 16px;
+    bottom: 10px;
+    height: 3px;
+    background-color: #009eda;
+  }
 }
 
 /* main menu !menu */
@@ -834,6 +947,7 @@ button:hover {
   }
 }
 .footer-sns-buttons svg {
+  height: 1em;
   margin: 0px 6px;
   vertical-align: -0.125em;
   color: #aaa;
@@ -996,7 +1110,8 @@ button:hover {
 //   outline: 3px solid #009eda;
 //   // transition: 0s;
 // }
-a:focus {
+a:focus,
+main:focus {
   outline: 3px solid #000;
   // transition: 0s;
 }
@@ -1013,28 +1128,79 @@ a:focus {
 
 // common legend and caption
 
-legend, caption {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    padding: 0;
-    margin: -1px;
-    overflow: hidden;
-    clip: rect(0, 0, 0, 0);
-    white-space: nowrap;
-    border: 0;
+legend,
+caption {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
 }
 
 // modal x button size setting
 
 .modal-header .close {
   font-size: 35px;
-  padding: 10px 20px 10px 10px;
+  padding: 8px 15px 10px 10px;
   opacity: 0.8;
+  margin: -0.8rem -0.8rem -0.8rem auto;
+  &:focus {
+    outline: 3px solid #000;
+  }
+}
+.b-sidebar-header .close:focus {
+  outline: 3px solid #000;
 }
 
+// calendar emphasize color
+.b-calendar-grid-body {
+  .btn-primary:not(:disabled):not(.disabled).active,
+  .btn-primary:not(:disabled):not(.disabled):active,
+  .show > .btn-primary.dropdown-toggle {
+    color: #fff;
+    background-color: $cal-emp-color;
+    border-color: $cal-emp-color;
+  }
 
+  .btn-primary:not(:disabled):not(.disabled):active:focus,
+  .btn-primary:not(:disabled):not(.disabled).active:focus,
+  .show > .btn-primary.dropdown-toggle:focus {
+    box-shadow: 0 0 0 0.2rem $cal-emp-color;
+  }
+  // 오늘 날짜 선택중
+  .btn-outline-primary:focus,
+  .btn-outline-primary.focus {
+    box-shadow: 0 0 0 0.2rem $cal-emp-color;
+  }
+  // 일반 날짜 선택중
+  .btn-light:focus,
+  .btn-light.focus {
+    color: $text-color;
+    background-color: #fff;
+    border-color: $text-color;
+    box-shadow: 0 0 0 0.2rem rgba(0, 0, 0, 0.7);
+  }
+  // 오늘 날짜
+  .btn-outline-primary {
+    color: #007cad;
+    text-decoration: underline solid currentColor 2px;
+  }
+}
 
+// request chekcbox
+.request {
+  .custom-control-input:checked ~ .custom-control-label::before {
+    background-color: $text-color;
+    border-color: $text-color;
+  }
+  .custom-control-label::before {
+    border-color: $text-color;
+  }
+}
 </style>
 
 <style>
@@ -1069,9 +1235,9 @@ legend, caption {
   opacity: 0;
 }
 
-.vue-skip-to {
+/* .vue-skip-to {
   z-index: 1000;
-}
+} */
 
 #under-contruction {
   width: 100vw;

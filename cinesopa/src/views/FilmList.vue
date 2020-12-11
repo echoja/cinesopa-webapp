@@ -63,14 +63,14 @@
                       class="d-block w-100 h-100"
                       :to="{ name: 'IndividualFilm', params: { id: film.id } }"
                     >
-                      <span class="sr-only">{{film.title}} 자세히 보기</span>
+                      <span class="sr-only">{{ film.title }} 자세히 보기</span>
                       <b-img
                         class="mw-100 mh-100"
                         :src="parseUploadLink(film.poster_url)"
                         alt=""
                       ></b-img>
-                        <!-- :alt="film.poster_alt" -->
-                        <!-- :alt="`${film.title} 포스터`" -->
+                      <!-- :alt="film.poster_alt" -->
+                      <!-- :alt="`${film.title} 포스터`" -->
                     </b-link>
                   </b-col>
                   <b-col
@@ -116,6 +116,8 @@
                           class="ml-1"
                           xmlns="http://www.w3.org/2000/svg"
                           viewBox="0 0 47.22 81.75"
+                          focusable="false"
+                          aria-hidden="true"
                         >
                           <polygon
                             class="cls-1"
@@ -202,6 +204,7 @@
               contenteditable="true"
               autocomplete="off"
               name="search"
+              title="영화제목, 감독, 배우 검색"
             ></b-form-input>
           </label>
         </div>
@@ -217,12 +220,14 @@
         </div>
         <b-form-radio-group
           v-model="opened"
-          @change="openedChanged"
+          @change="openedChanged($event, 'desktop-opened-radio-group')"
           class="isopen-in-search"
+          ref="desktop-opened-radio-group"
+          :autofocus="desktopOpenedRadioGroupAutoFocus"
         >
-          <b-form-radio value="all">모두</b-form-radio>
-          <b-form-radio value="opened">개봉작</b-form-radio>
-          <b-form-radio value="owned">보유작</b-form-radio>
+          <b-form-radio ref="d_all" value="all">모두</b-form-radio>
+          <b-form-radio ref="d_opened" value="opened">개봉작</b-form-radio>
+          <b-form-radio ref="d_owned" value="owned">보유작</b-form-radio>
         </b-form-radio-group>
         <label
           class="w-100 m-0"
@@ -242,6 +247,7 @@
             contenteditable="true"
             autocomplete="off"
             name="search"
+            title="영화제목, 감독, 배우 검색"
           ></b-form-input>
         </label>
       </div>
@@ -315,7 +321,7 @@
               :src="parseUploadLink(film.poster_url)"
               :alt="film.poster_alt"
             />
-              <!-- :alt="`${film.poster_alt} 포스터`" -->
+            <!-- :alt="`${film.poster_alt} 포스터`" -->
             <span class="no-poster" v-else>포스터<br />준비 중입니다</span>
           </b-link>
         </div>
@@ -561,11 +567,39 @@ export default {
       if (this.total === 0) return 1;
       return Math.ceil(this.total / this.perpage);
     },
+    desktopOpenedRadioGroupAutoFocus() {
+      if (this.$route.query.f === 'desktop-opened-radio-group') {
+        return true;
+      }
+      return false;
+    },
+  },
+  watch: {
+    $route(to, from) {
+      this.fetchFilms();
+      // isopen in search focus 처리
+
+      if (to.query.f) {
+        const refname = to.query.f;
+        this.$nextTick(() => {
+          console.log(this.$refs[refname]);
+          // const el =
+          //   this.$refs[refname].$el ?? this.$refs[refname];
+          // console.log(el);
+          // el.focus();
+          const el = this.$refs[`d_${this.opened}`];
+          console.log(el);
+          this.$refs[`d_${this.opened}`].focus();
+        });
+      }
+    },
   },
 
   async mounted() {
     this.opened = this.type;
-    this.vuePageTitle = `${this.openedOptionsStringMap[this.opened]} - 영화소개`;
+    this.vuePageTitle = `${
+      this.openedOptionsStringMap[this.opened]
+    } - 영화소개`;
     this.currnetPage = parseInt(this.page, 10);
     AOS.init();
     this.fetchFeaturedFilms();
@@ -600,12 +634,24 @@ export default {
         offset: -180,
       });
     },
-    async openedChanged(value) {
-      this.$router.push({ name: 'FilmList', params: { type: value } });
+    async openedChanged(value, refname) {
+      console.log('# FilmList oenedChanged value');
+      console.log(value);
+      // this.$nextTick(() => {
+      //   console.log(this);
+      //   this.$refs[refname].$el.focus();
+      // });
       this.vuePageTitle = `${this.openedOptionsStringMap[value]} - 영화소개`;
       this.opened = value;
       this.currentPage = 1;
-      await this.fetchFilms();
+      this.$route.params.type = value;
+      this.$router.push({
+        name: 'FilmList',
+        params: { type: value },
+        query: { f: refname },
+      });
+
+      // await this.fetchFilms();
     },
 
     // 슬라이더에 오는 영화들을 가져오는 함수.
@@ -910,7 +956,6 @@ export default {
 
   .poster-wrapper {
     height: 500px;
-    overflow: hidden;
     margin-bottom: 30px;
   }
 
@@ -977,29 +1022,32 @@ export default {
   top: 0;
   background-color: beige;
 
-  & .carousel {
+  .carousel {
     width: 100%;
     height: 100%;
     overflow: hidden;
   }
 
-  & .carousel-inner,
+  .carousel-inner,
   .carousel-item {
     height: 100%;
   }
 
-  & .carousel-item {
+  .carousel-item {
     background-position: center;
     background-size: cover;
   }
 
-  & .carousel-indicators li {
+  .carousel-indicators li {
     width: 10px;
     height: 10px;
     border-radius: 30px;
     border: 10px solid transparent;
+    &:focus {
+      outline: 3px solid #000;
+    }
   }
-  & .carousel-item-content-bg {
+  .carousel-item-content-bg {
     height: 100%;
     width: 100%;
     position: absolute;
@@ -1007,16 +1055,16 @@ export default {
     background-size: cover;
   }
 
-  & .carousel-item-content {
+  .carousel-item-content {
     color: #fff;
     position: relative;
     background-color: rgba(0, 0, 0, 0.3);
   }
-  & .carousel-item-content > div {
+  .carousel-item-content > div {
     width: 70%;
     max-width: 1260px;
   }
-  & img {
+  img {
     min-width: 1px;
   }
 }
@@ -1054,6 +1102,10 @@ export default {
     vertical-align: top;
   }
 
+  &:focus {
+    outline: 3px solid #000;
+  }
+
   & .custom-control-label {
     transition: 1s;
     transition-property: color;
@@ -1079,6 +1131,11 @@ export default {
     color: #000;
     color: util.$text-color;
     font-weight: bold;
+  }
+  & .custom-radio .custom-control-input:focus ~ .custom-control-label {
+    /*      background-color: #aaa; */
+    // color: #009eda;
+    text-decoration: underline;
   }
   & .custom-control.custom-control-inline.custom-radio {
     padding-left: 0;

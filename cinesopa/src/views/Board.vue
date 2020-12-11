@@ -1,7 +1,7 @@
 <template>
   <div class="container-fluid">
     <h1>{{ title }}</h1>
-    <div class="board-nav d-flex">
+    <div class="board-nav d-flex row">
       <div
         class="board-select"
         role="listbox"
@@ -27,22 +27,33 @@
         <div class="search-icon mr-3 d-flex align-items-center">
           <font-awesome-icon :icon="['fas', 'search']"></font-awesome-icon>
         </div>
-        <label class="w-100 m-0" for="post-search" title="제목, 내용 검색">
-          <b-form-input
-            debounce="500"
-            @update="updateSearchString"
-            v-model="searchString"
-            class="rounded-pill search-box"
-            id="post-search"
-            size="lg"
-            type="search"
-            placeholder="제목, 내용 검색"
-            aria-placeholder="제목, 내용 검색"
-            contenteditable="true"
-            autocomplete="off"
-            name="search"
-          ></b-form-input>
+        <label
+          class="sr-only w-100 m-0"
+          for="post-search"
+          title="제목, 내용 검색"
+        >
+          게시물 검색
         </label>
+        <b-form-input
+          debounce="500"
+          @update="updateSearchString"
+          v-model="searchString"
+          class="rounded-pill search-box"
+          id="post-search"
+          size="lg"
+          type="search"
+          placeholder="제목, 내용 검색"
+          aria-placeholder="제목, 내용 검색"
+          :title="`게시물 검색`"
+          contenteditable="true"
+          autocomplete="off"
+          name="search"
+          aria-label="게시물 검색"
+          aria-describedby="search-description"
+        ></b-form-input>
+        <span class="sr-only" id="search-description"
+          >제목이나 내용으로 검색할 수 있습니다.</span
+        >
       </div>
     </div>
     <!-- 게시글 목록 -->
@@ -118,11 +129,11 @@
           v-for="(post, index) in posts"
           :key="index"
         >
-          <div class="gallery-thumbnail">
-            <b-link
-              :to="{ name: 'Post', params: { id: post.id } }"
-              class="thumbnail-link"
-            >
+          <b-link
+            :to="{ name: 'Post', params: { id: post.id } }"
+            class="thumbnail-link"
+          >
+            <div class="gallery-thumbnail">
               <span class="sr-only">{{ post.title }}</span>
 
               <img
@@ -135,8 +146,8 @@
                 대표 사진이<br />없습니다.
               </span>
               <!-- todo: 서버에서 alt 받아와서 처리해야 함. -->
-            </b-link>
-          </div>
+            </div>
+          </b-link>
           <div class="gallery-title">
             <b-link
               class="gallery-title-link"
@@ -216,7 +227,7 @@ export default {
     return {
       loadedCount: 0,
       loading: false,
-      searchString: null,
+      searchString: '',
       currentPage: 1,
       postTotal: 0,
       vuePageTitle: '',
@@ -324,8 +335,12 @@ export default {
       return result;
     },
 
+    selectedBoardName() {
+      return this.boards.find((board) => board.selected === true)?.title ?? '';
+    },
+
     titleComputed() {
-      return `${this.boards.find((board) => board.selected === true)?.title ?? ''} - ${this.title}`;
+      return `${this.selectedBoardName} - ${this.title}`;
     },
     // ...titleof(['press', 'cooperative']),
     // getBoardTitle(...args) {
@@ -443,6 +458,7 @@ export default {
           board: this.boards[index].permalink,
         },
       });
+      this.getBlur();
       this.currentPage = 1;
       this.startLoading();
       this.boards.forEach((board) => {
@@ -513,6 +529,11 @@ export default {
       this.startLoading();
       await this.refreshPosts();
       this.finishLoading();
+    },
+    getBlur(e) {
+      this.$nextTick(() => {
+        document.activeElement.blur();
+      });
     },
   },
 };
@@ -586,13 +607,26 @@ h1 {
   font-weight: 500;
   color: #767676;
   padding: 10px 20px;
+  position: relative;
 
-  &:first-child {
-    padding-left: 0;
-  }
+  // &:first-child {
+  //   // padding-left: 0;
+  // }
   &.selected {
     color: #009eda;
   }
+
+  &.selected:after {
+    position: absolute;
+    content: '';
+    display: block;
+    left: 10px;
+    right: 10px;
+    height: 2px;
+    bottom: 0;
+    background-color: #009eda;
+  }
+
   // &:hover {
   //   text-decoration: none;
   // }
@@ -666,7 +700,6 @@ $gallery-item-padding: 30px;
   margin-left: 15px - $gallery-item-padding;
   margin-right: 15px - $gallery-item-padding;
   min-height: 300px;
-  margin-top: 10px;
   border-top: 1px solid #b0b6ba;
 }
 
@@ -677,15 +710,12 @@ $gallery-item-padding: 30px;
 }
 
 .thumbnail-link {
-  position: absolute;
-  flex-direction: column;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  height: 100%;
+  // display: flex;
+  // align-items: center;
+  // justify-content: center;
+  width: 100%;
+  height: 300px;
+  display: block;
 }
 .thumbnail-link:hover .gallery-thumbnail-img {
   transform: scale(1.2);
@@ -693,16 +723,20 @@ $gallery-item-padding: 30px;
 }
 
 .gallery-thumbnail {
-  position: relative;
-  overflow: hidden;
-
   width: 100%;
-
-  &::after {
-    content: '';
+  height: 100%;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  img {
     display: block;
-    padding-bottom: 100%;
   }
+  // &::after {
+  //   content: '';
+  //   display: block;
+  //   // padding-bottom: 100%;
+  // }
 }
 .no-featured-image {
   line-height: 1.6;

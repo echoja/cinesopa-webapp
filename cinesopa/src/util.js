@@ -11,3 +11,10 @@ export const parseUploadLink = (rawLink) => {
 };
 
 export const abc = 'abc';
+
+export const fixFocusScroll = (e) => {
+  const offset = 300;
+  window.scroll(0, e.target.offsetTop - offset);
+  console.log('# util fixFocusScroll element');
+  console.log(e.target);
+};

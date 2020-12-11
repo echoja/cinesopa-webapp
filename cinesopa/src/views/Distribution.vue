@@ -50,6 +50,7 @@
             id="user-name"
             type="text"
             :required="required"
+            title="이름"
           ></b-form-input>
         </b-form-group>
         <b-form-group
@@ -67,6 +68,7 @@
             id="user-email"
             type="email"
             :required="required"
+            title="이메일"
           ></b-form-input>
         </b-form-group>
         <b-form-group
@@ -84,6 +86,7 @@
             type="text"
             id="user-phone"
             :required="required"
+            title="연락처"
           ></b-form-input>
         </b-form-group>
         <b-form-group
@@ -127,6 +130,7 @@
             id="film-title"
             placeholder=""
             :required="required"
+            title="한글 제목"
           ></b-form-input>
         </b-form-group>
         <b-form-group
@@ -144,6 +148,7 @@
             id="film-title_en"
             placeholder=""
             :required="required"
+            title="영어 제목"
           ></b-form-input>
         </b-form-group>
         <b-form-group
@@ -161,6 +166,7 @@
             id="film-director_name"
             placeholder=""
             :required="required"
+            title="감독 이름"
           ></b-form-input>
         </b-form-group>
 
@@ -205,6 +211,7 @@
               id="film-runningtime"
               :required="required"
               placeholder=""
+              title="러닝타임"
             ></b-form-input>
             <div class="w-50">분</div>
           </div>
@@ -222,6 +229,7 @@
             class="underlined-box"
             v-model="form.film.prod_date"
             id="film-prod_date"
+            title="제작일 선택"
           >
             <!-- <template #button-content>
               날짜 선택
@@ -243,6 +251,7 @@
             placeholder=""
             :required="required"
             rows="5"
+            title="시놉시스"
           ></b-form-textarea>
         </b-form-group>
         <b-form-group
@@ -260,6 +269,7 @@
             placeholder=""
             :required="required"
             rows="5"
+            title="연출의도"
           ></b-form-textarea>
         </b-form-group>
         <b-form-group
@@ -276,6 +286,7 @@
             id="film-festival_list"
             placeholder="예) 2019 제24회 부산국제영화제 단편경쟁 수상(김감독)"
             rows="5"
+            title="영화제 리스트"
           ></b-form-textarea>
         </b-form-group>
 
@@ -294,6 +305,7 @@
             type="text"
             id="film-link"
             :required="required"
+            title="스크리너 링크"
           ></b-form-input>
         </b-form-group>
         <b-form-group
@@ -311,6 +323,7 @@
             id="film-linkpw"
             placeholder=""
             :required="required"
+            title="비밀번호"
           ></b-form-input>
         </b-form-group>
 
@@ -328,6 +341,7 @@
             size="sm"
             id="film-etc"
             rows="5"
+            title="기타 정보"
           ></b-form-textarea>
         </b-form-group>
 
@@ -360,6 +374,7 @@
                 scrollable
                 hide-footer
                 title="개인정보처리방침"
+                @shown="modalPrivacyShown"
               >
                 <privacy></privacy>
               </b-modal>
@@ -508,6 +523,17 @@ export default {
     getValidationState({ dirty, validated, valid = null }) {
       return dirty || validated ? valid : null;
     },
+    modalPrivacyShown() {
+      this.getFocusCloseButton('modal-privacy');
+    },
+    getFocusCloseButton(modalId) {
+      this.$nextTick(() => {
+        document
+          .getElementById(modalId)
+          .getElementsByClassName('close')[0]
+          .focus();
+      });
+    },
   },
   computed: {
     directorInfoFrom() {
@@ -603,10 +629,10 @@ export default {
 
 <style lang="scss">
 .distribution-form {
-  & .custom-control-input:checked ~ .custom-control-label::before {
-    background-color: #009eda;
-    border-color: #009eda;
-  }
+  // & .custom-control-input:checked ~ .custom-control-label::before {
+  //   background-color: #009eda;
+  //   border-color: #009eda;
+  // }
   & .custom-control {
     min-height: 1.2rem;
     align-items: center;

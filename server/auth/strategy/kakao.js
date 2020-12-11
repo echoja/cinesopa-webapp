@@ -34,6 +34,7 @@ const kakaoVerifyFunctionMaker = (db) => {
     } 
 
     // 유저 정보가 이미 존재하는 경우 각종 정보를 업데이트하고 유저를 내보냄.
+    // todo: 유저가 인증이 되지 않은 상태에서 정보 업데이트 하려고 하면 어떻게 되는가? - 바로 빠꾸 먹여야 함.
     const user = await db.getUserByEmail(email);
     if (user) {
       await db.updateUser(email, {

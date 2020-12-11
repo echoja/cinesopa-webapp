@@ -13,10 +13,12 @@
       aria-haspopup="listbox"
     >
       <!-- @input="inputSearchString" -->
+      <label :for="`film-selector-input-${id}`" class="sr-only">영화 검색</label>
       <b-form-input
+        :id="`film-selector-input-${id}`"
         aria-autocomplete="true"
         auto-complete="off"
-        :aria-controls="id"
+        :aria-controls="`film-selector-listbox-${id}`"
         :aria-activedescendant="activeId"
         :aria-describedby="descriptionId"
         ref="search-input"
@@ -29,6 +31,7 @@
         placeholder="영화제목, 감독, 배우 검색"
         aria-placeholder="영화제목, 감독, 배우 검색"
         aria-label="영화 검색"
+        title="영화 검색"
       >
       </b-form-input>
       <p class="description" :id="descriptionId" @keydown.down="keyDowned2">
@@ -94,6 +97,10 @@ export default {
   components: {
     BFormInput,
     BSpinner,
+  },
+  props: {
+    // modalId 를 입력함으로써 모달이 켜졋을 때 자동으로 focus 되도록 함.
+    modalId: String,
   },
   data() {
     return {
@@ -240,7 +247,20 @@ export default {
     this.id = `${gid}`;
     gid += 1;
     this.updateSearchString();
-    this.$refs['search-input'].focus();
+    console.log('# FilmSelector mounted called!!$$');
+
+    this.$root.$on('bv::modal::shown', (bvEvent, modalId) => {
+      if (modalId === this.modalId) {
+        this.$nextTick(() => {
+          const el = this.$refs['search-input'];
+          console.log('# FilmSelector mounted el');
+          console.log(el);
+          this.$refs['search-input'].focus();
+        });
+      }
+      // console.log('FilmSelector ');
+      // console.log('Modal is about to be shown', bvEvent, modalId);
+    });
   },
 };
 </script>

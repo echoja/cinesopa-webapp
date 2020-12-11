@@ -835,6 +835,8 @@ export default {
   font-weight: 700;
 }
 
+// 상세 정보
+
 .detailed-info-item {
   margin-bottom: 30px;
   padding-top: 40px;

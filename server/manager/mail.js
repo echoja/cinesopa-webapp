@@ -39,6 +39,8 @@ class MailManager {
 
     /** @type {MailGate} */
     this.gate = gate;
+
+    // 메일 템플릿들을 전부 미리 컴파일해두기. 렌더러 함수로. */
   }
 
   /**

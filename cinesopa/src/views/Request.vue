@@ -1,5 +1,5 @@
 <template>
-  <div class="container-fluid">
+  <div class="container-fluid request">
     <h1 class="sr-only">신청하기</h1>
     <nav class="request-menu">
       <ol class="request-menu-list">
@@ -18,6 +18,8 @@
             class="request-router-link smooth-hover"
             ref="link1"
             :to="{ name: 'Distribution' }"
+            @focus="fixFocusScroll"
+            @click="getBlur"
             >배급의뢰</b-link
           >
         </li>
@@ -26,6 +28,8 @@
             class="request-router-link smooth-hover"
             ref="link2"
             :to="{ name: 'Community' }"
+            @focus="fixFocusScroll"
+            @click="getBlur"
             >상영신청</b-link
           >
         </li>
@@ -41,11 +45,14 @@
 </template>
 
 <script>
+import { fixFocusScroll } from '@/util';
+
 export default {
   name: 'Request',
   // title: '상영신청',
   data() {
     return {
+      calendars: document.getElementsByClassName('b-form-datepicker'),
       linkRefMap: {
         Distribution: null,
         Community: null,
@@ -55,11 +62,20 @@ export default {
   created() {
     //
   },
+
+  $watch: {
+    calendars(to) {
+      console.log('# Request watch calendars');
+      console.log(to);
+    },
+  },
   // created 시점에는 ref가 전부 undefined 이다.
   mounted() {
     this.linkRefMap.Distribution = this.$refs.link1;
     this.linkRefMap.Community = this.$refs.link2;
+    this.giveTitleToCalendar();
   },
+
   // beforeDestroy() {
   //   console.log('beforeDestory!!');
   // },
@@ -75,7 +91,22 @@ export default {
       return this.linkRefMap[this.$route.name]?.$el.offsetHeight;
     },
   },
-  methods: {},
+  methods: {
+    fixFocusScroll,
+    getBlur(e) {
+      this.$nextTick(() => {
+        document.activeElement.blur();
+      });
+    },
+    giveTitleToCalendar() {
+      this.$nextTick(() => {
+        const calendars = document.getElementsByClassName('b-form-datepicker');
+        console.log('# Request giveTitleToCalendar calendars');
+        console.log(calendars);
+        console.log(calendars.length);
+      });
+    },
+  },
 };
 </script>
 

@@ -9,6 +9,7 @@
     :id="id"
     :date-disabled-fn="dateDisabledFn"
     v-on="$listeners"
+    ref="datepicker"
     placeholder="클릭하여 날짜 선택"
     label-today-button="오늘 날짜"
     label-reset-button="재설정"
@@ -26,8 +27,10 @@
     label-help="방향키를 이용하여 날짜를 선택하세요"
     value-as-date
     @input="onInput"
+    @load="loaded"
   >
     <template #button-content>
+      <span class="sr-only">{{ title }}</span>
       <font-awesome-icon
         class="button-icon"
         :icon="['far', 'calendar']"
@@ -52,6 +55,21 @@ export default {
     required: Boolean,
     id: String,
     dateDisabledFn: Function,
+    title: {
+      type: String,
+      required: true,
+    },
+  },
+  mounted() {
+    this.$nextTick(() => {
+      const element = this.$refs.datepicker.$el;
+      console.log('# BFormDatepickerKorean mounted');
+      console.log(element);
+      /** @type {HTMLElement} */
+      const button = element.getElementsByTagName('button')[0];
+      console.log(button);
+      button.setAttribute('title', this.title);
+    });
   },
   methods: {
     onInput(value) {
@@ -63,6 +81,10 @@ export default {
     //   console.log('# BFormDatepickerKorean hoverButton');
     //   console.log(event);
     // },
+    loaded(e) {
+      console.log('# BFormDatepickerKorean loaded');
+      console.log(e);
+    },
   },
 };
 </script>
