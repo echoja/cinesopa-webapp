@@ -5,6 +5,7 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@bootpay/server-rest-client": "^1.0.3",
     "connect-history-api-fallback": "^1.6.0",
     "connect-mongo": "^3.2.0",
     "crypto": "^1.0.1",
