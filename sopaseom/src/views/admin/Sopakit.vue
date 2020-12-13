@@ -351,8 +351,6 @@ export default {
       console.log(file);
       this.items[index].image_url = file.fileurl;
       this.items[index].image_alt = file.alt;
-
-      // todo
     },
     async createSopakitConfirmClicked(index) {
       const item = this.items[index];

@@ -96,7 +96,9 @@ const roleConditionMap = {
  * @typedef {Object} RequireAuthCondition
  * @property {('admin'|'onlyGuest'|'onlyNoLogin'|'guest'|'anyone')} [role='anyone']
  * @property {boolean} [shouldVerified=false]
+ * @property {boolean} [shouldNotVerified=false]
  * @property {boolean} [shouldAgreed=false]
+ * @property {boolean} [shouldNotAgreed=false]
  */
 
 /**
@@ -116,17 +118,22 @@ const roleConditionMap = {
 
 export const requireAuth = (condition = {}, failRN = {}) => async (to, from, next) => {
   console.log('# requireAuth Called');
-  const { role = 'anyone', shouldVerified = false, shouldAgreed = false } = condition;
+  const {
+    role = 'anyone',
+    shouldVerified = false,
+    shouldAgreed = false,
+    shouldNotVerified = false,
+  } = condition;
   const roleArray = roleConditionMap[role];
   if (!roleArray) {
-    console.error('# nav-guare requireAuth : role을 찾을 수 없습니다!');
+    console.error('# nav-guard requireAuth : role을 찾을 수 없습니다!');
     return next();
   }
   // const result = await requestCheckAuth(role, shouldVerified);
   const {
     loginRequiredRN = 'Login',
     noPermissionRN = '401',
-    emailVerificationRequiredRN = 'ShouldVerify',
+    emailVerificationRequiredRN = 'VerifyEmailRequired',
     agreeRequiredRN = 'JoinOAuthUser',
   } = failRN;
 
@@ -171,6 +178,12 @@ export const requireAuth = (condition = {}, failRN = {}) => async (to, from, nex
   const userVerified = user?.verified;
   if (shouldVerified && !userVerified) {
     return next({ name: emailVerificationRequiredRN });
+  }
+
+  // 이메일 인증이 이미 되어있는 사람들에게는 필요없는 페이지인데
+  // 만약 접근했을 경우 그냥 홈으로 보냅니다.
+  if (shouldNotVerified && userVerified) {
+    return next({ name: 'Home' });
   }
 
   // 만약 약관 동의를 안했다면

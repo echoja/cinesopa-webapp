@@ -30,7 +30,9 @@ export default {
 
 <style lang="scss" scoped>
 .small-spinner {
-  padding: 0 15px;
+  margin: 0 15px;
+  display: inline-flex;
+  align-items: center;
 }
 </style>
 

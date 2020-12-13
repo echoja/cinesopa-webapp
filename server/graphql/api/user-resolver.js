@@ -121,7 +121,27 @@ const createGuest = makeResolver(async (obj, args, context, info) => {
 const verifyUserEmail = makeResolver(async (obj, args, context, info) => {
   const { token } = args;
   // console.log(`resolver-verifyUserEmail-token: ${token}`);
-  return user.verifyEmail(token);
+  let userReceived = null;
+  try {
+    userReceived = await user.verifyEmail(token);
+  } catch (err) {
+    if (err.message.endsWith('존재하지 않습니다.')) {
+      return { success: false, code: 'no_such_token' };
+    }
+
+    if (err.message === ('token-expired')) {
+      return { success: false, code: 'token_expired'};
+    }
+
+    // console.log('# user-resolver verifyUserEmail error');
+    // console.dir(err, { depth: 4 });
+    // console.dir(err.message);
+    // console.dir(err.code);
+    // console.dir(err.name);
+    // console.dir(err.status);
+    return { success: false, code: 'unknown' };
+  }
+  return { success: true, user: userReceived };
 }).only(ACCESS_ALL);
 
 const updateUserAdmin = makeResolver(async (obj, args, context, info) => {

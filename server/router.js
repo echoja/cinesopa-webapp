@@ -49,6 +49,10 @@ router.get('/graphql/kakao/login/oauth', (req, res, next) => {
 // 로그인되어 있는지 모르는 상태에서 로그인 시도(이미 로그인되어 있다면 세션 갱신)하는 경로
 router.get('/graphql/kakao/login', passport.authenticate('kakao'));
 
+router.get('/graphql/bootpay', (req, res, next) => {
+  // todo: bootpay 에서 정보를 이리로 넘겨줌.
+});
+
 // graphiql
 router.post('/graphql', graphQLServerMiddleware);
 router.get('/graphql', (req, res, next) => {

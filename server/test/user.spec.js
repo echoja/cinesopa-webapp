@@ -10,6 +10,7 @@ const {
   doLogout,
   makeSimpleQuery,
   adminEmail,
+  guestEmail,
 } = require('./tool');
 
 const { model, db } = require('../loader');
@@ -1218,6 +1219,26 @@ describe('user', function () {
             .lean()
             .exec();
           expect(token.length).to.not.equal(0);
+        });
+        it.only('이미 토큰이 있어도 새로 만들면 하나만 남아있어야 함.', async function () {
+          await doGuestLogin(agent);
+          await model.Token.create({
+            email: guestEmail,
+            token: '1234',
+            ttl: 123456,
+            c_date: new Date('2010-12-23'),
+            purpose: 'email_verification',
+          });
+          const result = await graphqlSuper(agent, requestVerifyEmailMutation, {
+            debug: true,
+          });
+          const token = await model.Token.find({
+            email: guestEmail,
+            purpose: 'email_verification',
+          })
+            .lean()
+            .exec();
+          expect(token.length).to.equal(1);
         });
       });
       describe('requestChangePassword', function () {

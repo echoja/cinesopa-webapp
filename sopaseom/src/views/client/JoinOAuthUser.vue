@@ -172,7 +172,6 @@ export default {
         });
         await checkAuth();
         this.$router.push(this.routeWhereAgreeSuccess ?? { name: 'Home' });
-        
       } else {
         this.pushMessage({
           msg: `약관 동의가 실패했습니다. ${code}`,
@@ -182,7 +181,6 @@ export default {
         this.$router.push({ name: 'Home' });
         checkAuth();
       }
-      // todo
       // this.$store.commit('setUserAgreed', {
       //   policy: this.checks[0].value,
       //   privacy: this.checks[1].value,

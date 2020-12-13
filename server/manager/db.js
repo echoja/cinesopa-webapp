@@ -337,12 +337,15 @@ class DBManager {
    * @param {string} purpose
    */
   async createToken(email, token, purpose) {
+    // 토큰이 올바른 purpose 인지 체크.
     const purposeFoundIndex = enumTokenPurpose.raw_str_list.findIndex(
       (value) => value == purpose,
     );
     if (purposeFoundIndex === -1) {
       throw Error(`createToken: 올바르지 않은 purpose입니다.: ${purpose}`);
     }
+
+    // 이미 존재하는 토큰을 삭제함.
     await model.Token.deleteMany({ email, purpose });
     const tokenDoc = new model.Token({
       token,
@@ -350,6 +353,8 @@ class DBManager {
       email,
       ttl: 1800,
     });
+
+    // 토큰을 저장함.
     await tokenDoc.save();
   }
 

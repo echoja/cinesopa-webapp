@@ -63,8 +63,7 @@ module.exports = {
       // product 의 가격 정보가 수정된다면 앞으로 생성될 order에 적힌 product
       // 의 가격과 실제 주문한 가격이 달라짐. (그럴 때는 어케?)
 
-      // todo: bootpay_id(receipt_id) 검증. 단, payment_method가 무통장입금(nobank)일
-      // 때에는 바로 그냥 주문 만들기.
+      // bootpay_id(receipt_id) 은 검증 따로 해야 함.
 
       // order 생성.
       const cartitems = results.map(({ value: cartitem }) => {
@@ -81,19 +80,22 @@ module.exports = {
       const order = await db.createOrder({
         user: email,
         items: cartitems,
-        status:
-          input.method !== 'nobank' ? 'payment_success' : 'payment_confirming',
+        status: 'payment_confirming',
         method: input.method,
         dest: input.dest,
         transport_fee: input.transport_fee,
         payer,
       });
 
-      // 해당 cartitem 삭제
-      const removePromises = cartitems.map((cartitem) =>
-        db.removeCartitem(cartitem.id),
-      );
-      await Promise.allSettled(removePromises);
+      // 해당 cartitem 삭제 - 일반 결제 모듈은 승인된 이후 삭제해야 하므로 
+      // 일단 cartitem 을 삭제하지 않음.
+      // 무통장 입금은 바로 삭제하도록 함.
+      if (input.method === 'nobank') {
+        const removePromises = cartitems.map((cartitem) =>
+          db.removeCartitem(cartitem.id),
+        );
+        await Promise.allSettled(removePromises);
+      }
       return { success: true, code: 'normal', order_id: order.id };
     }).only(ACCESS_AUTH),
     reqCancelOrder: makeResolver(async (obj, args, context, info) => {

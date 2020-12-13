@@ -81,6 +81,12 @@ type UpdateMeResult {
   code: String
 }
 
+type VerifyUserEmailResult {
+  success: Boolean
+  code: String
+  user: User
+}
+
 enum UserRole {
   ADMIN
   GUEST
@@ -156,7 +162,9 @@ extend type Mutation {
     user_agreed: UserAgreedInput
     debug: Boolean
   ): User # debug 라면 메일을 보내지 않음. 딱 그것뿐.
-  verifyUserEmail(token: String!): User
+
+  # 유저가 이메일 인증시 인증토큰이 포함된 페이지로 들어왔을 때 서버로 들어오는 요청
+  verifyUserEmail(token: String!): VerifyUserEmailResult
 
   updateUserAdmin(email: String!, userinfo: UpdateUserAdminInput): User
   makePwdForKakaoUser(pwd: String!): User # 실패시 user null

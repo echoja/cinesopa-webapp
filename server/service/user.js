@@ -168,7 +168,7 @@ class UserService {
     //   ttl: tokenDoc.ttl,
     // })
     if (Date.now() - tokenDoc.c_date > tokenDoc.ttl * 1000) {
-      throw Error('verifyEmail: token expired');
+      throw Error('token-expired');
     }
     // 유효시간 올바름.
     await this.#db.updateUser(email, { verified: true });

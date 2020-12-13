@@ -236,7 +236,7 @@ export default {
   },
   computed: {
     ...mapGetters(['isValidUserAgreed']),
-    ...mapState(['joinProcessing']),
+    ...mapState(['joinProcessing', 'createUserAgreed']),
     canNext() {
       return (
         Object.values(this.validate)
@@ -376,12 +376,15 @@ export default {
 
     async nextButtonClicked() {
       this.setJoinProcessing(true);
-      const r1 = await graphql(createGuestMutation, {
+      const args = {
         email: this.validate.email.value,
         pwd: this.validate.password.value,
         user_agreed: this.createUserAgreed,
-        debug: true,
-      });
+        // debug: true, // 이걸 false 로 해야 실제 메일이 보내집니다!
+      };
+      console.log('# JoinInfo nextButtonClicked ');
+      console.log(args);
+      const r1 = await graphql(createGuestMutation, args);
       console.log('power super created guest');
       console.log(r1);
       await checkAuth();

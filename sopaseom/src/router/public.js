@@ -272,32 +272,34 @@ export default [
     meta: BodyFooterMeta,
   },
   {
-    path: '/should-verify',
-    name: 'ShouldVerify',
-    component: () => import('@/views/client/ShouldVerify.vue'),
+    path: '/verify-email-required',
+    name: 'VerifyEmailRequired',
+    component: () => import('@/views/client/VerifyEmailRequired.vue'),
+    beforeEnter: requireAuth({ role: 'guest', shouldNotVerified: true }),
     // beforeEnter: onlyNoLoginBeforeEnter,
   },
   {
     path: '/verify-email',
     name: 'VerifyEmail',
     component: () => import('@/views/client/VerifyEmail.vue'),
-    children: [
-      {
-        path: 'auth',
-        name: 'VerifyEmailAuth',
-        component: () => import('@/views/client/VerifyEmailAuth.vue'),
-      },
-      {
-        path: 'success',
-        name: 'VerifyEmailSuccess',
-        component: () => import('@/views/client/VerifyEmailSuccess.vue'),
-      },
-      {
-        path: 'expired',
-        name: 'VerifyEmailExpired',
-        component: () => import('@/views/client/VerifyEmailExpired.vue'),
-      },
-    ],
+    beforeEnter: requireAuth({ role: 'guest', shouldNotVerified: true }),
+    // children: [
+    //   {
+    //     path: 'auth',
+    //     name: 'VerifyEmailAuth',
+    //     component: () => import('@/views/client/VerifyEmailAuth.vue'),
+    //   },
+    //   {
+    //     path: 'success',
+    //     name: 'VerifyEmailSuccess',
+    //     component: () => import('@/views/client/VerifyEmailSuccess.vue'),
+    //   },
+    //   {
+    //     path: 'expired',
+    //     name: 'VerifyEmailExpired',
+    //     component: () => import('@/views/client/VerifyEmailExpired.vue'),
+    //   },
+    // ],
   },
   {
     path: '/continuous-fail',

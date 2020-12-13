@@ -232,8 +232,8 @@
           <div class="nobank-notice">
             <ul>
               <li>
-                입금자명 혹은 입금액이 다를 경우 입금 확인이 어려워 배송이 지연될
-                수 있습니다.
+                입금자명 혹은 입금액이 다를 경우 입금 확인이 어려워 배송이
+                지연될 수 있습니다.
               </li>
               <li>
                 주문 후 48시간 이내에 입금하지 않으실 경우 주문이 취소될 수
@@ -250,6 +250,10 @@
           </div> -->
         </template>
       </div>
+      <pre>
+
+      {{ bootpayArgs }}
+      </pre>
     </div>
     <div class="payment-info-wrapper">
       <div class="payment-info">
@@ -285,13 +289,13 @@
           </div>
         </div>
         <div class="last-notice">위 주문 내용으로 결제에 동의합니다.</div>
-        <!-- 주문 내용을 확인 하였으며, 회원 본인은 결제에 동의합니다. 
+        <!-- 주문 내용을 확인 하였으며, 회원 본인은 결제에 동의합니다.
          -->
         <div class="go-payment-wrapper">
           <oval-button @click="paymentClicked" class="go-payment"
             >결제하기</oval-button
           >
-          <!-- {{ cartitems }} -->
+          <!-- {{ paymentProductName }} -->
         </div>
       </div>
       <!-- <div class="test">
@@ -314,6 +318,7 @@ import {
 import { toPrice } from '@/util';
 import { makeSimpleMutation, makeSimpleQuery } from '@/api/graphql-client';
 import { mapActions } from 'vuex';
+import BootPay from 'bootpay-js';
 
 const cartitemsByIdsReq = makeSimpleQuery('cartitemById');
 const siteOptionsReq = makeSimpleQuery('siteOptions');
@@ -340,6 +345,7 @@ export default {
       // addressNew: '',
       // addressOld: '',
       addressObj: {},
+      orderId: null,
       form: {
         name: '',
         address: '',
@@ -407,36 +413,36 @@ export default {
         },
       },
       orderList: [
-        {
-          name: '소파킷 고독',
-          // option_type: 'has_options',
-          options: [
-            {
-              id: '123',
-              content: 'a옵션',
-              count: 3,
-              price: 30000,
-            },
-            {
-              id: '456',
-              content: 'B옵션',
-              count: 2,
-              price: 20000,
-            },
-          ],
-        },
-        {
-          name: '소파킷 파워',
-          // option_type: 'no_options',
-          options: [
-            {
-              id: '123',
-              content: 'a옵션',
-              count: 5,
-              price: 34000,
-            },
-          ],
-        },
+        // {
+        //   name: '소파킷 고독',
+        //   // option_type: 'has_options',
+        //   options: [
+        //     {
+        //       id: '123',
+        //       content: 'a옵션',
+        //       count: 3,
+        //       price: 30000,
+        //     },
+        //     {
+        //       id: '456',
+        //       content: 'B옵션',
+        //       count: 2,
+        //       price: 20000,
+        //     },
+        //   ],
+        // },
+        // {
+        //   name: '소파킷 파워',
+        //   // option_type: 'no_options',
+        //   options: [
+        //     {
+        //       id: '123',
+        //       content: 'a옵션',
+        //       count: 5,
+        //       price: 34000,
+        //     },
+        //   ],
+        // },
       ],
     };
   },
@@ -458,7 +464,11 @@ export default {
       return sum;
     },
     totalCount() {
-      return 2;
+      const options = this.orderList.map((cartitem) => cartitem.options).flat();
+      // console.log('# OrderPayment.vue totalProductPrice options');
+      // console.dir(options);
+      const count = options.reduce((acc, now) => acc + now.count, 0);
+      return count;
     },
     totalPrice() {
       return this.totalProductPrice + this.transportationFee;
@@ -476,6 +486,80 @@ export default {
       const { ids } = this.$route.params;
       if (ids) return ids.split(',').map((item) => parseInt(item, 10));
       return [];
+    },
+    // 결제창에서 보여질 이름
+    paymentProductName() {
+      const options = this.orderList.map((cartitem) => cartitem.options).flat();
+      if (options.length === 0) {
+        return '';
+      }
+      if (options.length === 1) {
+        return `${this.orderList[0].name} - ${options[0].content}`;
+      }
+      return `${this.orderList[0].name} - ${options[0].content} 외 ${
+        options.length - 1
+      }건`;
+    },
+
+    // 결제창에서 넣을 items
+    paymentItems() {
+      return this.orderList
+        .map((cartitem) =>
+          cartitem.options.map((option) => ({
+            item_name: `${cartitem.name} - ${option.content}`,
+            qty: option.count,
+            unique: `${cartitem.id}-${option.id}`,
+            price: option.price,
+            cat1: '소파킷',
+          })),
+        )
+        .flat();
+    },
+
+    // bootpay 결제 request 에 넣을 args
+    bootpayArgs() {
+      return {
+        price: this.totalPrice, // 실제 결제되는 가격
+        application_id: '5eb4c78702f57e00291ee0e3',
+        name: this.paymentProductName, // 결제창에서 보여질 이름
+        pg: 'kcp',
+        method: this.form.paymentMethod, // 결제수단, 입력하지 않으면 결제수단 선택부터 화면이 시작합니다.
+        show_agree_window: 0, // 부트페이 정보 동의 창 보이기 여부
+        items: this.paymentItems,
+        // items: [
+        //   {
+        //     item_name: '나는 아이템', // 상품명
+        //     qty: 1, // 수량
+        //     unique: '123', // 해당 상품을 구분짓는 primary key
+        //     price: 1000, // 상품 단가
+        //     cat1: 'TOP', // 대표 상품의 카테고리 상, 50글자 이내
+        //     cat2: '티셔츠', // 대표 상품의 카테고리 중, 50글자 이내
+        //     cat3: '라운드 티', // 대표상품의 카테고리 하, 50글자 이내
+        //   },
+        // ],
+        user_info: {
+          username: this.form.name,
+          email: this.$store.state.currentUser.email,
+          addr: `${this.form.address} ${this.form.address_detail}`,
+          phone: this.form.phone,
+        },
+        order_id: this.orderId, // 고유 주문번호로, 생성하신 값을 보내주셔야 합니다.
+        params: {
+          callback1: '그대로 콜백받을 변수 1',
+          callback2: '그대로 콜백받을 변수 2',
+          customvar1234: '변수명도 마음대로',
+        },
+        // account_expire_at: '2020-10-25', // 가상계좌 입금기간 제한 ( yyyy-mm-dd 포멧으로 입력해주세요. 가상계좌만 적용됩니다. )
+        extra: {
+          // start_at: '2019-05-10', // 정기 결제 시작일 - 시작일을 지정하지 않으면 그 날 당일로부터 결제가 가능한 Billing key 지급
+          // end_at: '2022-05-10', // 정기결제 만료일 -  기간 없음 - 무제한
+          vbank_result: 1, // 가상계좌 사용시 사용, 가상계좌 결과창을 볼지(1), 말지(0), 미설정시 봄(1)
+          quota: '0,2,3', // 결제금액이 5만원 이상시 할부개월 허용범위를 설정할 수 있음, [0(일시불), 2개월, 3개월] 허용, 미설정시 12개월까지 허용,
+          theme: 'purple', // [ red, purple(기본), custom ]
+          // custom_background: '#00a086', // [ theme가 custom 일 때 background 색상 지정 가능 ]
+          // custom_font_color: '#ffffff', // [ theme가 custom 일 때 font color 색상 지정 가능 ]
+        },
+      };
     },
   },
   async mounted() {
@@ -523,6 +607,7 @@ export default {
       }
       this.orderList = res.list.map((cartitem) => ({
         name: cartitem.product.name,
+        id: cartitem.product_id,
         options: cartitem.options,
       }));
       // this.orderList = [];
@@ -659,7 +744,9 @@ export default {
       return validated;
     },
 
-    async setValidateMessage() {},
+    async setValidateMessage() {
+      // todo: 이거 뭐하는 거더라?
+    },
 
     async paymentClicked() {
       const validated = await this.validateInputs();
@@ -672,27 +759,17 @@ export default {
         return;
       }
 
-      // nobank 일 경우 페이지 보내는 것 다름.
-      let bootpay_id = null;
-      if (this.form.paymentMethod === 'nobank') {
-        // something..
-      } else {
-        bootpay_id = '123';
-        // todo: card, bank, phone 일 경우 bootpay 를 진행함.
-      }
-
-      // 진행한 후 bootpay 에서 receipt_id 를 이용해 검증 및 order 생성
+      // 일단 order 생성한다. (bootpay 에 order id 를 넘겨주기 위해 일단 생성해야 함.)
+      // todo: 무조건 결제 상태를 결제 대기 상태로 만들어야 함.
       const dest = { ...this.form };
       delete dest.paymentMethod;
       delete dest.payer;
-
       const res = await createOrderFromCartReq(
         {
           input: {
             items_id: this.cartitems,
             method: this.form.paymentMethod,
             dest,
-            bootpay_id, // todo 수정해야 함.
             transport_fee: this.transportationFee,
           },
           payer: this.form.payer,
@@ -703,27 +780,84 @@ export default {
       );
       console.log('# OrderPayment paymentClicked res');
       console.log(res);
+      this.orderId = res.order_id;
 
-      // 결제에 성공했을 경우 다음 페이지 전환
-      if (res.success) {
-        // 무통장 입금일 경우
-        if (this.form.paymentMethod === 'nobank') {
-          this.$router.push({
-            name: 'PaymentSuccessNoBank',
-            query: { orderId: res.order_id },
-          });
-          // ...PaymentSuccessNoBank
-        }
+      // nobank 가 아닐 경우 결제창으로 결제!
+      if (this.form.paymentMethod !== 'nobank') {
+        this.requestPayment();
+      }
+      // 무통장 입금이고, 그냥 order 만드는 게 성공했을 때
+      // 다음 화면으로 넘어간다.
+      else if (res.success) {
+        this.$router.push({
+          name: 'PaymentSuccessNoBank',
+          query: { orderId: res.order_id },
+        });
+      }
+      // 결제하게 되면, bootpay에 넘겨주는 콜백으로 모든 결과를 처리하게 됨.
+      // 그러므로 이 함수는 이제 역할을 다 함.
 
-        // 그 외 결제일 경우
-        else {
+      // // 결제에 성공했을 경우 다음 페이지 전환
+      // if (res.success) {
+      //   // 무통장 입금일 경우
+      //   if (this.form.paymentMethod === 'nobank') {
+      //     // ...PaymentSuccessNoBank
+      //   }
+
+      //   // 그 외 결제일 경우
+      //   else {
+      //     this.$router.push({ name: 'PaymentSuccess' });
+      //   }
+      // }
+      // // 결제에 실패했을 경우
+      // else {
+      //   this.getFail(res.code);
+      // }
+    },
+    requestPayment() {
+      // 실제 복사하여 사용시에는 모든 주석을 지운 후 사용하세요
+      BootPay.request(this.bootpayArgs)
+        .error((data) => {
+          // 결제 진행시 에러가 발생하면 수행됩니다.
+          console.log('# Bootpay error');
+          console.log(data);
+        })
+        .cancel((data) => {
+          // 결제가 취소되면 수행됩니다.
+          console.log('# Bootpay cancel');
+          console.log(data);
+        })
+        .ready((data) => {
+          // 가상계좌 입금 계좌번호가 발급되면 호출되는 함수입니다.
+          console.log('# Bootpay ready');
+          console.log(data);
+        })
+        .confirm((data) => {
+          // 결제가 실행되기 전에 수행되며, 주로 재고를 확인하는 로직이 들어갑니다.
+          // 주의 - 카드 수기결제일 경우 이 부분이 실행되지 않습니다.
+          // 그냥 무조건 승인 처리 한다음에, 뭐 안되면 그냥 승인 취소하는 방향으로 가자.
+          console.log('# Bootpay confirm');
+          console.log(data);
+          const enable = true; // 재고 수량 관리 로직 혹은 다른 처리
+          if (enable) {
+            BootPay.transactionConfirm(data); // 조건이 맞으면 승인 처리를 한다.
+          } else {
+            BootPay.removePaymentWindow(); // 조건이 맞지 않으면 결제 창을 닫고 결제를 승인하지 않는다.
+          }
+        })
+        .close((data) => {
+          // 결제창이 닫힐때 수행됩니다. (성공,실패,취소에 상관없이 모두 수행됨)
+          console.log('# Bootpay close');
+          console.log(data);
+        })
+        .done((data) => {
+          // 결제가 정상적으로 완료되면 수행됩니다
+          // 비즈니스 로직을 수행하기 전에 결제 유효성 검증을 하시길 추천합니다.
+          // todo: 진행한 후 bootpay 에서 receipt_id 를 이용해 검증 및 order 생성
+          console.log('# Bootpay done');
+          console.log(data);
           this.$router.push({ name: 'PaymentSuccess' });
-        }
-      }
-      // 결제에 실패했을 경우
-      else {
-        this.getFail(res.code);
-      }
+        });
     },
   },
 };
