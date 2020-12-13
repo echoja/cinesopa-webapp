@@ -50,21 +50,26 @@ class UserService {
       senderEmail: 'coop.cinesopa@gmail.com',
       senderName: '영화배급협동조합 씨네소파',
     };
+    const subject = '[소파섬] 회원가입 - 이메일 인증';
 
     // 디버그 모드가 아닐 때에만 메일 발송!
     if (!debug) {
-      await this.#mail.sendMail(
-        mailGate,
-        '[소파섬] 회원가입 - 이메일 인증',
-        `
-      <div>
-        <p>회원가입을 완료하려면 <a href="https://sopaseom.com/verify-email?token=${token}">링크를 클릭</a>하세요.
-      </div>`,
-      );
+      // await this.#mail.sendMail(
+      //   mailGate,
+      //   '[소파섬] 회원가입 - 이메일 인증',
+      //   `
+      // <div>
+      //   <p>회원가입을 완료하려면 <a href="https://sopaseom.com/verify-email?token=${token}">링크를 클릭</a>하세요.
+      // </div>`,
+      // );
+      await this.#mail.sendMailTemplate(mailGate, subject, 'verify-mail', {
+        verifyUrl: `https://sopaseom.com/verify-email?token=${token}`,
+      });
     }
   }
 
   /**
+   * 아이디/비밀번호 계정을 만드는 과정임.
    * 일반 계정을 만들면서 동시에 email Verifying 과정을 시작함.
    * 이미 카카오 계정이 있다면 합병하는 것만으로도 충분
    * @param {string} email 이메일
@@ -79,7 +84,7 @@ class UserService {
     if (!user) {
       await this.#db.createUser(email, pwd, { role: 'GUEST', user_agreed });
       await this.startEmailVerifying(email, debug);
-    } 
+    }
     // 만약 유저가 있다면 (카카오 계정이라면) 새롭게 추가합니다. (실제로는 쓰이지 않음.)
     else if (typeof user.kakao_id === 'string') {
       await this.#db.updateUser(email, {

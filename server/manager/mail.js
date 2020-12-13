@@ -1,4 +1,4 @@
-const nodemailer = require("nodemailer");
+const nodemailer = require('nodemailer');
 
 /**
  * 메일을 주고 받는 연결점
@@ -26,21 +26,37 @@ const nodemailer = require("nodemailer");
 
 let mailOptions = {
   from: '"영화배급협동조합 씨네소파" <coop.cinesopa@gmail.com>',
-  to: "eszqsc112@naver.com",
-  subject: "안녕하신가!",
-  text: "Hello world?",
-  html: "<b>Hello world?</b>",
+  to: 'eszqsc112@naver.com',
+  subject: '안녕하신가!',
+  text: 'Hello world?',
+  html: '<b>Hello world?</b>',
 };
 
+/**
+ * 메일 매니저에 집어넣을 config 입니다.
+ * @typedef {Object} MailManagerConfig
+ * @property {TemplateMap} templateMap
+ */
+
 class MailManager {
-  constructor(gate, transporter) {
+  /**
+   *
+   * @param {import("nodemailer").Transporter} transporter
+   * @param {MailManagerConfig} config
+   */
+  constructor(transporter, config) {
+    const { templateMap = new Map() } = config;
+
     /** @type {import("nodemailer").Transporter} */
     this.transporter = transporter;
 
-    /** @type {MailGate} */
-    this.gate = gate;
-
-    // 메일 템플릿들을 전부 미리 컴파일해두기. 렌더러 함수로. */
+    // /** @type {MailGate} */
+    // this.gate = gate;
+    
+    /** @type {TemplateMap} */
+    this.templateMap = templateMap;
+    console.log('# mail.js constructor templateMap');
+    console.log(templateMap);
   }
 
   /**
@@ -74,14 +90,41 @@ class MailManager {
   }
 
   /**
-   * 
-   * @param {MailGate} gate 
+   * @typedef {Object} SendMailTemplateResult
+   * @property {boolean} success 성공했는지 여부.
+   * @property {string} code 실패/성공 사유
+   */
+
+  /**
+   * 템플릿 이름 기반으로 보냅니다.
+   * @param {MailGate} gate
    * @param {subject} subject 제목
    * @param {string} templateName 템플릿 이름
    * @param {Object} args 템플릿에 렌더링 시 들어갈 것들.
+   * @return {SendMailTemplateResult}
    */
   async sendMailTemplate(gate, subject, templateName, args) {
-    
+    // render 함수를 불러온다.
+    await this.makeTemplateMapResolve();
+    const renderer = this.templateMap.get(templateName);
+    console.log('# mail.js sendMailTemplate');
+    console.dir(this.templateMap);
+    if (!renderer) {
+      console.error(`${templateName} 템플릿이 존재하지 않습니다.`);
+      return { success: false, code: 'no-such-template' };
+    }
+    const html = await renderer(args);
+    try {
+      await this.sendMail(gate, subject, html);
+    } catch (error) {
+      console.error(error);
+      return { success: false, code: error.name };
+    }
+    return { success: true };
+  }
+
+  async makeTemplateMapResolve() {
+    this.templateMap = await Promise.resolve(this.templateMap);
   }
 }
 
@@ -117,11 +160,11 @@ module.exports = {
 
   /**
    * mailManager 만드는 함수
-   * @param {MailGate} gate
    * @param {import("nodemailer").Transporter} transporter
+   * @param {MailManagerConfig} config config 파일
    * @returns {MailManager}
    */
-  make(gate, transporter) {
-    return new MailManager(gate, transporter);
+  make(transporter, config = {}) {
+    return new MailManager(transporter, config);
   },
 };

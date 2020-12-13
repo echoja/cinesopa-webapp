@@ -1,14 +1,28 @@
-/* 다른 모듈들 */
+/* 외부 모듈들 */
 
 const mongoose = require('mongoose');
 const nodemailer = require('nodemailer');
 
+/* db */
+const model = require('./db/model').make(mongoose);
+const db = require('./manager/db').make(model);
+
+
 /* mail template */
 
-const mailGenerator = require('./mail-template/generate');
-console.log(mailGenerator('verify-mail', {}));
+const mailTemplateFileInfo = {
+  'verify-mail': 'mail-template/verify-mail.pug',
+};
+const { makeTemplateMap } = require('./mail-template/template-map');
+const mailDefaultArgsGetter = async () => ({
+  // todo
+});
+const mailTemplateMap = makeTemplateMap(
+  mailTemplateFileInfo,
+  mailDefaultArgsGetter,
+);
 
-/* manager */
+/* mail manager */
 const mailManagerMaker = require('./manager/mail');
 const { gmailEmail, gmailPassword } = require('./config/common');
 
@@ -18,22 +32,23 @@ const mailTransporter = mailManagerMaker.makeWeakTransporter(
   gmailEmail,
   gmailPassword,
 );
-const mail = mailManagerMaker.make({}, mailTransporter);
+const mail = mailManagerMaker.make(mailTransporter, {
+  templateMap: mailTemplateMap,
+});
 
-const model = require('./db/model').make(mongoose);
-const db = require('./manager/db').make(model);
+
 
 /* service */
 const user = require('./service/user').make(db, mail);
 
 const page = require('./service/page').make(db);
 
-const fileManager = require('./manager/file');
 
 const auth = require('./service/auth').make(db);
 
 const dest = 'uploads/';
 const field = 'bin';
+const fileManager = require('./manager/file');
 const file = require('./service/file').make(db, fileManager, dest, field);
 
 /* validator */
@@ -81,6 +96,12 @@ const downloadBaseUrl = '/download/';
 //     ? 'https://sopaseom.com/download/'
 //     : '/download/';
 
+/* mail template */
+
+// const mailGenerator = require('./mail-template/generate');
+// console.log(mailGenerator('verify-mail', {}));
+
+
 module.exports = {
   mail,
   model,
@@ -96,6 +117,7 @@ module.exports = {
   makeResolver,
   uploadBaseUrl,
   downloadBaseUrl,
+  mailTemplateMap,
   ACCESS_ALL,
   ACCESS_AUTH,
   ACCESS_UNAUTH,

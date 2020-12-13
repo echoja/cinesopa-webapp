@@ -424,6 +424,14 @@ api
 
 /** @typedef {import('./manager/mail').MailManager} MailManager */
 
+/** 
+ * @callback MailRendererWrapper
+ * @param {Object.<string, string>} args
+ * @return {Promise<string>} rendered html
+ */
+
+/** @typedef {Map<string, MailRendererWrapper} TemplateMap */
+
 // eslint-disable-next-line
 /** @typedef {Object.<string, import('mongoose').Model<import('mongoose').MongooseDocument, {}>>} ModelWrapper */
 
