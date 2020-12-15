@@ -39,7 +39,8 @@
               </b-link>
             </h2>
           </div>
-          <div class="options">
+          <!-- 옵션 데스크탑 -->
+          <div class="options desktop">
             <div
               class="option"
               v-for="(option, optionIndex) in cartitem.options"
@@ -78,6 +79,30 @@
           >
             정말로 삭제하시겠습니까?
           </b-modal>
+        </div>
+        <!-- 옵션 모바일 -->
+        <div class="options mobile">
+          <div
+            class="option"
+            v-for="(option, optionIndex) in cartitem.options"
+            :key="optionIndex"
+          >
+            <div class="option-name">{{ option.content }}</div>
+            <div class="count-box">
+              <number-controller
+                v-model="option.count"
+                @input="countChanged(cartitemIndex, optionIndex)"
+                :id="`number-controller-${cartitemIndex}-${optionIndex}`"
+              ></number-controller>
+              <b-tooltip
+                triggers="manual"
+                :target="`number-controller-${cartitemIndex}-${optionIndex}`"
+                :show="option.tooltipShow"
+              ></b-tooltip>
+            </div>
+            <div class="count-and-price-blank"></div>
+            <div class="price">{{ toPrice(option.price) }}</div>
+          </div>
         </div>
       </div>
     </div>
@@ -309,6 +334,8 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+@import '@/common';
+
 .cartitem-wrapper {
   padding-bottom: 30px;
   border-bottom: 1px solid #000;
@@ -323,15 +350,32 @@ export default {
 .title-wrapper {
   flex: 1;
 }
+
 .options {
-  position: absolute;
   width: 100%;
-  right: 0;
-  bottom: 0;
   display: flex;
   flex-direction: column;
-  // justify-content: flex-end;
   align-items: flex-end;
+}
+.options.desktop {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+}
+
+.options.mobile {
+  display: none;
+  margin-top: 20px;
+}
+
+@include max-with(md) {
+  .options.mobile {
+    display: flex;
+  }
+
+  .options.desktop {
+    display: none;
+  }
 }
 
 h2.title {

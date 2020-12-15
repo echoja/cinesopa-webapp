@@ -192,6 +192,7 @@ $gray-c2: #7a7a7a;
 }
 
 @include max-with(md) {
+  
   .right {
     margin-top: 10px;
     text-align: left;
@@ -199,6 +200,10 @@ $gray-c2: #7a7a7a;
   .right-block {
     margin-left: 0;
     margin-right: 10px;
+  }
+  .center {
+    transform: none;
+    margin-top: 20px;
   }
 }
 

@@ -166,44 +166,19 @@
           {{ validate.paymentMethod.msg }}
         </div>
         <!-- 결제 방법 -->
+
         <div class="payment-method row" ref="paymentMethod" tabindex="-1">
-          <div class="col-6 payment-method-option">
+          <div
+            class="col-6 payment-method-option"
+            v-for="methodKey in Object.keys(paymentMethodMap)"
+            :key="methodKey"
+          >
             <div class="option-inner-wrapper">
               <b-button
-                @click="setPaymentMethod('card', $event)"
-                :class="{ selected: form.paymentMethod === 'card' }"
+                @click="setPaymentMethod(methodKey, $event)"
+                :class="{ selected: form.paymentMethod === methodKey }"
               >
-                신용카드
-              </b-button>
-            </div>
-          </div>
-          <div class="col-6 payment-method-option">
-            <div class="option-inner-wrapper">
-              <b-button
-                @click="setPaymentMethod('bank', $event)"
-                :class="{ selected: form.paymentMethod === 'bank' }"
-              >
-                계좌이체
-              </b-button>
-            </div>
-          </div>
-          <div class="col-6 payment-method-option">
-            <div class="option-inner-wrapper">
-              <b-button
-                @click="setPaymentMethod('nobank', $event)"
-                :class="{ selected: form.paymentMethod === 'nobank' }"
-              >
-                무통장입금
-              </b-button>
-            </div>
-          </div>
-          <div class="col-6 payment-method-option">
-            <div class="option-inner-wrapper">
-              <b-button
-                @click="setPaymentMethod(null, $event)"
-                :class="{ selected: form.paymentMethod === null }"
-              >
-                휴대폰결제
+                {{ paymentMethodMap[methodKey] }}
               </b-button>
             </div>
           </div>
@@ -251,10 +226,6 @@
           </div> -->
         </template>
       </div>
-      <pre>
-
-      {{ bootpayArgs }}
-      </pre>
     </div>
     <div class="payment-info-wrapper">
       <div class="payment-info">
@@ -303,6 +274,11 @@
         <b-link :to="{ name: 'Cart' }">이전</b-link>
       </div> -->
     </div>
+    <!-- <b-button @click="testKakao" class="test">테스트</b-button> -->
+    <!-- <pre>
+
+      {{ bootpayArgs }}
+      </pre> -->
   </div>
 </template>
 
@@ -316,7 +292,7 @@ import {
   BButton,
   BSpinner,
 } from 'bootstrap-vue';
-import { toPrice } from '@/util';
+import { paymentMethodMap, toPrice } from '@/util';
 import { makeSimpleMutation, makeSimpleQuery } from '@/api/graphql-client';
 import { mapActions } from 'vuex';
 import BootPay from 'bootpay-js';
@@ -340,6 +316,7 @@ export default {
   },
   data() {
     return {
+      paymentMethodMap: { ...paymentMethodMap },
       transportationFee: 123,
       selectDeliveryPlace: 'default',
       cartitemFetched: false,
@@ -443,6 +420,32 @@ export default {
         //       price: 34000,
         //     },
         //   ],
+        // },
+      ],
+      paymentMethodOptions: [
+        {
+          name: 'card',
+          label: '신용카드',
+        },
+        {
+          name: 'bank',
+          label: '계좌이체',
+        },
+        {
+          name: 'nobank',
+          label: '무통장입금',
+        },
+        {
+          name: 'phone',
+          label: '휴대폰결제',
+        },
+        // {
+        //   name: 'kakao',
+        //   label: '카카오페이',
+        // },
+        // {
+        //   name: 'npay',
+        //   label: '네이버페이',
         // },
       ],
     };
@@ -860,6 +863,14 @@ export default {
           this.$router.push({ name: 'PaymentSuccess' });
         });
     },
+    // testKakao() {
+    //   this.form.paymentMethod = 'npay';
+    //   this.orderId = '123124121511f12f';
+    //   console.log(this.bootpayArgs);
+    //   this.$nextTick(() => {
+    //     this.requestPayment();
+    //   });
+    // },
   },
 };
 </script>
@@ -870,9 +881,36 @@ export default {
 .payment {
   display: flex;
 }
+@include max-with(md) {
+  .payment {
+    display: block;
+  }
+}
+
 .delivery-info-wrapper {
   flex: 1;
+  padding-left: 10px;
+  margin-left: -10px;
   margin-right: 150px;
+  overflow: hidden;
+}
+
+@include max-with(xl) {
+  .delivery-info-wrapper {
+    margin-right: 100px;
+  }
+}
+
+@include max-with(lg) {
+  .delivery-info-wrapper {
+    margin-right: 50px;
+  }
+}
+
+@include max-with(md) {
+  .delivery-info-wrapper {
+    margin-right: 0;
+  }
 }
 
 .header:not(:first-child) {
@@ -1016,6 +1054,14 @@ export default {
   flex: 0 0 300px;
   padding: 0 0 0 40px;
   border-left: 2px solid #000;
+}
+
+@include max-with(md) {
+  .payment-info-wrapper {
+    border-left: 0;
+    // border-top: 2px solid #000;
+    padding: 40px 0 0 0;
+  }
 }
 
 $content-margin-top: 30px;

@@ -95,11 +95,29 @@ $content-margin-top: 30px;
   align-items: stretch;
 }
 
+@include max-with(md) {
+  .wrapper {
+    margin-top: 0;
+    display: block;
+  }
+}
+
 .sidebar-wrapper {
   flex: 0 0 150px;
   padding-right: 30px;
   border-right: 2px solid #000;
   margin-right: 50px;
+}
+
+@include max-with(md) {
+  .sidebar-wrapper {
+    margin: 0;
+    padding: 0;
+    border: 0;
+    margin-bottom: 20px;
+    border-bottom: 1px solid #000;
+    padding-bottom: 10px;
+  }
 }
 
 .sidebar {
@@ -121,6 +139,24 @@ $content-margin-top: 30px;
 
 @include prevent-break-top0('.sidebar');
 
+@include max-with(md) {
+  .sidebar {
+    position: relative;
+    top: 0;
+    ul {
+      display: flex;
+      margin-bottom: 0;
+    }
+    li {
+      padding-bottom: 0;
+      padding-right: 20px;
+    }
+    a {
+      font-size: 16px;
+    }
+  }
+  
+}
 .content-wrapper {
   flex: 1;
 }

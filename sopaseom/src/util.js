@@ -26,6 +26,8 @@ export const paymentMethodMap = {
   nobank: '무통장입금',
   bank: '계좌이체',
   phone: '휴대폰결제',
+  // npay: '네이버페이',
+  // kakao: '카카오페이',
 };
 
 export const transportCompanyMap = {

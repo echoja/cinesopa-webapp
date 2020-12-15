@@ -182,6 +182,14 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+@import '@/common';
+
+@include max-with(md) {
+  .my-info .form-control {
+    font-size: 14px;
+  }
+}
+
 h2 {
   font-size: 20px;
   font-weight: bold;
@@ -195,6 +203,13 @@ p {
 .info-group {
   margin-bottom: 35px;
 }
+
+@include max-with(md) {
+  .info-group {
+    font-size: 14px;
+  }
+}
+
 .info-row {
   display: flex;
   margin-bottom: 15px;

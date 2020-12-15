@@ -14,7 +14,13 @@
             주문/결제
           </span>
           <span class="seperator"> > </span>
-          <span :class="{ current: $route.name === 'PaymentSuccess' || $route.name === 'PaymentSuccessNoBank' }">
+          <span
+            :class="{
+              current:
+                $route.name === 'PaymentSuccess' ||
+                $route.name === 'PaymentSuccessNoBank',
+            }"
+          >
             주문완료
           </span>
         </div>
@@ -56,6 +62,12 @@ export default {
   &.seperator {
     padding: 0 20px;
     font-weight: 100;
+  }
+}
+
+@include max-with(sm) {
+  .process span.seperator {
+    padding: 0 8px;
   }
 }
 

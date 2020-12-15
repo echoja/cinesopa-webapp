@@ -92,6 +92,7 @@ export default {
   -moz-osx-font-smoothing: grayscale;
   /* text-align: center; */
   color: #000;
+  min-width: 300px;
 }
 </style>
 

@@ -32,6 +32,8 @@ const enumOrderMethod = makeEnum([
   'auth',
   'card_rebill',
   'easy',
+  'npay',
+  'kakao',
 ]);
 const enumProductType = makeEnum(['sopakit']);
 const enumTokenPurpose = makeEnum(['email_verification', 'change_password']);

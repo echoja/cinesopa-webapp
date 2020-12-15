@@ -625,17 +625,29 @@ h2 {
   margin-bottom: 50px;
 }
 
+@include max-with(lg) {
+  .header-wrapper {
+    margin-bottom: 10px;
+  }
+}
+
 .header {
-  display: flex;
+  // display: flex;
   align-items: flex-end;
   padding: 10px 0 20px;
   // padding-bottom: 20px;
   border-bottom: 2px solid #000;
 }
 
+@include max-with(xl) {
+  .header {
+    display: block;
+  }
+}
+
 .transporting-count {
   line-height: 1;
-  padding-right: 30px;
+  margin-bottom: 15px;
 }
 .tr-extra {
   font-size: 30px;
@@ -651,15 +663,20 @@ h2 {
 }
 
 .search-button,
-.predefined-date,
-.search-condition {
+.predefined-date {
   display: flex;
   align-items: stretch;
 }
 
 .search-condition {
-  padding-left: 30px;
-  border-left: 2px solid #000;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: stretch;
+  > div {
+    padding-bottom: 10px;
+  }
+  // padding-left: 30px;
+  // border-left: 2px solid #000;
   // margin-left: 30px;
 }
 
@@ -707,8 +724,14 @@ select.condition {
   display: flex;
 }
 
+@include max-with(lg) {
+  .order-list-item {
+    display: block;
+  }
+}
+
 .order-summary {
-  flex: 0 0 500px;
+  flex: 0 0 calc(20vw + 100px);
 }
 .order-summary-item {
   display: flex;
@@ -720,6 +743,13 @@ select.condition {
   border-left: 1px solid #aaa;
   flex: 1;
   font-size: 14px;
+}
+
+@include max-with(lg) {
+  .order-actions {
+    padding-left: 0;
+    border: 0;
+  }
 }
 
 .preview-box {
@@ -772,6 +802,15 @@ select.condition {
   font-size: 12px;
   padding: 3px 7px 4px;
   margin: 3px 0;
+}
+
+@include max-with(lg) {
+  .buttons-wrapper {
+    flex-direction: row;
+    .btn {
+      margin-right: 10px;
+    }
+  }
 }
 
 // details
