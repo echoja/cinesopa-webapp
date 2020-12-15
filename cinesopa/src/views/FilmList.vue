@@ -186,27 +186,24 @@
           <div class="search-icon mr-3 d-flex align-items-center">
             <font-awesome-icon :icon="['fas', 'search']"></font-awesome-icon>
           </div>
-          <label
-            class="w-100 m-0"
-            for="keywords"
-            title="영화제목, 감독, 배우 검색"
-          >
-            <b-form-input
-              debounce="500"
-              @update="updateSearchString"
-              v-model="search"
-              class="rounded-pill search-box"
-              id="keywords"
-              size="lg"
-              type="search"
-              placeholder="영화제목, 감독, 배우 검색"
-              aria-placeholder="영화제목, 감독, 배우 검색"
-              contenteditable="true"
-              autocomplete="off"
-              name="search"
-              title="영화제목, 감독, 배우 검색"
-            ></b-form-input>
+          <label for="keywords">
+            <span class="sr-only">영화제목, 감독, 배우 검색</span>
           </label>
+          <b-form-input
+            debounce="500"
+            @update="updateSearchString"
+            v-model="search"
+            class="rounded-pill search-box"
+            id="keywords"
+            size="lg"
+            type="search"
+            placeholder="영화제목, 감독, 배우 검색"
+            aria-placeholder="영화제목, 감독, 배우 검색"
+            contenteditable="true"
+            autocomplete="off"
+            name="search"
+            title="영화제목, 감독, 배우 검색"
+          ></b-form-input>
         </div>
       </template>
 
@@ -229,27 +226,24 @@
           <b-form-radio ref="d_opened" value="opened">개봉작</b-form-radio>
           <b-form-radio ref="d_owned" value="owned">보유작</b-form-radio>
         </b-form-radio-group>
-        <label
-          class="w-100 m-0"
-          for="keywords"
-          title="영화제목, 감독, 배우 검색"
-        >
-          <b-form-input
-            debounce="500"
-            @update="updateSearchString"
-            v-model="search"
-            class="rounded-pill search-box has-inner-button"
-            id="keywords"
-            size="lg"
-            type="search"
-            placeholder="영화제목, 감독, 배우 검색"
-            aria-placeholder="영화제목, 감독, 배우 검색"
-            contenteditable="true"
-            autocomplete="off"
-            name="search"
-            title="영화제목, 감독, 배우 검색"
-          ></b-form-input>
+        <label for="keywords">
+          <span class="sr-only">영화제목, 감독, 배우 검색</span>
         </label>
+        <b-form-input
+          debounce="500"
+          @update="updateSearchString"
+          v-model="search"
+          class="rounded-pill search-box has-inner-button"
+          id="keywords"
+          size="lg"
+          type="search"
+          placeholder="영화제목, 감독, 배우 검색"
+          aria-placeholder="영화제목, 감독, 배우 검색"
+          contenteditable="true"
+          autocomplete="off"
+          name="search"
+          title="영화제목, 감독, 배우 검색"
+        ></b-form-input>
       </div>
     </div>
 
@@ -866,6 +860,11 @@ export default {
 .search {
   max-width: 740px;
 }
+.search-box {
+  width: 100%;
+  margin: 0;
+  display: inline-block;
+}
 .has-inner-button {
   // padding-left: 190px;
   height: 50px;
@@ -1131,6 +1130,7 @@ export default {
     color: #000;
     color: util.$text-color;
     font-weight: bold;
+    text-decoration: underline 2px solid #000;
   }
   & .custom-radio .custom-control-input:focus ~ .custom-control-label {
     /*      background-color: #aaa; */

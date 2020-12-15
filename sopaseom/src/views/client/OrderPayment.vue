@@ -165,6 +165,7 @@
         >
           {{ validate.paymentMethod.msg }}
         </div>
+        <!-- 결제 방법 -->
         <div class="payment-method row" ref="paymentMethod" tabindex="-1">
           <div class="col-6 payment-method-option">
             <div class="option-inner-wrapper">
@@ -199,8 +200,8 @@
           <div class="col-6 payment-method-option">
             <div class="option-inner-wrapper">
               <b-button
-                @click="setPaymentMethod('phone', $event)"
-                :class="{ selected: form.paymentMethod === 'phone' }"
+                @click="setPaymentMethod(null, $event)"
+                :class="{ selected: form.paymentMethod === null }"
               >
                 휴대폰결제
               </b-button>

@@ -128,7 +128,6 @@
             v-model="form.film.title"
             type="text"
             id="film-title"
-            placeholder=""
             :required="required"
             title="한글 제목"
           ></b-form-input>
@@ -146,7 +145,6 @@
             v-model="form.film.title_en"
             type="text"
             id="film-title_en"
-            placeholder=""
             :required="required"
             title="영어 제목"
           ></b-form-input>
@@ -164,7 +162,6 @@
             v-model="form.film.director_name"
             type="text"
             id="film-director_name"
-            placeholder=""
             :required="required"
             title="감독 이름"
           ></b-form-input>
@@ -182,7 +179,6 @@
             class="rounded-box w-50"
             v-model="form.film.type"
             id="film-type"
-            placeholder=""
             :required="required"
           >
             <!-- <template v-slot:first>
@@ -210,7 +206,6 @@
               type="number"
               id="film-runningtime"
               :required="required"
-              placeholder=""
               title="러닝타임"
             ></b-form-input>
             <div class="w-50">분</div>
@@ -248,7 +243,6 @@
             v-model="form.film.synopsis"
             size="sm"
             id="film-synopsis"
-            placeholder=""
             :required="required"
             rows="5"
             title="시놉시스"
@@ -266,7 +260,6 @@
             v-model="form.film.purpose"
             size="sm"
             id="film-purpose"
-            placeholder=""
             :required="required"
             rows="5"
             title="연출의도"
@@ -286,7 +279,7 @@
             id="film-festival_list"
             placeholder="예) 2019 제24회 부산국제영화제 단편경쟁 수상(김감독)"
             rows="5"
-            title="영화제 리스트"
+            title="영화제 리스트. 예) 2019 제24회 부산국제영화제 단편경쟁 수상(김감독)"
           ></b-form-textarea>
         </b-form-group>
 
@@ -376,6 +369,10 @@
                 title="개인정보처리방침"
                 @shown="modalPrivacyShown"
               >
+                <template #modal-header-close>
+                  <span class="close-figure" aria-hidden="true">&times;</span>
+                  <span class="sr-only"> 닫기 </span>
+                </template>
                 <privacy></privacy>
               </b-modal>
             </div>
@@ -397,6 +394,7 @@
           class="submit"
           type="submit"
           variant="primary"
+          title="의뢰서를 제출합니다"
           >의뢰서를 제출합니다</loading-button
         >
         <!-- <loading-button class="test" :loading="false">안녕하세요</loading-button> -->
@@ -528,10 +526,12 @@ export default {
     },
     getFocusCloseButton(modalId) {
       this.$nextTick(() => {
-        document
+        const buttonElement = document
           .getElementById(modalId)
-          .getElementsByClassName('close')[0]
-          .focus();
+          .getElementsByClassName('close')[0];
+
+        buttonElement.focus();
+        buttonElement.setAttribute('title', '닫기');
       });
     },
   },

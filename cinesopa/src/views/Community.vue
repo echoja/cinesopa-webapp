@@ -358,7 +358,12 @@
             title="영화 선택"
             hide-footer
             :return-focus="filmSelectFocus"
+            @shown="getFocusCloseButton('film-select-modal')"
           >
+            <template #modal-header-close>
+              <span class="close-figure" aria-hidden="true">&times;</span>
+              <span class="sr-only"> 닫기 </span>
+            </template>
             <film-selector
               class="noto-sans"
               @film-selected="filmSelected"
@@ -836,6 +841,10 @@
                   title="개인정보처리방침"
                   @shown="modalPrivacyShown"
                 >
+                  <template #modal-header-close>
+                    <span class="close-figure" aria-hidden="true">&times;</span>
+                    <span class="sr-only"> 닫기 </span>
+                  </template>
                   <privacy></privacy>
                 </b-modal>
               </div>
@@ -883,6 +892,10 @@
                   @shown="modalCopyrightShown"
                 >
                   <!-- :film-name="form.filmname" -->
+                  <template #modal-header-close>
+                    <span class="close-figure" aria-hidden="true">&times;</span>
+                    <span class="sr-only"> 닫기 </span>
+                  </template>
                   <copyright-consent
                     :film-list="form.films"
                     :playdate-start="form.playdateStart"
@@ -911,6 +924,7 @@
           variant="primary"
           :loading="submitting"
           loading-label="제출 중입니다."
+          title="신청서를 제출하겠습니다"
         >
           신청서를 제출하겠습니다
         </loading-button>
@@ -1218,10 +1232,12 @@ export default {
     },
     getFocusCloseButton(modalId) {
       this.$nextTick(() => {
-        document
+        const buttonElement = document
           .getElementById(modalId)
-          .getElementsByClassName('close')[0]
-          .focus();
+          .getElementsByClassName('close')[0];
+
+        buttonElement.focus();
+        buttonElement.setAttribute('title', '닫기');
       });
     },
   },

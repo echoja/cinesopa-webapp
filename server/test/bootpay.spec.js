@@ -6,7 +6,7 @@ const bootpay = require('../manager/bootpay');
 
 // 테스트를 실행하기 전에 반드시
 // receipt_id 를 수정해주세요.
-// 실제 receipt_id 를 넣으면 안됨!!!
+// 테스트용을 넣어야지 실제 receipt_id 를 넣으면 안됨!!!
 
 const receipt_id = '5fd67bef8f0751002cd2e165';
 

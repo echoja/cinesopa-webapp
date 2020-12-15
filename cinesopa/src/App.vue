@@ -627,11 +627,14 @@ export default {
     },
     sidebarMenuShown() {
       console.log('# App sidebarMenuShown called');
+
       this.$nextTick(() => {
-        document
+        const closeButton = document
           .getElementById('sidebar-menu')
-          .getElementsByClassName('close')[0]
-          .focus();
+          .getElementsByClassName('close')[0];
+
+        closeButton.focus();
+        closeButton.setAttribute('title', '닫기');
       });
     },
     getBlur(e) {
@@ -1200,6 +1203,16 @@ caption {
   .custom-control-label::before {
     border-color: $text-color;
   }
+}
+
+// input focus 색상 조정
+#main .form-control:focus,
+#main .form-control.focus,
+#main .custom-select:focus,
+#main .custom-select.focus,
+.modal .form-control:focus,
+.modal .form-control.focus {
+  box-shadow: 0 0 0 0.2rem rgba(0, 158, 218, 0.6);
 }
 </style>
 

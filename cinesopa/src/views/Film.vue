@@ -777,18 +777,18 @@ export default {
 }
 
 .scrollactive {
-  height: 55px;
   border-bottom: 2px solid #eee;
   background-color: rgba(255, 255, 255, 1);
 }
 .scrollactive-item {
   color: #767676;
   font-size: 18px;
-  border: 20px solid transparent;
-  border-radius: 500px;
+  padding: 11px 20px;
+  margin: 4px 0;
   transition: 1s;
   transition-property: color;
-
+  border-bottom: 3px solid transparent;
+  margin-bottom: -2px;
   &:hover {
     color: #009eda;
     transition: none;
@@ -833,6 +833,7 @@ export default {
 .vue-affix.affix-top .scrollactive-item.first {
   color: #009eda;
   font-weight: 700;
+  border-color: #009eda;
 }
 
 // 상세 정보

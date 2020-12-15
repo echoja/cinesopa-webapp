@@ -267,7 +267,8 @@ export default {
 
 <style lang="scss" scoped>
 .active {
-  background-color: #ddd;
+  background-color: #f6f6f6;
+  box-shadow: 0 0 0 2px #000;
 }
 
 .description {
