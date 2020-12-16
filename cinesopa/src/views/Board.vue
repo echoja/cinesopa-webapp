@@ -44,7 +44,7 @@
           type="search"
           placeholder="제목, 내용 검색"
           aria-placeholder="제목, 내용 검색"
-          :title="`게시물 검색`"
+          title="게시물 검색 (제목, 내용 검색)"
           contenteditable="true"
           autocomplete="off"
           name="search"

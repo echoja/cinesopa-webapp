@@ -1,7 +1,7 @@
 <template>
   <div>
     <!-- placeholder -->
-    <h1 class="sr-only">작품 소개</h1>
+    <h1 class="sr-only">작품소개</h1>
     <div
       class="featured-wrapper position-relative fullwidth"
       v-if="featured.length !== 0"
@@ -593,7 +593,7 @@ export default {
     this.opened = this.type;
     this.vuePageTitle = `${
       this.openedOptionsStringMap[this.opened]
-    } - 영화소개`;
+    } - 작품소개`;
     this.currnetPage = parseInt(this.page, 10);
     AOS.init();
     this.fetchFeaturedFilms();
@@ -635,7 +635,7 @@ export default {
       //   console.log(this);
       //   this.$refs[refname].$el.focus();
       // });
-      this.vuePageTitle = `${this.openedOptionsStringMap[value]} - 영화소개`;
+      this.vuePageTitle = `${this.openedOptionsStringMap[value]} - 작품소개`;
       this.opened = value;
       this.currentPage = 1;
       this.$route.params.type = value;
