@@ -4,8 +4,6 @@
     <div class="board-nav d-flex row">
       <div
         class="board-select"
-        role="listbox"
-        aria-orientation="horizontal"
         aria-label="게시판 종류 선택"
       >
         <template v-for="(board, index) in boards">
@@ -13,9 +11,9 @@
             href="#"
             :key="index"
             @click="boardClicked(index)"
-            role="option"
             class="board-select-item d-inline-block"
             :class="{ selected: board.selected }"
+            :aria-current="board.selected ? 'page' : null"
             >{{ board.title }}</b-link
           >
         </template>

@@ -23,11 +23,12 @@
     label-selected="선택된 날짜"
     label-no-date-selected="날짜가 선택되지 않았습니다"
     label-calendar="달력"
-    label-nav="달력 열기"
+    label-nav="이동하기"
     label-help="방향키를 이용하여 날짜를 선택하세요"
     value-as-date
     @input="onInput"
-    @load="loaded"
+    @shown="onShown"
+    @context="onContext"
   >
     <template #button-content>
       <span class="sr-only">{{ title }}</span>
@@ -81,9 +82,40 @@ export default {
     //   console.log('# BFormDatepickerKorean hoverButton');
     //   console.log(event);
     // },
-    loaded(e) {
-      console.log('# BFormDatepickerKorean loaded');
-      console.log(e);
+    removeAria() {
+      const datepicker = this.$refs.datepicker.$el;
+      /** @type {Element} */
+
+      const removeMap = {
+        'dropdown-menu': ['aria-modal', 'x-placement'],
+        btn: ['aria-keyshortcuts', 'aria-expanded', 'aria-haspopup'],
+        'b-calendar-nav': ['aria-keyshortcuts'],
+        'b-calendar-grid': [
+          'aria-activedescendant',
+          'aria-roledescription',
+          'role',
+        ],
+        'b-calendar-grid-caption': ['aria-live', 'aria-atomic'],
+      };
+
+      Object.keys(removeMap).forEach((key) => {
+        const elements = datepicker.getElementsByClassName(key);
+        elements.forEach((element) => {
+          removeMap[key].forEach((attrName) => {
+            element.removeAttribute(attrName);
+          });
+        });
+      });
+    },
+    onShown(event) {
+      this.$nextTick(() => {
+        this.removeAria();
+      });
+    },
+    onContext(context) {
+      this.$nextTick(() => {
+        this.removeAria();
+      });
     },
   },
 };
