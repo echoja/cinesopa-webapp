@@ -28,10 +28,11 @@
     </div>
     <div class="footer-line">
       <div>개인정보관리책임자 : 성송이</div>
+      <div>전화번호 : 070-3577-4970</div>
       <div>사업자번호 : 159-87-00749</div>
     </div>
     <div class="footer-line">
-      <div>통신판매업신고 : 제2020-부산해운대-4727호</div>
+      <div>통신판매업신고 : 면제대상사업자</div>
     </div>
     <div class="footer-line">
       <div>부산광역시 해운대구 재반로103번길 5, 3층</div>

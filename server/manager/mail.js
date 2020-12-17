@@ -52,7 +52,7 @@ class MailManager {
 
     // /** @type {MailGate} */
     // this.gate = gate;
-    
+
     /** @type {TemplateMap} */
     this.templateMap = templateMap;
     console.log('# mail.js constructor templateMap');
@@ -68,8 +68,12 @@ class MailManager {
   async sendMail(gate, subject, html) {
     this.gate = gate;
     return new Promise((resolve, reject) => {
-      const from = `"${this.gate.senderName}" <${this.gate.senderEmail}>`;
-      const to = `"${this.gate.recipientName}" <${this.gate.recipientEmail}>`;
+      const from = `"${this.gate.senderName ?? '영화향유플랫폼 소파섬'}" <${
+        this.gate.senderEmail ?? 'coop.cinesopa@gmail.com'
+      }>`;
+      const to = `"${this.gate.recipientName ?? ''} " <${
+        this.gate.recipientEmail ?? ''
+      }>`;
       const mailOptions = { from, to, subject, html };
       this.transporter.verify((error) => {
         if (error) {
@@ -101,7 +105,7 @@ class MailManager {
    * @param {subject} subject 제목
    * @param {string} templateName 템플릿 이름
    * @param {Object} args 템플릿에 렌더링 시 들어갈 것들.
-   * @return {SendMailTemplateResult}
+   * @return {Promise<SendMailTemplateResult>}
    */
   async sendMailTemplate(gate, subject, templateName, args) {
     // render 함수를 불러온다.

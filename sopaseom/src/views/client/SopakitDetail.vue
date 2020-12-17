@@ -145,15 +145,18 @@
                 <span>{{ option.content }}</span>
               </div>
               <div class="inf-row">
-                <number-controller
-                  v-model="option.count"
-                  class="inf-cell"
-                ></number-controller>
-                <!-- <div class="inf-cell number-controller">
-                </div> -->
-                <div class="inf-cell money">
-                  ￦ {{ numberWithCommas(option.price) }}
-                </div>
+                <template v-if="option.disabled">
+                  <span class="option-disabled"> 현재 주문할 수 없습니다 </span>
+                </template>
+                <template v-else>
+                  <number-controller
+                    v-model="option.count"
+                    class="inf-cell"
+                  ></number-controller>
+                  <div class="inf-cell money">
+                    ￦ {{ numberWithCommas(option.price) }}
+                  </div>
+                </template>
               </div>
             </div>
           </div>
@@ -253,14 +256,21 @@
               :key="optionIndex"
             >
               <div class="item-name">
-                <span>{{ option.name }}</span>
+                <span>{{ option.content }}</span>
               </div>
               <div class="inf-row">
-                <number-controller v-model="option.count" class="inf-cell">
-                </number-controller>
-                <div class="inf-cell money">
-                  ￦ {{ numberWithCommas(option.price) }}
-                </div>
+                <template v-if="option.disabled">
+                  <span class="option-disabled"> 현재 주문할 수 없습니다 </span>
+                </template>
+                <template v-else>
+                  <number-controller
+                    v-model="option.count"
+                    class="inf-cell"
+                  ></number-controller>
+                  <div class="inf-cell money">
+                    ￦ {{ numberWithCommas(option.price) }}
+                  </div>
+                </template>
               </div>
             </div>
           </div>
@@ -499,7 +509,7 @@ export default {
         `{
           featured_image_url featured_image_alt content_main content_sub side_phrase notice name is_notice_default
           options {
-            id content left price
+            id content left price disabled
           }
           related_film {
             id title title_en open_date prod_date genres watch_grade poster_url poster_alt show_time synopsis is_opened
@@ -537,7 +547,7 @@ export default {
       if (received.options) {
         received.options = received.options.map((option) => ({
           ...option,
-          count: 1,
+          count: option.disabled ? 0 : 1,
         }));
       }
       this.product = {
@@ -671,6 +681,7 @@ $content-margin-top: 30px;
   padding: 0 45px 0 80px;
   position: relative;
   overflow: hidden;
+  max-width: 800px;
   h2 {
     font-size: 23px;
     font-weight: bold;
@@ -845,6 +856,18 @@ $content-margin-top: 30px;
 .order-content {
   min-height: 250px;
   margin: 10px 0;
+}
+
+.option-disabled {
+  font-size: 14px;
+  // font-weight: bold;
+}
+
+.mobile-order {
+  .option-disabled {
+    font-size: 13px;
+    color: #777;
+  }
 }
 .item-name {
   font-size: 16px;

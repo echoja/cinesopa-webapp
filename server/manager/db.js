@@ -1500,8 +1500,8 @@ class DBManager {
    * @param {OrderInput} input
    */
   async updateOrder(id, input) {
-    console.log('#db updateOrder input');
-    console.log(input);
+    // console.log('#db updateOrder input');
+    // console.log(input);
     return model.Order.updateOne({ id }, input).lean().exec();
   }
 

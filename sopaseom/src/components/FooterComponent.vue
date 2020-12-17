@@ -32,11 +32,12 @@
         <div v-if="!isSimple" class="right col-12 col-md-6">
           <div>
             <div class="right-block">개인정보관리책임자 : 성송이</div>
+            <div class="right-block">전화번호 : 070-3577-4970</div>
             <div class="right-block">사업자번호 : 159-87-00749</div>
           </div>
           <div>
             <div class="right-block">
-              통신판매업신고 : 제2020-부산해운대-4727호
+              통신판매업신고 : 면제대상사업자
             </div>
           </div>
           <div>

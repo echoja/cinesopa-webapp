@@ -7,6 +7,8 @@ const {
   ACCESS_UNAUTH,
   makeResolver,
   db,
+  payment,
+  mail,
 } = require('../../loader');
 require('../../typedef');
 
@@ -35,7 +37,7 @@ module.exports = {
         return { success: false, code: 'no_permission' };
       }
       if (order.method !== 'nobank') {
-        return { success: false, code: 'no_nobank' };
+        return { success: false, code: 'not_nobank' };
       }
       return { success: true, order };
     }).only(ACCESS_AUTH),
@@ -87,7 +89,7 @@ module.exports = {
         payer,
       });
 
-      // 해당 cartitem 삭제 - 일반 결제 모듈은 승인된 이후 삭제해야 하므로 
+      // 일반 결제 모듈은 승인된 이후 삭제해야 하므로
       // 일단 cartitem 을 삭제하지 않음.
       // 무통장 입금은 바로 삭제하도록 함.
       if (input.method === 'nobank') {
@@ -97,6 +99,38 @@ module.exports = {
         await Promise.allSettled(removePromises);
       }
       return { success: true, code: 'normal', order_id: order.id };
+    }).only(ACCESS_AUTH),
+    finishPayment: makeResolver(async (obj, args, context, info) => {
+      const { id, receiptId } = args;
+
+      let order = await db.getOrder(id);
+      const user = context.getUser();
+
+      // 유저 소유의 order 이어야 함.
+      if (order.user !== user.email) {
+        return { success: false, code: 'no_ownership' };
+      }
+
+      // 우선 bootpay id를 order에 넣어야 함.
+      await db.updateOrder(id, { bootpay_id: receiptId });
+
+      // 그 다음 검증 들어감.
+      const result = await payment.finishPayment(id);
+      order = await db.getOrder(id);
+
+      // 결제 완료 되었다고 메일을 보냄
+      mail.sendMailTemplate({
+        recipientEmail: user.email,
+        recipientName: order.payer ?? order.dest?.name,
+      }, '[소파섬] 결제가 완료되었습니다.', 'payment_success', {
+        // todo 메일에 넣을 args를 채워넣어야 함.
+      }).catch((err) => {
+        console.error(err);
+        // todo: 메일이 제대로 안갔을 경우 처리
+      });
+
+      // 검증 결과를 내보냄.
+      return { ...result, order };
     }).only(ACCESS_AUTH),
     reqCancelOrder: makeResolver(async (obj, args, context, info) => {
       const { id } = args;

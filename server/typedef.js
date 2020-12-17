@@ -87,6 +87,7 @@
  * 카트의 옵션을 담는 객체
  * @typedef {Object} CartItemOptioninfo
  * @property {string} id  식별자
+ * @property {boolean} disabled  비활성화 여부
  * @property {string} content : String,
  * @property {number} price : Number,
  * @property {number} count : Number,
@@ -96,6 +97,7 @@
 /**
  * 카트 아이템을 담는 객체
  * @typedef {Object} CartIteminfo
+ * @property {number}  id : id 값
  * @property {string}  user : String, // 유저 이메일
  * @property {Date}  added : { type: Date, default: Date.now },
  * @property {Date}  modified : { type: Date, default: Date.now },
@@ -130,6 +132,7 @@
  * @property {string}   cash_receipt
  * @property {string}   transport_number
  * @property {string}   transport_company
+ * @property {number}   transport_fee
  * @property {string}   bootpay_id
  * @property {string}   payer
  * @property {object}   meta
@@ -419,6 +422,8 @@ api
 /** @typedef {import("./auth/validator").AuthValidator} AuthValidator */
 
 /** @typedef {import("./manager/db").DBManager} DBManager */
+
+/** @typedef {import("./manager/bootpay").BootpayManager} BootpayManager */
 
 /** @typedef {import("./manager/file")} FileManager */
 

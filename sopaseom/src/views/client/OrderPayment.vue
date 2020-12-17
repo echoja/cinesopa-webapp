@@ -300,6 +300,7 @@ import BootPay from 'bootpay-js';
 const cartitemsByIdsReq = makeSimpleQuery('cartitemById');
 const siteOptionsReq = makeSimpleQuery('siteOptions');
 const createOrderFromCartReq = makeSimpleMutation('createOrderFromCart');
+const finishPaymentReq = makeSimpleMutation('finishPayment');
 
 export default {
   title: '주문결제',
@@ -549,9 +550,9 @@ export default {
         },
         order_id: this.orderId, // 고유 주문번호로, 생성하신 값을 보내주셔야 합니다.
         params: {
-          callback1: '그대로 콜백받을 변수 1',
-          callback2: '그대로 콜백받을 변수 2',
-          customvar1234: '변수명도 마음대로',
+          // callback1: '그대로 콜백받을 변수 1',
+          // callback2: '그대로 콜백받을 변수 2',
+          // customvar1234: '변수명도 마음대로',
         },
         // account_expire_at: '2020-10-25', // 가상계좌 입금기간 제한 ( yyyy-mm-dd 포멧으로 입력해주세요. 가상계좌만 적용됩니다. )
         extra: {
@@ -752,6 +753,7 @@ export default {
       // todo: 이거 뭐하는 거더라?
     },
 
+    // 결제하기 버튼이 클릭되었을 때
     async paymentClicked() {
       const validated = await this.validateInputs();
       console.log('# OrderPayment paymentClicked validated');
@@ -791,7 +793,7 @@ export default {
         this.requestPayment();
       }
       // 무통장 입금이고, 그냥 order 만드는 게 성공했을 때
-      // 다음 화면으로 넘어간다.
+      // 다음 화면으로 넘어간다. 그리고 바로 끝낸다!
       else if (res.success) {
         this.$router.push({
           name: 'PaymentSuccessNoBank',
@@ -828,6 +830,7 @@ export default {
         })
         .cancel((data) => {
           // 결제가 취소되면 수행됩니다.
+          // 할 일은 아무것도 없음.
           console.log('# Bootpay cancel');
           console.log(data);
         })
@@ -858,9 +861,29 @@ export default {
           // 결제가 정상적으로 완료되면 수행됩니다
           // 비즈니스 로직을 수행하기 전에 결제 유효성 검증을 하시길 추천합니다.
           // todo: 진행한 후 bootpay 에서 receipt_id 를 이용해 검증 및 order 생성
+          // const result = await finishPaymentReq({id: })
           console.log('# Bootpay done');
           console.log(data);
-          this.$router.push({ name: 'PaymentSuccess' });
+          const { receipt_id, order_id } = data;
+
+          // 마무으리합니다.
+          finishPaymentReq(
+            { id: order_id, receiptId: receipt_id },
+            `{
+            success code
+            order {
+              id
+              status
+            }
+          }`,
+          )
+            // 성공했을 시
+            .then((data) => {
+              this.$router.push({ name: 'PaymentSuccess' });
+            })
+            .catch((err) => {
+              console.error(err);
+            });
         });
     },
     // testKakao() {

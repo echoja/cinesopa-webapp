@@ -309,6 +309,15 @@ describe('order', function () {
         expect(res.success).to.be.false;
       });
     });
+    describe("finishPayment", function () {
+      // 반드시 테스트용 
+      const bootpay_id = '5fd8f7008f0751003cd37fa0';
+      it("제대로 동작해야 함", async function () {
+
+        
+
+      });
+    });
     describe('reqCancelOrder', function () {
       it.only('제대로 동작해야 함', async function () {
         // todo

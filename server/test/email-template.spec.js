@@ -6,6 +6,7 @@ const util = require('util');
 const { expect } = require('chai');
 const inlineCss = require('inline-css');
 const { makeTemplateMap } = require('../mail-template/template-map');
+const readFile = util.promisify(fs.readFile);
 
 // describe('email-template', function () {
 //   describe('compile, render', function () {
@@ -14,7 +15,6 @@ describe('email-template', function () {
   describe('라이브러리 (pug 등)', function () {
     it('기본 동작 테스트 (test/output/email-template.test.html 파일 출력내용 참조)', async function () {
       // 일단 템플릿 파일로 읽음.
-      const readFile = util.promisify(fs.readFile);
       const filename = 'test/template/email-implementation.pug';
       const template = await readFile(filename);
 
@@ -34,6 +34,71 @@ describe('email-template', function () {
         policyUrl: 'http://slack.com',
         year: new Date().getFullYear(),
         name: '이름',
+      });
+      expect(string).to.be.a('string');
+      const inlined = await inlineCss(string, {
+        url: '/',
+      });
+      // html 파일로 작성함.
+      fs.writeFileSync('test/output/email-template.test.html', inlined);
+    });
+  });
+  describe('payment-success', function () {
+    it.only('제대로 동작해야 함', async function () {
+      const filename = 'mail-template/payment-success.pug';
+      const template = await readFile(filename);
+      const render = pug.compile(template.toString(), {
+        filename,
+      });
+      // 랜더러를 실행시킴. 실행시키면서 변수 넣기.
+      const string = render({
+        detailUrl: 'http://naver.com',
+        order: {
+          items: [
+            {
+              product: {
+                name: '양아치상품',
+                featured_image_url: '/12345678',
+              },
+              options: [
+                {
+                  count: 3,
+                  price: 1000,
+                  content: 'ho',
+                },
+                {
+                  count: 2,
+                  price: 600,
+                  content: 'hi',
+                },
+              ],
+            },
+            {
+              product: {
+                name: '그러한상품',
+                featured_image_url: '/abcdefg',
+              },
+              options: [
+                {
+                  count: 3,
+                  price: 100,
+                  content: 'zo',
+                },
+                {
+                  count: 1,
+                  price: 200,
+                  content: 'zi',
+                },
+              ],
+            },
+          ],
+          dest: {
+            address: '주소1',
+            phone: '010-****-1234',
+            name: '김*훈',
+          },
+        },
+        year: new Date().getFullYear(),
       });
       expect(string).to.be.a('string');
       const inlined = await inlineCss(string, {

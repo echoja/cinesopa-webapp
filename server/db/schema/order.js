@@ -39,6 +39,7 @@ module.exports = (mongoose) => {
   });
 
   Order.index({ user: 1, c_date: -1 });
+  Order.index({ id: 1 });
 
   autoIdSetter(Order, mongoose, 'order', 'id');
 

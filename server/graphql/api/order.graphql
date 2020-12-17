@@ -107,6 +107,13 @@ type NobankOrderInfoResult {
   code: String
   order: Order
 }
+
+type FinishPaymentResult {
+  success: Boolean
+  code: String
+  order: Order
+}
+
 extend type Query {
   orderAdmin(id: Int!): Order
   ordersAdmin(condition: OrderSearch!): OrdersResult
@@ -123,7 +130,8 @@ extend type Mutation {
   createOrderFromCart(
     input: CreateOrderFromCartInput!
     payer: String
-  ): CreateOrderFromCartResult # 이미 결제 완료된 상태임. 영수증 검증 + 새 주문 생성
+  ): CreateOrderFromCartResult # 새 주문 생성
+  finishPayment(id: Int!, receiptId: String!): FinishPaymentResult
   reqCancelOrder(id: Int!): ReqCancelOrderResult
   updateOrder(id: Int!, input: OrderInput!): updateOrderResult
   removeOrder(id: Int!): removeOrderResult

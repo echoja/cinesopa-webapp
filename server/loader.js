@@ -12,6 +12,10 @@ const db = require('./manager/db').make(model);
 
 const mailTemplateFileInfo = {
   'verify-mail': 'mail-template/verify-mail.pug',
+  'payment-success': 'mail-template/payment-success.pug',
+  'change-password': 'mail-template/change-password.pug',
+  'changed-agreed': 'mail-template/changed-agreed.pug',
+  'advertisement': 'mail-template/advertisement.pug',
 };
 const { makeTemplateMap } = require('./mail-template/template-map');
 const mailDefaultArgsGetter = async () => ({
@@ -36,13 +40,16 @@ const mail = mailManagerMaker.make(mailTransporter, {
   templateMap: mailTemplateMap,
 });
 
+/* bootpay */
+const bootpay = require('./manager/bootpay').make();
+
 
 
 /* service */
 const user = require('./service/user').make(db, mail);
 
 const page = require('./service/page').make(db);
-
+const payment = require('./service/payment').make(db, bootpay);
 
 const auth = require('./service/auth').make(db);
 
@@ -112,6 +119,7 @@ module.exports = {
   fileManager,
   validator,
   file,
+  payment,
   localAuthConfig,
   makeAuthMiddleware,
   makeResolver,

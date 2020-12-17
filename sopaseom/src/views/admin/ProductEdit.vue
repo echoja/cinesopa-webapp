@@ -60,7 +60,10 @@
       ></single-file-selector>
       <!-- featured_image_url featured_image_alt -->
     </form-row>
-    <form-row title="옵션" description="옵션은 최소 하나 이상이어야 합니다.">
+    <form-row
+      title="옵션"
+      description="옵션은 최소 하나 이상이어야 합니다. 식별 코드는 임의의 문자열을 넣으면 됩니다. 옵션 이름은 옵션이 하나일 경우 사이트에서 노출되지 않습니다."
+    >
       <b-table :fields="optionFields" :items="product.options">
         <template #cell(id)="{ item }">
           <b-form-input v-model="item.id"></b-form-input>
@@ -68,8 +71,11 @@
         <template #cell(content)="{ item }">
           <b-form-input v-model="item.content"></b-form-input>
         </template>
-        <template #cell(left)="{ item }">
+        <!-- <template #cell(left)="{ item }">
           <b-form-input type="number" number v-model="item.left"></b-form-input>
+        </template> -->
+        <template #cell(disabled)="{ item }">
+          <b-form-checkbox v-model="item.disabled"></b-form-checkbox>
         </template>
         <template #cell(price)="{ item }">
           <b-form-input
@@ -132,12 +138,14 @@ import {
   BFormRadio,
   BButton,
   BTable,
+  BFormCheckbox,
 } from 'bootstrap-vue';
 import { mapActions } from 'vuex';
-import { makeRequest, makeSimpleQuery } from '@/api/graphql-client';
+import { makeRequest, makeSimpleMutation, makeSimpleQuery } from '@/api/graphql-client';
 import FilmSelector from '@/components/admin/FilmSelector.vue';
 
 const getRelatedFilmOnServer = makeSimpleQuery('film');
+
 const getProductFromServer = makeRequest('product', {
   type: 'query',
   paramList: [
@@ -165,6 +173,7 @@ const getProductFromServer = makeRequest('product', {
     content
     left
     price
+    disabled
   }
   related_film {
     id
@@ -185,7 +194,6 @@ const getProductFromServer = makeRequest('product', {
   }
 }`,
 });
-
 const createProductToServer = makeRequest('createProduct', {
   type: 'mutation',
   paramList: [
@@ -196,7 +204,6 @@ const createProductToServer = makeRequest('createProduct', {
   ],
   resultString: '{success, code}',
 });
-
 const updateProductToServer = makeRequest('updateProduct', {
   type: 'mutation',
   paramList: [
@@ -211,7 +218,6 @@ const updateProductToServer = makeRequest('updateProduct', {
   ],
   resultString: '{success, code}',
 });
-
 // console.log('# productEdit test');
 // console.log(getProductFromServer);
 
@@ -225,6 +231,7 @@ export default {
     BFormRadio,
     BButton,
     BTable,
+    BFormCheckbox,
     FormRow: () => import('@/components/admin/FormRow'),
     CommonEditor: () => import('@/components/admin/CommonEditor'),
     SingleFileSelector: () => import('@/components/admin/SingleFileSelector'),
@@ -248,13 +255,17 @@ export default {
           key: 'content',
           label: '옵션 이름',
         },
-        {
-          key: 'left',
-          label: '재고',
-        },
+        // {
+        //   key: 'left',
+        //   label: '재고',
+        // },
         {
           key: 'price',
           label: '가격',
+        },
+        {
+          key: 'disabled',
+          label: '비활성화',
         },
         {
           key: 'remove',
@@ -311,25 +322,32 @@ export default {
     },
     async updateProductClicked() {
       await this.preprocessInputs();
-      const result = await updateProductToServer({
-        id: this.id,
-        input: this.product,
-      });
-      console.log('# ProductEdit updateProductClicked');
-      console.log(result);
-      if (result.success) {
-        this.pushMessage({
-          type: 'success',
-          msg: '성공적으로 업데이트 되었습니다.',
-          id: 'createProductSuccess',
+      try {
+        const result = await updateProductToServer({
+          id: this.id,
+          input: this.product,
         });
-      } else {
-        this.pushMessage({
-          type: 'danger',
-          msg: `상품을 업데이트 하는 도중 오류가 발생했습니다. > ${result.code}`,
-          id: 'updateProductFail',
-        });
+        console.log('# ProductEdit updateProductClicked');
+        console.log(result);
+        if (result.success) {
+          this.pushMessage({
+            type: 'success',
+            msg: '성공적으로 업데이트 되었습니다.',
+            id: 'createProductSuccess',
+          });
+        } else {
+          this.updateProductFailMsg();
+        }
+      } catch {
+        this.updateProductFailMsg();
       }
+    },
+    async updateProductFailMsg() {
+      this.pushMessage({
+        type: 'danger',
+        msg: '상품을 업데이트 하는 도중 오류가 발생했습니다.',
+        id: 'updateProductFail',
+      });
     },
     async createProductClicked() {
       await this.preprocessInputs();
@@ -344,12 +362,15 @@ export default {
           id: 'createProductSuccess',
         });
       } else {
-        this.pushMessage({
-          type: 'danger',
-          msg: `상품을 생성하는 도중 오류가 발생했습니다. > ${result.code}`,
-          id: 'createProductFail',
-        });
+        this.createProductFailMsg();
       }
+    },
+    async createProductFailMsg() {
+      this.pushMessage({
+        type: 'danger',
+        msg: '상품을 생성하는 도중 오류가 발생했습니다.',
+        id: 'createProductFail',
+      });
     },
     addOptionClicked() {
       this.product.options.push({});

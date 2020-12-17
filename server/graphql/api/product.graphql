@@ -1,6 +1,7 @@
 type Option {
   id: String
   content: String
+  disabled: Boolean
   left: Int
   price: Int
 }
@@ -8,6 +9,7 @@ type Option {
 input OptionInput {
   id: String
   content: String
+  disabled: Boolean
   left: Int
   price: Int
 }

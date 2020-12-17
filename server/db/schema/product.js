@@ -1,7 +1,7 @@
 const { Mongoose } = require('mongoose');
 const autoIdSetter = require('./auto-id-setter');
 const { enumProductType, enumFilmStatus } = require('./enum');
-const { makeSchemaHaveSearchByGetter, getProductSearchStr} = require('./tool')
+const { makeSchemaHaveSearchByGetter, getProductSearchStr } = require('./tool');
 
 /**
  *
@@ -10,6 +10,7 @@ const { makeSchemaHaveSearchByGetter, getProductSearchStr} = require('./tool')
 module.exports = function (mongoose) {
   const Option = new mongoose.Schema({
     id: String,
+    disabled: { type: Boolean, default: 'false' },
     content: String,
     left: Number,
     price: Number,
@@ -17,7 +18,11 @@ module.exports = function (mongoose) {
 
   const schema = new mongoose.Schema({
     product_type: { type: String, enum: enumProductType.raw_str_list },
-    status: { type: String, enum: enumFilmStatus.raw_str_list, default: 'public'}, // 일반 사람들에게 공개할 건지 여부
+    status: {
+      type: String,
+      enum: enumFilmStatus.raw_str_list,
+      default: 'public',
+    }, // 일반 사람들에게 공개할 건지 여부
     featured_image_url: String,
     featured_image_alt: String,
     content_main: String,
@@ -40,6 +45,6 @@ module.exports = function (mongoose) {
   schema.index({ id: 1 });
 
   makeSchemaHaveSearchByGetter(schema, 'search', getProductSearchStr);
-  
+
   return schema;
 };
