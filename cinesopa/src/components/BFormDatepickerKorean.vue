@@ -28,6 +28,7 @@
     value-as-date
     @input="onInput"
     @shown="onShown"
+    @hidden="onHidden"
     @context="onContext"
   >
     <template #button-content>
@@ -61,16 +62,31 @@ export default {
       required: true,
     },
   },
+  data() {
+    return {
+      currentContext: null,
+      allowKeyUp: false,
+      keyDowned: false,
+      contextChangedCount: 0,
+      showTime: 0,
+    };
+  },
   mounted() {
+    // 가장 바깥쪽 버튼에 title 추가
     this.$nextTick(() => {
-      const element = this.$refs.datepicker.$el;
+      const datepicker = this.$refs.datepicker.$el;
       // console.log('# BFormDatepickerKorean mounted');
       // console.log(element);
       /** @type {HTMLElement} */
-      const button = element.getElementsByTagName('button')[0];
+      const button = datepicker.getElementsByTagName('button')[0];
       // console.log(button);
       button.setAttribute('title', this.title);
     });
+
+    // keydown 없애기 ... 불가능
+    // this.nextTick(() => {
+    //   this.$refs.datepicker.$children[0].$children[0].$off('keydown');
+    // });
   },
   methods: {
     onInput(value) {
@@ -117,14 +133,77 @@ export default {
       });
     },
     onShown(event) {
+      const datepicker = this.$refs.datepicker.$el;
+      const grid = datepicker.querySelector('.b-calendar-grid');
+      grid.addEventListener('keyup', this.onKeyUp);
+      grid.addEventListener('keydown', this.onKeyDown);
       this.$nextTick(() => {
         this.removeAria();
       });
+      console.log('onShown');
+      console.log(event);
+      // keyUP 보정 초기화!!
+      this.keyDowned = false;
+      this.allowKeyUp = false;
+
+      // enter 키가 연속으로 눌려지지 않도록 시간을 재서 enter 를 누름.
+      this.showTime = new Date().getTime();
+    },
+    onHidden(event) {
+      const datepicker = this.$refs.datepicker.$el;
+      const grid = datepicker.querySelector('.b-calendar-grid');
+      grid.removeEventListener('keyup', this.onKeyUp);
+      grid.removeEventListener('keydown', this.onKeyDown);
     },
     onContext(context) {
+      // console.log('# BFormDatepickerKorean context');
+      // console.log(context);
+      this.currentContext = context;
+      // console.log(this.currentContext);
       this.$nextTick(() => {
         this.removeAria();
       });
+      this.contextChangedCount += 1;
+    },
+    // 사용안함
+    onButtonKeyDown(event) {},
+
+    // keyDown 감지. 만약 keyDown 이 된다면
+    // keyUp이 패스가 됨.
+    onKeyDown(event) {
+      // console.log('# BFormDatepickerKorean keydown');
+      // console.log(event);
+      this.keyDowned = true;
+    },
+    onKeyUp(event) {
+      console.log('# BFormDatepickerKorean keyup');
+      console.log(event);
+      console.log(this.$refs.datepicker);
+      console.log({ keyDowned: this.keyDowned, allowKeyUp: this.allowKeyUp });
+      // const {
+      //   onKeydownWrapper,
+      // } = this.$refs.datepicker.$children[0].$children[0];
+
+      if (this.keyDowned === false) {
+        const newE = new KeyboardEvent('keydown', {
+          key: event.key,
+          keyCode: event.keyCode,
+        });
+        const newE2 = new KeyboardEvent('keydown', {
+          key: event.key,
+          keyCode: event.keyCode,
+        });
+        // console.log(newE);
+        this.$refs.datepicker.$children[0].$children[0].onKeydownWrapper(newE);
+        if (new Date().getTime() - this.showTime > 1000) {
+          this.$refs.datepicker.$children[0].$children[0].onKeydownGrid(newE2);
+        }
+        // onKeydownWrapper(newE);
+        // console.log('you got key up!!!');
+        this.currentContext = null;
+        // console.log(this.currentContext);
+        // grid.dispatchEvent(newE);
+      }
     },
   },
 };
