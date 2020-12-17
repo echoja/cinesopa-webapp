@@ -65,8 +65,8 @@ export default {
 
   $watch: {
     calendars(to) {
-      console.log('# Request watch calendars');
-      console.log(to);
+      // console.log('# Request watch calendars');
+      // console.log(to);
     },
   },
   // created 시점에는 ref가 전부 undefined 이다.
@@ -99,12 +99,12 @@ export default {
       });
     },
     giveTitleToCalendar() {
-      this.$nextTick(() => {
-        const calendars = document.getElementsByClassName('b-form-datepicker');
-        console.log('# Request giveTitleToCalendar calendars');
-        console.log(calendars);
-        console.log(calendars.length);
-      });
+      // this.$nextTick(() => {
+      //   const calendars = document.getElementsByClassName('b-form-datepicker');
+      //   // console.log('# Request giveTitleToCalendar calendars');
+      //   // console.log(calendars);
+      //   // console.log(calendars.length);
+      // });
     },
   },
 };

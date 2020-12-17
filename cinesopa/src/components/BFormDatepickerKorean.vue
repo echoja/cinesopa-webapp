@@ -64,11 +64,11 @@ export default {
   mounted() {
     this.$nextTick(() => {
       const element = this.$refs.datepicker.$el;
-      console.log('# BFormDatepickerKorean mounted');
-      console.log(element);
+      // console.log('# BFormDatepickerKorean mounted');
+      // console.log(element);
       /** @type {HTMLElement} */
       const button = element.getElementsByTagName('button')[0];
-      console.log(button);
+      // console.log(button);
       button.setAttribute('title', this.title);
     });
   },
@@ -105,6 +105,15 @@ export default {
             element.removeAttribute(attrName);
           });
         });
+      });
+
+      // role button 에 title 추가
+      const buttons = datepicker.querySelectorAll('div[role="button"]');
+      // console.log('# BFormDatepickerKorean removeAria buttons');
+      // console.log(buttons);
+      buttons.forEach((button) => {
+        const number = button.querySelector('span').textContent;
+        button.setAttribute('title', number);
       });
     },
     onShown(event) {

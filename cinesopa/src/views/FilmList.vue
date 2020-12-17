@@ -576,13 +576,13 @@ export default {
       if (to.query.f) {
         const refname = to.query.f;
         this.$nextTick(() => {
-          console.log(this.$refs[refname]);
+          // console.log(this.$refs[refname]);
           // const el =
           //   this.$refs[refname].$el ?? this.$refs[refname];
           // console.log(el);
           // el.focus();
           const el = this.$refs[`d_${this.opened}`];
-          console.log(el);
+          // console.log(el);
           this.$refs[`d_${this.opened}`].focus();
         });
       }

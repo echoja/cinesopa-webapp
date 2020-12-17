@@ -247,14 +247,14 @@ export default {
     this.id = `${gid}`;
     gid += 1;
     this.updateSearchString();
-    console.log('# FilmSelector mounted called!!$$');
+    // console.log('# FilmSelector mounted called!!$$');
 
     this.$root.$on('bv::modal::shown', (bvEvent, modalId) => {
       if (modalId === this.modalId) {
         this.$nextTick(() => {
           const el = this.$refs['search-input'];
-          console.log('# FilmSelector mounted el');
-          console.log(el);
+          // console.log('# FilmSelector mounted el');
+          // console.log(el);
           this.$refs['search-input'].focus();
         });
       }
