@@ -27,10 +27,10 @@
     label-help="방향키를 이용하여 날짜를 선택하세요"
     value-as-date
     @input="onInput"
-    @shown="onShown"
-    @hidden="onHidden"
-    @context="onContext"
   >
+    <!-- @shown="onShown" -->
+    <!-- @hidden="onHidden" -->
+    <!-- @context="onContext"  -->
     <template #button-content>
       <span class="sr-only">{{ title }}</span>
       <font-awesome-icon
@@ -81,6 +81,9 @@ export default {
       const button = datepicker.getElementsByTagName('button')[0];
       // console.log(button);
       button.setAttribute('title', this.title);
+      
+      // 충돌을 일으키는 aria 삭제
+      this.removeAria();
     });
 
     // keydown 없애기 ... 불가능
@@ -102,16 +105,20 @@ export default {
       const datepicker = this.$refs.datepicker.$el;
       /** @type {Element} */
 
+      // const removeMap = {
+      //   'dropdown-menu': ['aria-modal', 'x-placement'],
+      //   btn: ['aria-keyshortcuts', 'aria-expanded', 'aria-haspopup'],
+      //   'b-calendar-nav': ['aria-keyshortcuts'],
+      //   'b-calendar-grid': [
+      //     'aria-activedescendant',
+      //     'aria-roledescription',
+      //     'role',
+      //   ],
+      //   'b-calendar-grid-caption': ['aria-live', 'aria-atomic'],
+      // };
+      // 속성 삭제
       const removeMap = {
-        'dropdown-menu': ['aria-modal', 'x-placement'],
-        btn: ['aria-keyshortcuts', 'aria-expanded', 'aria-haspopup'],
-        'b-calendar-nav': ['aria-keyshortcuts'],
-        'b-calendar-grid': [
-          'aria-activedescendant',
-          'aria-roledescription',
-          'role',
-        ],
-        'b-calendar-grid-caption': ['aria-live', 'aria-atomic'],
+        btn: ['aria-haspopup'],
       };
 
       Object.keys(removeMap).forEach((key) => {
@@ -123,14 +130,14 @@ export default {
         });
       });
 
-      // role button 에 title 추가
-      const buttons = datepicker.querySelectorAll('div[role="button"]');
-      // console.log('# BFormDatepickerKorean removeAria buttons');
-      // console.log(buttons);
-      buttons.forEach((button) => {
-        const number = button.querySelector('span').textContent;
-        button.setAttribute('title', number);
-      });
+      // // role button 에 title 추가.
+      // const buttons = datepicker.querySelectorAll('div[role="button"]');
+      // // console.log('# BFormDatepickerKorean removeAria buttons');
+      // // console.log(buttons);
+      // buttons.forEach((button) => {
+      //   const number = button.querySelector('span').textContent;
+      //   button.setAttribute('title', number);
+      // });
     },
     onShown(event) {
       const datepicker = this.$refs.datepicker.$el;
