@@ -99,11 +99,11 @@
       >
       </b-calendar> -->
       <div class="select-box" :id="id" tabindex="-1">
-        <b-form-select title="년도 선택" v-model="year" :options="yearOptions" :required="required">
+        <b-form-select :title="`${title}, 년도 선택`" v-model="year" :options="yearOptions" :required="required">
         </b-form-select>
-        <b-form-select title="월 선택" v-model="month" :options="monthOptions" :required="required">
+        <b-form-select :title="`${title}, 월 선택`" v-model="month" :options="monthOptions" :required="required">
         </b-form-select>
-        <b-form-select title="일 선택" v-model="date" :options="dateOptions" :required="required">
+        <b-form-select :title="`${title}, 일 선택`" v-model="date" :options="dateOptions" :required="required">
         </b-form-select>
       </div>
       <!-- 

@@ -244,6 +244,24 @@
         </transition>
       </main>
       <footer class="body-footer">
+        <!-- accessbility -->
+        <div class="accessibility">
+          <a
+            href="http://www.wa.or.kr/board/list.asp?BoardID=0006"
+            target="_blank"
+            title="새창"
+            class="accessibility-link"
+          >
+            <b-img
+              width="118"
+              height="83"
+              class="wa"
+              src="./assets/gray_accessbility.jpg"
+              alt="(사)한국장애인단체종연합회 한국웹접근성인증평가원 웹 접근성 우수사이트 인증마크(WA인증마크)"
+            ></b-img>
+          </a>
+        </div>
+        <!-- sns buttons -->
         <div
           class="footer-sns-buttons mb-1 d-flex footer-link-color justify-content-center align-items-center"
         >
@@ -321,6 +339,8 @@
           <b-icon-tools class="m-2"></b-icon-tools>
           <b-icon-person-fill class="m-2"></b-icon-person-fill> -->
         </div>
+
+        <!-- footer links -->
         <div
           class="footer-links d-flex footer-link-color justify-content-center"
         >
@@ -329,7 +349,7 @@
           >
           <b-link :to="{ name: 'Sitemap' }" class="mx-2 my-2">사이트맵</b-link>
         </div>
-        <!-- class p-2 -->
+        <!-- footer info -->
         <div
           class="footer-information d-flex footer-text-color justify-content-center"
         >
@@ -850,6 +870,20 @@ header {
       height: 41.47px;
     }
   }
+}
+
+.accessibility {
+  display: flex;
+  justify-content: center;
+  margin-top: 20px;
+  margin-bottom: 20px;
+}
+
+.accessibility-link img {
+  opacity: 0.6;
+}
+.accessibility-link:hover img {
+  opacity: 0.4;
 }
 </style>
 
