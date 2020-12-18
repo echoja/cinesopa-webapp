@@ -21,6 +21,12 @@
   부산광역시 해운대구 재반로</p>
     <p class="how-to">내부 시사 후 15일 이내에 메일로 연락드립니다.</p> -->
     <h3 class="sr-only">신청 폼</h3>
+    <!-- <div class="tui-datepicker-input tui-datetime-input tui-has-focus">
+      <input type="text" id="tui-date-picker-target" aria-label="Date-Time" />
+      <span class="tui-ico-date"></span>
+    </div>
+    <div id="tui-date-picker-container" style="margin-top: -1px"></div> -->
+
     <validation-observer
       ref="observer"
       slim
@@ -419,6 +425,7 @@ import Privacy from '@/components/Privacy.vue';
 import { makeSimpleMutation } from '@/graphql-client';
 import BFormDatepickerKorean from '@/components/BFormDatepickerKorean.vue';
 import LoadingButton from '@/components/LoadingButton.vue';
+import DatePicker from 'tui-date-picker';
 
 extend('shouldCheck', (value) => value === true);
 
@@ -461,6 +468,19 @@ export default {
         },
       },
     };
+  },
+  mounted() {
+    // toast datepicker test;
+    // const container = document.getElementById('tui-date-picker-container');
+    // const target = document.getElementById('tui-date-picker-target');
+
+    // const instance = new DatePicker(container, {
+    //   input: {
+    //     element: target,
+    //   },
+    // });
+
+    // instance.getDate();
   },
   methods: {
     fillDirectorInfo() {
@@ -621,7 +641,6 @@ export default {
   padding: 10px 20px;
 }
 </style>
-
 
 <!---------------------------------------------------------------->
 <!-----------------------    NORMAL SCSS    ---------------------->
