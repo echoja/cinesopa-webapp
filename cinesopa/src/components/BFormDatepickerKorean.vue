@@ -7,9 +7,9 @@
     <div
       class="b-form-datepicker-korean"
       ref="container"
-      tabindex="0"
       :aria-label="`${title} - ${hiddenButtonText}`"
     >
+      <!-- tabindex="0" -->
       <!-- @focus="onContainerFocus"-->
       <!-- <b-form-datepicker
       :value="value"
@@ -71,7 +71,7 @@
       class="datepicker-korean"
     > -->
       <!-- 버튼 내용 -->
-      <b-calendar
+      <!-- <b-calendar
         v-show="show"
         :value="value"
         :id="id"
@@ -97,7 +97,15 @@
         @selected="onCalendarSelected"
         @input="onCalendarInput"
       >
-      </b-calendar>
+      </b-calendar> -->
+      <div class="select-box" :id="id" tabindex="-1">
+        <b-form-select title="년도 선택" v-model="year" :options="yearOptions" :required="required">
+        </b-form-select>
+        <b-form-select title="월 선택" v-model="month" :options="monthOptions" :required="required">
+        </b-form-select>
+        <b-form-select title="일 선택" v-model="date" :options="dateOptions" :required="required">
+        </b-form-select>
+      </div>
       <!-- 
       <b-dropdown-item>First Action</b-dropdown-item>
       <b-dropdown-item>Second Action</b-dropdown-item>
@@ -155,6 +163,9 @@ export default {
       showTime: 0,
       internalId: 0,
       show: true,
+      year: null,
+      month: null,
+      date: null,
     };
   },
   computed: {
@@ -172,6 +183,69 @@ export default {
         ? '날짜가 선택되지 않았습니다'
         : `선택된 날짜: ${this.dateFormatted}`;
     },
+    yearOptions() {
+      const standard = new Date().getFullYear();
+      const options = [];
+      for (let i = standard; i < standard + 5; i += 1) {
+        options.push({ value: i, text: `${i}년` });
+      }
+      return options;
+    },
+    monthOptions() {
+      const options = [];
+      for (let i = 1; i <= 12; i += 1) {
+        options.push({ value: i, text: `${i}월` });
+      }
+      return options;
+    },
+    isYoon() {
+      if (!this.year) {
+        return false;
+      }
+      if (this.year % 400 === 0) {
+        return true;
+      }
+      if (this.year % 100 === 0) {
+        return false;
+      }
+      if (this.year % 4 === 0) {
+        return true;
+      }
+      return false;
+    },
+    dateOptions() {
+      if (this.month === null) {
+        return [{ value: null, text: '' }];
+      }
+      const options = [];
+      for (let i = 1; i <= 31; i += 1) {
+        options.push({ value: i, text: `${i}일` });
+      }
+      if ([2, 4, 6, 9, 11].includes(this.month)) {
+        options.splice(-1, 1);
+      }
+
+      if (this.month === 2) {
+        options.splice(-2, 2);
+      }
+
+      if (this.isYoon) {
+        options.push({ value: 29, text: '29일' });
+      }
+
+      return options;
+    },
+  },
+  watch: {
+    year() {
+      this.checkAndEmitInput();
+    },
+    month() {
+      this.checkAndEmitInput();
+    },
+    date() {
+      this.checkAndEmitInput();
+    },
   },
   created() {
     this.internalId = `${uid}`;
@@ -187,9 +261,8 @@ export default {
       // const button = datepicker.getElementsByTagName('button')[0];
       // // console.log(button);
       // button.setAttribute('title', this.title);
-
       // 충돌을 일으키는 aria 삭제
-      this.removeAria();
+      // this.removeAria();
     });
 
     // keydown 없애기 ... 불가능
@@ -198,6 +271,12 @@ export default {
     // });
   },
   methods: {
+    checkAndEmitInput() {
+      if (this.year && this.month && this.date) {
+        this.$emit('input', new Date(this.year, this.month, this.date));
+      }
+      return null;
+    },
     // onInput(value) {
     //   // console.log('# BFormDatepickerKorean onInput');
     //   // console.log(value);
@@ -255,8 +334,8 @@ export default {
       // header 삭제
       const header = this.$refs.calendar.$el.querySelector('.b-calendar-nav');
       header.parentNode.removeChild(header);
-      console.log('123');
-      header.remove();
+      // console.log('123');
+      // header.remove();
     },
     onShown(event) {
       const datepicker = this.$refs.datepicker.$el;
@@ -350,11 +429,11 @@ export default {
       // this.show = !this.show;
 
       // 창 닫은 후 버튼 포커싱
-       this.$nextTick(() => {
-         // this.$refs.dropdown.$refs.toggle.focus();
-         // this.$refs.dropdownButton.focus();
-         this.$refs.container.focus();
-       });
+      this.$nextTick(() => {
+        // this.$refs.dropdown.$refs.toggle.focus();
+        // this.$refs.dropdownButton.focus();
+        this.$refs.container.focus();
+      });
     },
     onButtonClicked() {
       console.log('# BFormDatepickerKorean onButtonClicked');
@@ -405,6 +484,16 @@ export default {
 .calendar-wrapper {
   display: flex;
 }
+.select-box {
+  display: flex;
+  select {
+    margin-right: 10px;
+  }
+  &:focus {
+    outline: 2px solid #000;
+  }
+}
+
 </style>
 
 <style lang="scss">
