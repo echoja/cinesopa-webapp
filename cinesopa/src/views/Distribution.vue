@@ -230,7 +230,7 @@
             class="underlined-box"
             v-model="form.film.prod_date"
             id="film-prod_date"
-            title="제작일 선택"
+            title="제작일"
           >
             <!-- <template #button-content>
               날짜 선택

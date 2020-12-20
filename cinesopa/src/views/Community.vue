@@ -104,7 +104,7 @@
             v-model="form.playdateStart"
             :required="required"
             id="playdate-start"
-            title="상영 시작일 선택"
+            title="상영 시작일"
           >
           </b-form-datepicker-korean>
         </b-form-group>
@@ -123,7 +123,7 @@
               v-model="form.playdateEnd"
               :required="required"
               id="playdate-end"
-              title="상영 종료일 선택"
+              title="상영 종료일"
             >
             </b-form-datepicker-korean>
           </b-form-group>
@@ -421,7 +421,7 @@
             :required="required"
             id="visit-date"
             :date-disabled-fn="receiveDateDisabled"
-            title="방문 예정일 선택"
+            title="방문 예정일"
           >
           </b-form-datepicker-korean>
         </b-form-group>
@@ -489,7 +489,7 @@
             v-model="form.receiveDate"
             id="receive-date"
             :required="required"
-            title="상영본 받을 날짜 선택"
+            title="상영본 받을 날짜"
           >
             <!-- <template #button-content :style="{ width: `300px` }"> -->
             <!-- <div class="w-100 h-100 d-flex align-items-center justify-content-center"> -->
@@ -580,7 +580,7 @@
             v-model="form.depositdate"
             id="depositdate"
             :required="required"
-            title="입금 예정일 선택"
+            title="입금 예정일"
           >
           </b-form-datepicker-korean>
         </b-form-group>
