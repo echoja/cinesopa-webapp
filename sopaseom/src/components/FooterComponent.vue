@@ -30,15 +30,17 @@
           </div>
         </div>
         <div v-if="!isSimple" class="right col-12 col-md-6">
+          <div></div>
           <div>
+            <div class="right-block">통신판매업신고 : 면제대상사업자</div>
             <div class="right-block">개인정보관리책임자 : 성송이</div>
-            <div class="right-block">전화번호 : 070-3577-4970</div>
-            <div class="right-block">사업자번호 : 159-87-00749</div>
           </div>
           <div>
-            <div class="right-block">
-              통신판매업신고 : 면제대상사업자
-            </div>
+            <div class="right-block">상호 : 영화배급협동조합 씨네소파</div>
+            <div class="right-block">대표 : 성송이</div>
+
+            <div class="right-block">사업자번호 : 159-87-00749</div>
+            <div class="right-block">전화번호 : 070-3577-4970</div>
           </div>
           <div>
             <div class="right-block">
@@ -193,7 +195,6 @@ $gray-c2: #7a7a7a;
 }
 
 @include max-with(md) {
-  
   .right {
     margin-top: 10px;
     text-align: left;

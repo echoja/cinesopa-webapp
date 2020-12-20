@@ -121,6 +121,9 @@ extend type Query {
   # 마이페이지 - 주문내역에서 사용되는 쿼리
   myOrders(condition: OrderSearch!): MyOrdersResult
 
+  # 결제 완료시 기본적으로 보일 정보를 알려주는 곳
+  myOrder(id: Int!): Order
+
   # 무통장 입금시 정보를 추가적으로 출력해야 하는 페이지에서 사용됨
   nobankOrderInfo(id: Int!): NobankOrderInfoResult
 }

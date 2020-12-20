@@ -76,14 +76,17 @@ class PaymentService {
 
     // 삭제할 cartitemId 를 구함.
     const cartitemIds = order.items.map((cartitem) => cartitem.id);
-
-
+    // console.log('# payment finishPayment cartitemIds');
+    // console.log(cartitemIds);
+          
     // 검증 실시. 만약 검증에 실패했다면 결제를 취소함.
     // console.log(totalPrice);
     const verifyResult = await this.bootpay.verifyPayment(
       order.bootpay_id,
       totalPrice,
     );
+    // console.log('# payment finishPayment verifyResult');
+    // console.log(verifyResult);
     if (!verifyResult.success) {
       // await this.bootpay.cancelPayment(order.bootpay_id);
       return {
@@ -91,7 +94,7 @@ class PaymentService {
         code: `verification_failed_${verifyResult.code}`,
       };
     }
-    console.log(cartitemIds);
+
     // 결제 완료 업데이트, cartitem 삭제
     const promises = [
       this.db.updateOrder(id, { status: 'payment_success' }),

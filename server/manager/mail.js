@@ -55,8 +55,8 @@ class MailManager {
 
     /** @type {TemplateMap} */
     this.templateMap = templateMap;
-    console.log('# mail.js constructor templateMap');
-    console.log(templateMap);
+    // console.log('# mail.js constructor templateMap');
+    // console.log(templateMap);
   }
 
   /**

@@ -45,3 +45,40 @@ export const groupBy = (array, keyFinder) => {
   });
   return result;
 };
+
+// order 를 포맷 및 출력용 데이터를 만들어주는 녀석입니다.
+export const getOrderInfo = (order) => {
+  if (!order) {
+    return null;
+  }
+  const itemsFormatted = order.items.map((cartitem) => {
+    const result = { ...cartitem };
+    result.options = cartitem.options.map((option) => ({
+      ...option,
+      price: toPrice(option.price),
+    }));
+    result.productRoute = {
+      name: 'SopakitDetail',
+      params: { id: cartitem.product_id },
+    };
+    return result;
+  });
+  const transportFeeFormatted = toPrice(order.transport_fee);
+  const fullAddress = `${order.dest?.address ?? ''} ${order?.dest?.addressDetail ?? ''}`;
+  const options = order.items.map((cartitem) => cartitem.options).flat();
+  const totalProductPrice = options.reduce((acc, now) => acc + now.count * now.price, 0);
+  const totalProductPriceFormatted = toPrice(totalProductPrice);
+  const totalPrice = totalProductPrice + order.transport_fee;
+  const totalPriceFormatted = toPrice(totalPrice);
+  const totalCount = options.reduce((acc, now) => acc + now.price, 0);
+  return {
+    totalProductPrice,
+    totalProductPriceFormatted,
+    totalPrice,
+    totalPriceFormatted,
+    totalCount,
+    fullAddress,
+    itemsFormatted,
+    transportFeeFormatted,
+  };
+};

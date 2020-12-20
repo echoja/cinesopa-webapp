@@ -28,6 +28,20 @@ module.exports = {
       condition.user = email;
       return db.getOrders(condition);
     }).only(ACCESS_AUTH),
+
+    // 결제 완료시 기본적으로 보일 정보를 보여주는 곳!
+    myOrder: makeResolver(async (obj, args, context, info) => {
+      const { id } = args;
+      const user = context.getUser();
+      const order = await db.getOrder(id);
+
+      if (order.user !== user.email) {
+        return null;
+      }
+
+      return order;
+    }).only(ACCESS_AUTH),
+
     // 무통장 입금시 정보를 추가적으로 출력해야 하는 페이지에서 사용됨
     nobankOrderInfo: makeResolver(async (obj, args, context, info) => {
       const { id } = args;
@@ -102,6 +116,8 @@ module.exports = {
     }).only(ACCESS_AUTH),
     finishPayment: makeResolver(async (obj, args, context, info) => {
       const { id, receiptId } = args;
+      console.log('#order-resolver finishPayment args');
+      console.log(args);
 
       let order = await db.getOrder(id);
       const user = context.getUser();
@@ -114,22 +130,25 @@ module.exports = {
       // 우선 bootpay id를 order에 넣어야 함.
       await db.updateOrder(id, { bootpay_id: receiptId });
 
-      // 그 다음 검증 들어감.
+      // 그 다음 검증 및 cartitem 삭제, order를 payment_success 로 갱신하는 작업으로 들어감.
       const result = await payment.finishPayment(id);
-      order = await db.getOrder(id);
+      // console.log('#order-resolver finishPayment result');
+      // console.log(result);
+      
 
-      // 결제 완료 되었다고 메일을 보냄
-      mail.sendMailTemplate({
-        recipientEmail: user.email,
-        recipientName: order.payer ?? order.dest?.name,
-      }, '[소파섬] 결제가 완료되었습니다.', 'payment_success', {
-        // todo 메일에 넣을 args를 채워넣어야 함.
-      }).catch((err) => {
-        console.error(err);
-        // todo: 메일이 제대로 안갔을 경우 처리
-      });
+      // 결제 완료 되었다고 메일을 보냄 todo: 메일 템플릿을 완성시켜야 함.
+      // mail.sendMailTemplate({
+      //   recipientEmail: user.email,
+      //   recipientName: order.payer ?? order.dest?.name,
+      // }, '[소파섬] 결제가 완료되었습니다.', 'payment_success', {
+      //   // todo 메일에 넣을 args를 채워넣어야 함.
+      // }).catch((err) => {
+      //   console.error(err);
+      //   // todo: 메일이 제대로 안갔을 경우 처리
+      // });
 
       // 검증 결과를 내보냄.
+      order = await db.getOrder(id);
       return { ...result, order };
     }).only(ACCESS_AUTH),
     reqCancelOrder: makeResolver(async (obj, args, context, info) => {

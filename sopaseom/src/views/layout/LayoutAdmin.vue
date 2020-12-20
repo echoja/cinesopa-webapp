@@ -39,7 +39,7 @@
             페이지
           </b-list-group-item>
           <b-list-group-item :to="{ name: 'AdminSopakit' }">
-            소파킷 리스트
+            소파킷 키워드
           </b-list-group-item>
           <b-list-group-item to="/admin/sopaseom/product">
             소파킷 상품

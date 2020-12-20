@@ -868,7 +868,7 @@ export default {
 
           // 마무으리합니다.
           finishPaymentReq(
-            { id: order_id, receiptId: receipt_id },
+            { id: parseInt(order_id, 10), receiptId: receipt_id },
             `{
             success code
             order {
@@ -878,8 +878,13 @@ export default {
           }`,
           )
             // 성공했을 시
-            .then((data) => {
-              this.$router.push({ name: 'PaymentSuccess' });
+            .then((result) => {
+              console.log('# OrderPayment finishPaymentReq result');
+              console.log(result);
+              this.$router.push({
+                name: 'PaymentSuccess',
+                query: { orderId: order_id },
+              });
             })
             .catch((err) => {
               console.error(err);
