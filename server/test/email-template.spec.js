@@ -7,11 +7,32 @@ const { expect } = require('chai');
 const inlineCss = require('inline-css');
 const { makeTemplateMap } = require('../mail-template/template-map');
 const readFile = util.promisify(fs.readFile);
+const { model, templateArgsRefiner } = require('../loader');
+const { initTestServer, guestEmail } = require('./tool');
+
 
 // describe('email-template', function () {
 //   describe('compile, render', function () {
 //     it('제대로 동작해야 함', async function () {
+const createHTMLByTemplate = async (args, filename) => {
+  const template = await readFile(filename);
+  const render = pug.compile(template.toString(), { filename });
+  const html = render(args);
+  const inlined = await inlineCss(html, { url: '/' });
+  const splitted = filename.split('/');
+  // console.log(inlined);
+  console.log(`test/output/${splitted[splitted.length - 1]}`);
+  fs.writeFileSync(`test/output/${splitted[splitted.length - 1]}.html`, inlined);
+  fs.writeFileSync('test/123.html', '123');
+};
+
 describe('email-template', function () {
+
+  // eslint-disable-next-line mocha/no-setup-in-describe
+  const { agent } = initTestServer({
+    before, after, beforeEach, afterEach
+  });
+
   describe('라이브러리 (pug 등)', function () {
     it('기본 동작 테스트 (test/output/email-template.test.html 파일 출력내용 참조)', async function () {
       // 일단 템플릿 파일로 읽음.
@@ -43,69 +64,75 @@ describe('email-template', function () {
       fs.writeFileSync('test/output/email-template.test.html', inlined);
     });
   });
-  describe('payment-success', function () {
-    it.only('제대로 동작해야 함', async function () {
-      const filename = 'mail-template/payment-success.pug';
-      const template = await readFile(filename);
-      const render = pug.compile(template.toString(), {
-        filename,
-      });
-      // 랜더러를 실행시킴. 실행시키면서 변수 넣기.
-      const string = render({
-        detailUrl: 'http://naver.com',
-        order: {
-          items: [
-            {
-              product: {
-                name: '양아치상품',
-                featured_image_url: '/12345678',
-              },
-              options: [
-                {
-                  count: 3,
-                  price: 1000,
-                  content: 'ho',
-                },
-                {
-                  count: 2,
-                  price: 600,
-                  content: 'hi',
-                },
-              ],
+  describe("templates", function () {
+
+    describe('payment-success', function () {
+      it('제대로 동작해야 함', async function () {
+        const filename = 'mail-template/payment-success.pug';
+        const template = await readFile(filename);
+        const render = pug.compile(template.toString(), {
+          filename,
+        });
+        // 랜더러를 실행시킴. 실행시키면서 변수 넣기.
+        const items = [
+          {
+            product: {
+              name: '양아치상품',
+              featured_image_url: '/12345678',
             },
-            {
-              product: {
-                name: '그러한상품',
-                featured_image_url: '/abcdefg',
+            options: [
+              {
+                count: 3,
+                price: 1000,
+                content: 'ho',
               },
-              options: [
-                {
-                  count: 3,
-                  price: 100,
-                  content: 'zo',
-                },
-                {
-                  count: 1,
-                  price: 200,
-                  content: 'zi',
-                },
-              ],
-            },
-          ],
-          dest: {
-            address: '주소1',
-            phone: '010-****-1234',
-            name: '김*훈',
+              {
+                count: 2,
+                price: 600,
+                content: 'hi',
+              },
+            ],
           },
-        },
-        year: new Date().getFullYear(),
+          {
+            product: {
+              name: '그러한상품',
+              featured_image_url: '/abcdefg',
+            },
+            options: [
+              {
+                count: 3,
+                price: 100,
+                content: 'zo',
+              },
+              {
+                count: 1,
+                price: 200,
+                content: 'zi',
+              },
+            ],
+          },
+        ];
+        const string = render({
+          detailUrl: 'http://naver.com',
+          order: {
+            items,
+            dest: {
+              address: '주소1',
+              phone: '010-****-1234',
+              name: '김*훈',
+            },
+            fullAddress: '',
+            itemFormatted: items,
+          },
+          year: new Date().getFullYear(),
+        });
+        expect(string).to.be.a('string');
+        const inlined = await inlineCss(string, {
+          url: '/',
+        });
+        // html 파일로 작성함.
+        fs.writeFileSync('test/output/email-template.test.html', inlined);
       });
-      expect(string).to.be.a('string');
-      const inlined = await inlineCss(string, {
-        url: '/',
-      });
-      // html 파일로 작성함.
-      fs.writeFileSync('test/output/email-template.test.html', inlined);
     });
   });
   describe('template-map.js', function () {
@@ -167,6 +194,62 @@ describe('email-template', function () {
           '<div style="font-size: 14px;">hello world!</div>',
           '결과가 일치해야 합니다.',
         );
+      });
+    });
+  });
+  describe("refiner and template-map", function () {
+    describe("payment-success", function () {
+      it.only("제대로 잘 되어야 함.", async function () {
+        const order = await model.Order.create({
+          user: guestEmail,
+          status: 'payment_confirming',
+          transport_fee: 1324,
+          method: 'card',
+          dest: {
+            name: '홍길동',
+            address: '주소소',
+            address_detail: '자세한 주소123123',
+            phone: '001-1234123',
+            request: '리퀘스트',
+          },
+          items: [
+            {
+              id: 1,
+              product: {
+                name: '비행기맨',
+                featured_image_url: 'https://homepages.cae.wisc.edu/~ece533/images/airplane.png',
+                featured_image_alt: '뱅뱅기',
+              },
+              options: [
+                {
+                  id: 'hi',
+                  content: '옵션이름~',
+                  count: 5,
+                  price: 200,
+                },
+              ],
+            },
+            {
+              id: 2,
+              product: {
+                name: '배맨',
+                featured_image_url: 'https://homepages.cae.wisc.edu/~ece533/images/boat.png',
+                featured_image_alt: '통통배',
+              },
+              options: [
+                {
+                  id: 'ho',
+                  count: 8,
+                  content: '옵션이름~2',
+                  price: 250,
+                },
+              ],
+            },
+          ],
+        });
+        const args = templateArgsRefiner.createPaymentSuccessArgs(order.toObject());
+        // console.dir(args, { depth: 5 });
+        await createHTMLByTemplate(args, 'mail-template/payment-success.pug');
       });
     });
   });

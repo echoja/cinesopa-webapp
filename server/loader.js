@@ -40,6 +40,9 @@ const mail = mailManagerMaker.make(mailTransporter, {
   templateMap: mailTemplateMap,
 });
 
+/* mail template refiner */
+const templateArgsRefiner = require('./mail-template/template-args-refiner').make();
+
 /* bootpay */
 const bootpay = require('./manager/bootpay').make();
 
@@ -111,6 +114,7 @@ const downloadBaseUrl = '/download/';
 
 module.exports = {
   mail,
+  templateArgsRefiner,
   model,
   db,
   user,

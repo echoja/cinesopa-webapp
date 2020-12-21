@@ -122,6 +122,7 @@
 /**
  * 주문 정보를 담는 객체
  * @typedef {Object} Orderinfo
+ * @property {number}   id 고유번호
  * @property {string}   user 유저의 이메일
  * @property {string}   status
  * @property {string}   method
@@ -306,7 +307,7 @@
  * @property {Videoinfo[]} videos
  * @property {string} synopsis
  * @property {string} note
- * @property {string[]} tags
+ * @property {Taginfo[]} tags
  * @property {boolean} is_featured
  * @property {string} featured_poster
  * @property {string} badge_text
@@ -315,6 +316,18 @@
  * @property {string[]} available_subtitles
  * @property {object} meta
  * @property {string} search
+ */
+
+/**
+ * @typedef {object} Taginfo
+ * @property {string} name
+ * @property {Array<TagFilminfo>} related_films
+ */
+
+/**
+ * @typedef {object} TagFilminfo
+ * @property {string} title
+ * @property {number} id
  */
 
 /**
@@ -429,7 +442,9 @@ api
 
 /** @typedef {import('./manager/mail').MailManager} MailManager */
 
-/** 
+/** @typedef {import('./mail-template/template-args-refiner').TemplateArgsRefiner} TemplateArgsRefiner */
+
+/**
  * @callback MailRendererWrapper
  * @param {Object.<string, string>} args
  * @return {Promise<string>} rendered html

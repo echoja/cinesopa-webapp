@@ -56,10 +56,10 @@ describe('payment service', function () {
       // console.log(id);
       const result = await payment.finishPayment(id);
       // success 가 참이어야 함.
-      const orders = await model.Order.find().lean().exec();
+      // const orders = await model.Order.find().lean().exec();
       // console.log(orders);
 
-      const cartitemss = await model.Cartitem.find().lean().exec();
+      // const cartitemss = await model.Cartitem.find().lean().exec();
       // console.log(cartitemss);
 
       // console.log(result);

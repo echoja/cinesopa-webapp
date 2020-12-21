@@ -12,9 +12,15 @@
           <div class="search-condition">
             <div class="predefined-date">
               <!-- @click="items[0].c_date = new Date()" -->
-              <b-button class="condition">올해</b-button>
-              <b-button class="condition">지난달</b-button>
-              <b-button class="condition">이번달</b-button>
+              <b-button class="condition" @click="lastYearClicked"
+                >1년</b-button
+              >
+              <b-button class="condition" @click="last6MonthClicked"
+                >6개월</b-button
+              >
+              <b-button class="condition" @click="lastMonthClicked"
+                >1개월</b-button
+              >
             </div>
             <div class="date-select">
               <b-form-datepicker
@@ -45,26 +51,37 @@
             <div class="order-status-select">
               <b-form-select
                 class="condition"
-                v-model="condition.order_status"
+                v-model="condition.status"
                 :options="orderStatusOptions"
               >
                 <!-- <b-form-select-option v-for=""></b-form-select-option> -->
               </b-form-select>
             </div>
             <div class="search-button">
-              <b-button class="condition" @click="searchClicked">
+              <loading-button
+                :loading="loading"
+                class="condition"
+                @click="searchClicked"
+                ref="searchButton"
+              >
                 <font-awesome-icon
                   class="search-icon"
                   :icon="['fas', 'search']"
                 >
                 </font-awesome-icon
                 ><span>검색</span>
-              </b-button>
+              </loading-button>
             </div>
           </div>
         </div>
       </div>
       <div class="order-list">
+        <div
+          class="order-list-item-wrapper no-result"
+          v-if="!loading && orders.length === 0"
+        >
+          결과가 없습니다.
+        </div>
         <div
           class="order-list-item-wrapper"
           v-for="(orderItem, orderIndex) in orders"
@@ -194,6 +211,16 @@
       </div>
     </div>
 
+    <!-- 페이지네이션 -->
+    <b-pagination-nav
+      class="myordered-pagination"
+      :link-gen="linkGen"
+      :number-of-pages="totalPages"
+      align="center"
+      :value="condition.page"
+      use-router
+    ></b-pagination-nav>
+
     <!-- 상세 정보 modal -->
     <b-modal id="order-detail" title="주문 상세 정보" size="xl" hide-footer>
       <h2>상품 정보</h2>
@@ -302,11 +329,13 @@ import {
   BFormSelectOption,
   BLink,
   BTableLite,
+  BPaginationNav,
 } from 'bootstrap-vue';
 import moment from 'moment';
 
 import { toPrice, statusMap } from '@/util';
 import { makeSimpleQuery } from '@/api/graphql-client';
+import LoadingButton from '@/components/LoadingButton.vue';
 
 const myOrdersReq = makeSimpleQuery('myOrders');
 
@@ -325,6 +354,14 @@ const paymentMethodLabelMap = {
   phone: '휴대폰결제',
 };
 
+/**
+ * 결제 확인중: 취소
+ * 결제 완료: 결제 취소
+ * 배송중: 교환/반품 신청
+ * 배송완료: 교환/반품 신청
+ * 
+ */
+
 export default {
   title: '주문 목록',
   components: {
@@ -334,6 +371,8 @@ export default {
     BFormSelectOption,
     BTableLite,
     BLink,
+    LoadingButton,
+    BPaginationNav,
   },
   data() {
     const today = new Date();
@@ -342,6 +381,7 @@ export default {
 
     return {
       a: 0,
+      total: 0,
       detail: {},
       destFields: [
         {
@@ -354,13 +394,14 @@ export default {
           label: '주소',
         },
       ],
+      loading: false,
       transporting: 0,
       condition: {
         date_gte: oneMonthBefore,
         date_lte: today,
         status: '',
         page: 1,
-        perpage: 20,
+        perpage: 10,
       },
       //       'order_received', // "주문접수",
       // 'payment_confirming', // "결제확인중",
@@ -376,10 +417,11 @@ export default {
 
       orderStatusOptions: [
         { value: '', text: '전체상태' },
+        { value: 'payment_confirming', text: '결제확인중' },
         { value: 'payment_success', text: '결제완료' },
         { value: 'transporting', text: '배송중' },
         { value: 'transport_success', text: '배송완료' },
-        { value: 'cancelled', text: '취소/반품/교환' },
+        { value: 'cancelled', text: '주문취소' },
       ],
       orders: [
         {
@@ -463,6 +505,11 @@ export default {
         content: this.detail?.dest?.[destKey],
       }));
     },
+    totalPages() {
+      return this.total > 0
+        ? Math.ceil(this.total / this.condition.perpage)
+        : 1;
+    },
     // detailProductPrice() {
     //   console.log('# MyOrdered computed detailProductPrice');
     //   console.log(this.detail.options);
@@ -487,18 +534,57 @@ export default {
     //   };
     // },
   },
+  watch: {
+    $route(to) {
+      this.fetchData();
+    },
+  },
   async mounted() {
     this.fetchData();
   },
   methods: {
-    searchClicked() {},
+    lastYearClicked(event) {
+      const lastYear = new Date();
+      lastYear.setFullYear(lastYear.getFullYear() - 1);
+      this.condition.date_gte = lastYear;
+      this.condition.date_lte = new Date();
+      this.blurButtonFromEvent(event);
+    },
+    last6MonthClicked(event) {
+      const last6Month = new Date();
+      last6Month.setMonth(last6Month.getMonth() - 6);
+      this.condition.date_gte = last6Month;
+      this.condition.date_lte = new Date();
+      this.blurButtonFromEvent(event);
+    },
+    lastMonthClicked(event) {
+      const lastMonth = new Date();
+      lastMonth.setMonth(lastMonth.getMonth() - 1);
+      this.condition.date_gte = lastMonth;
+      this.condition.date_lte = new Date();
+      this.blurButtonFromEvent(event);
+    },
+    blurButtonFromEvent(event) {
+      const { target } = event;
+      // console.log(target);
+      this.$nextTick(() => {
+        target.blur();
+      });
+    },
+    async searchClicked() {
+      this.loading = true;
+      await this.fetchData();
+      const e = { target: this.$refs.searchButton.$el };
+      this.blurButtonFromEvent(e);
+      this.loading = false;
+    },
     paymentMethodsLabel(key) {
       return paymentMethodLabelMap[key];
     },
     formatDate(date) {
-      console.log(
-        `# Myinfo formatDate actually returning value MTEHOD >> ${date}`,
-      );
+      // console.log(
+      //   `# Myinfo formatDate actually returning value MTEHOD >> ${date}`,
+      // );
       return moment(date).format('YYYY. MM. DD');
     },
     toPrice,
@@ -506,6 +592,10 @@ export default {
       return statusMap[status];
     },
     async fetchData() {
+      // 페이지 정보 가져오기.
+      this.condition.page = parseInt(this.$route.params.page, 10) || 1;
+
+      // 조건 생성
       const condition = { ...this.condition };
       condition.page -= 1;
       const { total, list, transporting } = await myOrdersReq(
@@ -531,6 +621,7 @@ export default {
       );
       console.log('# MyOrdered fetchData res');
       console.dir({ total, list, transporting });
+      this.total = total;
 
       // 입력값 다듬기
       list.forEach((order) => {
@@ -583,6 +674,9 @@ export default {
     reqExchangeClicked(orderIndex) {
       // todo
     },
+    linkGen(pageNum) {
+      return { name: 'MyOrdered', params: { page: pageNum } };
+    },
   },
 };
 </script>
@@ -616,6 +710,7 @@ h2 {
   display: flex;
   flex-direction: column;
   align-items: stretch;
+  margin-bottom: 30px;
 }
 
 /** header */
@@ -840,6 +935,11 @@ select.condition {
   .detail-payment-info {
     display: block;
   }
+}
+
+.myordered-pagination {
+  
+  align-self: stretch;
 }
 </style>
 

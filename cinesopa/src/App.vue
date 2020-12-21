@@ -496,7 +496,6 @@ export default {
     //   return this.isTop ? 237 : 154;
     // },
   },
-
   created() {
     // polyfill for CustomEvent
     (() => {

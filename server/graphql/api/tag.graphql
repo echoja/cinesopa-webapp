@@ -1,0 +1,26 @@
+extend type Query {
+  siteOption(name: String!): SiteOptionResult
+  siteOptions(names: [String!]!): [SiteOptionResult]
+}
+
+input TagCondition {
+  sort: String
+  limit: Int
+}
+
+type Tag {
+  name: String
+  related_films: [Film]
+}
+
+type TagsResult {
+  total: Int
+  list: [Tag]
+}
+
+extend type Query {
+  tags(condition: TagCondition): TagsResult
+}
+
+# extend type Mutation {
+# }

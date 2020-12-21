@@ -152,7 +152,7 @@ export default [
         meta: { ...BodyFixedFooterMeta },
       },
       {
-        path: 'ordered',
+        path: 'ordered/:page?',
         name: 'MyOrdered',
         component: () => import('@/views/client/MyOrdered.vue'),
         beforeEnter: requireAuth({ role: 'guest' }),

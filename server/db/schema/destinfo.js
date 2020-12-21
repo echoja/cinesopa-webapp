@@ -7,11 +7,11 @@ const { Mongoose } = require("mongoose");
  */
 module.exports = function (mongoose) {
   const schema = new mongoose.Schema({
-    name: String,
-    address: String,
-    address_detail: String,
-    phone: String,
-    request: String,
+    name: { type: String, default: '' },
+    address: { type: String, default: '' },
+    address_detail: { type: String, default: '' },
+    phone: { type: String, default: '' },
+    request: { type: String, default: '' },
   });
   return schema;
 };

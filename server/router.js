@@ -30,8 +30,8 @@ router.get('/graphql/kakao/login/oauth', (req, res, next) => {
   passport.authenticate('kakao', function (err, user) {
     // console.log('passport.authenticate(kakao) 실행됨');
     if (err) {
-      console.log('graphql kakao login oauth 에러 발생!!!');
-      console.error(err);
+      // console.log('graphql kakao login oauth 에러 발생!!!');
+      // console.error(err);
       req.logout();
       return res.redirect('/');
     }
@@ -40,7 +40,7 @@ router.get('/graphql/kakao/login/oauth', (req, res, next) => {
       return res.redirect('/');
     }
     req.login(user, function (err) {
-      console.log('로그인 성공! >> kakao/callback user : ', user);
+      // console.log('로그인 성공! >> kakao/callback user : ', user);
       return res.redirect('/');
     });
   })(req, res);

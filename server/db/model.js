@@ -15,6 +15,7 @@ schemaBuilder.Token = require('./schema/token');
 schemaBuilder.SiteOption = require('./schema/site-option');
 schemaBuilder.Sopakit = require('./schema/sopakit');
 schemaBuilder.Order = require('./schema/order');
+schemaBuilder.Tag = require('./schema/tag');
 
 
 /**

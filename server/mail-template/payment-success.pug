@@ -1,14 +1,21 @@
 include base.pug
 
 //- variables: order, detailUrl, totalProductPrice, transportFee, totalPrice, paymentMethod
+//- td.header {width: 120px;}
 
 style.
   .main-phrase{font-size: 22px; font-weight: bold; text-align: center; padding-bottom: 10px;}
   .subtitle {padding-top: 40px; padding-bottom: 10px; font-size: 18px; font-weight: bold; border-bottom: 1px solid #ddd;}
   /*.content-table {padding-top: 20px;}*/
   td.header, td.content {padding-top: 10px; padding-bottom: 10px; border-bottom: 1px solid #ddd}
-  td.header {width: 120px;}
-  .featured-image {width: 120px;}
+  .featured-image {
+    width: 120px;
+  }
+  .order-cell {
+    padding-top: 20px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid #ddd;
+  }
 
 
 +mailWrapper
@@ -22,13 +29,13 @@ style.
         +mtable
           tr
             td.header 총 상품 가격
-            td.content= totalProductPrice
+            td.content= totalProductPriceFormatted
           tr
             td.header 배송비
-            td.content= transportFee
+            td.content= transportFeeFormatted
           tr
             td.header 총 결제 금액
-            td.content= totalPrice
+            td.content= totalPriceFormatted
           tr
             td.header 결제 방법
             td.content= paymentMethod
@@ -37,17 +44,17 @@ style.
     tr
       td.content-table 
         +mtable
-          each item in order.items
+          each item in itemsFormatted
             tr
-              td.featured-image 
-                img(src=item.product.featured_image_url)
-              td.options
+              td.featured-image.order-cell
+                img(src=item.product.featured_image_url width="120")
+              td.options.order-cell(style="padding-left:15px")
                 span= item.product.name
                 +mtable
-                 each option in item.options
+                  each option in item.options
                     tr
                       td= `${option.content} ${option.count}개` 
-                        
+
     tr
       td.subtitle 배송 정보
     tr
@@ -55,13 +62,13 @@ style.
         +mtable
           tr
             td.header 받는 사람
-            td.content= order.dest.name
+            td.content= dest.name
           tr
-            td.header 연락쳐
-            td.content= order.dest.phone
+            td.header 연락처
+            td.content= dest.phone
           tr
             td.header 받는 주소
-            td.content= order.dest.address
+            td.content= fullAddress
     tr
       td(style="padding-bottom: 20px;" align="center")
         a(style={color: '#fff', 
@@ -70,10 +77,4 @@ style.
           padding: '10px 15px 10px 15px',
           'text-decoration': 'none',
           'font-weight': 'bold',
-        }, href=detailUrl) 자세히 보기 
-    tr
-      td 인증을 하신다면 소파섬의 모든 서비스를 제한 없이 이용하실 수 있습니다.
-    tr
-      td.sub-notice(style="padding-top: 10px") 본 메일은 영화향유플랫폼 소파섬 계성 생성시 이메일 인증을 위해 발신되었습니다. 
-    tr
-      td.sub-notice 만약 본인이 아니시라면, 본 메일을 무시해주시기 바랍니다.
+        }, href=detailsLink) 자세히 보기 

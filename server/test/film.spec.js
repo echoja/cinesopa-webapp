@@ -11,7 +11,14 @@ const {
   removeFilmMutation,
   filmsFeaturedQuery,
 } = require('./graphql-request');
-const { initTestServer, graphqlSuper, doLogin, doLogout, makeSimpleQuery, randomDate } = require('./tool');
+const {
+  initTestServer,
+  graphqlSuper,
+  doLogin,
+  doLogout,
+  makeSimpleQuery,
+  randomDate,
+} = require('./tool');
 describe('film', function () {
   // eslint-disable-next-line mocha/no-setup-in-describe
   const { agent } = initTestServer({ before, beforeEach, after, afterEach });
@@ -24,7 +31,7 @@ describe('film', function () {
         people: [{ name: '하위' }],
         prod_date: new Date('1996-05-22'),
         open_date: new Date('2020-4-10'),
-        tags: ['hi', 'ho', 'hu'],
+        tags: [{ name: 'hi' }, { name: 'ho' }, { name: 'hu' }],
       });
       // console.log(made._doc);
       // model.Film.syncIndexes();
@@ -44,10 +51,12 @@ describe('film', function () {
         }
         const { list: found, total } = await db.getFilms(2, 4);
         expect(found.length).to.equal(4);
+
+        // 최신 것이 먼저 나옴.
         expect(found[0].id).to.equal(9);
-        expect(found[1].id).to.equal(10);
-        expect(found[2].id).to.equal(11);
-        expect(found[3].id).to.equal(12);
+        expect(found[1].id).to.equal(8);
+        expect(found[2].id).to.equal(7);
+        expect(found[3].id).to.equal(6);
         expect(total).to.equal(16);
       });
 
@@ -269,7 +278,7 @@ describe('film', function () {
             title: '간다로맨',
             prod_date: new Date('1996-05-22'),
             open_date: new Date('2020-4-10'),
-            tags: ['hi', 'ho', 'hu'],
+            tags: [{ name: 'hi' }, { name: 'ho' }, { name: 'hu' }],
           });
 
           const { list: yes } = await db.getFilms(
@@ -307,13 +316,91 @@ describe('film', function () {
         expect(found.title).to.equal('라그나로크');
         expect(found.id).to.be.a('number');
       });
+      it('태그가 제대로 생성되어 있어야 함', async function () {
+        await db.createFilm({ title: '태그테스트', tags: ['1', '2', '3'] });
+        const found = await model.Film.findOne({ title: '태그테스트' })
+          .lean()
+          .exec();
+        console.log(found.tags);
+        const createAsync = async (name) => {
+          const foundTag = await model.Tag.findOne({ name });
+          expect(foundTag).to.not.be.null;
+          expect(foundTag.name).to.equal(name);
+        };
+        const results = await Promise.allSettled([
+          createAsync('1'),
+          createAsync('2'),
+          createAsync('3'),
+        ]);
+        expect(results.every((result) => result.status === 'fulfilled')).to.be
+          .true;
+      });
     });
     describe('updateFilm', function () {
       it('제대로 동작해야 함', async function () {
+        // 초기: tags: [{ name: 'hi' }, { name: 'ho' }, { name: 'hu' }],
         const id = 1;
         await db.updateFilm(id, { title: '라스베거스' });
         const found = await model.Film.findOne({ id });
         expect(found.title).to.equal('라스베거스');
+      });
+      it('태그가 제대로 수정되어야 함', async function () {
+        await Promise.allSettled([
+          model.Tag.create({
+            name: 'hi',
+            related_films: {
+              id: 1,
+              title: '헬로우 마스터의 수퍼 길',
+            },
+          }),
+          model.Tag.create({
+            name: 'ho',
+            related_films: {
+              id: 1,
+              title: '헬로우 마스터의 수퍼 길',
+            },
+          }),
+          model.Tag.create({
+            name: 'hu',
+            related_films: {
+              id: 1,
+              title: '헬로우 마스터의 수퍼 길',
+            },
+          }),
+        ]);
+
+        await db.updateFilm(1, { tags: ['ho', 'hu', 'hun'] });
+
+        const [
+          { value: hi },
+          { value: ho },
+          { value: hu },
+          { value: hun },
+        ] = await Promise.allSettled([
+          model.Tag.findOne({ name: 'hi' }).lean().exec(),
+          model.Tag.findOne({ name: 'ho' }).lean().exec(),
+          model.Tag.findOne({ name: 'hu' }).lean().exec(),
+          model.Tag.findOne({ name: 'hun' }).lean().exec(),
+        ]);
+
+        // console.log(await model.Tag.find().lean().exec());
+
+        // 기존에 있던 태그들은 영향받지 않고,
+        // 없어진 태그는 없어지고,
+        // 새로 생긴 태그는 새로 생겨야 함.
+        expect(hi.related_films.length).to.equal(0);
+        expect(ho.related_films.length).to.equal(1);
+        expect(hu.related_films.length).to.equal(1);
+        expect(hun.related_films.length).to.equal(1);
+
+        expect(ho.related_films[0].id).to.equal(1);
+        expect(hu.related_films[0].id).to.equal(1);
+        expect(hun.related_films[0].id).to.equal(1);
+
+        const filmFound = await model.Film.findOne({ id: 1 });
+        expect(JSON.stringify(filmFound.tags.map((tag) => tag.name))).to.equal(
+          '["ho","hu","hun"]',
+        );
       });
     });
     describe('removeFilm', function () {
@@ -322,6 +409,48 @@ describe('film', function () {
         await db.removeFilm(id);
         const found = await model.Film.find();
         expect(found.length).to.equal(0);
+      });
+      it('영화를 삭제할 때 tag의 내용도 수정되어야 함.', async function () {
+        await Promise.allSettled([
+          model.Tag.create({
+            name: 'hi',
+            related_films: {
+              id: 1,
+              title: '헬로우 마스터의 수퍼 길',
+            },
+          }),
+          model.Tag.create({
+            name: 'ho',
+            related_films: {
+              id: 1,
+              title: '헬로우 마스터의 수퍼 길',
+            },
+          }),
+          model.Tag.create({
+            name: 'hu',
+            related_films: {
+              id: 1,
+              title: '헬로우 마스터의 수퍼 길',
+            },
+          }),
+        ]);
+        await db.removeFilm(1);
+
+        console.log(await model.Tag.find().lean().exec());
+
+        const [
+          { value: hi },
+          { value: ho },
+          { value: hu },
+        ] = await Promise.allSettled([
+          model.Tag.findOne({ name: 'hi' }).lean().exec(),
+          model.Tag.findOne({ name: 'ho' }).lean().exec(),
+          model.Tag.findOne({ name: 'hu' }).lean().exec(),
+        ]);
+
+        expect(hi.related_films.length).to.equal(0);
+        expect(ho.related_films.length).to.equal(0);
+        expect(hu.related_films.length).to.equal(0);
       });
     });
   });
@@ -435,9 +564,12 @@ describe('film', function () {
         expect(result.list[0].title).to.equal('1');
       });
     });
-    describe("availableSubtitle", function () {
-      it.only("제대로 동작해야 함.", async function () {
-        const result = await makeSimpleQuery(agent, 'availableSubtitle')({}, '');
+    describe('availableSubtitle', function () {
+      it('제대로 동작해야 함.', async function () {
+        const result = await makeSimpleQuery(agent, 'availableSubtitle')(
+          {},
+          '',
+        );
         console.log(result);
       });
     });
@@ -462,7 +594,7 @@ describe('film', function () {
         expect(found.companies[0].name).to.equal('영화배급협동조합 씨네소파');
       });
     });
-    describe('updatefilm', function () {
+    describe('updateFilm', function () {
       it('제대로 동작해야 함', async function () {
         await doLogin(agent, 'testAdmin', 'abc');
         await model.Film.create({ title: '바뀌기 전' });

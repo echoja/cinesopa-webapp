@@ -9,6 +9,7 @@ const {
   enumFilmStatus,
   enumFilmAvailableSubtitle,
 } = require('./enum');
+const tagSchemaMaker = require('./tag');
 
 const autoIdSetter = require('./auto-id-setter');
 
@@ -17,6 +18,8 @@ const autoIdSetter = require('./auto-id-setter');
  * @param {Mongoose} mongoose
  */
 module.exports = function (mongoose) {
+  const Tag = tagSchemaMaker(mongoose, false);
+
   const Person = new mongoose.Schema({
     role_type: { type: String, enum: enumPeopleRoleType.raw_str_list },
     name: String,
@@ -90,7 +93,7 @@ module.exports = function (mongoose) {
     awards: [Award],
     synopsis: String,
     note: String,
-    tags: [String],
+    tags: [Tag],
     is_featured: Boolean,
     is_opened: Boolean,
     featured_steel: String, // 주소
@@ -103,7 +106,9 @@ module.exports = function (mongoose) {
       enum: enumFilmStatus.raw_str_list,
       default: 'public',
     },
-    available_subtitles: [{ type: String, enum: enumFilmAvailableSubtitle.raw_str_list }],
+    available_subtitles: [
+      { type: String, enum: enumFilmAvailableSubtitle.raw_str_list },
+    ],
     meta: mongoose.Schema.Types.Mixed,
     search: String,
   });
@@ -156,6 +161,7 @@ module.exports = function (mongoose) {
 
   autoIdSetter(schema, mongoose, 'film', 'id');
 
-  schema.index({ open_date: 1 });
+  schema.index({ open_date: 1, 'tags.name': 1 });
+  // schema.index({  }, { sparse: true });
   return schema;
 };

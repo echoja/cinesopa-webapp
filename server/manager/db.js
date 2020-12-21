@@ -635,7 +635,7 @@ class DBManager {
     }
     if (tags && tags.length !== 0) {
       console.log('getFilms: tags!!');
-      query = query.find({ tags: { $all: tags } });
+      query = query.find({ 'tags.name': { $all: tags } });
     }
 
     if (is_opened !== null) {
@@ -681,34 +681,203 @@ class DBManager {
   /**
    * 새 영화를 만듭니다.
    * @param {Filminfo} filminfo
-   * @returns {Promise<>}
+   * @returns {Promise<Filminfo>}
    */
   async createFilm(filminfo) {
-    const film = await model.Film.create(filminfo);
-    if (film) return film.toObject();
-    return null;
+    // 만약 태그가 있다면, model 에 맞게 태그를 변형시켜줌.
+    const args = { ...filminfo };
+    if (args.tags) {
+      args.tags = args.tags.map((name) => ({
+        name,
+      }));
+    }
+    // film 생성
+    const film = await model.Film.create(args);
+
+    // 태그가 있는 경우 태그도 생성시켜줌.
+    if (args.tags) {
+      const promises = args.tags.map(({ name }) =>
+        this.addFilmToTag(name, { id: film.id, title: film.title }),
+      );
+      await Promise.allSettled(promises);
+    }
+
+    return film;
   }
 
   /**
    * 영화의 정보를 갱신합니다.
+   * 태그는 이름의 배열로 받습니다. 예: ['태그1', '태그2', '태그3]
    * @param {number} id
    * @param {Filminfo} filminfo
    * @returns {Promise<Filminfo>}
    */
   async updateFilm(id, filminfo) {
-    // console.log('# db updateFilm');
-    // console.log(filminfo);
-    return model.Film.updateOne({ id }, filminfo).lean().exec();
+    // 만약 태그가 있다면, model 에 맞게 태그를 변형시켜줌.
+    const args = { ...filminfo };
+    if (args.tags) {
+      args.tags = args.tags.map((name) => ({
+        name,
+      }));
+    }
+
+    // 우선 영화를 찾고, 없을시 null 리턴합니다.
+    const film = await model.Film.findOne({ id }).lean().exec();
+    if (!film) return null;
+
+    // 삭제해야 하는 태그와 추가해야 하는 태그를 선택합니다.
+    const tagsToRemove = (film.tags ?? []).filter(
+      (originTag) =>
+        (args.tags ?? []).findIndex((newTag) => originTag.name === newTag.name) === -1,
+    );
+    const tagsToAdd = (args.tags ?? []).filter(
+      (newTag) =>
+        (film.tags ?? []).findIndex((originTag) => originTag.name === newTag.name) ===
+        -1,
+    );
+    // console.log('# db updateFilm tag tagsToRemove');
+    // console.log(tagsToRemove);
+    // console.log('# db updateFilm tag tagsToAdd');
+    // console.log(tagsToAdd);
+
+    // 각각 태그에 대해 영화 정보를 추가/삭제 합니다.
+    const promises = tagsToAdd
+      .map((tag) =>
+        this.addFilmToTag(tag.name, { id: film.id, title: film.title }),
+      )
+      .concat(
+        tagsToRemove.map((tag) => this.removeFilmFromTag(tag.name, film.id)),
+      );
+    const promiseResult = await Promise.allSettled(promises);
+
+    // console.log('# db updateFilm ta promiseResult');
+    // console.dir(promiseResult, { depth: 4 });
+    // 영화에 대해 태그를 설정합니다.
+    return model.Film.updateOne(
+      { id },
+      args,
+      // {
+      //   ...args,
+      //   $pull: { tags: { $in: tagsToRemove } },
+      //   $push: { tags: { $each: tagsToAdd } },
+      // },
+    )
+      .lean()
+      .exec();
   }
 
   /**
    * 영화을 찾아 삭제합니다.
    * @param {number} id
+   * @return {Promise<Filminfo>}
    */
   async removeFilm(id) {
     const doc = await model.Film.findOne({ id }).lean().exec();
-    await model.Film.deleteOne({ id }).exec();
+    await Promise.allSettled([
+      model.Film.deleteOne({ id }).exec(),
+      ...doc.tags.map((tag) => this.removeFilmFromTag(tag.name, id)),
+    ]);
     return doc;
+  }
+
+  /*= ====================================
+  태그
+  ===================================== */
+
+  async getTags(condition = {}) {
+    const { limit = 20 } = condition;
+
+    const total = (await model.Tag.find().lean().exec()).length;
+    const tags = await model.Tag.aggregate([
+      {
+        $addFields: {
+          size: { $size: { $ifNull: ['$related_films', []] } },
+        },
+      },
+      {
+        $sort: { size: -1 },
+      },
+    ])
+      .limit(limit)
+      .exec();
+    // console.log('# db getTags tag1');
+    // console.log(tags);
+
+    // 영화 정보를 태그에 넣기.
+
+    const films = new Set(
+      tags
+        .map((tag) => tag.related_films.map((film) => film.id))
+        .flat(Infinity),
+    );
+    // console.log('# db getTags films');
+    // console.log(films);
+    // console.log([...films.values()])
+
+    const filmPromises = [...films.values()].map((id) => this.getFilm(id));
+    const filmResults = await Promise.allSettled(filmPromises);
+    // console.log(filmResults);
+    const filmDocs = new Map(
+      filmResults.map((result) => [result.value?.id, result.value]),
+    );
+
+    tags.forEach((tag) => {
+      tag.related_films = tag.related_films.map((film) =>
+        filmDocs.get(film.id),
+      );
+    });
+
+    // console.log('# db getTags tag2');
+    // console.log(tags);
+    return { total, list: tags };
+  }
+
+  /**
+   * 해당 태그에 영화를 추가합니다. 만약 태그가 없을시
+   * 새로 생성합니다.
+   * @param {string} name 태그의 이름
+   * @param {TagFilminfo} filminfo 영화의 id 값
+   * @return {Promise<Taginfo>}
+   */
+  async addFilmToTag(name, filminfo) {
+    // 일단 tag name 을 검색하고, 없으면 새로운 태그를 만들어 리턴합니다.
+    let tag = await model.Tag.findOne({ name }).lean().exec();
+    if (!tag) {
+      tag = await model.Tag.create({ name, related_films: [filminfo] });
+      return tag;
+    }
+    // film id 와 함께 검색합니다. 없으면 추가시킵니다.
+    tag = await model.Tag.findOne({ name, 'related_films.id': filminfo.id })
+      .lean()
+      .exec();
+    if (!tag) {
+      await model.Tag.updateOne(
+        { name },
+        { $push: { related_films: filminfo } },
+      );
+    }
+    // 있으면 그냥 그대로 리턴합니다.
+    return tag;
+  }
+  /**
+   * 태그에서 해당 영화 정보를 삭제합니다.
+   * 태그에서 모든 영화가 삭제되었다고 해서 태그는 사라지지 않습니다.
+   * @param {string} name 태그의 이름
+   * @param {number} filmId 영화 id
+   */
+  async removeFilmFromTag(name, filmId) {
+    return model.Tag.updateOne(
+      { name },
+      { $pull: { related_films: { id: filmId } } },
+    );
+  }
+
+  /**
+   * 태그를 삭제합니다. 연관된 영화도 전부 삭제합니다.
+   * @param {string}} name 태그의 이름
+   */
+  async removeTag(name) {
+    // todo
   }
 
   /*= ====================================
@@ -1069,7 +1238,7 @@ class DBManager {
    * @param {ProductSearch} condition
    */
   async getProducts(condition = {}) {
-    const { product_type, page, perpage, status, search} = condition;
+    const { product_type, page, perpage, status, search } = condition;
     let query = model.Product.find();
     if (product_type) {
       query = query.find({ product_type });
