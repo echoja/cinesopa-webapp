@@ -110,6 +110,17 @@
             ></b-form-textarea>
           </div>
         </div>
+
+        <div
+          class="form-item save-info"
+          v-if="selectDeliveryPlace === 'manual'"
+        >
+          <div class="form-content">
+            <b-form-checkbox>
+              위 정보를 기본 배송지에 저장합니다.
+            </b-form-checkbox>
+          </div>
+        </div>
         <!-- todo: 위 정보를 기본 배송지로 설정합니다. (선택) -->
         <div class="header">
           <h2>주문내역</h2>
@@ -267,6 +278,7 @@
           <oval-button @click="paymentClicked" class="go-payment"
             >결제하기</oval-button
           >
+          <!-- <b-button @click="testClicked">테스트</b-button> -->
           <!-- {{ paymentProductName }} -->
         </div>
       </div>
@@ -291,9 +303,10 @@ import {
   BFormTextarea,
   BButton,
   BSpinner,
+  BFormCheckbox,
 } from 'bootstrap-vue';
 import { paymentMethodMap, toPrice } from '@/util';
-import { makeSimpleMutation, makeSimpleQuery } from '@/api/graphql-client';
+import { checkAuth, makeSimpleMutation, makeSimpleQuery } from '@/api/graphql-client';
 import { mapActions } from 'vuex';
 import BootPay from 'bootpay-js';
 
@@ -301,6 +314,7 @@ const cartitemsByIdsReq = makeSimpleQuery('cartitemById');
 const siteOptionsReq = makeSimpleQuery('siteOptions');
 const createOrderFromCartReq = makeSimpleMutation('createOrderFromCart');
 const finishPaymentReq = makeSimpleMutation('finishPayment');
+const updateMeReq = makeSimpleMutation('updateMe');
 
 export default {
   title: '주문결제',
@@ -312,6 +326,7 @@ export default {
     BFormRadio,
     BFormRadioGroup,
     BFormTextarea,
+    BFormCheckbox,
     FindingAddressButton: () => import('@/components/FindingAddressButton'),
     OvalButton: () => import('@/components/OvalButton'),
   },
@@ -319,8 +334,9 @@ export default {
     return {
       paymentMethodMap: { ...paymentMethodMap },
       transportationFee: 123,
-      selectDeliveryPlace: 'default',
+      selectDeliveryPlace: 'default', // dest 선택시 기본배송지 또는 직접입력 선택용
       cartitemFetched: false,
+      saveDestDefault: false, // 기본배송지 저장 여부
       // addressNew: '',
       // addressOld: '',
       addressObj: {},
@@ -574,7 +590,7 @@ export default {
   },
 
   methods: {
-    ...mapActions(['getCurrentUser']),
+    ...mapActions(['getCurrentUser', 'pushMessage']),
     toPrice,
     async fetchCartitemData() {
       // 만약 cartitem 의 길이가 0이라면, 유효하지 않은 cartitem 이므로 실패 처리.
@@ -752,7 +768,44 @@ export default {
     async setValidateMessage() {
       // todo: 이거 뭐하는 거더라?
     },
+    updateDefaultDest() {
+      updateMeReq(
+        {
+          userinfo: {
+            default_dest: {
+              name: this.form.name,
+              address: this.form.address,
+              address_detail: this.form.address_detail,
+              phone: this.form.phone,
+              request: this.form.request,
+            },
+          },
+        },
+        `
+      {success code}`,
+      )
+        .then((result) => {
+          console.log('# OrderPayment paymentClicked updateMeReq');
+          console.log(result);
+          if (result.success) {
+            this.pushMessage({
+              type: 'success',
+              msg: '기본 배송지 정보가 변경되었습니다.',
+              id: 'updateMeSuccess',
+            });
 
+            // 서버로부터 데이터 가지고 옴.
+            checkAuth().then(() => {
+              // console.log(checkAuthResult);
+            }).catch((err) => {
+              console.error(err);
+            });
+          }
+        })
+        .catch((err) => {
+          console.error(err);
+        });
+    },
     // 결제하기 버튼이 클릭되었을 때
     async paymentClicked() {
       const validated = await this.validateInputs();
@@ -764,6 +817,7 @@ export default {
         this.setValidateMessage();
         return;
       }
+      this.updateDefaultDest();
 
       // 일단 order 생성한다. (bootpay 에 order id 를 넘겨주기 위해 일단 생성해야 함.)
       // todo: 무조건 결제 상태를 결제 대기 상태로 만들어야 함.
@@ -864,33 +918,39 @@ export default {
           // const result = await finishPaymentReq({id: })
           console.log('# Bootpay done');
           console.log(data);
-          const { receipt_id, order_id } = data;
+          this.finishPayment(data);
+        });
+    },
+    finishPayment(data) {
+      const { receipt_id, order_id } = data;
 
-          // 마무으리합니다.
-          finishPaymentReq(
-            { id: parseInt(order_id, 10), receiptId: receipt_id },
-            `{
+      // 마무으리합니다.
+      finishPaymentReq(
+        { id: parseInt(order_id, 10), receiptId: receipt_id },
+        `{
             success code
             order {
               id
               status
             }
           }`,
-          )
-            // 성공했을 시
-            .then((result) => {
-              console.log('# OrderPayment finishPaymentReq result');
-              console.log(result);
-              this.$router.push({
-                name: 'PaymentSuccess',
-                query: { orderId: order_id },
-              });
-            })
-            .catch((err) => {
-              console.error(err);
-            });
+      )
+        // 성공했을 시
+        .then((result) => {
+          console.log('# OrderPayment finishPaymentReq result');
+          console.log(result);
+          this.$router.push({
+            name: 'PaymentSuccess',
+            query: { orderId: order_id },
+          });
+        })
+        .catch((err) => {
+          console.error(err);
         });
     },
+    // testClicked() {
+    //   this.finishPayment({ receipt_id: 123, order_id: 123 });
+    // },
     // testKakao() {
     //   this.form.paymentMethod = 'npay';
     //   this.orderId = '123124121511f12f';

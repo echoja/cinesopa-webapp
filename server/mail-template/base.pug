@@ -31,7 +31,7 @@ mixin mailWrapper
         .ExternalClass, .ExternalClass p, .ExternalClass span, .ExternalClass font, .ExternalClass td, .ExternalClass div { line-height: 100%; }
         /* Outlook 2007 이상에서 Outlook이 추가하는 테이블 주위의 간격을 제거 */
         table, td { mso-table-lspace: 0pt; mso-table-rspace: 0pt; }
-        td { padding: 0; font-size: 14px;}
+        td { padding: 0; font-size: 14px; font-family: Arial, Helvetica, sans-serif; line-height: 1.5;}
         /* Internet Explorer에서 크기가 조정된 이미지를 렌더링하는 방식을 수정 */
         img { -ms-interpolation-mode: bicubic; }
         /* Webkit 및 Windows 기반 클라이언트가 텍스트 크기를 자동으로 조정하지 않도록 수정 */
@@ -60,7 +60,8 @@ mixin mailWrapper
                         +mtable
                           tr
                             td(align="center")
-                              img(src='https://gdurl.com/LRl7e' alt='소파섬 로고' width="200" height="156")
+                              //- img(src='https://gdurl.com/LRl7e' alt='소파섬 로고' width="200" height="156")
+                              img(src='https://i.ibb.co/Qc5zK0h/sopaseom.png' alt='소파섬 로고' width="200" height="156")
                     tr
                       td(style='padding-bottom: 50px')
                         block

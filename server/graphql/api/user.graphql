@@ -49,14 +49,17 @@ type UserExistsResult {
 
 type RequestChangePasswordResult {
   success: Boolean
+  code: String
 }
 
 type RequestVerifyEmailResult {
   success: Boolean
+  code: String
 }
 
 type ChangePasswordResult {
   success: Boolean
+  code: String
 }
 
 type UserAgreed {
@@ -173,7 +176,7 @@ extend type Mutation {
   ): AgreementForKakaoUserResult
   updateMe(userinfo: UpdateMeInput!): UpdateMeResult
   requestVerifyEmail(debug: Boolean): RequestVerifyEmailResult
-  requestChangePassword(debug: Boolean): RequestChangePasswordResult
+  requestChangePassword(email: String!, debug: Boolean): RequestChangePasswordResult
   changePassword(token: String!, pwd: String!): ChangePasswordResult
   forceLogin(email: String!): User # 반드시 삭제해야 함. todo
 }

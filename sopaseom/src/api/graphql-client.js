@@ -285,7 +285,9 @@ const filmResponse = `{
     award_type
   }
   note 
-  tags 
+  tags {
+    name
+  }
   is_featured
   is_opened
   featured_steel

@@ -134,6 +134,15 @@ describe('email-template', function () {
         fs.writeFileSync('test/output/email-template.test.html', inlined);
       });
     });
+    describe("change-password", function () {
+      it.only("제대로 동작해야 함", async function () {
+        
+        const args = {
+          tokenUrl: 'https://naver.com/'
+        }
+        await createHTMLByTemplate(args, 'mail-template/change-password.pug');
+      });
+    });
   });
   describe('template-map.js', function () {
     describe('makeTemplateMap', function () {
@@ -199,7 +208,7 @@ describe('email-template', function () {
   });
   describe("refiner and template-map", function () {
     describe("payment-success", function () {
-      it.only("제대로 잘 되어야 함.", async function () {
+      it("제대로 잘 되어야 함.", async function () {
         const order = await model.Order.create({
           user: guestEmail,
           status: 'payment_confirming',

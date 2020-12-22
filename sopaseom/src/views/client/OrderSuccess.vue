@@ -189,15 +189,13 @@ p {
   margin-bottom: 15px;
 }
 .featured_image {
-  flex: 0 0 100px;
-  height: 100px;
   margin-right: 20px;
 }
 
 .featured_image a {
   display: block;
-  width: 100%;
-  height: 100%;
+  width: 100px;
+  height: 100px;
 }
 .featured_image img {
   width: 100%;

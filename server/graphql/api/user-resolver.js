@@ -14,6 +14,7 @@ const {
   makeResolver,
 } = require('../../loader');
 const { enumAuthmap } = require('../../db/schema/enum');
+const IsEmail = require('isemail');
 
 /**
  *
@@ -129,8 +130,8 @@ const verifyUserEmail = makeResolver(async (obj, args, context, info) => {
       return { success: false, code: 'no_such_token' };
     }
 
-    if (err.message === ('token-expired')) {
-      return { success: false, code: 'token_expired'};
+    if (err.message === 'token-expired') {
+      return { success: false, code: 'token_expired' };
     }
 
     // console.log('# user-resolver verifyUserEmail error');
@@ -231,13 +232,17 @@ const requestVerifyEmail = makeResolver(async (obj, args, context, info) => {
 }).only(ACCESS_AUTH);
 
 const requestChangePassword = makeResolver(async (obj, args, context, info) => {
-  const { debug } = args;
-  const contextUser = context.getUser();
-  if (!contextUser)
-    throw Error(
-      'requestChangePassword resolver: 현재 유저를 찾을 수 없습니다.',
-    );
-  await user.requestChangePassword(contextUser.email, debug);
+  const { email, debug } = args;
+
+  if (!IsEmail.validate(email)) {
+    return { success: false, code: 'invalid_email' };
+  }
+  // const contextUser = context.getUser();
+  // if (!contextUser)
+  //   throw Error(
+  //     'requestChangePassword resolver: 현재 유저를 찾을 수 없습니다.',
+  //   );
+  await user.requestChangePassword(email, debug);
   return { success: true };
 }).only(ACCESS_AUTH);
 

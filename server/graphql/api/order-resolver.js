@@ -9,6 +9,7 @@ const {
   db,
   payment,
   mail,
+  templateArgsRefiner,
 } = require('../../loader');
 require('../../typedef');
 
@@ -134,21 +135,25 @@ module.exports = {
       const result = await payment.finishPayment(id);
       // console.log('#order-resolver finishPayment result');
       // console.log(result);
-      
 
-      // 결제 완료 되었다고 메일을 보냄 todo: 메일 템플릿을 완성시켜야 함.
-      // mail.sendMailTemplate({
-      //   recipientEmail: user.email,
-      //   recipientName: order.payer ?? order.dest?.name,
-      // }, '[소파섬] 결제가 완료되었습니다.', 'payment_success', {
-      //   // todo 메일에 넣을 args를 채워넣어야 함.
-      // }).catch((err) => {
-      //   console.error(err);
-      //   // todo: 메일이 제대로 안갔을 경우 처리
-      // });
+      // 결제 완료 되었다고 메일을 보냄
+      order = await db.getOrder(id);
+      mail
+        .sendMailTemplate(
+          {
+            recipientEmail: user.email,
+            recipientName: order.payer ?? order?.dest?.name ?? '',
+          },
+          '[소파섬] 결제가 완료되었습니다.',
+          'payment-success',
+          templateArgsRefiner.createPaymentSuccessArgs(order),
+        )
+        .catch((err) => {
+          console.error(err);
+          // todo: 메일이 제대로 안갔을 경우 처리
+        });
 
       // 검증 결과를 내보냄.
-      order = await db.getOrder(id);
       return { ...result, order };
     }).only(ACCESS_AUTH),
     reqCancelOrder: makeResolver(async (obj, args, context, info) => {

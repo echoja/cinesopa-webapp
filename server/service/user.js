@@ -95,20 +95,20 @@ class UserService {
   }
   /**
    * 계정에 대해 비밀번호 변경 링크를 만들어 계정에게 이메일을 보냄.
-   * 이때, 계정은 본인 소유인 게 확인이 완료된 상태임.
    */
   async requestChangePassword(email, debug = false) {
     // 이메일을 찾을 수 없는 경우 에러
-    const user = await this.#db.getUserByEmail(email);
-    if (!user) {
-      throw Error(`requestChangePassword: ${email} 유저를 찾을 수 없습니다.`);
-    }
+    // const user = await this.#db.getUserByEmail(email);
+    // if (!user) {
+    //   throw Error(`requestChangePassword: ${email} 유저를 찾을 수 없습니다.`);
+    // }
+
     // 이메일이 인증되지 않은 상태일 경우 에러.
-    if (user.verified !== true) {
-      throw Error(
-        `requestChangePassword: ${email} 유저가 이메일 인증된 상태가 아닙니다.`,
-      );
-    }
+    // if (user.verified !== true) {
+    //   throw Error(
+    //     `requestChangePassword: ${email} 유저가 이메일 인증된 상태가 아닙니다.`,
+    //   );
+    // }
 
     const token = crypto.randomBytes(20).toString('hex');
     await this.#db.createToken(email, token, 'change_password');
@@ -116,19 +116,33 @@ class UserService {
     const mailGate = {
       recipientEmail: email,
       recipientName: '',
-      senderEmail: 'coop.cinesopa@gmail.com',
-      senderName: '영화배급협동조합 씨네소파',
     };
     if (!debug) {
-      await this.#mail.sendMail(
-        mailGate,
-        '[소파섬] 비밀번호 변경 링크',
-        `
-      <div>
-        <p>비밀번호를 변경하려면, 아래 링크를 클릭하여 계속 진행해주세요.</p>
-        <p><a href="https://sopaseom.com/change-password?token=${token}">비밀번호 변경</a></p>
-      </div>`,
-      );
+      this.#mail
+        .sendMailTemplate(
+          mailGate,
+          '[소파섬] 비밀번호 변경 링크',
+          'change-password',
+          {
+            tokenUrl: `https://sopaseom.com/change-password/auth?token=${token}`,
+          },
+        )
+        .catch((err) => {
+          console.log(
+            '# user service requestChangePassword sendMailTemplate 실패',
+          );
+          console.error(err);
+        });
+
+      // await this.#mail.sendMail(
+      //   mailGate,
+      //   '[소파섬] 비밀번호 변경 링크',
+      //   `
+      // <div>
+      //   <p>비밀번호를 변경하려면, 아래 링크를 클릭하여 계속 진행해주세요.</p>
+      //   <p><a href="https://sopaseom.com/change-password/auth?token=${token}">비밀번호 변경</a></p>
+      // </div>`,
+      // );
     }
   }
 
@@ -181,6 +195,14 @@ class UserService {
       return this.#db.getUserByEmail(email);
     }
     return null;
+  }
+  /**
+   * 비밀번호 변경 토큰을 받아서 유효한 토큰인지 체크.
+   * @param {string} token 
+   * @return {Promise<boolean>}
+   */
+  async verifyPasswordChangeReq(token) {
+    // 
   }
   /**
    * 카카오 유저에게 비밀번호를 만들어줍니다.

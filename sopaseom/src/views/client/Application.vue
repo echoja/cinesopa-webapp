@@ -23,6 +23,19 @@
         </loading-button>
       </div>
     </div>
+    <div class="tags-wrapper">
+      <div class="tags">
+        <b-link
+          v-for="(tag, tagIndex) in tags"
+          :key="tag.name"
+          :class="{ selected: tag.selected }"
+          class="tag-link"
+          @click="tagClicked(tagIndex)"
+        >
+          #{{ tag.name }}
+        </b-link>
+      </div>
+    </div>
     <div class="notice">
       영화를 클릭하여 영화 정보를 확인 후 바로 신청서를 작성하세요.
     </div>
@@ -65,10 +78,9 @@
     <b-modal
       id="application-modal"
       hide-footer
-      title="영화 상영 신청폼"
+      title="영화 정보 및 상영 신청"
       size="lg"
     >
-      <h2>영화 정보</h2>
       <application-form :reqFilm="applicationFilm" @submit="formSubmitted">
       </application-form>
       <!-- <pre>
@@ -97,6 +109,7 @@ import ApplicationForm from '@/components/ApplicationForm.vue';
 import { mapActions } from 'vuex';
 
 const filmsReq = makeSimpleQuery('films');
+const tagsReq = makeSimpleQuery('tags');
 
 export default {
   title: '상영신청',
@@ -113,6 +126,8 @@ export default {
   },
   data() {
     return {
+      currentTag: null,
+      tags: [],
       films: [],
       loading: false,
       perpage: 20,
@@ -131,7 +146,7 @@ export default {
         // prod_lte: DateTime,
         // open_gte: DateTime,
         // open_lte: DateTime,
-        // tags: [String],
+        tags: this.currentTag ? [this.currentTag] : null,
         search: this.search,
         // is_opened: Boolean
       };
@@ -157,6 +172,7 @@ export default {
   },
   async mounted() {
     this.searchInput = this.condition.search;
+    this.fetchTagsData();
     this.fetchData();
   },
   methods: {
@@ -170,7 +186,7 @@ export default {
       {
         total, list {
   id title title_en poster poster_url poster_alt kobis_code genres show_time type_name prod_date open_date watch_grade 
-  note tags is_featured is_opened featured_steel featured_color featured_synopsis badge_text
+  note  is_featured is_opened featured_steel featured_color featured_synopsis badge_text
   badge_color status synopsis meta 
   people { role_type name name_en role }
   companies { name name_en role }
@@ -178,6 +194,7 @@ export default {
   photos { mongo_file_id filename preview_url alt title }
   # videos { is_main_trailer youtube_iframe title }
   awards { festival_name year person_name award_name award_type }
+  tags { name }
         }
       }`,
       );
@@ -186,6 +203,26 @@ export default {
       this.total = total;
       this.films = list;
       this.loading = false;
+    },
+    async fetchTagsData() {
+      const tagsResult = await tagsReq(
+        {},
+        `{
+          total
+          list {
+            name
+            related_films {
+              id
+              title
+            }
+          }
+        }`,
+      );
+      // console.log('# Application fetchTagsData');
+      // console.log(tagsResult);
+
+      // 입력 값을 수정함.
+      this.tags = tagsResult.list.map((tag) => ({ ...tag, selected: false }));
     },
     searchEnterKeyupped() {
       this.searchProcess();
@@ -200,6 +237,7 @@ export default {
           query: {
             page: 1,
             search: this.searchInput,
+            tag: this.currentTag,
           },
         });
       } catch (e) {
@@ -225,6 +263,23 @@ export default {
         msg: '성공적으로 제출되었습니다.',
         id: 'formSubmitSuccess',
       });
+    },
+    tagClicked(tagIndex) {
+      // 태그가 이미 선택되어 있는 상태라면 태그를 해제함.
+      if (this.tags[tagIndex]?.selected === true) {
+        this.tags[tagIndex].selected = false;
+        this.currentTag = null;
+      }
+      
+      // 아니라면, 태그를 설정.
+      else {
+        this.currentTag = this.tags[tagIndex]?.name ?? '';
+        this.tags.forEach((tag) => {
+          tag.selected = false;
+        });
+        this.tags[tagIndex].selected = true;
+      }
+      this.searchProcess();
     },
   },
 };
@@ -282,6 +337,37 @@ export default {
 
 .search-button {
   border: 0;
+}
+
+.tags-wrapper {
+  max-width: 400px;
+  margin: 0 auto;
+  margin-bottom: 20px;
+}
+
+.tags {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
+.tag-link {
+  font-weight: bold;
+  padding: 3px 5px;
+  display: block;
+  transition: 0.3s;
+  border-radius: 3px;
+  margin: 5px;
+  border: 1px solid transparent;
+  &:hover {
+    background-color: #000;
+    color: #fff;
+    text-decoration: none;
+  }
+  &.selected {
+    border-color: #000;
+    box-shadow: 0 0 0.1rem 1px #000;
+  }
 }
 
 .notice {

@@ -224,6 +224,13 @@
             </div>
           </div>
         </div>
+        <div class="fixed-wave-container">
+          <b-img
+            :style="{ transform: `translateX(${waveTranslateX}px)` }"
+            src="@/assets/wave.png"
+            :class="{ 'swiper-touching': swiperTouching }"
+          ></b-img>
+        </div>
       </div>
     </div>
   </div>
@@ -327,9 +334,30 @@ export default {
         // },
       ],
       search: '',
+      waveWidth: 221,
+      contentWidth: 700,
+      slideTranslate: 0,
+      swiperWidth: 100,
+      swiperLength: 2,
+      swiperTouching: false,
     };
   },
-  computed: {},
+  computed: {
+    // 파도의 translateX 계산.
+    waveTranslateX() {
+      const maxWaveTranslate = this.contentWidth - this.waveWidth;
+      let maxSliderWidth = this.swiperWidth * (this.swiperLength - 1);
+      if (maxSliderWidth < 0) maxSliderWidth = 0;
+      const slideCurrentTranslate = this.slideTranslate * -1;
+      const calc = (slideCurrentTranslate / maxSliderWidth) * maxWaveTranslate;
+      if (calc < 0) return 0;
+      if (calc > maxWaveTranslate) return maxWaveTranslate;
+      return calc;
+    },
+  },
+  created() {
+    window.addEventListener('resize', this.onResize);
+  },
   async mounted() {
     await this.fetchData();
     this.$nextTick(() => {
@@ -350,6 +378,43 @@ export default {
         },
         // cssMode: true,
         mousewheel: true,
+        on: {
+          // sliderMove: (slider, event) => {
+          //   console.log('# SoakitItems sliderMove event');
+          //   console.log({ slider, event });
+          // },
+          init: (swiper) => {
+            console.log('# SoakitItems setTranslate event');
+            console.log(
+              `total width: ${swiper.width * swiper.slides.length}px,  width: ${
+                swiper.width
+              }`,
+            );
+            this.swiperWidth = swiper.width;
+            this.swiperLength = swiper.slides.length;
+            this.recalculateContentWidth();
+          },
+          resize: (swiper) => {
+            setTimeout(() => {
+              this.swiperWidth = swiper.width;
+            }, 50);
+          },
+          setTranslate: (slider, translate) => {
+            // console.log('# SoakitItems setTranslate event');
+            // console.log({ slider, translate, width: slider.width });
+            this.slideTranslate = translate;
+          },
+          touchStart: () => {
+            this.swiperTouching = true;
+          },
+          touchEnd: () => {
+            this.swiperTouching = false;
+          },
+          // setTransition: (slider, event) => {
+          //   console.log('# SoakitItems setTransition event');
+          //   console.log({ slider, event });
+          // },
+        },
 
         // And if we need scrollbar
         // scrollbar: {
@@ -357,6 +422,9 @@ export default {
         // },
       });
     });
+  },
+  beforeMount() {
+    window.removeEventListener('reisze', this.onResize);
   },
   methods: {
     onSwiper(swiper) {
@@ -417,6 +485,13 @@ export default {
         console.dir(e);
         console.log('error!!');
       }
+    },
+    onResize() {
+      this.recalculateContentWidth();
+    },
+    recalculateContentWidth() {
+      this.contentWidth =
+        document.querySelector('.content')?.offsetWidth ?? 700;
     },
   },
 };
@@ -982,6 +1057,26 @@ export default {
 
 .footer-box-content {
   margin-top: auto;
+}
+
+// fixed wave container
+.fixed-wave-container {
+  position: fixed;
+  bottom: $simple-footer-height - 2;
+  // padding: 0 $desktop-min-x-margin;
+  z-index: 100;
+  img:not(.swiper-touching) {
+    transition: 0.5s;
+  }
+}
+@include when-page-translating('.fixed-wave-container img') {
+  opacity: 0;
+}
+
+@include max-with(sm) {
+  .fixed-wave-container {
+    position: absolute;
+  }
 }
 </style>
 

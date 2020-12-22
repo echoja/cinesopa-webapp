@@ -47,7 +47,7 @@ style.
           each item in itemsFormatted
             tr
               td.featured-image.order-cell
-                img(src=item.product.featured_image_url width="120")
+                img(src=`https://sopaseom.com${item.product.featured_image_url}` width="120")
               td.options.order-cell(style="padding-left:15px")
                 span= item.product.name
                 +mtable

@@ -623,10 +623,12 @@ export default {
         {
           input: {
             product_id: this.id,
-            options: this.product.options.map((option) => ({
-              id: option.id,
-              count: option.count,
-            })),
+            options: this.product.options
+              .filter((option) => option.count !== 0)
+              .map((option) => ({
+                id: option.id,
+                count: option.count,
+              })),
           },
         },
         `{success code doc {

@@ -1,5 +1,34 @@
 <template>
   <div class="application-form">
+    <!-- 포토 -->
+    <div
+      class="carousel-wrapper mb-3"
+      id="steel"
+      tabindex="-1"
+      v-if="film.photos.length !== 0"
+    >
+      <!-- <h2 class="no-divider">포토</h2> -->
+      <b-carousel
+        class="row-fullwidth film-photos-wrapper"
+        id="carousel"
+        :interval="0"
+        label-prev="이전으로 이동"
+        label-next="다음으로 이동"
+        label-goto-slide="특정 슬라이드로 이동: "
+        label-indicators="클릭하여 해당하는 슬라이드를 화면에 띄우세요"
+        controls
+        indicators
+      >
+        <b-carousel-slide
+          v-for="(image, index) in film.photos"
+          :key="index"
+          :img-src="image.preview_url"
+          :img-alt="image.alt"
+          img-height="400"
+        >
+        </b-carousel-slide>
+      </b-carousel>
+    </div>
     <div class="info">
       <!-- 기본 정보 -->
       <!-- {{ reqFilm }} -->
@@ -1094,6 +1123,8 @@ import {
   BLink,
   BModal,
   BTable,
+  BCarousel,
+  BCarouselSlide,
 } from 'bootstrap-vue';
 import moment from 'moment';
 
@@ -1123,13 +1154,17 @@ export default {
     BFormRadioGroup,
     BFormRadio,
     BTable,
+    BCarousel,
+    BCarouselSlide,
   },
   props: {
     reqFilm: Object,
   },
   data() {
     return {
-      film: {},
+      film: {
+        photos: [],
+      },
       filmSummary: [],
       submitting: false,
       showingFeeMap: {
@@ -1528,6 +1563,17 @@ export default {
 }
 .info {
   font-size: 14px;
+}
+
+.carousel-wrapper {
+  margin-left: -16px;
+  margin-right: -16px;
+  margin-top: -16px;
+}
+.carousel-item img {
+  height: 300px;
+  width: 100%;
+  object-fit: cover;
 }
 
 // 기본 정보

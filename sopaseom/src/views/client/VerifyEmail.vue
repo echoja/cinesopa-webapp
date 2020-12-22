@@ -12,9 +12,14 @@
       {{ submsg }}
     </div>
     <div v-if="tokenExpired" class="token-expired-area">
-      <b-button @click="requestAgainButtonClicked">인증 이메일 다시 보내기</b-button>
+      <b-button @click="requestAgainButtonClicked"
+        >인증 이메일 다시 보내기</b-button
+      >
     </div>
-    {{ token }}
+    <div class="button-group">
+      <b-button :to="{ name: 'Home' }">홈으로</b-button>
+    </div>
+    <!-- {{ token }} -->
   </div>
 </template>
 
@@ -70,7 +75,7 @@ export default {
   methods: {
     async requestAgainButtonClicked() {
       // todo
-    }
+    },
   },
 };
 </script>
@@ -94,6 +99,11 @@ export default {
 
 .verify-email .small-spinner {
   margin-left: 0;
+}
+.button-group {
+  margin-top: 50px;
+  display: flex;
+  justify-content: center;
 }
 </style>
 

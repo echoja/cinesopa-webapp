@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="film-edit">
     <header class="p-3">
       <h1>
         영화 편집
@@ -91,7 +91,6 @@
           </b-form-group>
           <!----- form group start --->
           <b-form-group
-            id="input-type_name-group"
             label="영화 구분"
             label-cols-md="3"
             label-align-md="left"
@@ -112,7 +111,24 @@
           </b-form-group>
           <!----- form group start --->
           <b-form-group
-            id="input-type_name-group"
+            label="태그"
+            label-cols-md="3"
+            label-align-md="left"
+            label-size="md"
+            label-for="input-tags"
+          >
+            <b-form-tags
+              v-model="film.tags"
+              id="input-tags"
+              name="input-tags"
+              :disabled="state.processing"
+              placeholder="태그 입력 후 Enter"
+              add-button-text="추가"
+            >
+            </b-form-tags>
+          </b-form-group>
+          <!----- form group start --->
+          <b-form-group
             label="장르"
             label-cols-md="3"
             label-align-md="left"
@@ -129,6 +145,7 @@
             >
             </b-form-tags>
           </b-form-group>
+
           <!----- form group start --->
           <b-form-group
             id="input-prod_date-group"
@@ -896,12 +913,18 @@ export default {
         this.input.show_time_minutes = Math.floor(film.show_time / 60);
         this.input.show_time_seconds = film.show_time % 60;
       }
-
+      // 상단 슬라이더 노출 시 배경 컬러
       if (film.featured_color) {
         this.input.featured_color = { hex: film.featured_color };
       }
+      // 뱃지 컬러
       if (film.badge_color) {
         this.input.badge_color = { hex: film.badge_color };
+      }
+
+      // 태그 목록 설정
+      if (this.film.tags) {
+        this.film.tags = this.film.tags.map((tag) => tag?.name ?? '');
       }
     },
     async importFrom() {
@@ -1138,8 +1161,7 @@ h2 {
 </style>
 
 <style lang="scss">
-
-#input-genres .b-form-tags-button {
+.film-edit .b-form-tags-button {
   flex: 0 0 auto;
 }
 </style>

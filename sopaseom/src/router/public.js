@@ -312,6 +312,11 @@ export default [
     component: () => import('@/views/client/ChangePassword.vue'),
     children: [
       {
+        path: 'request',
+        name: 'ChangePasswordRequest',
+        component: () => import('@/views/client/ChangePasswordRequest.vue'),
+      },
+      {
         path: 'auth',
         name: 'ChangePasswordAuth',
         component: () => import('@/views/client/ChangePasswordAuth.vue'),

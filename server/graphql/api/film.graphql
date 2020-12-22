@@ -65,7 +65,7 @@ type Film {
   awards: [Award]
   synopsis: String
   note: String
-  tags: [String]
+  tags: [Tag]
   is_featured: Boolean # 특집 칸에 올라가있는가?
   is_opened: Boolean # 개봉되었는지 여부
   featured_steel: String # 특집 칸에 올라가있을 때의 이미지 File에 대한 ObjectId
