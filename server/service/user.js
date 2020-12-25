@@ -144,6 +144,7 @@ class UserService {
       // </div>`,
       // );
     }
+    return { success: true };
   }
 
   /**
@@ -157,11 +158,24 @@ class UserService {
     try {
       tokenDoc = await this.#db.getToken(token, 'change_password');
     } catch (error) {
-      return { success: false };
+      return { success: false, code: 'no_such_token' };
     }
-    if (!tokenDoc) return { success: false };
-    await this.#db.upsertOnlyLogin(tokenDoc.email, pwd);
-    return { success: true };
+    if (!tokenDoc) return { success: false, code: 'no_such_token' };
+    // console.log('# user service changePassword tokenDoc');
+    // console.log(tokenDoc);
+    const results = await Promise.allSettled([
+      this.#db.updateUser(tokenDoc.email, { wrong_pwd_count: 0 }),
+      this.#db.upsertOnlyLogin(tokenDoc.email, pwd),
+    ]);
+    if (results.every(({ status }) => status === 'fulfilled')) {
+      return { success: true };
+    }
+    return {
+      success: false,
+      code: ['updateUser_failed', 'upsertOnlyLogin_failed']
+        .filter((msg, index) => results[index].status === 'rejected')
+        .join(', '),
+    };
   }
 
   /**
@@ -198,11 +212,11 @@ class UserService {
   }
   /**
    * 비밀번호 변경 토큰을 받아서 유효한 토큰인지 체크.
-   * @param {string} token 
+   * @param {string} token
    * @return {Promise<boolean>}
    */
   async verifyPasswordChangeReq(token) {
-    // 
+    //
   }
   /**
    * 카카오 유저에게 비밀번호를 만들어줍니다.

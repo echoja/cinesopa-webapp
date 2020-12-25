@@ -186,7 +186,7 @@ mutation requestChangePasswordMutation($debug: Boolean) {
 const changePasswordMutation = `
 mutation changePasswordMutation($token: String!, $pwd: String!) {
   changePassword(token: $token, pwd: $pwd) {
-    success
+    success code
   }
 }
 `;
@@ -1220,7 +1220,7 @@ describe('user', function () {
             .exec();
           expect(token.length).to.not.equal(0);
         });
-        it.only('이미 토큰이 있어도 새로 만들면 하나만 남아있어야 함.', async function () {
+        it('이미 토큰이 있어도 새로 만들면 하나만 남아있어야 함.', async function () {
           await doGuestLogin(agent);
           await model.Token.create({
             email: guestEmail,
@@ -1282,21 +1282,44 @@ describe('user', function () {
           const newLogin = await model.Login.find({ email: 'testGuest' })
             .lean()
             .exec();
-          console.log(prevLogin);
-          console.log(newLogin);
+          // console.log(prevLogin);
+          // console.log(newLogin);
           expect(newLogin.length).to.equal(1);
           expect(newLogin[0].pwd).to.be.a('string');
           expect(newLogin[0].salt).to.be.a('string');
           expect(prevLogin[0].pwd).to.not.equal(newLogin[0].pwd);
           expect(prevLogin[0].salt).to.not.equal(newLogin[0].salt);
         });
-        it('토큰이 없을 때 실패해야 함', async function () {
+        it.only('토큰이 없을 때 실패해야 함', async function () {
           const res = await graphqlSuper(agent, changePasswordMutation, {
             token: '123',
             pwd: 'helloMan',
           });
           const result = res.body.data.changePassword;
+          console.log(result);
           expect(result.success).to.equal(false);
+        });
+        it.only('성공했을 때 wrong_pwd_count 가 초기화되어야 함.', async function () {
+          await model.User.updateOne({
+            email: guestEmail,
+            wrong_pwd_count: 100,
+          });
+          await model.Token.create({
+            token: '123',
+            email: guestEmail,
+            purpose: 'change_password',
+          });
+          const res = await graphqlSuper(agent, changePasswordMutation, {
+            token: '123',
+            pwd: 'helloMan',
+          });
+          const result = res.body.data.changePassword;
+          console.log(result);
+          expect(result.success).to.equal(true);
+          const user = await model.User.findOne({ email: guestEmail })
+            .lean()
+            .exec();
+          expect(user.wrong_pwd_count).equal(0);
         });
       });
     });

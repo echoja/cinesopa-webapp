@@ -9,7 +9,7 @@
       <div class="info-row">
         <div class="info-cell head">비밀번호</div>
         <div class="info-cell body">
-          <b-button size="sm">비밀번호 변경</b-button>
+          <b-button size="sm" :to="{name: 'ChangePasswordRequest', query: {initEmail: $store.state.currentUser.email}}">비밀번호 변경</b-button>
         </div>
       </div>
       <div class="info-row">

@@ -154,6 +154,7 @@ reset        () => void        A function that resets the validation state on th
             type="password"
             id="input-password"
             class="input-password"
+            ref="password"
             v-model="pwd"
             placeholder="비밀번호"
             @keyup.enter="loginButtonClicked"
@@ -184,7 +185,7 @@ reset        () => void        A function that resets the validation state on th
             <b-form-checkbox v-model="autoLogin">자동 로그인</b-form-checkbox>
           </div>
           <div>
-            <b-link :to="{ name: 'SopakitItems' }" @click="closeModal"
+            <b-link :to="{ name: 'ChangePasswordRequest' }" @click="closeModal"
               >비밀번호 재설정</b-link
             >
             <!-- <span class="seperator">|</span>
@@ -223,7 +224,10 @@ reset        () => void        A function that resets the validation state on th
         </div>
         <div class="join-guide">
           <p class="join-guide-text">아직 회원이 아니신가요?</p>
-          <b-button :to="{ name: 'Join' }" @click="closeModal" class="join-button"
+          <b-button
+            :to="{ name: 'Join' }"
+            @click="closeModal"
+            class="join-button"
             >소파섬 회원가입</b-button
           >
         </div>
@@ -330,12 +334,13 @@ export default {
   methods: {
     ...mapActions(['pushMessage', 'getCurrentUser']),
     async initWhenLoginFail() {
-      this.email = '';
-      this.pwd = '';
+      // this.email = '';
+      // this.pwd = '';
       this.$nextTick(() => {
-        this.$refs.email.focus();
+        // console.log('# loginForm initWhenLoginFail password');
+        // console.log(this.$refs.password);
+        this.$refs.password.select();
       });
-
     },
 
     async login() {
@@ -344,7 +349,6 @@ export default {
       await this.loginProcess();
       this.state.loginProcessing = false;
     },
-
     async loginProcess() {
       const { email, pwd } = this;
       // const result = await graphql(loginMutation, { email, pwd });
@@ -399,27 +403,7 @@ export default {
         return;
       }
 
-      // // 데이터로부터 redirectLink가 오면 해당 리다이렉트 페이지로 이동
-      // let redirectPath = '';
-      // // console.dir(result.data);
-      // // console.log(this.$route.fullPath);
-
-      // if (!redirectLink) {
-      //   redirectPath = '/';
-      // } else {
-      //   const parsed = url.parse(redirectLink);
-      //   redirectPath = parsed.pathname;
-      // }
-      // // console.log(redirectLink);
-
-      // // 경로가 같지 않을 때에만 페이지로 이동 >> 페이지 이동은 Login.vue 로 이관.
-      // if (this.$route.fullPath !== redirectPath) router.push(redirectPath);
-      // const redirect = this.$store.state.routeWhereLoginSuccess;
-      // if (redirect && this.$route.fullPath !== redirect.fullPath) {
-      //   this.$store.commit('setRouteWhereLoginSuccess', null);
-      //   router.push(redirect);
-      // }
-
+      // !! 로그인 성공
       // 로그인 창 없애기
       this.closeModal();
 

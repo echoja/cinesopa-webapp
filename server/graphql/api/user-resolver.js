@@ -242,9 +242,9 @@ const requestChangePassword = makeResolver(async (obj, args, context, info) => {
   //   throw Error(
   //     'requestChangePassword resolver: 현재 유저를 찾을 수 없습니다.',
   //   );
-  await user.requestChangePassword(email, debug);
-  return { success: true };
-}).only(ACCESS_AUTH);
+  return user.requestChangePassword(email, debug);
+  // return { success: true };
+}).only(ACCESS_ALL);
 
 const changePassword = makeResolver(async (obj, args, context, info) => {
   const { token, pwd } = args;

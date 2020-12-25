@@ -28,6 +28,7 @@
 <script>
 import { BFormInput } from 'bootstrap-vue';
 import { makeSimpleMutation } from '@/api/graphql-client';
+import { mapActions } from 'vuex';
 
 const requestChangePasswordReq = makeSimpleMutation('requestChangePassword');
 export default {
@@ -43,7 +44,7 @@ export default {
   },
   computed: {
     initEmail() {
-      return this.$route.query.initEmail;
+      return this.$route.query.initEmail ?? '';
     },
   },
   mounted() {
@@ -52,12 +53,28 @@ export default {
     }
   },
   methods: {
+    ...mapActions(['pushMessage']),
     async findPasswordButtonClicked() {
       await this.requestChangePassword();
     },
 
     async requestChangePassword() {
-      
+      const result = await requestChangePasswordReq(
+        {
+          email: this.email,
+          // debug: true, // todo: 디버그가 아닐 때에는 디버그를 풀어야함!
+        },
+        '{success code}',
+      );
+      console.log('# requestChangePassword req result');
+      console.log(result);
+      if (result.success) {
+        this.pushMessage({
+          msg: '비밀번호 재설정 링크가 이메일로 전송되었습니다.',
+          type: 'success',
+          id: 'requestChangePasswordSuccess',
+        });
+      }
     },
   },
 };
