@@ -9,6 +9,9 @@ const { fake } = require('sinon');
 const { model } = require('../loader');
 const fileServiceFactory = require('../service/file');
 const fileManager = require('../manager/file');
+const rimraf = require('rimraf');
+const { makeSimpleQuery } = require('./tool');
+
 const {
   fileQuery,
   filesQuery,
@@ -16,15 +19,24 @@ const {
   removeFileMutation,
 } = require('./graphql-request');
 const { initTestServer, graphqlSuper, doLogin, doLogout } = require('./tool');
+const { promisify } = require('util');
 
 const app = express();
 
 const dest = 'test/uploads';
 const field = 'bin';
+const rimrafAsync = promisify(rimraf);
+
+const removeFilesInDirAsync = async (destString) => {
+  const files = fs.readdirSync(destString);
+  const results = files.map((file) => rimrafAsync(path.join(destString, file)));
+  await Promise.allSettled(results);
+};
 
 const removeFilesInDir = (destString, done) => {
   fs.readdir(destString, (err, files) => {
     if (err) return done(err);
+
     // eslint-disable-next-line no-restricted-syntax
     for (const file of files) {
       try {
@@ -101,8 +113,11 @@ describe('file', function () {
         agent = makeAgent(app);
       });
 
-      afterEach('업로드된 파일 삭제', function (done) {
-        removeFilesInDir(dest, done);
+      // afterEach('업로드된 파일 삭제', function (done) {
+      //   removeFilesInDir(dest, done);
+      // });
+      afterEach('업로드된 파일 삭제 (Async 버전)', async function () {
+        removeFilesInDirAsync(dest);
       });
 
       it('업로드 성공 테스트', function (done) {
@@ -142,6 +157,7 @@ describe('file', function () {
         };
         const fileMgr = {
           removeFile: sinon.fake(),
+          resizeOptionMap: new Map(),
         };
         const file = fileServiceFactory.make(dbTest, fileMgr, dest, field);
         file
@@ -172,6 +188,7 @@ describe('file', function () {
         removeFile: sinon.fake((fn) => {
           if (fn !== filename) throw Error('파일이 존재하지 않습니다.');
         }),
+        resizeOptionMap: new Map(),
       };
 
       beforeEach('기본 파일 생성', function () {
@@ -217,6 +234,7 @@ describe('file', function () {
         };
         const fm = {
           getFiles: sinon.fake.returns(['c', 'd', 'e']),
+          resizeOptionMap: new Map(),
         };
         // fs.writeFileSync(path.join(dest, "test1"), "hiho");
         // fs.writeFileSync(path.join(dest, "test2"), "hiho");
@@ -240,8 +258,11 @@ describe('file', function () {
   });
 
   describe('file Manager', function () {
-    afterEach('폴더에 있는 파일들 초기화(삭제)', function (done) {
-      removeFilesInDir(dest, done);
+    // afterEach('폴더에 있는 파일들 초기화(삭제)', function (done) {
+    //   removeFilesInDir(dest, done);
+    // });
+    afterEach('업로드된 파일 삭제 (Async 버전)', async function () {
+      removeFilesInDirAsync(dest);
     });
 
     describe('.removeFile', function () {
@@ -270,6 +291,22 @@ describe('file', function () {
           .catch((err) => {
             done();
           });
+      });
+    });
+
+    describe('safeRemoveFile', function () {
+      it('파일이 있을 경우 제대로 동작해야 함.', async function () {
+        const p = 'test/imsi/abcde.txt';
+        fs.writeFileSync(p, 'testyo');
+        const result = await fileManager.safeRemoveFile(p);
+        expect(result.success).to.be.true;
+      });
+      it('파일이 없을 경우 그냥 success 만 false 여야 함. 에러가 발생해서는 안 됨.', async function () {
+        const p = 'test/imsi/abcde.txt';
+        // fs.writeFileSync(p, 'testyo');
+        const result = await fileManager.safeRemoveFile(p);
+        expect(result.success).to.be.false;
+        expect(result.code).to.equal('file_not_exists');
       });
     });
 
@@ -306,8 +343,11 @@ describe('file', function () {
       await doLogin(agent, 'testGuest', 'abc');
     };
 
-    afterEach('업로드된 파일 삭제', function (done) {
-      removeFilesInDir(uploadDest, done);
+    // afterEach('업로드된 파일 삭제', function (done) {
+    //   removeFilesInDir(uploadDest, done);
+    // });
+    afterEach('업로드된 파일 삭제 (Async 버전)', async function () {
+      removeFilesInDirAsync(dest);
     });
 
     describe('upload Middleware', function () {
@@ -393,7 +433,7 @@ describe('file', function () {
         expect(res2.body).to.not.be.null;
       });
 
-      it.only('옵션으로 제대로 갖고와야 함.', async function () {
+      it('옵션으로 제대로 갖고와야 함.', async function () {
         // 일단 파일 업로드
         await doLogin(agent, 'testAdmin', 'abc');
         const res = await agent
@@ -407,7 +447,7 @@ describe('file', function () {
           name: 'power_name',
           value: filename,
           type: 'file',
-        })
+        });
 
         const res2 = await agent.get(`/upload/power_name`).expect(200);
         console.log(res2.body);
@@ -474,15 +514,35 @@ describe('file', function () {
         });
       });
       describe('files', function () {
-        it('제대로 동작해야 함', async function () {
-          const res = await graphqlSuper(agent, filesQuery);
-          expect(res.body.data.files.length).to.equal(2);
+        // eslint-disable-next-line mocha/no-setup-in-describe
+        const filesReq = makeSimpleQuery(agent, 'files');
+
+        it.only('제대로 동작해야 함', async function () {
+          const result = await filesReq(
+            {},
+            `
+            {
+              total 
+              list {
+                id filename fileurl path
+              }
+            }`,
+          );
+          expect(result.total).to.equal(2);
         });
-        it('기본 값으로 관리되는 것만 불러와져야 함', async function () {
+        it.only('기본 값으로 관리되는 것만 불러와져야 함', async function () {
           await model.File.updateOne({ managed: false });
-          const res = await graphqlSuper(agent, filesQuery);
-          // console.log(res.body);
-          expect(res.body.data.files.length).to.equal(1);
+          const result = await filesReq(
+            {},
+            `
+            {
+              total 
+              list {
+                id filename fileurl path
+              }
+            }`,
+          );
+          expect(result.total).to.equal(1);
         });
       });
       describe('updateFile', function () {
@@ -499,7 +559,7 @@ describe('file', function () {
         });
       });
       describe('removeFile', function () {
-        it.only('제대로 동작해야 함', async function () {
+        it('제대로 동작해야 함', async function () {
           const { filename } = res2.body.file;
           await graphqlSuper(agent, removeFileMutation, {
             filename,
@@ -509,7 +569,10 @@ describe('file', function () {
           const all = await model.File.find().lean().exec();
           expect(all.length).to.equal(1);
           const files = fs.readdirSync(dest);
-          expect(files.length).to.equal(1, '파일 개수 - 파일이 하나만 남아있어야 합니다.');
+          expect(files.length).to.equal(
+            1,
+            '파일 개수 - 파일이 하나만 남아있어야 합니다.',
+          );
         });
       });
     });
@@ -552,7 +615,7 @@ describe('file', function () {
             .post('/upload')
             .attach('bin', path.join(__dirname, 'tool.js'));
           const result = await fileTestService.getFiles();
-          expect(result.length).to.be.equal(2);
+          expect(result.total).to.be.equal(2);
         });
       });
       describe('removeFile', function () {

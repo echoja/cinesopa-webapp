@@ -40,11 +40,12 @@ const fileQueryResolver = makeResolver(async (obj, args, context, info) => {
 }).only(ACCESS_ALL);
 // 파일들 얻기
 const filesQueryResolver = makeResolver(async (obj, args, context, info) => {
-  const { onlyManaged, page, perpage } = args;
-  if (onlyManaged) {
-    return db.getFilesManaged(page, perpage);
-  }
-  return db.getFiles();
+  const { condition } = args;
+  // const { onlyManaged, page, perpage } = args;
+  // if (condition.onlyManaged) {
+  //   return db.getFilesManaged(condition);
+  // }
+  return db.getFiles(condition);
 }).only(ACCESS_ADMIN);
 // 파일 업데이트
 const updateFile = makeResolver(async (obj, args, context, info) => {

@@ -24,7 +24,10 @@ module.exports = function (mongoose) {
     width: Number, // 이미지일 경우, 가로 사이즈
     height: Number, // 이미지일 경우, 세로 사이즈
   });
+  
   schema.index({ filename: 1 });
+  schema.index({ c_date: -1 });
+
   autoIdSetter(schema, mongoose, 'file', 'id');
   return schema;
 };

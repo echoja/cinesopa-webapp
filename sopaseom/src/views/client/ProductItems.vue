@@ -33,7 +33,7 @@
           <div class="featured-image">
             <b-link :to="{ name: 'SopakitDetail', params: { id: product.id } }">
               <b-img
-                :src="product.featured_image_url"
+                :src="`${product.featured_image_url}?size=featured`"
                 :alt="product.featured_image_alt"
               >
               </b-img>

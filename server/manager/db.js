@@ -505,19 +505,19 @@ class DBManager {
 
   /**
    * 파일관리자 창에서 관리할 수 있는 파일들을 가져옵니다.
-   * @param {number} page 페이지
-   * @param {number} perpage 한 페이지당 파일의 개수
+   * @param {FileCondition} condition 페이지
    */
-  async getFilesManaged(page, perpage) {
-    // console.log('getFilesManaged!!!!');
-    // console.log(`page: ${page}, perpage: ${perpage}`);
-    return model.File.find({ managed: true })
-      .sort({ c_date: -1 })
-      .limit(perpage)
-      .skip(perpage * page)
-      .lean()
-      .exec();
-  }
+  // async getFiles(condition) {
+  //   const {page = 0, perpage = 20} = condition;
+  //   // console.log('getFilesManaged!!!!');
+  //   // console.log(`page: ${page}, perpage: ${perpage}`);
+  //   return model.File.find({ managed: true })
+  //     .sort({ c_date: -1 })
+  //     .limit(perpage)
+  //     .skip(perpage * page)
+  //     .lean()
+  //     .exec();
+  // }
 
   /**
    * 파일을 구합니다.
@@ -548,10 +548,25 @@ class DBManager {
   }
 
   /**
-   * 모든 파일을 구합니다.
+   * 조건에 따른 파일을 구합니다.
+   * @param {FileCondition} condition 페이지
    */
-  async getFiles() {
-    return model.File.find().lean().exec();
+  async getFiles(condition = {}) {
+    const { page = 0, perpage = 20, managed = true } = condition;
+    const query = model.File.find({ managed }).sort({
+      c_date: -1,
+    });
+    // .limit(perpage)
+    // .skip(perpage * page)
+    // .lean()
+    // .exec();
+    const total = (await query.lean().exec()).length;
+    const list = await query
+      .limit(perpage)
+      .skip(perpage * page)
+      .lean()
+      .exec();
+    return { total, list };
   }
 
   /**
@@ -728,12 +743,15 @@ class DBManager {
     // 삭제해야 하는 태그와 추가해야 하는 태그를 선택합니다.
     const tagsToRemove = (film.tags ?? []).filter(
       (originTag) =>
-        (args.tags ?? []).findIndex((newTag) => originTag.name === newTag.name) === -1,
+        (args.tags ?? []).findIndex(
+          (newTag) => originTag.name === newTag.name,
+        ) === -1,
     );
     const tagsToAdd = (args.tags ?? []).filter(
       (newTag) =>
-        (film.tags ?? []).findIndex((originTag) => originTag.name === newTag.name) ===
-        -1,
+        (film.tags ?? []).findIndex(
+          (originTag) => originTag.name === newTag.name,
+        ) === -1,
     );
     // console.log('# db updateFilm tag tagsToRemove');
     // console.log(tagsToRemove);

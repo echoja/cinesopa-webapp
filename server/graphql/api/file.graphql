@@ -27,9 +27,21 @@ input FileInput {
   public: Boolean
 }
 
+input FileCondition {
+  page: Int
+  perpage: Int
+  managed: Boolean
+}
+
+type FilesResult {
+  total: Int
+  list: [File]
+}
+
 extend type Query {
   file(filename: String, id: Int): File
-  files(page:Int = 0, perpage:Int = 20, onlyManaged: Boolean = true): [File]
+  # files(page:Int = 0, perpage:Int = 20, onlyManaged: Boolean = true): [File]
+  files(condition: FileCondition): FilesResult
 }
 
 extend type Mutation {

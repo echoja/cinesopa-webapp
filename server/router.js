@@ -16,13 +16,14 @@ const {
 
 const router = express.Router();
 
-// upload
+// 업로드 하는 endpoint
 router.post(
   '/upload',
   makeAuthMiddleware(validator, [enumAuthmap.ADMIN]),
   uploadMiddleware,
 );
 
+// 이미 업로드된 파일을 가져오는 endpoint
 router.get('/upload/:filename', getFileMiddleware);
 
 // 카카오에서 로그인한 후 리디랙션하는 경로

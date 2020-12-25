@@ -52,7 +52,7 @@
         >
           <div class="poster-box">
             <b-link @click="openApplicationModal(film)">
-              <b-img :src="film.poster_url" :alt="film.poster_alt"></b-img>
+              <b-img :src="`${film.poster_url}?size=common`" :alt="film.poster_alt"></b-img>
             </b-link>
           </div>
           <div class="info-box">

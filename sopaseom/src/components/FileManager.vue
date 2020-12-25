@@ -81,7 +81,7 @@
               <b-img
                 class="preview"
                 v-if="file.mimetype.startsWith('image')"
-                :src="`/upload/${file.filename}`"
+                :src="`/upload/${file.filename}?size=file_preview`"
               ></b-img>
               <div v-else>
                 {{ file.origin }}
@@ -247,7 +247,7 @@
         <b-pagination
           v-model="currentPage"
           :total-rows="total"
-          :per-page="20"
+          :per-page="perpage"
           aria-controls="my-table"
           align="center"
           @change="pageChanged"
@@ -280,8 +280,9 @@ import {
 // // updateFileMutation,
 // // removeFileMutation,
 // '../api/graphql-client';
-import { queryString, graphql } from '../loader';
-import upload from '../upload-client';
+import { queryString, graphql } from '@/loader';
+import { makeSimpleQuery } from '@/api/graphql-client';
+import upload from '@/upload-client';
 
 const detailFormInitValue = () => ({
   filename: null,
@@ -299,6 +300,8 @@ const detailFormInitValue = () => ({
 const makeDetailForm = (file) => ({
   ...file,
 });
+
+const filesReq = makeSimpleQuery('files');
 
 export default {
   name: 'FileManager',
@@ -340,6 +343,8 @@ export default {
       files: [],
       uploadingFile: [],
       detailForm: detailFormInitValue(),
+      perpage: 20,
+      page: 1,
     };
   },
   computed: {
@@ -372,7 +377,7 @@ export default {
       // console.log('ho!');
       this.cancelDetail();
     },
-    onFileInput() {
+    async onFileInput() {
       if (this.uploadingFile.length === 0) return;
 
       console.log(`OnFileInput!!! ${this.uploadingFile}`);
@@ -381,24 +386,51 @@ export default {
       this.uploadingFile.forEach((file) => {
         promises.push(upload(file, file.name));
       });
-      Promise.allSettled(promises)
-        .then((results) => {
-          this.fetchFiles();
-          this.pushMessage({
-            type: 'success',
-            msg: `${results.length} 개의 파일이 성공적으로 업로드 되었습니다.`,
-            id: 'fileUploadSuccess',
-          });
-          this.uploadingFile = [];
-        })
-        .catch((err) => {
-          console.log(err);
-          this.pushMessage({
-            type: 'danger',
-            msg: `파일을 업로드하는 도중 에러가 발생했습니다. >> ${err}`,
-            id: 'fileUploadFail',
-          });
+      const results = await Promise.allSettled(promises);
+
+      const errors = results
+        .map((result, index) => ({ ...result, index }))
+        .filter((result) => result.status === 'rejected');
+
+      // 만약 실패가 있다면
+      if (errors.length > 0) {
+        const fileOriginNames = errors
+          .map(({ index }) => this.uploadingFile[index].name)
+          .join(', ');
+        this.pushMessage({
+          type: 'danger',
+          msg: `다음 파일을 업로드하는 도중 에러가 발생했습니다. >> ${fileOriginNames}`,
+          id: 'fileUploadFail',
         });
+      }
+
+      // 성공이라면
+      else {
+        this.pushMessage({
+          type: 'success',
+          msg: `${results.length} 개의 파일이 성공적으로 업로드 되었습니다.`,
+          id: 'fileUploadSuccess',
+        });
+      }
+
+      this.uploadingFile = [];
+      this.fetchFiles();
+      // .then((results) => {
+      //   this.pushMessage({
+      //     type: 'success',
+      //     msg: `${results.length} 개의 파일이 성공적으로 업로드 되었습니다.`,
+      //     id: 'fileUploadSuccess',
+      //   });
+
+      // })
+      // .catch((err) => {
+      //   console.log(err);
+      //   this.pushMessage({
+      //     type: 'danger',
+      //     msg: `파일을 업로드하는 도중 에러가 발생했습니다. >> ${err}`,
+      //     id: 'fileUploadFail',
+      //   });
+      // });
     },
     updateDetail() {
       graphql(queryString.file.updateFileMutation, {
@@ -428,17 +460,27 @@ export default {
           });
         });
     },
-    async fetchFiles(page) {
-      if (page) this.currentPage = page;
-      const result = await graphql(queryString.file.filesQuery, {
-        page: this.currentPage - 1,
-      });
-      this.files = result.data.files;
-      // console.log(this.files);
-      // todo
-      // const getTotal = await graphql(filesQuery, {
-
-      // });
+    async fetchFiles() {
+      this.cancelDetail();
+      this.cancelSelected();
+      const result = await filesReq(
+        {
+          condition: {
+            page: this.page - 1,
+            perpage: this.perpage,
+          },
+        },
+        `{ 
+          total 
+          list { 
+            id _id c_date encoding mimetype filename fileurl 
+            origin description label alt path size owner public managed width height
+          }
+        }`,
+      );
+      console.log(result);
+      this.files = result.list;
+      this.total = result.total;
     },
     cancelSelected() {
       this.selectedFiles.forEach((file) => {
@@ -498,8 +540,11 @@ export default {
       this.detailForm = makeDetailForm(this.files[index]);
       this.detailFormChanged = false;
     },
-    pageChanged(page) {
-      this.fetchFiles(page);
+    async pageChanged(page) {
+      this.page = page;
+      console.log('# FileManager pageChanged page');
+      console.log(page);
+      await this.fetchFiles();
     },
 
     onSelect() {

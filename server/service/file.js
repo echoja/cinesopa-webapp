@@ -2,6 +2,8 @@ const path = require('path');
 const multer = require('multer');
 // const { promisify } = require('util');
 const sizeOf = require('image-size');
+const sharp = require('sharp');
+const fs = require('fs');
 
 require('../typedef');
 const { aw } = require('../util');
@@ -85,6 +87,14 @@ class FileService {
       this.#initMulterMiddleware(this.#dest, this.#uploadField),
       this.#initCreateFileMiddleware(this.#db, this.#file),
     ];
+
+    // 만약 사이즈에 대한 폴더가 없으면 미리 만든다.
+    for (const sizeName of this.#file.resizeOptionMap.keys()) {
+      const folderPath = path.resolve(this.#dest, sizeName);
+      if (!fs.existsSync(folderPath)) {
+        fs.mkdirSync(folderPath);
+      }
+    }
   }
 
   getFileMiddleware = aw(async (req, res, next) => {
@@ -92,6 +102,9 @@ class FileService {
     // 파일 이름이 주어지지 않을 경우 404
     const { filename } = req.params;
     if (!filename) return res.status(404).send();
+
+    // console.log('# file.js getFileMiddleware query');
+    // console.log(req.query);
 
     // 우선 파일 이름을 .으로 나누기.
     const splitted = filename.split('.');
@@ -107,8 +120,9 @@ class FileService {
     // console.log(foundByFilename.path);
     // console.log(__dirname);
     if (foundByFilename) {
+      const absPath = await this.resizeImage(foundByFilename, req.query.size);
       res.set('Content-Type', foundByFilename.mimetype);
-      return res.sendFile(absPath(foundByFilename.path));
+      return res.sendFile(absPath);
     }
 
     // 옵션으로 파일 찾기 시도.
@@ -140,8 +154,47 @@ class FileService {
   async getFile(filename) {
     return this.#db.getFile(filename);
   }
+
   async getFiles() {
     return this.#db.getFiles();
+  }
+  /**
+   * 이미지를 리사이즈하고 절대 경로를 반환합니다.
+   * @param {Fileinfo} fileinfo
+   * @param {string} size
+   */
+  async resizeImage(fileinfo, size) {
+    const defaultPath = absPath(fileinfo.path);
+    // 사이즈 변수가 제대로 안들어왔을 경우 바로 리턴.
+    if (!size || typeof size !== 'string') {
+      return defaultPath;
+    }
+
+    // 사이즈 변수가 미리 정의된 사이즈 중에 없을 때 바로 리턴.
+    const resizeOption = this.#file.resizeOptionMap.get(size);
+    if (!resizeOption) {
+      return defaultPath;
+    }
+
+    // 만약 파일이 이미지가 아닐 경우 그냥 바로 리턴.
+    if (!fileinfo.mimetype.startsWith('image')) {
+      return defaultPath;
+    }
+
+    const splitted = defaultPath.split(path.sep);
+    splitted.splice(splitted.length - 1, 0, size);
+    const toPath = splitted.join(path.sep);
+
+    // 이미 파일이 있다면, 파일 이름만 리턴.
+    if (fs.existsSync(toPath)) {
+      return toPath;
+    }
+
+    // 파일이 없다면 리사이즈 후 파일 이름 리턴.
+    await sharp(defaultPath).resize(resizeOption).toFile(toPath);
+    console.log('# file.js resizeImage toPath');
+    console.log(toPath);
+    return toPath;
   }
 
   /**

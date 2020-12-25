@@ -103,7 +103,7 @@ export default {
       files.forEach((file) => {
         const { mimetype, fileurl, alt } = file;
         if (mimetype.startsWith('image')) {
-          this.pushHtmlToEditor(`<img src="${fileurl}" alt="${alt}">`);
+          this.pushHtmlToEditor(`<img src="${fileurl}?size=common" alt="${alt}">`);
         }
         // file to do
       });

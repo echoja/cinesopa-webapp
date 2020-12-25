@@ -17,7 +17,7 @@
             <div
               class="preview"
               :style="{
-                'background-image': `url('${cartitem.product.featured_image_url}')`,
+                'background-image': `url('${cartitem.product.featured_image_url}?size=file_preview')`,
               }"
             ></div>
 

@@ -175,7 +175,7 @@
                               }"
                             >
                               <b-img
-                                :src="product.featured_image_url"
+                                :src="`${product.featured_image_url}?size=common`"
                                 :alt="product.featured_image_alt"
                               ></b-img>
                             </b-link>

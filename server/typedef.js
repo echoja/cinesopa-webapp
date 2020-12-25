@@ -229,6 +229,14 @@
  */
 
 /**
+ * 파일을 얻을 때 쓰는 조건 객체
+ * @typedef {object} FileCondition
+ * @property {number} page 1페이지를 얻고 싶다면 0을 해야 함.
+ * @property {number} perpage 페이지당 파일 개수
+ * @property {boolean} managed managed 되는 것들만 받아오겠다는 것.
+ */
+
+/**
  * 파일 정보를 담는 객체
  * @typedef {object} Fileinfo
  * @property {Date} c_date

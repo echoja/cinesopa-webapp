@@ -42,7 +42,7 @@
               <div class="featured_image">
                 <b-link :to="item.productRoute">
                   <b-img
-                    :src="item.product.featured_image_url"
+                    :src="`${item.product.featured_image_url}?size=file_preview`"
                     :alt="item.product.featured_image_alt"
                   ></b-img>
                 </b-link>
