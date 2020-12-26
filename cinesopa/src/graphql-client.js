@@ -202,7 +202,9 @@ list {
   id
   synopsis 
   note 
-  tags 
+  tags {
+    name
+  }
   meta
   is_opened
 }
@@ -272,7 +274,9 @@ const filmDetail = `{
     award_type
   }
   note 
-  tags 
+  tags {
+    name
+  }
   is_featured
   is_opened
   featured_steel

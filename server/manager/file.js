@@ -40,6 +40,6 @@ module.exports = {
   resizeOptionMap: new Map([
     ['file_preview', { width: 190, height: 190 }],
     ['featured', { width: 400, withoutEnlargement: true }],
-    ['common', { width: 1200, withoutEnlargement: true }],
+    ['common', { width: 1300, withoutEnlargement: true }],
   ]),
 };

@@ -3,7 +3,12 @@
     <header class="p-3">
       <h1>
         영화 편집
-        <b-button size="sm" @click="importFrom">영진위로부터 가져오기</b-button>
+        <b-button size="sm" @click="$bvModal.show('kobis-form-modal')"
+          >영진위로부터 가져오기</b-button
+        >
+        <b-modal hide-footer id="kobis-form-modal" title="영화 검색 및 선택">
+          <kobis-form @selected="importFilmSelected"></kobis-form>
+        </b-modal>
       </h1>
     </header>
     <b-form class="container-fluid" @submit.stop.prevent="confirm" v-if="show">
@@ -161,6 +166,7 @@
               name="input-prod_date"
               v-model="film.prod_date"
               :disabled="state.processing"
+              value-as-date
               locale="ko"
             ></b-form-datepicker>
           </b-form-group>
@@ -178,6 +184,7 @@
               name="input-open_date"
               v-model="film.open_date"
               :disabled="state.processing"
+              value-as-date
               locale="ko"
             ></b-form-datepicker>
           </b-form-group>
@@ -804,6 +811,7 @@ export default {
     BFormDatepicker,
     BFormTextarea,
     BModal,
+    KobisForm: () => import('@/components/admin/KobisForm'),
   },
   props: ['mode'],
 
@@ -927,8 +935,95 @@ export default {
         this.film.tags = this.film.tags.map((tag) => tag?.name ?? '');
       }
     },
-    async importFrom() {
-      // TODO
+    // async importFrom(event, a, b, c) {
+    //   console.log('# FilmEdit importFrom');
+    //   console.log(event);
+    //   console.log(a);
+    //   console.log(b);
+    //   console.log(c);
+    //   // TODO
+    // },
+    // 영진위로부터 가져오는 영화가 선택되었을 때.
+    /*
+    actors: Array(47) [ {…}, {…}, {…}, … ]
+      cast: "면정학"
+      castEn: ""
+      peopleNm: "김윤석"
+      peopleNmEn: "KIM Yun-seok"
+    audits: Array [ {…} ] { auditNo: "2010-F511 ", watchGradeNm: "청소년관람불가" }
+    companys: Array(10) [ {…}, {…}, {…}, … ]
+      companyCd: "20100103"
+      companyNm: "(주)쇼박스"
+      companyNmEn: "Showbox Corp"
+      companyPartNm: "배급사"
+    directors: Array [ {…} ] { peopleNm: "나홍진", peopleNmEn: "NA Hong-jin" }
+    genres: Array(3) [ {…}, {…}, {…} ] { genreNm: "스릴러" }
+    movieCd: "20101222"
+    movieNm: "황해"
+    movieNmEn: "The Yellow Sea"
+    movieNmOg: ""
+    nations: Array(3) [ {…}, {…}, {…} ]
+    openDt: "20101222"
+    prdtStatNm: "개봉"
+    prdtYear: "2010"
+    showTm: "156"
+    showTypes: Array [ {…}, {…} ]
+    staffs: Array(467) [ {…}, {…}, {…}, … ]
+      peopleNm: "유정훈",
+      peopleNmEn: "YOU Jeong-hun",
+      staffRoleNm: "투자"
+    typeNm: "장편" */
+    async importFilmSelected(info) {
+      console.log('# FilmEdit importFilmSelected');
+      console.log(info);
+      this.$bvModal.hide('kobis-form-modal');
+      this.film.kobis_code = info.movieCd;
+      this.film.title = info.movieNm;
+      this.film.title_en = info.movieNmEn;
+      this.film.genres = info.genres.map(({ genreNm }) => genreNm);
+      this.film.watch_grade = info.audits?.[0]?.watchGradeNm ?? null;
+      this.input.show_time_minutes = parseInt(info.showTm, 10);
+      this.input.show_time_seconds = 0;
+      this.film.people = [];
+      this.film.people.push(
+        ...info.directors.map((director) => ({
+          role_type: 'director',
+          name: director.peopleNm,
+          name_en: director.peopleNmEn,
+        })),
+      );
+      this.film.people.push(
+        ...info.actors.map(({ cast, peopleNm, peopleNmEn }) => ({
+          role_type: 'actor',
+          name: peopleNm,
+          name_en: peopleNmEn,
+          role: cast,
+        })),
+      );
+      this.film.people.push(
+        ...info.staffs.map(({ peopleNm, peopleNmEn, staffRoleNm }) => ({
+          role_type: 'staff',
+          name: peopleNm,
+          name_en: peopleNmEn,
+          role: staffRoleNm,
+        })),
+      );
+      this.film.companies = [];
+      this.film.companies.push(
+        ...info.companys.map(({ companyNm, companyNmEn, companyPartNm }) => ({
+          name: companyNm,
+          name_en: companyNmEn,
+          role: companyPartNm,
+        })),
+      );
+      if (info.openDt) {
+        this.film.is_opened = true;
+        this.film.open_date = new Date(
+          parseInt(info.openDt.slice(0, 4), 10),
+          parseInt(info.openDt.slice(4, 6), 10) - 1,
+          parseInt(info.openDt.slice(6, 8), 10),
+        );
+      }
     },
     async buildInput() {
       const input = {};

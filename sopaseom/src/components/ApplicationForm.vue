@@ -22,7 +22,7 @@
         <b-carousel-slide
           v-for="(image, index) in film.photos"
           :key="index"
-          :img-src="image.preview_url"
+          :img-src="`${image.preview_url}?size=common`"
           :img-alt="image.alt"
           img-height="400"
         >

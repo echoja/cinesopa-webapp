@@ -1,3 +1,6 @@
+// import url from 'url';
+import axios from 'axios';
+
 export const numberWithCommas = (x) => {
   if (typeof x === 'number') {
     return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
@@ -81,4 +84,70 @@ export const getOrderInfo = (order) => {
     itemsFormatted,
     transportFeeFormatted,
   };
+};
+
+// export const kobisApiKey = '54cf71a4a9c956205be55e754cf99ad5';
+// export const kobisRestUrl = 'http://www.kobis.or.kr/kobisopenapi/webservice/rest/movie/searchMovieList.json?key=54cf71a4a9c956205be55e754cf99ad5';
+// // export const kobisQueryKeyname = 'key';
+// export const kobisUrl = new url.URL('http://www.kobis.or.kr/kobisopenapi/webservice/rest/movie/searchMovieList.json?key=54cf71a4a9c956205be55e754cf99ad5');
+export const makeSearchMovieListUrl = () =>
+  new URL(
+    'http://www.kobis.or.kr/kobisopenapi/webservice/rest/movie/searchMovieList.json?key=54cf71a4a9c956205be55e754cf99ad5&itemPerPage=20',
+  );
+export const makeSearchMovieInfoUrl = () =>
+  new URL(
+    'http://www.kobis.or.kr/kobisopenapi/webservice/rest/movie/searchMovieInfo.json?key=54cf71a4a9c956205be55e754cf99ad5',
+  );
+
+/**
+ * 영화 리스트를 뽑아옵니다.
+ * @param {string} filmName 검색할 영화 이름
+ */
+export const getMovieList = async (filmName) => {
+  try {
+    const reqUrl = makeSearchMovieListUrl();
+    reqUrl.searchParams.set('movieNm', filmName);
+    const result = await axios.get(reqUrl.href);
+    console.log('# util.js getMovieList result');
+    console.log(result);
+    return { success: true, code: 'normal', list: result.data.movieListResult.movieList };
+  } catch (e) {
+    console.log('# util.js getMovieList failed');
+    console.error(e);
+    return { success: false, code: e.message, list: null };
+  }
+};
+
+// movieList 결과
+// {
+//   movieListResult: {
+//     totCnt: 80074
+//     source: "영화진흥위원회"
+//     movieList: [
+//       {
+//         movieCd: "20200511"
+//         movieNm: "무릎 꿇어 너희 다"
+//         movieNmEn: "Sextape"
+//         prdtYear: "2018"
+//         openDt: ""
+//         typeNm: "장편"
+//       }
+//       ...
+//     ]
+//   }
+// }
+
+export const getMovieInfo = async (movieCd) => {
+  try {
+    const reqUrl = makeSearchMovieInfoUrl();
+    reqUrl.searchParams.set('movieCd', movieCd);
+    const result = await axios.get(reqUrl.href);
+    console.log('# util.js getMovieList result');
+    console.log(result);
+    return { success: true, code: 'normal', info: result.data.movieInfoResult.movieInfo };
+  } catch (e) {
+    console.log('# util.js getMovieInfo failed');
+    console.error(e);
+    return { success: false, code: e.message, info: null };
+  }
 };

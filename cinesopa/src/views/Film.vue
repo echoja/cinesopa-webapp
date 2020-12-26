@@ -279,9 +279,10 @@
           <b-carousel-slide
             v-for="(image, index) in film.photos"
             :key="index"
-            :img-src="parseUploadLink(image.preview_url)"
+            :img-src="`${image.preview_url}?size=common`"
             :img-alt="image.alt"
           >
+            <!-- :img-src="parseUploadLink(image.preview_url)" -->
           </b-carousel-slide>
         </b-carousel>
       </div>
