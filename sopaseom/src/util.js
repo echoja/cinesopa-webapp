@@ -92,11 +92,11 @@ export const getOrderInfo = (order) => {
 // export const kobisUrl = new url.URL('http://www.kobis.or.kr/kobisopenapi/webservice/rest/movie/searchMovieList.json?key=54cf71a4a9c956205be55e754cf99ad5');
 export const makeSearchMovieListUrl = () =>
   new URL(
-    'http://www.kobis.or.kr/kobisopenapi/webservice/rest/movie/searchMovieList.json?key=54cf71a4a9c956205be55e754cf99ad5&itemPerPage=20',
+    'https://www.kobis.or.kr/kobisopenapi/webservice/rest/movie/searchMovieList.json?key=54cf71a4a9c956205be55e754cf99ad5&itemPerPage=20',
   );
 export const makeSearchMovieInfoUrl = () =>
   new URL(
-    'http://www.kobis.or.kr/kobisopenapi/webservice/rest/movie/searchMovieInfo.json?key=54cf71a4a9c956205be55e754cf99ad5',
+    'https://www.kobis.or.kr/kobisopenapi/webservice/rest/movie/searchMovieInfo.json?key=54cf71a4a9c956205be55e754cf99ad5',
   );
 
 /**
