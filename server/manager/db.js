@@ -1700,6 +1700,45 @@ class DBManager {
     return model.Order.deleteOne({ id });
   }
 
+  /**
+   * 어떤 유저의 유효하지 않은 주문을 모두 삭제합니다.
+   * 유효하지 않은 주문이란, 결제 수단이 무통장입금이 아닌 데에도 아직
+   * 결제 대기중인 주문을 이야기합니다.
+   * 이 주문들은 결제 모듈에서 결제에 실패했기 때문에 계속 남아있습니다.
+   * 호출 시점은 특정 주문이 마치고 난 이후입니다.
+   * @param {string} email
+   */
+  async removeDangledOrder(email) {
+    return model.Order.deleteMany({
+      user: email,
+      method: { $ne: 'nobank' },
+      status: 'payment_confirming',
+    });
+  }
+
+  /**
+   * 각 Status 마다 주문의 갯수를 구합니다.
+   * @param {OrderSearch} condition 
+   */
+  async getOrderCountGroupedByStatus(condition) {
+    const refined_condition = condition;
+    delete refined_condition.page;
+    delete refined_condition.perpage;
+    return model.Order.aggregate([
+      {
+        $match: {
+          ...condition,
+        },
+      },
+      {
+        $group: {
+          _id: '$status',
+          count: { $sum: 1 },
+        },
+      },
+    ]);
+  }
+
   /*= ====================================
   사이트 옵션 site option
   ===================================== */

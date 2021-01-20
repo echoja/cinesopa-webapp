@@ -31,8 +31,8 @@ module.exports = {
       });
       let sopakitMap = new Map();
       const promises = [];
-      console.log('# sopakit-resolver sopakitsShown products');
-      console.log(products);
+      // console.log('# sopakit-resolver sopakitsShown products');
+      // console.log(products);
       // 우선 product 를 순회하면서 중복 없이 kit id 정보들을 빼옴.
       // 중복 없이 담기 위해 일단 Map을 사용하며, 값은 의미없는 값('')을 둠.
       products.forEach((product) => {

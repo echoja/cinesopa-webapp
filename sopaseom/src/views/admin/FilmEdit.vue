@@ -6,7 +6,7 @@
         <b-button size="sm" @click="$bvModal.show('kobis-form-modal')"
           >영진위로부터 가져오기</b-button
         >
-        <b-modal hide-footer id="kobis-form-modal" title="영화 검색 및 선택">
+        <b-modal hide-footer size="xl" id="kobis-form-modal" title="영화 검색 및 선택">
           <kobis-form @selected="importFilmSelected"></kobis-form>
         </b-modal>
       </h1>
@@ -56,13 +56,14 @@
             label-align-md="left"
             label-size="md"
             label-for="input-kobis_code"
+            description="영화진흥위원회에서 데이터를 불러올 때 자동으로 채워지는 코드입니다."
           >
             <b-form-input
               type="text"
               id="input-kobis_code"
               name="input-kobis_code"
               v-model="film.kobis_code"
-              :disabled="state.processing"
+              :disabled="true"
             ></b-form-input>
           </b-form-group>
           <!----- form group start --->
@@ -203,6 +204,7 @@
               name="input-watch_grade"
               :disabled="state.processing"
             >
+              <b-form-radio :value="null">등급미심의</b-form-radio>
               <b-form-radio value="전체관람가">전체관람가</b-form-radio>
               <b-form-radio value="12세관람가">12세관람가</b-form-radio>
               <b-form-radio value="15세관람가">15세관람가</b-form-radio>
@@ -242,14 +244,15 @@
             label-size="md"
             label-for="input-synopsis"
           >
-            <b-form-textarea
+            <common-editor v-model="film.synopsis" height="600"></common-editor>
+            <!-- <b-form-textarea
               size="sm"
               id="input-synopsis"
               name="input-synopsis"
               v-model="film.synopsis"
               :disabled="state.processing"
               rows="6"
-            ></b-form-textarea>
+            ></b-form-textarea> -->
             <!-- <p v-html="film.synopsis.replaceAll('\n','<br>')">
                {{ film.synopsis }}
             </p> -->
@@ -263,14 +266,15 @@
             label-size="md"
             label-for="input-note"
           >
-            <b-form-textarea
+          <common-editor v-model="film.note" height="600"></common-editor>
+            <!-- <b-form-textarea
               size="sm"
               id="input-note"
               name="input-note"
               v-model="film.note"
               :disabled="state.processing"
               rows="6"
-            ></b-form-textarea>
+            ></b-form-textarea> -->
           </b-form-group>
 
           <h2>영화 리스트 보기 설정</h2>
@@ -812,6 +816,7 @@ export default {
     BFormTextarea,
     BModal,
     KobisForm: () => import('@/components/admin/KobisForm'),
+    CommonEditor: () => import('@/components/admin/CommonEditor'),
   },
   props: ['mode'],
 
@@ -822,7 +827,6 @@ export default {
       state: {
         processing: false,
       },
-      id: null,
       input: {
         show_time_minutes: 0,
         show_time_seconds: 0,
@@ -855,7 +859,7 @@ export default {
         note: '',
         tags: [],
         is_featured: false,
-        is_opened: true,
+        is_opened: false,
         featured_steel: '',
         featured_color: {},
         featured_synopsis: '',
@@ -867,16 +871,7 @@ export default {
       },
     };
   },
-  async mounted() {
-    makeSimpleQuery('availableSubtitle')().then((result) => {
-      this.available_subtitles_list = result;
-    });
-    if (this.mode !== 'new') {
-      const { id } = router.currentRoute.params;
-      this.id = parseInt(id, 10);
-      await this.initExist(this.id);
-    }
-  },
+
   computed: {
     photosView() {
       return [
@@ -888,11 +883,24 @@ export default {
         },
       ];
     },
+    id() {
+      const { id } = this.$route.params;
+      if (id) return parseInt(id, 10);
+      return null;
+    },
     // openDateFormatted() {
     //   return moment(this.film.open_date).format('yyyy-MM-DD');
     // },
   },
 
+  async mounted() {
+    makeSimpleQuery('availableSubtitle')().then((result) => {
+      this.available_subtitles_list = result;
+    });
+    if (this.mode !== 'new') {
+      await this.initExist(this.id);
+    }
+  },
   methods: {
     ...mapActions(['pushMessage']),
     // 이미 존재하는 영화에 대해서 정보를 채워넣습니다.
@@ -1035,7 +1043,7 @@ export default {
     },
     async addPerson() {
       this.film.people.push({
-        role_type: null,
+        role_type: 'staff',
         name: '',
         name_en: '',
         role: '',
@@ -1107,9 +1115,6 @@ export default {
           title: image.label,
         });
       });
-      this.film.photos.push({
-        title: '',
-      });
     },
     async setPoster(files) {
       const poster = files[0];
@@ -1126,8 +1131,11 @@ export default {
     },
     // 결과값을 한번 처리합니다.
     async refineInputValues() {
-      this.film.prod_date = new Date(this.film.prod_date);
-      this.film.open_date = new Date(this.film.open_date);
+      // if(this.film.prod_date) {
+
+      // }
+      // this.film.prod_date = new Date(this.film.prod_date);
+      // this.film.open_date = new Date(this.film.open_date);
       const minutes = this.input.show_time_minutes;
       const seconds = this.input.show_time_seconds;
       this.film.show_time = parseInt(minutes * 60 + seconds, 10);
@@ -1164,6 +1172,7 @@ export default {
       // console.log(result);
       const { id } = result.data.createFilm;
       this.$router.push({ name: 'FilmEdit', params: { id } });
+      this.mode = null;
     },
     async confirmUpdate() {
       const input = await this.buildInput();

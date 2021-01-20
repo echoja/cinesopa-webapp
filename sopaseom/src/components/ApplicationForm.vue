@@ -18,14 +18,37 @@
         label-indicators="클릭하여 해당하는 슬라이드를 화면에 띄우세요"
         controls
         indicators
+        @sliding-start="steelSlidingStart"
       >
-        <b-carousel-slide
+        <!--
+
+        <div data-v-3b036e34=""
+        role="listitem"
+        class="carousel-item active"
+         aria-current="true"
+         aria-posinset="1"
+          aria-setsize="3" id="__BVID__1358">
+          <img src="/upload/cdf4f2fbd112a7a6add93b595dc265fb?size=common" alt="213" class="img-fluid w-100 d-block" height="400">
+          </div>
+        -->
+
+        <!-- <b-carousel-slide
           v-for="(image, index) in film.photos"
           :key="index"
           :img-src="`${image.preview_url}?size=common`"
           :img-alt="image.alt"
           img-height="400"
-        >
+        > -->
+        <b-carousel-slide v-for="(image, index) in film.photos" :key="index">
+          <template #img>
+            <b-img
+              class="d-block img-fluid w-100"
+              :src="image.loaded ? `${image.preview_url}?size=common` : ''"
+              :alt="image.alt"
+              height="400"
+            >
+            </b-img>
+          </template>
         </b-carousel-slide>
       </b-carousel>
     </div>
@@ -1125,6 +1148,7 @@ import {
   BTable,
   BCarousel,
   BCarouselSlide,
+  BImg,
 } from 'bootstrap-vue';
 import moment from 'moment';
 
@@ -1156,6 +1180,7 @@ export default {
     BTable,
     BCarousel,
     BCarouselSlide,
+    BImg,
   },
   props: {
     reqFilm: Object,
@@ -1397,7 +1422,7 @@ export default {
   },
 
   mounted() {
-    // 다음 주소
+    // 다음 주소 찾기
     this.$loadScript(
       'https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js',
     )
@@ -1450,6 +1475,18 @@ export default {
     }
     if (this.film.is_opened) {
       this.filmSummary.push(`${this.filmOpenDate} 개봉`);
+    }
+
+    // 영화 포토가 있을 때 첫번째 것을 자동으로 로딩하기.
+    if (this.film.photos) {
+      this.film.photos = this.film.photos.map((photo) => ({
+        ...photo,
+        loaded: false,
+      }));
+      const photoLength = this.film?.photos?.length;
+      if (photoLength > 0) {
+        this.film.photos[0].loaded = true;
+      }
     }
 
     console.log('# ApplicaionForm mounted filmSummary');
@@ -1547,6 +1584,13 @@ export default {
     receiveDateDisabled(ymd, date) {
       const weekday = date.getDay();
       return weekday === 0 || weekday === 5 || weekday === 6;
+    },
+    steelSlidingStart(slide) {
+      console.log('# ApplicationForm steelSlidingStart slide');
+      console.log(slide);
+      if (!this.film.photos[slide].loaded) {
+        this.film.photos[slide].loaded = true;
+      }
     },
   },
 };

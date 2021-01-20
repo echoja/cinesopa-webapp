@@ -16,7 +16,7 @@
             class="flex-grow-1"
           ></b-form-input>
         </b-form-group>
-        <div class="toolbar">
+        <!-- <div class="toolbar">
           <b-button @click="$bvModal.show('media-insert-modal')">
             파일/이미지 삽입
           </b-button>
@@ -28,8 +28,8 @@
             ></file-manager>
           </b-modal>
           <b-button @click="test1">테스트</b-button>
-        </div>
-        <div
+        </div> -->
+        <!-- <div
           v-if="!state.editorLoaded"
           class="h-25 d-flex p-2 justify-content-center align-items-center"
         >
@@ -43,7 +43,8 @@
           v-model="input.content"
           :init="editorInit"
           @onInit="onEditorInit"
-        />
+        /> -->
+        <common-editor height="600" v-model="input.content"></common-editor>
       </div>
     </template>
     <template #sidebar>
@@ -151,7 +152,7 @@
 //   meta: JSON
 // }
 
-import Editor from '@tinymce/tinymce-vue';
+// import Editor from '@tinymce/tinymce-vue';
 import {
   BFormGroup,
   BFormTextarea,
@@ -160,7 +161,7 @@ import {
   BButton,
   BModal,
   BFormInput,
-  BSpinner,
+  // BSpinner,
   BImg,
 } from 'bootstrap-vue';
 import { mapActions } from 'vuex';
@@ -178,7 +179,7 @@ export default {
 
   components: {
     WrapWithEditor,
-    Editor,
+    // Editor,
     FileManager,
     BFormGroup,
     BFormTextarea,
@@ -187,8 +188,9 @@ export default {
     BButton,
     BModal,
     BFormInput,
-    BSpinner,
+    // BSpinner,
     BImg,
+    CommonEditor: () => import('@/components/admin/CommonEditor'),
   },
   props: ['belongs_to', 'mode'],
   data() {
@@ -276,11 +278,11 @@ export default {
   },
   methods: {
     ...mapActions(['pushMessage']),
-    onEditorInit(ev, tinymce) {
-      this.editor = tinymce;
-      this.state.editorLoaded = true;
-      // editor.execCommand('mceInsertContent', false, 'Hello, World!');
-    },
+    // onEditorInit(ev, tinymce) {
+    //   this.editor = tinymce;
+    //   this.state.editorLoaded = true;
+    //   // editor.execCommand('mceInsertContent', false, 'Hello, World!');
+    // },
     async confirm() {
       if (this.mode === 'new') {
         await this.create();
@@ -330,15 +332,15 @@ export default {
         });
     },
 
-    async fileSelected(files) {
-      files.forEach((file) => {
-        const { mimetype, fileurl, alt } = file;
-        if (mimetype.startsWith('image')) {
-          this.pushHtmlToEditor(`<img src="${fileurl}" alt="${alt}">`);
-        }
-      });
-      // console.log(files, a, b);
-    },
+    // async fileSelected(files) {
+    //   files.forEach((file) => {
+    //     const { mimetype, fileurl, alt } = file;
+    //     if (mimetype.startsWith('image')) {
+    //       this.pushHtmlToEditor(`<img src="${fileurl}" alt="${alt}">`);
+    //     }
+    //   });
+    //   // console.log(files, a, b);
+    // },
 
     async setFeaturedImage(files) {
       if (files.length >= 1) this.input.featured_image = files[0]._id;

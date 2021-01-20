@@ -116,7 +116,7 @@
           v-if="selectDeliveryPlace === 'manual'"
         >
           <div class="form-content">
-            <b-form-checkbox>
+            <b-form-checkbox v-model="saveDestDefault">
               위 정보를 기본 배송지에 저장합니다.
             </b-form-checkbox>
           </div>
@@ -306,7 +306,11 @@ import {
   BFormCheckbox,
 } from 'bootstrap-vue';
 import { paymentMethodMap, toPrice } from '@/util';
-import { checkAuth, makeSimpleMutation, makeSimpleQuery } from '@/api/graphql-client';
+import {
+  checkAuth,
+  makeSimpleMutation,
+  makeSimpleQuery,
+} from '@/api/graphql-client';
 import { mapActions } from 'vuex';
 import BootPay from 'bootpay-js';
 
@@ -795,11 +799,13 @@ export default {
             });
 
             // 서버로부터 데이터 가지고 옴.
-            checkAuth().then(() => {
-              // console.log(checkAuthResult);
-            }).catch((err) => {
-              console.error(err);
-            });
+            checkAuth()
+              .then(() => {
+                // console.log(checkAuthResult);
+              })
+              .catch((err) => {
+                console.error(err);
+              });
           }
         })
         .catch((err) => {
@@ -815,9 +821,18 @@ export default {
       // 만약 validated 되지 않았다면, 즉시 종료.
       if (!validated) {
         this.setValidateMessage();
+        this.pushMessage({
+          msg: '정보가 잘못되었습니다. 입력 칸을 확인해주세요.',
+          type: 'danger',
+          id: 'wrongInput',
+        });
         return;
       }
-      this.updateDefaultDest();
+
+      // 우선 기본배송지 업데이트 기능을 실행시킨다.
+      if (this.saveDestDefault) {
+        this.updateDefaultDest();
+      }
 
       // 일단 order 생성한다. (bootpay 에 order id 를 넘겨주기 위해 일단 생성해야 함.)
       // todo: 무조건 결제 상태를 결제 대기 상태로 만들어야 함.
@@ -923,7 +938,7 @@ export default {
     },
     finishPayment(data) {
       const { receipt_id, order_id } = data;
-
+      
       // 마무으리합니다.
       finishPaymentReq(
         { id: parseInt(order_id, 10), receiptId: receipt_id },
@@ -939,10 +954,19 @@ export default {
         .then((result) => {
           console.log('# OrderPayment finishPaymentReq result');
           console.log(result);
-          this.$router.push({
-            name: 'PaymentSuccess',
-            query: { orderId: order_id },
-          });
+          if (result.success) {
+            this.$router.push({
+              name: 'PaymentSuccess',
+              query: { orderId: order_id },
+            });
+          } else {
+            console.error('결제 실패');
+            this.pushMessage({
+              msg: `결제에 실패했습니다. - ${result.code}`,
+              type: 'danger',
+              id: 'paymentFailed',
+            });
+          }
         })
         .catch((err) => {
           console.error(err);

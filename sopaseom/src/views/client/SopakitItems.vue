@@ -988,7 +988,7 @@ export default {
   padding-right: 30px;
   border-right: 1px solid #000;
   margin-right: 30px;
-  height: calc(100vh - #{$dt-sopakit-last-page-neg});
+  // height: calc(100vh - #{$dt-sopakit-last-page-neg});
   overflow: auto;
   flex: 1;
 }
@@ -1046,6 +1046,7 @@ export default {
 
 .footer-box {
   margin-left: auto;
+  margin-bottom: 30px;
   display: flex;
   width: 300px;
 }

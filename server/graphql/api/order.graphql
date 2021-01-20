@@ -79,6 +79,7 @@ type MyOrdersResult {
   total: Int
   list: [Order]
   transporting: Int
+  order_count: [OrderCountGroupedByStatusResult]
 }
 
 type CreateOrderFromCartResult {
@@ -114,10 +115,15 @@ type FinishPaymentResult {
   order: Order
 }
 
+type OrderCountGroupedByStatusResult {
+  status: String
+  count: Int
+}
+
 extend type Query {
   orderAdmin(id: Int!): Order
   ordersAdmin(condition: OrderSearch!): OrdersResult
-  
+
   # 마이페이지 - 주문내역에서 사용되는 쿼리
   myOrders(condition: OrderSearch!): MyOrdersResult
 
@@ -126,6 +132,8 @@ extend type Query {
 
   # 무통장 입금시 정보를 추가적으로 출력해야 하는 페이지에서 사용됨
   nobankOrderInfo(id: Int!): NobankOrderInfoResult
+
+  orderCountGroupedByStatus: [OrderCountGroupedByStatusResult]
 }
 
 extend type Mutation {

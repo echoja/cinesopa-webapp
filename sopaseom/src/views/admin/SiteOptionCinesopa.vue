@@ -12,6 +12,7 @@
           <label class="input-title-label" :for="`input-${option}`">
             {{ form[option].label }}
           </label>
+          <!-- <info v-if="form[option].description" :description="form[option].description"></info> -->
         </td>
         <td class="input-content">
           <!-- 만약 현재 요소가 배열이라면 추가/삭제 등의 기능도 추가 -->
@@ -23,6 +24,7 @@
                   :key="fieldObjIndex"
                 >
                   {{ fieldObj.label }}
+                  <info v-if="fieldObj.description" :description="fieldObj.description"></info>
                 </th>
                 <th>삭제</th>
               </tr>
@@ -190,6 +192,7 @@ export default {
     BModal,
     BFormCheckbox,
     FileManager,
+    Info: () => import('@/components/admin/Info'),
   },
   directives: {
     'b-toggle': VBToggle,
@@ -202,11 +205,13 @@ export default {
           id: {
             type: 'string',
             label: '식별자',
+            description: '내부적으로 구분짓기 위한 고유 id 값입니다. 겹치지만 않도록 1, 2, 3, 4... 로 설정해주시면 됩니다.',
             editable: true,
           },
           name: {
             type: 'string',
             label: '이름',
+            description: '실제 사람의 이름을 적는 곳입니다.',
             editable: true,
           },
           nickname: {

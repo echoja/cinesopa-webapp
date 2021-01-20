@@ -27,7 +27,21 @@ module.exports = {
       const { condition } = args;
       const { email } = context.getUser();
       condition.user = email;
-      return db.getOrders(condition);
+
+      const [{ value: orders }, { value: counts }] = await Promise.allSettled([
+        db.getOrders(condition),
+        db.getOrderCountGroupedByStatus({ user: email }),
+      ]);
+      // console.log('# order-resolver myOrders counts');
+      // console.log(counts);
+
+      return {
+        ...orders,
+        order_count: counts.map((countByStatus) => ({
+          status: countByStatus._id,
+          count: countByStatus.count,
+        })),
+      };
     }).only(ACCESS_AUTH),
 
     // 결제 완료시 기본적으로 보일 정보를 보여주는 곳!
@@ -56,9 +70,22 @@ module.exports = {
       }
       return { success: true, order };
     }).only(ACCESS_AUTH),
+
+    // orderCountGroupedByStatus: makeResolver(async (obj, args, context, info) => {
+    //   const { email } = context.getUser();
+
+    //   if(!email) {
+    //     return [];
+    //   }
+
+    //   const counts = db.getOrderCountGroupedByStatus({user: email});
+    //   counts
+    //   return { success: true, order };
+    // }).only(ACCESS_AUTH),
   },
   Mutation: {
-    // 결제 성공시의 요청 endpoint
+    // 우선 결제하기 직전 Order id를 얻기 위해서 무조건 먼저 실행되는 함수.
+    // 이 endpoint 에 왔을 때에는 아직까지 주문이 완료되지 않은 상태임.
     createOrderFromCart: makeResolver(async (obj, args, context, info) => {
       const { email } = context.getUser();
       const { input, payer } = args;
@@ -67,7 +94,7 @@ module.exports = {
       const promises = input.items_id.map((id) => db.getCartitem(id));
       const results = await Promise.allSettled(promises);
 
-      // 만약 하나라도 status 가 rejected 이거나 일치하지 않는 user가 나오면 검증 실패이므로
+      // cartitem 중 만약 하나라도 status 가 rejected 이거나 일치하지 않는 user가 나오면 검증 실패이므로
       // 아무런 작업도 하지 않고 바로 리턴.
       if (
         results.some(({ status, value: cartitem }) => {
@@ -76,11 +103,6 @@ module.exports = {
       ) {
         return { success: false, code: 'cartitem_not_owned_by_user' };
       }
-      // todo: 지금 시점으론 이미 결제가 완료된 상태인데, 결제하고 있었던 도중
-      // product 의 가격 정보가 수정된다면 앞으로 생성될 order에 적힌 product
-      // 의 가격과 실제 주문한 가격이 달라짐. (그럴 때는 어케?)
-
-      // bootpay_id(receipt_id) 은 검증 따로 해야 함.
 
       // order 생성.
       const cartitems = results.map(({ value: cartitem }) => {
@@ -89,6 +111,7 @@ module.exports = {
         }
         return cartitem;
       });
+
       // console.log('# order-resolver cartitems');
       // console.log(cartitems);
       // delete cartitems._id;
@@ -106,7 +129,7 @@ module.exports = {
 
       // 일반 결제 모듈은 승인된 이후 삭제해야 하므로
       // 일단 cartitem 을 삭제하지 않음.
-      // 무통장 입금은 바로 삭제하도록 함.
+      // 무통장 입금은 바로 cartitem 을 삭제하도록 함.
       if (input.method === 'nobank') {
         const removePromises = cartitems.map((cartitem) =>
           db.removeCartitem(cartitem.id),
@@ -115,24 +138,34 @@ module.exports = {
       }
       return { success: true, code: 'normal', order_id: order.id };
     }).only(ACCESS_AUTH),
+
+    // 결제 모듈에서 무사히 결제된 후 호출되는 endpoint.
     finishPayment: makeResolver(async (obj, args, context, info) => {
       const { id, receiptId } = args;
-      console.log('#order-resolver finishPayment args');
-      console.log(args);
+      // console.log('#order-resolver finishPayment args');
+      // console.log(args);
 
       let order = await db.getOrder(id);
       const user = context.getUser();
+      // console.log('#order-resolver finishPayment order');
+      // console.log(order);
 
       // 유저 소유의 order 이어야 함.
       if (order.user !== user.email) {
         return { success: false, code: 'no_ownership' };
       }
 
+      // console.log('#order-resolver finishPayment user');
+      // console.log(user);
+
       // 우선 bootpay id를 order에 넣어야 함.
       await db.updateOrder(id, { bootpay_id: receiptId });
 
-      // 그 다음 검증 및 cartitem 삭제, order를 payment_success 로 갱신하는 작업으로 들어감.
+      // 검증 및 cartitem 삭제, order를 payment_success 로 갱신하는 작업으로 들어감.
       const result = await payment.finishPayment(id);
+      if (!result.success) {
+        return { success: false, code: result.code };
+      }
       // console.log('#order-resolver finishPayment result');
       // console.log(result);
 
@@ -152,6 +185,15 @@ module.exports = {
           console.error(err);
           // todo: 메일이 제대로 안갔을 경우 처리
         });
+
+      // 기존에 있던 쓸모없는 order 들을 삭제함.
+      const rresult = await db.removeDangledOrder(user.email);
+      console.log('#order-resolver finishPayment rresult');
+      console.log(rresult);
+
+      // const orders = await this.db.getOrders({ user: user.email });
+      // console.log('#order-resolver finishPayment orders final');
+      // console.dir(orders);
 
       // 검증 결과를 내보냄.
       return { ...result, order };

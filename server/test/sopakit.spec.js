@@ -202,7 +202,7 @@ describe('cartitem', function () {
           {},
           '{sopakitsShownItems { sopakit {id title} products { id name related_film { id title } }} noKeywordProducts { id name  } }',
         );
-        console.dir(res, { depth: 5 });
+        // console.dir(res, { depth: 5 });
         expect(res.sopakitsShownItems.length).to.equal(3);
         expect(res.sopakitsShownItems[0].sopakit.id).to.be.a('number');
         expect(res.sopakitsShownItems[1].sopakit.id).to.be.a('number');

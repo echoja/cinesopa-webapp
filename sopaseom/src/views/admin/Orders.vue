@@ -2,8 +2,9 @@
   <div class="admin-orders">
     <header>
       <h2>주문 목록</h2>
-      <p>행을 클릭하면 바로 편집합니다.</p>
+      <p>행을 클릭하면 자세한 내용 열람 및 편집이 가능합니다. </p>
     </header>
+    <h2 class="filter-title">필터</h2>
     <div class="filter">
       <div class="fliter-date">
         <h3>날짜</h3>
@@ -57,7 +58,7 @@
       </div>
       <div class="filter-action">
         <b-button @click="filterClicked" variant="primary">
-          <span class="font-weight-bold" >검색</span>
+          <span class="font-weight-bold">검색</span>
         </b-button>
       </div>
     </div>
@@ -82,6 +83,12 @@
           {{ item.user }}
         </span>
       </template>
+      <template #cell(transport_company)="{ item }">
+        <span class="text-break">
+          {{ deliveryMap[item.transport_company] }}
+        </span>
+      </template>
+
       <template #cell(status)="{ item }">
         {{ statusMap[item.status] || '-' }}
       </template>
@@ -158,7 +165,7 @@
           </form-row>
           <form-row title="부트페이 영수증 번호">
             {{ editing.bootpay_id || '-' }}
-            <b-button v-if="editing.bootpay_id">
+            <b-button size="sm" v-if="editing.bootpay_id">
               영수증 정보 확인하기
               <!-- todo -->
             </b-button>
@@ -188,7 +195,12 @@
             ></b-form-datepicker>
           </form-row>
           <form-row title="현금영수증 번호"> </form-row>
-          <form-row title="택배사"> </form-row>
+          <form-row title="택배사">
+            <b-form-select
+              :options="deliveryOptions"
+              v-model="editing.transport_company"
+            ></b-form-select>
+          </form-row>
           <form-row title="송장번호">
             <b-form-input v-model="editing.transport_number"> </b-form-input>
           </form-row>
@@ -324,6 +336,8 @@ import FormRow from '@/components/admin/FormRow.vue';
 import LoadingButton from '@/components/LoadingButton.vue';
 import { mapActions } from 'vuex';
 import { statusMap, toPrice, paymentMethodMap } from '@/util';
+import axios from 'axios';
+import { validate } from 'vee-validate';
 
 const ordersOnServer = makeSimpleQuery('ordersAdmin');
 const removeOrderOnServer = makeSimpleMutation('removeOrder');
@@ -448,11 +462,27 @@ export default {
         items: [],
         dest: {},
       },
+      rawDeliveryOptions: [],
     };
   },
   computed: {
     page() {
       return this.$route.query.page ?? 1;
+    },
+    deliveryOptions() {
+      const options = this.rawDeliveryOptions.map((delivery) => ({
+        value: delivery.id,
+        text: delivery.name,
+      }));
+      options.unshift({ value: null, text: '-- 선택하세요 --' });
+      return options;
+    },
+    deliveryMap() {
+      const map = this.rawDeliveryOptions.reduce((prev, current) => {
+        prev[current.id] = current.name;
+        return prev;
+      }, {});
+      return map;
     },
     checkedAll() {
       return this.items.every((value) => value.checked === true);
@@ -527,6 +557,9 @@ export default {
 
     // 값 받아오기
     await this.fetchData();
+
+    // 택배사 정보 받아오기
+    await this.fetchDeliveryData();
   },
 
   methods: {
@@ -542,6 +575,10 @@ export default {
           ),
         0,
       );
+    },
+    async fetchDeliveryData() {
+      const res = await axios.get('https://apis.tracker.delivery/carriers');
+      this.rawDeliveryOptions = res.data;
     },
     getAllCount(order) {
       return order.items.reduce(
@@ -675,10 +712,16 @@ export default {
         processingRequest: false,
         managing_date: new Date(order.managing_date),
         _showDetails: false,
-        expected_date: new Date(order.expected_date),
-        c_date: new Date(order.c_date),
-        cancelled_date: new Date(order.cancelled_date),
-        return_req_date: new Date(order.return_req_date),
+        expected_date: order.expected_date
+          ? new Date(order.expected_date)
+          : null,
+        c_date: order.c_date ? new Date(order.c_date) : null,
+        cancelled_date: order.cancelled_date
+          ? new Date(order.cancelled_date)
+          : null,
+        return_req_date: order.return_req_date
+          ? new Date(order.return_req_date)
+          : null,
       }));
       this.items = mappedOrder;
       console.log('# Orders fetchData res');
@@ -725,9 +768,38 @@ export default {
 
     //   // todo
     // },
+
+    // 편집할 때 값들이 유효한지 체크하는 함수
+    validate() {
+      const wrongCodes = [];
+      if (
+        this.editing.transport_company !== null &&
+        !this.editing.transport_number
+      ) {
+        wrongCodes.push(
+          '택배사가 정해져있으면 반드시 송장 번호가 있어야 합니다',
+        );
+      }
+      if (wrongCodes.length !== 0) {
+        return { success: false, code: wrongCodes.join(', ') };
+      }
+      return { success: true };
+    },
+
     async updateOrderConfirmClicked(index) {
       const item = this.items[index];
       item.processingRequest = true;
+
+      // 먼저 값들이 유효한지 체크합니다.
+      const validateResult = this.validate();
+      if (!validateResult.success) {
+        this.pushMessage({
+          msg: `입력을 확인해주세요 - ${validateResult.code}`,
+          type: 'danger',
+          id: 'wrongOrderEditInput',
+        });
+        return;
+      }
 
       // editing 으로부터 복사
       const { id } = item;
@@ -806,17 +878,24 @@ export default {
     font-weight: bold;
   }
 }
+
+.filter-title {
+  font-size: 24px;
+  font-weight: bold;
+}
 .filter {
   display: flex;
-  padding-bottom: 30px;
+  padding-bottom: 15px;
   // border-bottom: 1px solid #ddd;
-  margin-bottom: 30px;
+  margin-bottom: 15px;
   h3 {
     font-size: 16px;
     font-weight: bold;
   }
   > div {
     margin-right: 15px;
+    border: 1px solid #aaa;
+    padding: 15px;
   }
 }
 .filter-date-row {

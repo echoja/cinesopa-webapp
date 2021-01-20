@@ -58,7 +58,7 @@
         </div>
         <div role="rowgroup">
           <div
-            v-if="filmGenres || filmShowMinutes || film.is_opened"
+            v-if="filmSummary.length > 0"
             class="basic-body-row d-flex"
             role="row"
           >
@@ -275,13 +275,21 @@
           label-indicators="클릭하여 해당하는 슬라이드를 화면에 띄우세요"
           controls
           indicators
+          @sliding-start="steelSlidingStart"
         >
-          <b-carousel-slide
-            v-for="(image, index) in film.photos"
-            :key="index"
-            :img-src="`${image.preview_url}?size=common`"
-            :img-alt="image.alt"
-          >
+          <b-carousel-slide v-for="(image, index) in film.photos" :key="index">
+            <!-- :img-src="`${image.preview_url}?size=common`"
+            :img-alt="image.alt" -->
+
+            <template #img>
+              <b-img
+                class="d-block img-fluid w-100"
+                :src="image.loaded ? `${image.preview_url}?size=common` : ''"
+                :alt="image.alt"
+              >
+                <!-- height="500" -->
+              </b-img>
+            </template>
             <!-- :img-src="parseUploadLink(image.preview_url)" -->
           </b-carousel-slide>
         </b-carousel>
@@ -312,13 +320,7 @@
         </div>
       </div>
       <!-- 제작노트 -->
-      <div
-        v-if="film.note"
-        class="detailed-info-item"
-        tabindex="-1"
-        style="height: 10000px"
-        id="note"
-      >
+      <div v-if="film.note" class="detailed-info-item" tabindex="-1" id="note">
         <h2>제작노트</h2>
         <div v-html="film.note"></div>
       </div>
@@ -549,10 +551,11 @@ export default {
       return result;
     },
     filmSynopsis() {
-      if (this.film.synopsis) {
-        return this.film.synopsis.replace(/\n/gi, '<br>');
-      }
-      return null;
+      // if (this.film.synopsis) {
+      //   return this.film.synopsis.replace(/\n/gi, '<br>');
+      // }
+      return this.film.synopsis;
+      // return null;
     },
     filmPeopleFields() {
       return [
@@ -612,8 +615,20 @@ export default {
     if (this.filmShowMinutes > 0) {
       this.filmSummary.push(`${this.filmShowMinutes}분`);
     }
-    if (this.film.is_opened) {
+    if (this.film.is_opened && this.filmOpenDate) {
       this.filmSummary.push(`${this.filmOpenDate} 개봉`);
+    }
+
+    // 영화 포토가 있을 때 첫번째 것을 자동으로 로딩하기.
+    if (this.film.photos) {
+      this.film.photos = this.film.photos.map((photo) => ({
+        ...photo,
+        loaded: false,
+      }));
+      const photoLength = this.film?.photos?.length;
+      if (photoLength > 0) {
+        this.film.photos[0].loaded = true;
+      }
     }
 
     // 메인예고편 높이 계산 및 iframe title 속성 추가해주기
@@ -665,6 +680,11 @@ export default {
       // console.log(c);
     },
     parseUploadLink,
+    steelSlidingStart(slide) {
+      if (!this.film.photos[slide].loaded) {
+        this.film.photos[slide].loaded = true;
+      }
+    },
   },
 };
 </script>
@@ -897,6 +917,12 @@ export default {
 .award-type {
   color: #767676;
   padding-right: 10px;
+}
+
+// carousel
+
+.carousel-item img {
+  object-fit: contain;
 }
 
 // review

@@ -89,7 +89,7 @@ export default {
         },
         {
           key: 'title_excerpt',
-          label: '내용',
+          label: '제목',
         },
         {
           key: 'boardTitle',

@@ -4,27 +4,61 @@
     <div class="info-group">
       <div class="info-row">
         <div class="info-cell head">이메일</div>
-        <div class="info-cell body">eszqsc112@naver.com</div>
+        <div class="info-cell body">{{ this.currentUser.email }}</div>
       </div>
       <div class="info-row">
         <div class="info-cell head">비밀번호</div>
         <div class="info-cell body">
-          <b-button size="sm" :to="{name: 'ChangePasswordRequest', query: {initEmail: $store.state.currentUser.email}}">비밀번호 변경</b-button>
+          <b-button
+            size="sm"
+            :to="{
+              name: 'ChangePasswordRequest',
+              query: { initEmail: $store.state.currentUser.email },
+            }"
+            >비밀번호 변경</b-button
+          >
         </div>
       </div>
       <div class="info-row">
         <div class="info-cell head">카카오 계정</div>
         <div class="info-cell body kakao">
           <template v-if="isConnectedWithKakao">
-            <span class="is-connected">연동됨</span>
-            <!-- <b-button @click="disableKakaoClicked" size="sm">
+            <span class="current-status">연동됨</span>
+            <b-button size="sm" @click="disableKakaoClicked">
               연동 해제
-            </b-button> -->
+            </b-button>
           </template>
           <template v-else>
-            <span class="is-connected">연동되지 않음</span>
-            <!-- <b-button @click="connectKakaoClicked">연동하기</b-button> -->
+            <div>
+              <span class="current-status">연동되지 않음</span>
+              <b-button
+                id="connect-kakao-button"
+                size="sm"
+                @click="connectKakaoClicked"
+                >연동하기</b-button
+              >
+              <br />
+              <p class="description">
+                <!-- <p class="connect-kakao-description" target="connect-kakao-button" triggers="hover" placement="right"> -->
+                본 이메일과 <b>동일한 이메일의 카카오 계정</b>으로만 연동이
+                가능합니다.
+              </p>
+            </div>
           </template>
+        </div>
+      </div>
+
+      <div class="info-row">
+        <div class="info-cell head">광고성<br />이메일 수신</div>
+        <div class="info-cell body advertisement">
+          <span class="current-status">{{ advertisementMessage }}</span>
+          <loading-button
+            :loading="advertisementProcessing"
+            size="sm"
+            @click="changeAdvertisement"
+          >
+            변경하기
+          </loading-button>
         </div>
       </div>
     </div>
@@ -87,7 +121,7 @@
 </template>
 
 <script>
-import { BFormInput, BButton, BFormTextarea } from 'bootstrap-vue';
+import { BFormInput, BButton, BFormTextarea, BModal } from 'bootstrap-vue';
 import moment from 'moment';
 import { mapActions, mapState } from 'vuex';
 import { checkAuth, makeSimpleMutation } from '@/api/graphql-client';
@@ -99,7 +133,9 @@ export default {
     BFormInput,
     BButton,
     BFormTextarea,
+    BModal,
     FindingAddressButton: () => import('@/components/FindingAddressButton'),
+    LoadingButton: () => import('@/components/LoadingButton'),
   },
   title: '내 정보',
   data() {
@@ -108,6 +144,7 @@ export default {
       defaultDestUpdateSuccessMessage: '',
       // isConnectedWithKakao: true,
       jibunAddress: '',
+      advertisementProcessing: false,
       default_dest: {
         name: '',
         address: '',
@@ -119,6 +156,11 @@ export default {
   },
   computed: {
     ...mapState(['currentUser']),
+    advertisementMessage() {
+      const advertisement = this.currentUser?.user_agreed?.advertisement;
+      if (advertisement) return '수신중';
+      return '수신하지 않음';
+    },
     default_destInitValue() {
       return this.currentUser?.default_dest;
     },
@@ -148,8 +190,8 @@ export default {
         `
       {success code}`,
       );
-      console.log('# Myinfo.vue saveDefaultDest');
-      console.log(res);
+      // console.log('# Myinfo.vue saveDefaultDest');
+      // console.log(res);
       this.defaultDestUpdateSuccessMessageShow = true;
       this.defaultDestUpdateSuccessMessage = res.success
         ? '기본 배송지 설정 성공했습니다.'
@@ -168,6 +210,32 @@ export default {
       //     id: 'defaultDestUpdateSuccess',
       //   });
       // }
+    },
+    async changeAdvertisement() {
+      this.advertisementProcessing = true;
+      const advertisement = !this.currentUser?.user_agreed?.advertisement;
+      const res = await updateMeReq(
+        { userinfo: { user_agreed: { advertisement } } },
+        `
+      {success code}`,
+      );
+      if (res.success) {
+        this.pushMessage({
+          msg: '광고 수신 변경을 완료했습니다.',
+          id: 'changeAdvertisementSuccess',
+          type: 'success',
+        });
+      } else {
+        this.pushMessage({
+          msg: '광고 수신 변경에 실패했습니다.',
+          id: 'changeAdvertisementFailed',
+          type: 'danger',
+        });
+      }
+
+      // currentUser 정보 업데이트
+      await checkAuth();
+      this.advertisementProcessing = false;
     },
     connectKakaoClicked() {},
     addressLoaded(data) {
@@ -213,14 +281,11 @@ p {
 .info-row {
   display: flex;
   margin-bottom: 15px;
-  align-items: center;
+  align-items: stretch;
 }
 
-.default-delivery-form .info-row {
-  align-items: stretch;
-  .info-cell.head {
-    padding-top: 5px;
-  }
+.default-delivery-form .info-cell.head {
+  padding-top: 5px;
 }
 
 .info-cell.head {
@@ -245,10 +310,14 @@ p {
   }
 }
 
-span.is-connected {
+span.current-status {
   padding-right: 10px;
   font-weight: bold;
 }
+
+// .connect-kakao-description {
+
+// }
 
 .description {
   font-size: 13px;

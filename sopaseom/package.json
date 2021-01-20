@@ -12,10 +12,11 @@
   "dependencies": {
     "@babel/polyfill": "^7.11.5",
     "@fortawesome/fontawesome-svg-core": "^1.2.32",
+    "@fortawesome/free-regular-svg-icons": "^5.15.2",
     "@fortawesome/free-solid-svg-icons": "^5.15.1",
     "@fortawesome/vue-fontawesome": "^2.0.0",
     "@tinymce/tinymce-vue": "^3.2.2",
-    "axios": "^0.20.0",
+    "axios": "^0.21.1",
     "bezier-easing": "^2.1.0",
     "bootpay-js": "^3.3.1",
     "bootstrap": "^4.5.2",

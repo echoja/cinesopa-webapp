@@ -10,7 +10,7 @@ export const numberWithCommas = (x) => {
 
 export const toPrice = (x) => `￦ ${numberWithCommas(x)}`;
 
-export const statusMap = {
+export const statusMap = {  
   order_received: '주문접수',
   payment_confirming: '결제확인중',
   payment_success: '결제완료',
@@ -30,7 +30,7 @@ export const paymentMethodMap = {
   bank: '계좌이체',
   phone: '휴대폰결제',
   // npay: '네이버페이',
-  // kakao: '카카오페이',
+  kakao: '카카오페이',
 };
 
 export const transportCompanyMap = {

@@ -85,13 +85,17 @@ class BootpayManager {
    * @return {Promise<GetTokenResult>}
    */
   async getToken() {
-    const tokenRes = await RestClient.getAccessToken();
-    // console.log('# bootpay.js getActualPaymentInfo tokenRes');
-    // console.dir(tokenRes, { depth: 4 });
-    if (tokenRes.status !== 200 || tokenRes.data.token === undefined) {
-      return { success: false, code: 'invalid_access_token_request' };
+    try {
+      const tokenRes = await RestClient.getAccessToken();
+      // console.log('# bootpay.js getActualPaymentInfo tokenRes');
+      // console.dir(tokenRes, { depth: 4 });
+      if (tokenRes.status !== 200 || tokenRes.data.token === undefined) {
+        return { success: false, code: 'invalid_access_token_request' };
+      }
+      return { success: true, token: tokenRes.data.token };
+    } catch (e) {
+      return { success: false, code: e.message };
     }
-    return { success: true, token: tokenRes.data.token };
   }
   /**
    * 실제 정보를 부트페이로브터 가져옵니다. 결제 검증 시 이용됨.
@@ -99,17 +103,21 @@ class BootpayManager {
    * @return {Promise<GetActualPaymentInfoResult>}
    */
   async getActualPaymentInfo(receipt_id) {
-    const tokenRes = await this.getToken();
-    if (!tokenRes.success) {
-      return { success: false, code: tokenRes.code };
+    try {
+      const tokenRes = await this.getToken();
+      if (!tokenRes.success) {
+        return { success: false, code: tokenRes.code };
+      }
+      const verifyRes = await RestClient.verify(receipt_id);
+      // console.log('# bootpay.js getActualPaymentInfo verifyRes');
+      // console.dir(verifyRes, { depth: 4 });
+      if (verifyRes.status !== 200) {
+        return { success: false, code: 'verify_request_failed' };
+      }
+      return { success: true, info: verifyRes.data };
+    } catch (e) {
+      return { success: false, code: e.message };
     }
-    const verifyRes = await RestClient.verify(receipt_id);
-    // console.log('# bootpay.js getActualPaymentInfo verifyRes');
-    // console.dir(verifyRes, { depth: 4 });
-    if (verifyRes.status !== 200) {
-      return { success: false, code: 'verify_request_failed' };
-    }
-    return { success: true, info: verifyRes.data };
   }
 
   /**
@@ -190,26 +198,30 @@ class BootpayManager {
    * @return {Promise<VerifyPaymentResult>}
    */
   async verifyPayment(receipt_id, totalPrice) {
-    const paymentInfoResult = await this.getActualPaymentInfo(receipt_id);
+    try {
+      const paymentInfoResult = await this.getActualPaymentInfo(receipt_id);
 
-    // payment Info 를 받아오는 과정에서 문제가 있었을 때에는
-    // 그대로 문제를 리턴하고 실행을 종료함.
-    if (!paymentInfoResult.success) {
-      return { success: false, code: paymentInfoResult.code };
+      // payment Info 를 받아오는 과정에서 문제가 있었을 때에는
+      // 그대로 문제를 리턴하고 실행을 종료함.
+      if (!paymentInfoResult.success) {
+        return { success: false, code: paymentInfoResult.code };
+      }
+      const { info } = paymentInfoResult;
+      // console.log('# bootpay.js verifyPayment info');
+      // console.dir(info, { depth: 4 });
+      // totalPrice 와 일치하지 않으면 에러.
+      if (info.price !== totalPrice) {
+        return { success: false, code: 'price_diffs', info };
+      }
+      // 결제완료 상태(1)가 아니라면, 에러.
+      if (info.status !== 1) {
+        return { success: false, code: 'payment_should_be_completed', info };
+      }
+      // 성공 출력
+      return { success: true, info };
+    } catch (e) {
+      return { success: false, code: e.message };
     }
-    const { info } = paymentInfoResult;
-    // console.log('# bootpay.js verifyPayment info');
-    // console.dir(info, { depth: 4 });
-    // totalPrice 와 일치하지 않으면 에러.
-    if (info.price !== totalPrice) {
-      return { success: false, code: 'price_diffs', info };
-    }
-    // 결제완료 상태(1)가 아니라면, 에러.
-    if (info.status !== 1) {
-      return { success: false, code: 'payment_should_be_completed', info };
-    }
-    // 성공 출력
-    return { success: true, info };
   }
 }
 

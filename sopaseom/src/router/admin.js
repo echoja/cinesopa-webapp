@@ -48,6 +48,11 @@ export default [
     props: { belongs_to: 'cinesopa' },
   },
   {
+    ...adminRoute('/admin/cinesopa/film/page/:page', 'AdminFilmPaged'),
+    component: () => import('@/views/admin/Film.vue'),
+    // props: { belongs_to: 'cinesopa' },
+  },
+  {
     ...adminRoute('/admin/cinesopa/film/new', 'FilmNew'),
     component: () => import('@/views/admin/FilmEdit.vue'),
     props: { mode: 'new', belongs_to: 'cinesopa' },

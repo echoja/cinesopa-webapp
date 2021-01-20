@@ -111,8 +111,8 @@ class MailManager {
     // render 함수를 불러온다.
     await this.makeTemplateMapResolve();
     const renderer = this.templateMap.get(templateName);
-    console.log('# mail.js sendMailTemplate');
-    console.dir(this.templateMap);
+    // console.log('# mail.js sendMailTemplate');
+    // console.dir(this.templateMap);
     if (!renderer) {
       console.error(`${templateName} 템플릿이 존재하지 않습니다.`);
       return { success: false, code: 'no-such-template' };

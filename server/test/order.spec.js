@@ -108,6 +108,98 @@ describe('order', function () {
         this.skip();
       });
     });
+    describe('removeDangeldOrder', function () {
+      it('제대로 동작해야 함', async function () {
+        const results = await Promise.allSettled([
+          model.Order.create({
+            user: guestEmail,
+            status: 'payment_confirming',
+            method: 'card',
+          }),
+          model.Order.create({
+            user: guestEmail,
+            status: 'payment_confirming',
+            method: 'nobank',
+          }),
+          model.Order.create({
+            user: guestEmail,
+            status: 'payment_success',
+            method: 'card',
+          }),
+          model.Order.create({
+            user: guestEmail,
+            status: 'payment_success',
+            method: 'nobank',
+          }),
+        ]);
+        await db.removeDangledOrder(guestEmail);
+        const orders = await model.Order.find();
+        // console.log(orders);
+        expect(
+          orders.every(
+            (order) =>
+              order.status !== 'payment_confirming' ||
+              order.method === 'nobank',
+          ),
+        ).to.be.true;
+      });
+    });
+    describe('getOrderCountGroupedByStatus', function () {
+      it.only('제대로 동작해야 함', async function () {
+        const results = await Promise.allSettled([
+          model.Order.create({
+            user: guestEmail,
+            status: 'payment_confirming',
+            method: 'card',
+          }),
+          model.Order.create({
+            user: guestEmail,
+            status: 'payment_confirming',
+            method: 'nobank',
+          }),
+          model.Order.create({
+            user: guestEmail,
+            status: 'payment_success',
+            method: 'card',
+          }),
+          model.Order.create({
+            user: guestEmail,
+            status: 'payment_success',
+            method: 'phone',
+          }),
+          model.Order.create({
+            user: guestEmail,
+            status: 'payment_success',
+            method: 'nobank',
+          }),
+          model.Order.create({
+            user: adminEmail,
+            status: 'payment_success',
+            method: 'nobank',
+          }),
+          model.Order.create({
+            user: guestEmail,
+            status: 'order_cancelling',
+            method: 'nobank',
+          }),
+        ]);
+        const counts = await db.getOrderCountGroupedByStatus({
+          user: guestEmail,
+        });
+        console.log(counts);
+        // [
+        //   { _id: 'order_cancelling', count: 1 },
+        //   { _id: 'payment_success', count: 3 },
+        //   { _id: 'payment_confirming', count: 2 }
+        // ]
+        const order_cancelling = counts.find((count) => count._id === 'order_cancelling');
+        const payment_success = counts.find((count) => count._id === 'payment_success');
+        const payment_confirming = counts.find((count) => count._id === 'payment_confirming');
+        expect(order_cancelling.count).to.equal(1);
+        expect(payment_success.count).to.equal(3);
+        expect(payment_confirming.count).to.equal(2);
+      });
+    });
   });
   describe('api', function () {
     describe('myOrders', function () {
@@ -191,7 +283,7 @@ describe('order', function () {
           user: guestEmail,
         });
       });
-      it.only('제대로 동작해야 함', async function () {
+      it('제대로 동작해야 함', async function () {
         await doGuestLogin(agent);
         const req = makeSimpleMutation(agent, 'createOrderFromCart');
         const res = await req(
@@ -204,6 +296,7 @@ describe('order', function () {
                 address: '호호',
                 address_detail: '자세한주소',
               },
+              transport_fee: 100,
               bootpay_id: '1213',
             },
           },
@@ -214,10 +307,11 @@ describe('order', function () {
         expect(res.code).to.equal('normal');
         const orderFound = await model.Order.findOne().lean().exec();
         expect(orderFound.user).to.equal(guestEmail);
-        expect(orderFound.status).to.equal('payment_success');
+        expect(orderFound.status).to.equal('payment_confirming');
         expect(orderFound.items[0].id).to.be.a('number');
       });
-      it.only('이미 있던 cartitem 은 삭제되어야 함', async function () {
+      it('이미 있던 cartitem 은 삭제되어야 함 > 삭제는 finishPayment 에서 삭제되는 걸로 변경됨', async function () {
+        this.skip();
         await doGuestLogin(agent);
         const req = makeSimpleMutation(agent, 'createOrderFromCart');
         const res = await req(
@@ -230,6 +324,7 @@ describe('order', function () {
                 address: '호호',
                 address_detail: '자세한주소',
               },
+              transport_fee: 100,
               bootpay_id: '1213',
             },
           },
@@ -241,7 +336,7 @@ describe('order', function () {
         // console.log(cartitemFound);
         expect(cartitemFound.length).to.equal(0);
       });
-      it.only('무통장 입금의 경우 status 는 결제 대기중이어야 함.', async function () {
+      it('무통장 입금의 경우 status 는 결제 대기중이어야 함.', async function () {
         await doGuestLogin(agent);
         const req = makeSimpleMutation(agent, 'createOrderFromCart');
         const res = await req(
@@ -254,6 +349,7 @@ describe('order', function () {
                 address: '호호',
                 address_detail: '자세한주소',
               },
+              transport_fee: 100,
               bootpay_id: '1213',
             },
           },
@@ -265,7 +361,7 @@ describe('order', function () {
         expect(orderFound.status).to.equal('payment_confirming');
         expect(orderFound.items[0].id).to.be.a('number');
       });
-      it.only('존재하지 않은 cartitem 이 있을 경우 실패해야 함.', async function () {
+      it('존재하지 않은 cartitem 이 있을 경우 실패해야 함.', async function () {
         await doGuestLogin(agent);
         const req = makeSimpleMutation(agent, 'createOrderFromCart');
         const res = await req(
@@ -278,6 +374,7 @@ describe('order', function () {
                 address: '호호',
                 address_detail: '자세한주소',
               },
+              transport_fee: 100,
               bootpay_id: '1213',
             },
           },
@@ -286,7 +383,7 @@ describe('order', function () {
         // console.log(res);
         expect(res.success).to.be.false;
       });
-      it.only('자신의 것이 아닌 cartitem 이 있을 경우 실패해야 함.', async function () {
+      it('자신의 것이 아닌 cartitem 이 있을 경우 실패해야 함.', async function () {
         // 어드민으로 로그인함. guest 가 아니라.
         await doAdminLogin(agent);
         const req = makeSimpleMutation(agent, 'createOrderFromCart');
@@ -300,6 +397,7 @@ describe('order', function () {
                 address: '호호',
                 address_detail: '자세한주소',
               },
+              transport_fee: 100,
               bootpay_id: '1213',
             },
           },
@@ -309,17 +407,13 @@ describe('order', function () {
         expect(res.success).to.be.false;
       });
     });
-    describe("finishPayment", function () {
-      // 반드시 테스트용 
+    describe('finishPayment', function () {
+      // 반드시 테스트용
       const bootpay_id = '5fd8f7008f0751003cd37fa0';
-      it("제대로 동작해야 함", async function () {
-
-        
-
-      });
+      it('제대로 동작해야 함', async function () {});
     });
     describe('reqCancelOrder', function () {
-      it.only('제대로 동작해야 함', async function () {
+      it('제대로 동작해야 함', async function () {
         // todo
       });
     });

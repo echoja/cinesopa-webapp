@@ -201,9 +201,26 @@
                   @click="showTrackClicked(orderIndex)"
                   >배송조회</b-button
                 >
-                <b-button @click="reqExchangeClicked(orderIndex)"
+                <b-button
+                  v-if="showReqExchange(orderItem.status)"
+                  @click="reqExchangeClicked(orderIndex)"
                   >교환/반품 신청</b-button
                 >
+                <b-button
+                  v-if="!showReqExchange(orderItem.status)"
+                  @click="$bvModal.show(`cancel-order-modal-${orderIndex}`)"
+                  >주문취소</b-button
+                >
+                <b-modal
+                  :id="`cancel-order-modal-${orderIndex}`"
+                  :ok="reqCancelOrder(orderIndex)"
+                  ok-title="예"
+                  cancel-title="아니오"
+                  ok-variant="danger"
+                  title="주문취소"
+                >
+                  정말로 주문을 취소하시겠습니까?
+                </b-modal>
               </div>
             </div>
           </div>
@@ -334,10 +351,11 @@ import {
 import moment from 'moment';
 
 import { toPrice, statusMap } from '@/util';
-import { makeSimpleQuery } from '@/api/graphql-client';
+import { makeSimpleMutation, makeSimpleQuery } from '@/api/graphql-client';
 import LoadingButton from '@/components/LoadingButton.vue';
 
 const myOrdersReq = makeSimpleQuery('myOrders');
+const canclOrderReq = makeSimpleMutation('');
 
 const destLabelMap = {
   name: '이름',
@@ -359,7 +377,7 @@ const paymentMethodLabelMap = {
  * 결제 완료: 결제 취소
  * 배송중: 교환/반품 신청
  * 배송완료: 교환/반품 신청
- * 
+ *
  */
 
 export default {
@@ -421,7 +439,8 @@ export default {
         { value: 'payment_success', text: '결제완료' },
         { value: 'transporting', text: '배송중' },
         { value: 'transport_success', text: '배송완료' },
-        { value: 'cancelled', text: '주문취소' },
+        { value: 'order_cancelling', text: '주문취소중' },
+        { value: 'order_cancelled', text: '주문취소' },
       ],
       orders: [
         {
@@ -598,7 +617,7 @@ export default {
       // 조건 생성
       const condition = { ...this.condition };
       condition.page -= 1;
-      const { total, list, transporting } = await myOrdersReq(
+      const { total, list, transporting, order_count } = await myOrdersReq(
         { condition },
         `{
           transporting total list {
@@ -617,10 +636,13 @@ export default {
               name address address_detail phone request 
             }
           }
+          order_count {
+            status count
+          }
         }`,
       );
-      console.log('# MyOrdered fetchData res');
-      console.dir({ total, list, transporting });
+      // console.log('# MyOrdered fetchData res');
+      // console.dir({ total, list, transporting, order_count });
       this.total = total;
 
       // 입력값 다듬기
@@ -663,6 +685,11 @@ export default {
         'returning',
       ].includes(status);
     },
+    showReqExchange(status) {
+      return ['transporting', 'transport_success', 'deal_success'].includes(
+        status,
+      );
+    },
     showDetailClicked(orderIndex) {
       this.detail = { ...this.orders[orderIndex] };
       this.$bvModal.show('order-detail');
@@ -674,6 +701,7 @@ export default {
     reqExchangeClicked(orderIndex) {
       // todo
     },
+    reqCancelOrder(orderIndex) {},
     linkGen(pageNum) {
       return { name: 'MyOrdered', params: { page: pageNum } };
     },
@@ -938,7 +966,6 @@ select.condition {
 }
 
 .myordered-pagination {
-  
   align-self: stretch;
 }
 </style>

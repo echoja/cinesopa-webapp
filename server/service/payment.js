@@ -1,8 +1,8 @@
 require('../typedef');
 
 /**
- * 
- * @param {Orderinfo} order 
+ *
+ * @param {Orderinfo} order
  */
 const getTotalPrice = (order) => {
   if (!order) {
@@ -10,14 +10,14 @@ const getTotalPrice = (order) => {
   }
 
   const flatted = order.items.map((item) => item.options ?? []).flat(Infinity);
-    // console.log(flatted);
+  // console.log(flatted);
   const totalPrice =
-      flatted.reduce(
-        (acc, option) => acc + (option.count ?? 0) * (option.price ?? 0),
-        0,
-      ) + (order.transport_fee ?? 0);
+    flatted.reduce(
+      (acc, option) => acc + (option.count ?? 0) * (option.price ?? 0),
+      0,
+    ) + (order.transport_fee ?? 0);
   return totalPrice;
-}
+};
 
 class PaymentService {
   /**
@@ -50,6 +50,10 @@ class PaymentService {
   async finishPayment(id) {
     // order 가 없을 경우 에러
     const order = await this.db.getOrder(id);
+
+    // console.log('# payment finishPayment order');
+    // console.log(order);
+
     if (!order) {
       return { success: false, code: 'no_such_order' };
     }
@@ -65,22 +69,28 @@ class PaymentService {
     }
 
     // order 에서 총 가격을 구함
+    // console.log('# payment finishPayment order2');
     // console.log(order);
+
     const flatted = order.items.map((item) => item.options).flat(Infinity);
+    // console.log('# payment finishPayment flatted');
     // console.log(flatted);
+
     const totalPrice =
       flatted.reduce(
         (acc, option) => acc + (option.count ?? 0) * (option.price ?? 0),
         0,
       ) + (order.transport_fee ?? 0);
 
+    // console.log('# payment finishPayment totalPrice');
+    // console.log(totalPrice);
+
     // 삭제할 cartitemId 를 구함.
     const cartitemIds = order.items.map((cartitem) => cartitem.id);
     // console.log('# payment finishPayment cartitemIds');
     // console.log(cartitemIds);
-          
+
     // 검증 실시. 만약 검증에 실패했다면 결제를 취소함.
-    // console.log(totalPrice);
     const verifyResult = await this.bootpay.verifyPayment(
       order.bootpay_id,
       totalPrice,
@@ -95,7 +105,7 @@ class PaymentService {
       };
     }
 
-    // 결제 완료 업데이트, cartitem 삭제
+    // 결제 완료 업데이트 및 cartitem 삭제
     const promises = [
       this.db.updateOrder(id, { status: 'payment_success' }),
       ...cartitemIds.map((cartitemId) => this.db.removeCartitem(cartitemId)),

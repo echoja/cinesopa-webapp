@@ -50,16 +50,25 @@
           v-for="film in films"
           :key="film.id"
         >
-          <div class="poster-box">
-            <b-link @click="openApplicationModal(film)">
-              <b-img :src="`${film.poster_url}?size=common`" :alt="film.poster_alt"></b-img>
-            </b-link>
-          </div>
-          <div class="info-box">
-            <div class="film-title">
+          <div class="film-flex-wrapper">
+            <div class="poster-box">
               <b-link @click="openApplicationModal(film)">
-                {{ film.title }}
+                <b-img
+                  v-if="film.poster_url"
+                  :src="`${film.poster_url}?size=common`"
+                  :alt="film.poster_alt"
+                ></b-img>
+                <div v-else class="no-poster-img">
+                  포스터 준비중입니다.
+                </div>
               </b-link>
+            </div>
+            <div class="info-box">
+              <div class="film-title">
+                <b-link @click="openApplicationModal(film)">
+                  {{ film.title }}
+                </b-link>
+              </div>
             </div>
           </div>
         </div>
@@ -270,7 +279,7 @@ export default {
         this.tags[tagIndex].selected = false;
         this.currentTag = null;
       }
-      
+
       // 아니라면, 태그를 설정.
       else {
         this.currentTag = this.tags[tagIndex]?.name ?? '';
@@ -340,7 +349,7 @@ export default {
 }
 
 .tags-wrapper {
-  max-width: 400px;
+  max-width: 600px;
   margin: 0 auto;
   margin-bottom: 20px;
 }
@@ -349,6 +358,7 @@ export default {
   width: 100%;
   display: flex;
   justify-content: center;
+  flex-wrap: wrap;
 }
 
 .tag-link {
@@ -394,15 +404,39 @@ export default {
   padding-left: 30px;
   padding-right: 30px;
   margin-bottom: 50px;
+  display: flex;
+  align-items: stretch;
+}
+
+.film-flex-wrapper {
+  display: flex;
+  width: 100%;
+  flex-direction: column;
 }
 
 .poster-box {
   border: 1px solid #ddd;
+  flex: 1;
   margin-bottom: 10px;
+  display: flex;
+    justify-content: center;
+  align-items: center;
+  min-height: 250px;
 }
 
 .poster-box img {
   width: 100%;
+}
+
+.info-box {
+  flex: 0;
+}
+
+.no-poster-img {
+  // width: 100%;
+  // display: flex;
+  // flex-direction: column;
+
 }
 
 .film-title {

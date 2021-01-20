@@ -12,6 +12,7 @@
         검색
       </loading-button>
     </div>
+    <p class="description">상위 20개까지 검색됩니다.</p>
     <b-list-group>
       <b-list-group-item
         v-for="(film, filmIndex) in films"
@@ -111,6 +112,10 @@ export default {
 .search-box {
   display: flex;
   margin-bottom: 30px;
+}
+
+.description {
+  margin: 0;
 }
 .search-input {
   width: auto;

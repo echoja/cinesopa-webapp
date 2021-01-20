@@ -1,24 +1,44 @@
 <template>
   <div>
     <header class="p-3">
-      <h2>영화 관리<b-button class="new" :to="{ name: 'FilmNew' }">새 영화</b-button></h2>
+      <h2>
+        영화 관리<b-button class="new" :to="{ name: 'FilmNew' }"
+          >새 영화</b-button
+        >
+      </h2>
     </header>
     <div class="notice"><p>줄을 클릭하면 편집합니다.</p></div>
-    <b-table hover :fields="fields" :items="films" @row-clicked="rowClicked"></b-table>
+    <b-table
+      hover
+      :fields="fields"
+      :items="films"
+      @row-clicked="rowClicked"
+    ></b-table>
     <!-- {{ films }} -->
+    <b-pagination-nav
+      :link-gen="linkGen"
+      :number-of-pages="totalPages"
+      :value="page"
+      use-router
+    ></b-pagination-nav>
+    <!-- :vaulue="page" -->
   </div>
 </template>
 
 <script>
-import { BButton, BTable } from 'bootstrap-vue';
+import { BButton, BTable, BPaginationNav } from 'bootstrap-vue';
 import store from '@/store';
-import { graphql, filmsAdminQuery /* removeFilmMutation */ } from '@/api/graphql-client';
+import {
+  graphql,
+  filmsAdminQuery /* removeFilmMutation */,
+} from '@/api/graphql-client';
 import router from '@/router';
 
 export default {
   components: {
     BButton,
     BTable,
+    BPaginationNav,
   },
   name: 'Film',
   async created() {
@@ -27,6 +47,7 @@ export default {
   data() {
     return {
       total: 0,
+      perpage: 10,
       fields: [
         {
           key: 'id',
@@ -44,6 +65,22 @@ export default {
       films: [],
     };
   },
+  computed: {
+    page() {
+      if (this.$route.params.page === undefined) return 1;
+      return parseInt(this.$route.params.page, 10) ?? 1;
+    },
+    totalPages() {
+      const pages = Math.ceil(this.total / this.perpage);
+      if (pages <= 0) return 1;
+      return pages;
+    },
+  },
+  watch: {
+    $route() {
+      this.fetchFilms();
+    },
+  },
   methods: {
     async rowClicked(item) {
       store.commit('setErrorMsg', { message: item });
@@ -58,14 +95,16 @@ export default {
         },
       } = await graphql(filmsAdminQuery, {
         condition: {
-          page: 0,
-          perpage: 10,
+          page: this.page - 1,
+          perpage: this.perpage,
         },
       });
       // console.log(films);
       const list = films.map((value) => {
         const { id, title, people } = value;
-        const director = people ? people.find((person) => person.role_type === 'director') : null;
+        const director = people
+          ? people.find((person) => person.role_type === 'director')
+          : null;
         return {
           id,
           title,
@@ -75,6 +114,9 @@ export default {
       console.log(list);
       this.films = list;
       this.total = total;
+    },
+    linkGen(page) {
+      return { name: 'AdminFilmPaged', params: { page } };
     },
   },
 };
