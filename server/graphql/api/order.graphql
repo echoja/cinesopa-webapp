@@ -28,6 +28,7 @@ type Order {
   transport_company: String # 택배 회사
   transport_fee: Int
   bootpay_id: String
+  bootpay_payment_info: JSON
   meta: JSON
   items: [CartItem]
   dest: Destinfo
@@ -47,6 +48,7 @@ input OrderInput {
   transport_company: String # 택배 회사
   transport_fee: Int
   bootpay_id: String
+  bootpay_payment_info: JSON
   meta: JSON
   dest: DestinfoInput
   payer: String

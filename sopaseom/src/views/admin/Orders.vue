@@ -2,7 +2,7 @@
   <div class="admin-orders">
     <header>
       <h2>주문 목록</h2>
-      <p>행을 클릭하면 자세한 내용 열람 및 편집이 가능합니다. </p>
+      <p>행을 클릭하면 자세한 내용 열람 및 편집이 가능합니다.</p>
     </header>
     <h2 class="filter-title">필터</h2>
     <div class="filter">
@@ -73,6 +73,11 @@
       <!-- <template #cell(status)="{ item }">
         {{ item.status === 'show' ? '공개' : '비공개' }}
       </template> -->
+      <template #cell()="{ value }">
+        <span class="text-break">
+          {{ value }}
+        </span>
+      </template>
       <template #cell(c_date)="{ item }">
         <span class="text-break">
           {{ formatDate(item.c_date) }}
@@ -163,11 +168,19 @@
           <form-row title="결제 수단">
             {{ paymentMethodMap[editing.method] }}
           </form-row>
+          <form-row title="총 결제액">
+            {{ toPrice(bpPrice) }}
+          </form-row>
           <form-row title="부트페이 영수증 번호">
             {{ editing.bootpay_id || '-' }}
-            <b-button size="sm" v-if="editing.bootpay_id">
+            <b-button
+              size="sm"
+              :href="bpReceipt_url"
+              target="_blank"
+              v-if="editing.bootpay_id"
+              class="ml-2"
+            >
               영수증 정보 확인하기
-              <!-- todo -->
             </b-button>
           </form-row>
           <form-row title="주문일">
@@ -203,6 +216,10 @@
           </form-row>
           <form-row title="송장번호">
             <b-form-input v-model="editing.transport_number"> </b-form-input>
+            <delivery-tracker-button
+              :carrier-id="editing.transport_company"
+              :transport-number="editing.transport_number"
+            ></delivery-tracker-button>
           </form-row>
           <form-row title="배송비">
             {{ toPrice(editing.transport_fee) }}
@@ -337,7 +354,6 @@ import LoadingButton from '@/components/LoadingButton.vue';
 import { mapActions } from 'vuex';
 import { statusMap, toPrice, paymentMethodMap } from '@/util';
 import axios from 'axios';
-import { validate } from 'vee-validate';
 
 const ordersOnServer = makeSimpleQuery('ordersAdmin');
 const removeOrderOnServer = makeSimpleMutation('removeOrder');
@@ -360,6 +376,7 @@ export default {
     BFormRadioGroup,
     BFormRadio,
     BFormSelect,
+    DeliveryTrackerButton: () => import('@/components/DeliveryTrackerButton'),
   },
   data() {
     const now = new Date();
@@ -544,6 +561,12 @@ export default {
         perpage: 20,
       };
     },
+    bpPrice() {
+      return this.editing.bootpay_payment_info?.price;
+    },
+    bpReceipt_url() {
+      return this.editing.bootpay_payment_info?.receipt_url;
+    },
   },
   watch: {
     $route() {
@@ -682,6 +705,7 @@ export default {
           list { 
             id user status method c_date expected_date cancelled_date return_req_date payer
             cash_receipt transport_number transport_company transport_fee bootpay_id meta 
+            bootpay_payment_info
             items {
               id user added modified product_id usage
               product {
@@ -801,7 +825,7 @@ export default {
         return;
       }
 
-      // editing 으로부터 복사
+      // editing 으로부터 필요한 것만 복사
       const { id } = item;
       const inputKeys = [
         'user',
@@ -858,6 +882,7 @@ export default {
     async updateOrderCancelClicked(index) {
       await this.fetchData();
     },
+    checkBootpayReceiptClicked() {},
   },
 };
 </script>

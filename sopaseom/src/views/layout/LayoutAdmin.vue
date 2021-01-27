@@ -6,7 +6,7 @@
         <b-list-group>
           <b-list-group-item to="/admin"> 대시보드 </b-list-group-item>
           <b-list-group-item to="/admin/statistics"> 통계 </b-list-group-item>
-          <b-list-group-item to="/admin/file"> 파일 </b-list-group-item>
+          <b-list-group-item to="/admin/file"> 파일 <info description="파일 관리자를 엽니다. 파일을 업로드하여 추후에 에디터에서 이미지를 삽입하거나 첨부파일을 만들 수 있습니다."></info> </b-list-group-item>
           <b-list-group-item class="py-1 bg-light">
             cinesopa.kr
           </b-list-group-item>
@@ -199,6 +199,7 @@ export default {
     BListGroup,
     BListGroupItem,
     BAlert,
+    Info: () => import('@/components/admin/Info'),
   },
   computed: {
     ...mapState(['messages']),

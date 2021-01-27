@@ -104,10 +104,11 @@ class PaymentService {
         code: `verification_failed_${verifyResult.code}`,
       };
     }
+    // verifyResult.info.receipt_url
 
     // 결제 완료 업데이트 및 cartitem 삭제
     const promises = [
-      this.db.updateOrder(id, { status: 'payment_success' }),
+      this.db.updateOrder(id, { status: 'payment_success', bootpay_payment_info: verifyResult.info }),
       ...cartitemIds.map((cartitemId) => this.db.removeCartitem(cartitemId)),
     ];
     const results = await Promise.allSettled(promises);

@@ -362,11 +362,11 @@
             >
             <span class="m-0 m-md-2 footer-information-divider">|</span>
             <span class="m-0 m-md-2 footer-information-item"
-              >부산시 해운대구 재반로103번길 5, 3층</span
+              >{{ address || '부산시 해운대구 재반로103번길 5, 3층'}}</span
             >
             <span class="m-0 m-md-2 footer-information-divider">|</span>
             <span class="m-0 m-md-2 footer-information-item"
-              >coop.cinesopa@gmail.com</span
+              >{{ contact_email || 'coop.cinesopa@gmail.com' }}</span
             >
           </p>
         </div>
@@ -388,7 +388,7 @@
 <script>
 import { makeRequest } from './graphql-client';
 // import cssVars from 'css-vars-ponyfill';
-import { fixFocusScroll } from '@/util';
+import { fixFocusScroll, getOptionsFromServer } from '@/util';
 
 const getIsPublicFromServer = makeRequest('siteOption', {
   type: 'query',
@@ -422,6 +422,9 @@ export default {
         { label: '신청하기', route: { name: 'Distribution' } },
       ],
       is_site_public: true,
+      phone: '',
+      address: '',
+      contact_email: '',
       prevHeight: 0,
       showA: true,
       scrollY: 0,
@@ -540,6 +543,24 @@ export default {
       })
       .catch((err) => {
         console.error('#App getIsPublicFromServer Error!');
+        console.error(err);
+      });
+
+    // 옵션 설정을 서버로부터 불러오기
+    getOptionsFromServer('is_site_public', 'address', 'phone', 'contact_email')
+      .then((optionResults) => {
+        const [
+          is_site_public,
+          address,
+          phone,
+          contact_email,
+        ] = optionResults.map((option) => option.value);
+        this.is_site_public = is_site_public;
+        this.address = address;
+        this.phone = phone;
+        this.contact_email = contact_email;
+      })
+      .catch((err) => {
         console.error(err);
       });
   },

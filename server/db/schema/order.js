@@ -32,6 +32,7 @@ module.exports = (mongoose) => {
     }, // 택배 회사 (코드)
     transport_fee: Number,
     bootpay_id: String, // 부트페이 검증용 id
+    bootpay_payment_info: mongoose.Schema.Types.Mixed,
     meta: mongoose.Schema.Types.Mixed,
     items: [CartItem],
     dest: Destinfo,

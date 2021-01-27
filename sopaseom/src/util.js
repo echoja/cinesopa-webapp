@@ -1,5 +1,6 @@
 // import url from 'url';
 import axios from 'axios';
+import { makeSimpleQuery } from './api/graphql-client';
 
 export const numberWithCommas = (x) => {
   if (typeof x === 'number') {
@@ -10,7 +11,7 @@ export const numberWithCommas = (x) => {
 
 export const toPrice = (x) => `￦ ${numberWithCommas(x)}`;
 
-export const statusMap = {  
+export const statusMap = {
   order_received: '주문접수',
   payment_confirming: '결제확인중',
   payment_success: '결제완료',
@@ -150,4 +151,17 @@ export const getMovieInfo = async (movieCd) => {
     console.error(e);
     return { success: false, code: e.message, info: null };
   }
+};
+
+export const getOptionsFromServer = async (...names) => {
+  const req = makeSimpleQuery('siteOptions');
+  const optionResults = await req(
+    {
+      names,
+    },
+    `{
+    name value success code
+  }`,
+  );
+  return optionResults;
 };

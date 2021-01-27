@@ -283,6 +283,7 @@ import moment from 'moment';
 // import Swiper styles
 // import 'swiper/swiper-bundle.css';
 import Parallax from '../components/parallax.vue';
+import { getOptionsFromServer } from '@/util';
 
 // function getPosition(element) {
 //   let xPosition = 0;
@@ -569,6 +570,8 @@ export default {
 
     // 애니메이션 등록하기
     // this.$refs['img0-1'].addEventListener('animationiteration', this.changeAnimation, false);
+
+    
   },
 
   async beforeDestroy() {

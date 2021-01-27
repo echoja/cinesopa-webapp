@@ -44,7 +44,8 @@
           </div>
           <div>
             <div class="right-block">
-              부산광역시 해운대구 재반로103번길 5, 3층
+              {{ address }}
+              <!-- 부산광역시 해운대구 재반로103번길 5, 3층 -->
             </div>
             <div class="right-block">coop.cinesopa@gmail.com</div>
           </div>
@@ -63,6 +64,7 @@
 <script>
 import { BLink } from 'bootstrap-vue';
 import { mapState } from 'vuex';
+import { getOptionsFromServer } from '@/util';
 
 export default {
   props: ['simple'],
@@ -70,14 +72,29 @@ export default {
     BLink,
     CinesopaLogo: () => import('../components/CinesopaLogo.vue'),
   },
+  data() {
+    return {
+      address: '',
+      phone: '',
+      contact_email: '',
+    };
+  },
   computed: {
     ...mapState(['additionalFooterPaddingBottom']),
     isSimple() {
       return this.simple === '' || this.simple === true;
     },
   },
-  mounted() {
-    console.log({ msg: 'Footer-simple!!', simple: this.simple });
+  async mounted() {
+    // console.log({ msg: 'Footer-simple!!', simple: this.simple });
+    const options = await getOptionsFromServer(
+      'address',
+      'phone',
+      'contact_email',
+    );
+    this.address = options[0].value;
+    this.phone = options[1].value;
+    this.contact_email = options[2].value;
   },
 };
 </script>

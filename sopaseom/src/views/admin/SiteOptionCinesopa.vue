@@ -1,163 +1,42 @@
 <template>
   <div class="site-option-cinesopa">
     <h2>씨네소파 사이트 정보 수정</h2>
-
-    <table class="input-table form">
-      <tr
-        class="input-item"
-        v-for="(option, optionIndex) in Object.keys(form)"
-        :key="optionIndex"
-      >
-        <td class="input-title">
-          <label class="input-title-label" :for="`input-${option}`">
-            {{ form[option].label }}
-          </label>
-          <!-- <info v-if="form[option].description" :description="form[option].description"></info> -->
-        </td>
-        <td class="input-content">
-          <!-- 만약 현재 요소가 배열이라면 추가/삭제 등의 기능도 추가 -->
-          <div v-if="form[option].type === 'array'">
-            <table>
-              <tr>
-                <th
-                  v-for="(fieldObj, fieldObjIndex) in typedef[option]"
-                  :key="fieldObjIndex"
-                >
-                  {{ fieldObj.label }}
-                  <info v-if="fieldObj.description" :description="fieldObj.description"></info>
-                </th>
-                <th>삭제</th>
-              </tr>
-              <tr v-for="(row, rowIndex) in form[option].value" :key="rowIndex">
-                <td
-                  v-for="(field, fieldIndex) in Object.keys(row)"
-                  :key="fieldIndex"
-                >
-                  <!-- 필드가 string일 때 -->
-                  <div v-if="typedef[option][field].type === 'string'">
-                    <b-form-input size="sm" v-model="row[field]">
-                    </b-form-input>
-                  </div>
-                  <!-- 필드가 file일 때 -->
-                  <div v-else-if="typedef[option][field].type === 'file'">
-                    <div>
-                      <p class="mb-0">
-                        현재 파일 :
-                        {{ row[field].label ? row[field].label : '없음' }}
-                      </p>
-                    </div>
-                    <div>
-                      <b-button
-                        size="sm"
-                        style="min-width: 100px"
-                        @click="
-                          $bvModal.show(
-                            `input-file-${option}-${row.id}-${field}-modal`,
-                          )
-                        "
-                      >
-                        설정 및 교체
-                      </b-button>
-                      <b-modal
-                        size="xl"
-                        hide-header
-                        hide-footer
-                        :id="`input-file-${option}-${row.id}-${field}-modal`"
-                      >
-                        <file-manager
-                          :modal-id="`input-file-${option}-${row.id}-${field}-modal`"
-                          @file-manager-selected="
-                            fileManagerSelected(row[field], $event)
-                          "
-                        >
-                          <!-- // todo -->
-                        </file-manager>
-                      </b-modal>
-                    </div>
-                  </div>
-                </td>
-                <td>
-                  <b-button
-                    class="remove-item"
-                    @click="removeItem(form, option, fieldIndex)"
-                    >&times;</b-button
-                  >
-                </td>
-              </tr>
-            </table>
-            <div class="button">
-              <b-button @click="addRow(form, option)">추가</b-button>
-            </div>
-          </div>
-
-          <!-- 만약 현재 요소가 string 이라면 일반적으로 수행. -->
-          <b-form-input
-            :id="`input-${option}`"
-            v-else-if="form[option].type === 'string'"
-            v-model="form[option].value"
-          ></b-form-input>
-
-          <!-- 만약 현재 요소가 file 이라면 파일 매니저 불러오기. -->
-          <div v-else-if="form[option].type === 'file'">
-            <div>
-              <p>
-                현재 파일 :
-                {{ form[option].value ? form[option].file.label : '없음' }}
-              </p>
-            </div>
-            <div>
-              <b-button @click="$bvModal.show(`input-file-${option}-modal`)">
-                설정 및 교체하기
-              </b-button>
-              <b-modal
-                size="xl"
-                hide-header
-                hide-footer
-                :id="`input-file-${option}-modal`"
-              >
-                <file-manager
-                  :modal-id="`input-file-${option}-modal`"
-                  @file-manager-selected="
-                    fileManagerSelected(form[option], $event, true)
-                  "
-                ></file-manager>
-              </b-modal>
-            </div>
-          </div>
-
-          <!-- 만약 현재 요소가 boolean 이라면 체크박스 불러오기. -->
-          <b-form-checkbox
-            v-else-if="form[option].type === 'single_checkbox'"
-            v-model="form[option].value"
-          >
-            {{ form[option].description }}
-          </b-form-checkbox>
-        </td>
-      </tr>
-    </table>
-    <!--
-    <b-form class="form">
-      <b-form-group
+    <site-option-table>
+      <site-option-row
+        v-model="form.contact_email.value"
+        label="문의 이메일"
+        description="사이트를 방문하는 사람들 입장에서 볼 수 있는 사이트 문의 이메일입니다. 하단 푸터 영역에 표시됩니다."
+        type="string"
+      ></site-option-row>
+      <site-option-row
+        v-model="form.address.value"
         label="주소"
-        label-for="input-title"
-        label-cols-md="3"
-        label-align-md="right"
-        label-size="sm"
-      >
-        <b-form-input id="input-address" v-model="form.address.value">
-        </b-form-input>
-      </b-form-group>
-      <b-form-group
-        label="전화번호"
-        label-for="input-phone"
-        label-cols-md="3"
-        label-align-md="right"
-        label-size="sm"
-      >
-        <b-form-input id="input-phone" v-model="form.phone.value">
-        </b-form-input> -->
-    <!-- </b-form-group> -->
-    <!-- </b-form> -->
+        description="사이트를 방문하는 사람들 입장에서 볼 수 있는 사무실 주소입니다. 하단 푸터 영역에 표시됩니다."
+        type="string"
+      ></site-option-row>
+      <site-option-row
+        v-model="form.phone.value"
+        label="문의 전화번호"
+        description="사이트를 방문하는 사람들 입장에서 볼 수 있는 전화번호입니다. 하단 푸터 영역에 표시됩니다."
+        type="string"
+      ></site-option-row>
+      <site-option-row
+        v-model="form.is_site_public.value"
+        label="사이트 공개 여부"
+        description="사이트를 공개한다면 사이트에 정상적으로 접근할 수 있습니다."
+        type="single_checkbox"
+        checkbox-label="사이트를 공개합니다."
+      ></site-option-row>
+      <site-option-row
+        v-model="form.person.value"
+        :fields-obj="typedef.person"
+        label="사람들"
+        description="회사 소개에서 함께하는 사람들에
+        들어갈 사람들의 정보입니다. 씨네소파 구성원의 정보를
+        작성하면 됩니다."
+        type="table"
+      ></site-option-row>
+    </site-option-table>
     <hr />
     <b-button :disabled="disableConfirm" @click="confirmClicked"
       >변경사항 저장</b-button
@@ -167,37 +46,29 @@
 </template>
 
 <script>
-import {
-  BButton,
-  BFormInput,
-  VBToggle,
-  BModal,
-  BFormCheckbox,
-} from 'bootstrap-vue';
+import { BButton, VBToggle } from 'bootstrap-vue';
 import {
   siteOptionsQuery,
   graphql,
   getFileInfoQuery,
-  setSiteOptionsMutation,
+  makeSimpleMutation,
 } from '@/api/graphql-client';
-import FileManager from '@/components/FileManager.vue';
 
 import prettyPrintJson from 'pretty-print-json';
 import { mapActions } from 'vuex';
 
+const setSiteOptionsMutationReq = makeSimpleMutation('setSiteOptions');
+
 export default {
   components: {
-    BFormInput,
     BButton,
-    BModal,
-    BFormCheckbox,
-    FileManager,
-    Info: () => import('@/components/admin/Info'),
+    SiteOptionRow: () => import('@/components/admin/SiteOptionRow.vue'),
+    SiteOptionTable: () => import('@/components/admin/SiteOptionTable.vue'),
   },
   directives: {
     'b-toggle': VBToggle,
   },
-  name: 'Site',
+  name: 'SiteOptionCinesopa',
   data() {
     return {
       typedef: {
@@ -205,48 +76,63 @@ export default {
           id: {
             type: 'string',
             label: '식별자',
-            description: '내부적으로 구분짓기 위한 고유 id 값입니다. 겹치지만 않도록 1, 2, 3, 4... 로 설정해주시면 됩니다.',
-            editable: true,
+            description:
+              '내부적으로 구분짓기 위한 고유 id 값입니다. 겹치지만 않도록 1, 2, 3, 4... 로 설정해주시면 됩니다.',
           },
           name: {
             type: 'string',
             label: '이름',
-            description: '실제 사람의 이름을 적는 곳입니다.',
-            editable: true,
+            description: '실제 사람의 이름을 적습니다.',
           },
           nickname: {
             type: 'string',
             label: '닉네임',
-            editable: true,
           },
           position: {
             type: 'string',
             label: '직급',
-            editable: true,
+            description: '회사 내 직급이 있을 경우 적습니다. 예: 대표',
           },
           work: {
             type: 'string',
             label: '직무',
-            editable: true,
+            description: '어떤 일을 하는지에 관하여 적습니다. 예: 홍보마케팅',
           },
           email: {
             type: 'string',
             label: '이메일',
-            editable: true,
           },
           phone: {
             type: 'string',
             label: '전화번호',
-            editable: true,
           },
           image: {
             type: 'file',
             label: '이미지',
-            editable: true,
+            description: '손글씨 이미지를 설정합니다. 최대 크기는 400px * 200px 이고, 이미지의 비율이 맞지 않아도 칸에 올바르게 배치됩니다.'
           },
         },
       },
+      testTableFields: {
+        id: {
+          type: 'string',
+          label: '식별자',
+          description:
+            '내부적으로 구분짓기 위한 고유 id 값입니다. 겹치지만 않도록 1, 2, 3, 4... 로 설정해주시면 됩니다.',
+          editable: true,
+        },
+        name: {
+          type: 'file',
+          label: '이름',
+          description: '실제 사람의 이름을 적는 곳입니다.',
+          editable: true,
+        },
+      },
       form: {
+        contact_email: {
+          value: null,
+          type: 'string',
+        },
         address: {
           label: '주소',
           value: null,
@@ -257,16 +143,16 @@ export default {
           value: null,
           type: 'string',
         },
-        logo: {
-          label: '로고',
-          value: null,
-          type: 'file',
-          file: {
-            label: '',
-            mimetype: '',
-            fileurl: '',
-          },
-        },
+        // logo: {
+        //   label: '로고',
+        //   value: null,
+        //   type: 'file',
+        //   file: {
+        //     label: '',
+        //     mimetype: '',
+        //     fileurl: '',
+        //   },
+        // },
         person: {
           label: '사람들',
           type: 'array',
@@ -338,82 +224,44 @@ export default {
     async confirmClicked() {
       // console.log('# confirmClicked');
       // console.log(this.form);
-      const inputs = Object.keys(this.form).map(
-        (name) =>
-          // const { type, value } = this.form[name];
-          // if (type === 'string') {
-          ({
-            name,
-            value: this.form[name].value,
-          }),
-        // }
-        // if (type === 'array') {
-        //   return value.map((row) => {
-        //     return Object.keys(row).map((deepName) => ({
-        //       name: `${name}-${row.id}-${deepName}`,
-        //       value:
-        //         typeof row[deepName] === 'string'
-        //           ? row[deepName]
-        //           : row[deepName].filename,
-        //     }));
-        //   });
-        // }
-      );
+      const inputs = Object.keys(this.form).map((name) => ({
+        name,
+        value: this.form[name].value,
+      }));
       // console.log(inputs);
       const inputsFlatted = inputs.flat(Infinity);
       // console.log(inputsFlatted);
       const filtered = inputsFlatted.filter((item) => item.value !== null);
       // console.log(filtered);
       // const res =
-      await graphql(setSiteOptionsMutation, {
-        inputs: filtered,
-      });
+
+      const res = await setSiteOptionsMutationReq(
+        { inputs: filtered },
+        `
+      {name, success, code}
+      `,
+      );
+      console.log('# SiteOptionCinesopa confirmClicked res');
+      console.log(res);
       // const result = res.data.setSiteOptions;
       // console.log(result);
-      this.pushMessage({
-        type: 'success',
-        msg: '설정을 성공적으로 업데이트 했습니다.',
-        id: 'siteOptionUpdateSuccess',
-      });
-    },
-    // onlyFilename 일 경우 obj.value 만 filename 으로 설정합니다.
-    async fileManagerSelected(obj, files, onlyFilename) {
-      const file = files[0];
-      if (onlyFilename) {
-        obj.value = file.filename;
-        obj.file.label = file.label;
-        obj.file.alt = file.alt;
-        return;
+      if (res.every((item) => item.success === true)) {
+        this.pushMessage({
+          type: 'success',
+          msg: '설정을 성공적으로 업데이트 했습니다.',
+          id: 'siteOptionUpdateSuccess',
+        });
+      } else {
+        const failMessage = res
+          .filter((item) => !item.success)
+          .map((item) => `${item.name}(${item.code})`)
+          .join(', ');
+        this.pushMessage({
+          type: 'danger',
+          msg: `다음 설정을 업데이트하지 못했습니다 > ${failMessage}`,
+          id: 'getSiteOptionFailed',
+        });
       }
-      obj.fileurl = file.fileurl;
-      obj.label = file.label;
-      obj.filename = file.filename;
-      obj.mimetype = file.mimetype;
-      obj.alt = file.alt;
-    },
-
-    async addRow(form, option) {
-      if (form[option].type !== 'array') {
-        return;
-      }
-      if (form[option].value === null) {
-        form[option].value = [];
-      }
-      console.log('# addRow');
-      console.log(form[option]);
-      const toPush = {};
-      Object.keys(this.typedef[option]).forEach((key) => {
-        const typedefFieldObj = this.typedef[option][key];
-        if (typedefFieldObj.type === 'file') {
-          toPush[key] = { label: '', fileurl: '', mimetype: '' };
-        } else {
-          toPush[key] = '';
-        }
-      });
-      form[option].value.push(toPush);
-    },
-    async removeItem(form, option, fieldIndex) {
-      form[option].value.splice(fieldIndex, 1);
     },
   },
 };

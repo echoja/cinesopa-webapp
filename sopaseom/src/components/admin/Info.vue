@@ -1,9 +1,14 @@
 <template>
   <span class="info-hover-component">
-    <b-link :id="elId">
+    <b-link :id="elId" @click="click">
       <font-awesome-icon :icon="['far', 'question-circle']"></font-awesome-icon>
     </b-link>
-    <b-tooltip :target="elId" triggers="hover">
+    <b-modal :id="modalId" v-if="isModal" ok-only title="상세 설명">
+      <slot>
+        {{ this.description }}
+      </slot>
+    </b-modal>
+    <b-tooltip :target="elId" triggers="hover" v-else>
       <slot>
         {{ this.description }}
       </slot>
@@ -12,7 +17,7 @@
 </template>
 
 <script>
-import { BLink, BTooltip } from 'bootstrap-vue';
+import { BLink, BModal, BTooltip } from 'bootstrap-vue';
 
 let uuid = 0;
 
@@ -20,11 +25,16 @@ export default {
   components: {
     BTooltip,
     BLink,
+    BModal,
   },
   props: {
     description: {
       type: String,
-      required: true,
+      default: '',
+    },
+    modal: {
+      type: [String, Boolean, Number, Object],
+      default: null,
     },
   },
   data() {
@@ -36,10 +46,23 @@ export default {
     elId() {
       return `info-button-${this.id}`;
     },
+    modalId() {
+      return `info-modal-${this.id}`;
+    },
+    isModal() {
+      return this.modal !== null;
+    },
   },
   created() {
     this.id = uuid.toString();
     uuid += 1;
+  },
+  methods: {
+    click() {
+      if (this.isModal) {
+        this.$bvModal.show(this.modalId);
+      }
+    },
   },
 };
 </script>
@@ -47,6 +70,9 @@ export default {
 <style lang="scss" scoped>
 .info-hover-component a {
   color: #aaa;
+}
+p {
+  margin: 0;
 }
 </style>
 
