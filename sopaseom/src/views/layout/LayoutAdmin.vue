@@ -48,7 +48,7 @@
             주문
           </b-list-group-item>
           <b-list-group-item to="/admin/sopaseom/application">
-            신청
+            상영 신청
           </b-list-group-item>
           <b-list-group-item to="/admin/sopaseom/user">
             사용자

@@ -43,18 +43,21 @@ export default {
     };
   },
   computed: {
+    /** @returns {string} */
     elId() {
       return `info-button-${this.id}`;
     },
+    /** @returns {string} */
     modalId() {
       return `info-modal-${this.id}`;
     },
+    /** @returns {boolean} */
     isModal() {
       return this.modal !== null;
     },
   },
   created() {
-    this.id = uuid.toString();
+    this.id = uuid;
     uuid += 1;
   },
   methods: {

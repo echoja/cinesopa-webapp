@@ -2,7 +2,10 @@
   <div class="form-row-wrapper">
     <div class="form-row">
       <div class="form-header">
-        <span>{{ title }}</span>
+        <span class="form-header-text">{{ title }}</span>
+        <info v-if="$slots.info" class="ml-2">
+          <slot name="info"> </slot>
+        </info>
       </div>
       <div class="form-content">
         <slot></slot>
@@ -18,8 +21,13 @@
 </template>
 
 <script>
+import Info from '@/components/admin/Info.vue';
+
 export default {
   props: ['title', 'description'],
+  components: {
+    Info,
+  },
 };
 </script>
 
@@ -47,6 +55,7 @@ export default {
   font-size: 14px;
   color: #777;
 }
+
 
 .form-row.fake .form-header {
   padding: 10px;

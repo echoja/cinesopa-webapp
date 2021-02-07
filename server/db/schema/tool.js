@@ -103,7 +103,7 @@ const getProductSearchStr = (prodDoc) => {
  * 해당 스키마에게 search 기능을 만드는 함수
  * @param {Schema} schema
  * @param {string} searchField
- *  @param {string[]} fields
+ *  @param {string[]} fields nested 값은 .으로 표현. 예: ['a', 'b.c', 'd']
  */
 const makeSchemaHaveSearch = (schema, searchField, fields) => {
   schema.pre('save', function () {

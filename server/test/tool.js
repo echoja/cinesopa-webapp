@@ -459,6 +459,16 @@ const randomDate = () => {
   return new Date(random.int(1990, 2020), random.int(1, 12), random.int(1, 20));
 };
 
+/**
+ * 폴더 안의 파일들을 삭제합니다.
+ * @param {string} fullpath 폴더의 경로
+ */
+const clearDirectory = async (directory) => {
+  const files = await fs.promises.readdir(directory)
+  const removePromises = files.map((file) => fs.promises.unlink(path.join(directory, file)))
+  await Promise.allSettled(removePromises);
+}
+
 // /**
 //  * @typedef {object} MockFile
 //  * @property {string} name
@@ -487,4 +497,5 @@ module.exports = {
   makeSimpleQuery,
   upload,
   randomDate,
+  clearDirectory,
 };

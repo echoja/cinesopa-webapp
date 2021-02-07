@@ -376,7 +376,7 @@ export default {
     BFormRadioGroup,
     BFormRadio,
     BFormSelect,
-    DeliveryTrackerButton: () => import('@/components/DeliveryTrackerButton'),
+    DeliveryTrackerButton: () => import('@/components/DeliveryTrackerButton.vue'),
   },
   data() {
     const now = new Date();
@@ -483,9 +483,11 @@ export default {
     };
   },
   computed: {
+    /** @returns {number} */
     page() {
-      return this.$route.query.page ?? 1;
+      return parseInt(this.$route.query.page, 10) ?? 1;
     },
+    /** @returns {object[]} */
     deliveryOptions() {
       const options = this.rawDeliveryOptions.map((delivery) => ({
         value: delivery.id,
@@ -494,6 +496,7 @@ export default {
       options.unshift({ value: null, text: '-- 선택하세요 --' });
       return options;
     },
+    /** @returns {object[]} */
     deliveryMap() {
       const map = this.rawDeliveryOptions.reduce((prev, current) => {
         prev[current.id] = current.name;
@@ -501,12 +504,15 @@ export default {
       }, {});
       return map;
     },
+    /** @returns {boolean} */
     checkedAll() {
       return this.items.every((value) => value.checked === true);
     },
+    /** @returns {boolean} */
     checkedAtleastOne() {
       return this.items.some((value) => value.checked === true);
     },
+    /** @returns {number} */
     totalPages() {
       const { perpage } = this.receivedCondition;
       const o = Math.ceil(this.total / perpage);
@@ -515,9 +521,11 @@ export default {
       // console.log(o);
       return o;
     },
+    /** @returns {boolean} */
     hasData() {
       return this.items.length !== 0;
     },
+    /** @returns {object[]} */
     orderStatusOptions() {
       const result = Object.keys(this.statusMap).map((key) => ({
         value: key,
@@ -529,6 +537,7 @@ export default {
       });
       return result;
     },
+    /** @returns {object[]} */
     methodOptions() {
       const result = Object.keys(this.paymentMethodMap).map((key) => ({
         value: key,
@@ -540,6 +549,7 @@ export default {
       });
       return result;
     },
+    /** @returns {object} */
     receivedCondition() {
       const {
         page = 1,
@@ -561,9 +571,11 @@ export default {
         perpage: 20,
       };
     },
+    /** @returns {number} */
     bpPrice() {
       return this.editing.bootpay_payment_info?.price;
     },
+    /** @returns {string} */
     bpReceipt_url() {
       return this.editing.bootpay_payment_info?.receipt_url;
     },
@@ -615,8 +627,8 @@ export default {
       );
     },
     rowClicked(item, index) {
-      console.log('# Orders rowClicked item');
-      console.log(item);
+      // console.log('# Orders rowClicked item');
+      // console.log(item);
       const origin = this.items[index]._showDetails;
       this.items.forEach((itemInLoop) => {
         itemInLoop._showDetails = false;

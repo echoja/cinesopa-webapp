@@ -1,15 +1,16 @@
 {
   "baseUrl": ".",
-  "include": [".src/**/*"],
   "compilerOptions": {
+    "checkJs": true,
     "baseUrl": ".",
     "module": "es2020",
     "target": "esnext",
+    "lib": ["esnext", "dom", "dom.iterable"],
     "moduleResolution": "node",
     "sourceMap": true,
     "paths": {
       "@/*": ["src/*"],
-    }
+    },
   },
   "exclude": ["node_modules"]
 }

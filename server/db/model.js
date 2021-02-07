@@ -10,21 +10,22 @@ schemaBuilder.Film = require('./schema/film');
 schemaBuilder.Menu = require('./schema/menu');
 schemaBuilder.Post = require('./schema/post');
 schemaBuilder.Product = require('./schema/product');
-schemaBuilder.Cartitem = require('./schema/cartitem')
+schemaBuilder.Cartitem = require('./schema/cartitem');
 schemaBuilder.Token = require('./schema/token');
 schemaBuilder.SiteOption = require('./schema/site-option');
 schemaBuilder.Sopakit = require('./schema/sopakit');
 schemaBuilder.Order = require('./schema/order');
 schemaBuilder.Tag = require('./schema/tag');
-
+schemaBuilder.Application = require('./schema/application');
 
 /**
  * 모델을 만들어 반환합니다.
+ * 
+ * @param {Mongoose} mongoose 
+ * @returns {Object.<string, Model<MongooseDocument, {}>>} mongoose Model 딕셔너리
  */
 function makeModule(mongoose) {
-  /**
-   * @type {Object.<string, Model<MongooseDocument, {}>>} mongoose Model 딕셔너리
-   */
+  /** @type {Object.<string, Model<MongooseDocument, {}>>} */
   const model = {};
   Object.keys(schemaBuilder).forEach((key) => {
     // console.log(key);
@@ -38,7 +39,6 @@ function makeModule(mongoose) {
 
 module.exports = {
   /**
-   *
    * @param {Mongoose} mongoose
    */
   make(mongoose) {

@@ -1,7 +1,7 @@
 {
   "baseUrl": ".",
-  "include": [".src/**/*"],
   "compilerOptions": {
+    "checkJs": true,
     "baseUrl": ".",
     "module": "es2020",
     "target": "esnext",

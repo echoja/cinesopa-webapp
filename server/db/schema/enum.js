@@ -68,6 +68,33 @@ const enumTransportCompany = makeEnum([
   'kr.cjlogistics', // cj 대한통운
   'kr.lotte', // 롯데택배
 ]);
+
+const enumApplicationTransportStatus = makeEnum([
+  'online', // 해당없음 (온라인 전송)
+  'yet_to_delivery', // 발송 대기중
+  'delivery_complete', // 발송 완료
+  'return_complete', // 회수 완료
+]);
+/** 세금계산서 관련 */
+const enumApplicationReceiptStatus = makeEnum([
+  'not_applicable', // 해당없음 (온라인 전송)
+  'pending', // 발행 대기중
+  'done', // 발행 완료
+]);
+const enumApplicationMoneyStatus = makeEnum([
+  'not_applicable', // 해당없음
+  'peinding_deposit', // 입금 대기중
+  'deposit_checked', // 입금 확인됨
+  'document_done', // 정산시트기입 완료
+  'invoice_done', // 정산 오완료
+]);
+/** 서류 상태 */
+const enumApplicationDocStatus = makeEnum([
+  'not_applicable', // 해당없음
+  'pending', // 필요 서류 확인중
+  'request_sended', // 서류 요청 보냄
+  'request_not_sended', // 서류 요청 보내지 않음
+]);
 module.exports = {
   enumAuthmap,
   enumPeopleRoleType,
@@ -86,5 +113,8 @@ module.exports = {
   enumFilmAvailableSubtitle,
   enumSopakitStatus,
   enumCartItemUsage,
-  enumTransportCompany,
+  enumApplicationDocStatus,
+  enumApplicationTransportStatus,
+  enumApplicationReceiptStatus,
+  enumApplicationMoneyStatus,
 };

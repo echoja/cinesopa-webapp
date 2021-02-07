@@ -34,6 +34,64 @@ export const paymentMethodMap = {
   kakao: '카카오페이',
 };
 
+/** 배송 관련 */
+export const applicationTransportStatusMap = {
+  online: '온라인 전송',
+  yet_to_delivery: '상영본 발송 대기중',
+  delivery_complete: '상영본 발송 완료',
+  return_complete: '상영본 회수 완료',
+};
+
+/** 세금계산서 관련 */
+export const applicationReceiptStatusMap = {
+  not_applicable: '세금계산서 발행 안함',
+  pending: '세금계산서 발행 대기중',
+  done: '세금계산서 발행 완료',
+};
+
+/** 정산 관련 */
+export const applicationMoneyStatusMap = {
+  not_applicable: '입금/정산 안함',
+  peinding_deposit: '입금 대기중',
+  deposit_checked: '입금 확인됨',
+  document_done: '정산시트기입 완료',
+  invoice_done: '정산 완료',
+};
+
+/** 서류 상태 */
+export const applicationDocStatusMap = {
+  not_applicable: '서류 해당 없음',
+  pending: '필요 서류 확인중',
+  request_sended: '서류 요청 보냄',
+  request_not_sended: '서류 요청 보내지 않음',
+};
+
+let rawDeliveryData = null;
+
+export const getDeliveryRawData = async () => {
+  if (rawDeliveryData) return rawDeliveryData;
+  const res = await axios.get('https://apis.tracker.delivery/carriers');
+  rawDeliveryData = res.data;
+  return rawDeliveryData;
+};
+export const getDeliveryOptions = async () => {
+  const raw = await getDeliveryRawData();
+  const options = raw.map((delivery) => ({
+    value: delivery.id,
+    text: delivery.name,
+  }));
+  options.unshift({ value: null, text: '-- 선택하세요 --' });
+  return options;
+};
+export const getDeliveryMap = async () => {
+  const raw = await getDeliveryRawData();
+  const map = raw.reduce((prev, current) => {
+    prev[current.id] = current.name;
+    return prev;
+  }, {});
+  return map;
+};
+
 export const transportCompanyMap = {
   'kr.epost': '우체국택배',
   'kr.cjlogistics': 'CJ 대한통운',
