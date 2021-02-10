@@ -335,7 +335,7 @@
                       <b-button
                         class="border-0"
                         size="sm"
-                        @click="downloadEstimateClicked(row)"
+                        @click="downloadEstimateClicked"
                       >
                         <font-awesome-icon
                           :icon="['fas', 'download']"
@@ -349,37 +349,113 @@
                 </div>
                 <div class="col">
                   <h4>업체에게 요청할 것</h4>
+                  <b-form-checkbox-group
+                    :options="docReceiveOptions"
+                    v-model="docReceive"
+                  >
+                    <b-form-checkbox value="receive">
+                      세금계산서 관련 정보 <br />
+                      (사업자등록증, 작성일자, 이메일)
+                    </b-form-checkbox>
+                  </b-form-checkbox-group>
                 </div>
               </div>
               <div class="row">
-                <div class="col">
-                </div>
+                <div class="col"></div>
               </div>
             </div>
           </form-row>
-          <form-row title="세금계산서 상태"></form-row>
-          <form-row title="서류 요청 상태"></form-row>
-          <form-row title="입금 예상일"></form-row>
-          <form-row title="정산 상태"></form-row>
-          <form-row title="업체 사업자등록증"></form-row>
-          <form-row title="세금계산서 작성 일자"></form-row>
-          <form-row title="세금계산서 발행 이메일"></form-row>
-          <form-row title="세금계산서 기타 요청"></form-row>
+          <form-row title="세금계산서 상태">
+            <b-form-select
+              :options="receiptStatusOptions"
+              v-model="editing.receipt_status"
+            ></b-form-select>
+          </form-row>
+          <form-row title="서류 요청 상태">
+            <b-form-select
+              :options="docStatusOptions"
+              v-model="editing.doc_status"
+            ></b-form-select>
+          </form-row>
+          <form-row title="입금 예상일">
+            <b-form-datepicker v-model="editing.deposit_date" value-as-date>
+            </b-form-datepicker>
+          </form-row>
+          <form-row title="정산 상태">
+            <b-form-select
+              :options="moneyStatusOptions"
+              v-model="editing.money_status"
+            >
+            </b-form-select>
+          </form-row>
+          <form-row title="업체 사업자등록증">
+            <b-button
+              size="sm"
+              @click="compLicenseDownloadClicked"
+              class="mr-2"
+              :disabled="compLicenseDownloadButtonDisabled"
+            >
+              <font-awesome-icon :icon="['fas', 'download']" class="mr-2" />
+
+              <span>다운로드</span></b-button
+            >
+            <b-button
+              size="sm"
+              @click="compLicenseUploadClicked"
+              variant="primary"
+            >
+              <font-awesome-icon :icon="['fas', 'upload']" class="mr-2" />
+              <span>직접 업로드</span></b-button
+            >
+          </form-row>
+          <form-row title="세금계산서 작성 일자">
+            <b-form-datepicker v-model="editing.receipt_date" value-as-date>
+            </b-form-datepicker>
+          </form-row>
+          <form-row title="세금계산서 발행 이메일">
+            <b-form-input v-model="editing.receipt_email"></b-form-input>
+          </form-row>
+          <form-row title="세금계산서 기타 요청">
+            <b-form-textarea
+              size="sm"
+              v-model="editing.receipt_etc_req"
+            ></b-form-textarea>
+          </form-row>
           <h3 class="detail-header">기타</h3>
-          <form-row title="기타 요청"></form-row>
-          <form-row title="메모"></form-row>
+          <form-row title="기타 요청">
+            <b-form-textarea
+              size="sm"
+              v-model="editing.etc_req"
+            ></b-form-textarea>
+          </form-row>
+          <form-row title="메모">
+            <b-form-textarea size="sm" v-model="editing.memo"></b-form-textarea>
+          </form-row>
+          <div class="d-flex position-sticky bottom-0">
+            <b-button @click="row.item._showDetails = false" class="mr-2"
+              >취소</b-button
+            >
+            <b-button @click="detailSaveButtonClicked" variant="primary">
+              <font-awesome-icon :icon="['fas', 'save']" class="mr-2" />
+              변경사항 저장</b-button
+            >
+          </div>
         </div>
       </template>
     </b-table>
     <!-- 우클릭-->
-    <b-button v-contextmenu="'hello'">TEST</b-button>
-    <context-menu id="hello">
+    <b-button v-contextmenu:hello="testNumber">TEST</b-button>
+    {{ testNumber }}
+    <context-menu #default="payload" id="hello">
       <h3 class="context-menu-header">
-        {{ contextItem.host }} {{ formatDate(contextItem.start_date) }} 상영
+        {{ contextMenuHeaderText }}
       </h3>
       <context-menu-button @click="TESTLinkClicked">
         테스트 링크
       </context-menu-button>
+      <!-- <pre>
+      {{ payload }}
+      </pre> -->
     </context-menu>
     <pre>{{ $cm._map }}</pre>
     <pre>
@@ -400,6 +476,7 @@ import {
   BFormCheckboxGroup,
   BTable,
   BFormCheckbox,
+  BFormTextarea,
 } from 'bootstrap-vue';
 import { debounce } from 'throttle-debounce';
 import moment from 'moment';
@@ -441,9 +518,11 @@ export default {
     FormRow,
     BFormSelect,
     BFormDatepicker,
+    BFormTextarea,
   },
   data() {
     return {
+      testNumber: 1,
       key: '',
       loading: false,
       transportStatusOptions: mapToOption(applicationTransportStatusMap),
@@ -495,7 +574,7 @@ export default {
       ],
       tableItems: [
         {
-          _showDetails: false,
+          _showDetails: true,
           host: '하나은행',
           start_date: new Date(),
           reqdoc_token: '1234',
@@ -504,8 +583,8 @@ export default {
           _showDetails: false,
           applicant_name: 'hi',
           applicant_phone: '123-456-789',
-          applicant_email: '이메일',
-          destination: '주소',
+          applicant_email: 'eszqsc112@naver.com',
+          destination: '부산시 구덕로 265번길 8',
         },
         { _showDetails: false },
       ],
@@ -517,6 +596,8 @@ export default {
       deliveryOptions: [],
       docSendOptions: [],
       docSend: [],
+      docReceiveOptions: [],
+      docReceive: [],
       transportEmailSendloading: false,
     };
   },
@@ -556,6 +637,18 @@ export default {
         return `상태: ${statuses.join(', ')}`;
       }
       return '상태 선택';
+    },
+    /** @returns {boolean} */
+    compLicenseDownloadButtonDisabled() {
+      return !!this.editing.business_license_url;
+    },
+    /** @returns {string} */
+    contextMenuHeaderText() {
+      return `${this.contextItem.host ?? '(주최없음)'} ${
+        this.contextItem.start_date
+          ? this.formatDate(this.contextItem.start_date)
+          : '(시작일없음)'
+      } 상영`;
     },
   },
   mounted() {
@@ -659,8 +752,20 @@ export default {
       this.contextItem = { ...item };
       this.$cm.show('hello', event);
     },
+    downloadEstimateClicked() {
+      // todo
+    },
+    compLicenseDownloadClicked() {
+      // todo
+    },
+    compLicenseUploadClicked() {
+      // todo
+    },
     TESTLinkClicked() {
       console.log('clicked!!!');
+    },
+    detailSaveButtonClicked() {
+      // todo
     },
   },
   name: 'Application',
@@ -705,7 +810,8 @@ export default {
 }
 .detail-header {
   margin-top: 30px;
-  font-size: 16px;
+  font-size: 18px;
+  font-weight: bold;
 }
 h3.context-menu-header {
   font-size: 12px;

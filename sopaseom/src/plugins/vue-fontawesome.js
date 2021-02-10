@@ -21,6 +21,7 @@ library.add(
   far.faFile,
   fas.faFileInvoiceDollar,
   fas.faWonSign,
+  fas.faSave,
 );
 
 Vue.component('font-awesome-icon', FontAwesomeIcon);

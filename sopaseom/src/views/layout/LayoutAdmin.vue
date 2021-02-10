@@ -286,4 +286,10 @@ body {
   /* transform: translateX(10px); */
   opacity: 0;
 }
+
+.btn-primary:hover {
+  color: #fff;
+  background-color: #555;
+  border-color: black;
+}
 </style>

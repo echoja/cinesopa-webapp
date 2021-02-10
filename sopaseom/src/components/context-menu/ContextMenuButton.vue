@@ -43,7 +43,7 @@ a {
   display: block;
 
   &:hover {
-    background-color: #ddd;
+    background-color: #eee;
     text-decoration: none;
   }
 }

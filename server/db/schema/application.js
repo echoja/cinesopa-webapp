@@ -46,9 +46,11 @@ module.exports = function (mongoose) {
       enum: enumApplicationReceiptStatus.raw_str_list,
     }, // 세금계산서 상태
     business_license_url: String, // 사업자등록증 url
+    deposit_date: Date, // 입금 예상일
     receipt_date: Date, // 세금계산서 발행 날짜
     receipt_email: String, // 세금계산서 발행 이메일
     receipt_etc_req: String, // 세금계산서 관련 기타 요청
+    
 
     reqdoc_token: String, // 서류 요청 토큰
     reqdoc_expire_date: Date, // 서류 요청 url 기한
