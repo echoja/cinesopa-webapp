@@ -246,8 +246,8 @@ export default {
   },
 
   watch: {
-    contentComputedForWatch(newValue, oldValue) {
-      console.log('# PostEdit contentComputedForWatch');
+    contentComputedForWatch() {
+      // console.log('# PostEdit contentComputedForWatch');
       this.dirty = true;
     },
   },

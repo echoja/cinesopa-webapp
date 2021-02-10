@@ -157,7 +157,6 @@
               </b-alert>
             </div>
           </transition-group>
-          <!-- @input="messageChanged($event, msgObj)" -->
         </div>
 
         <main class="admin-main">
@@ -212,7 +211,6 @@ import {
   BListGroupItem,
   BAlert,
 } from 'bootstrap-vue';
-import { store } from '@/loader';
 import Info from '@/components/admin/Info.vue';
 // const makeListItem = (to, label, color) => ({
 //   id: to,
@@ -273,16 +271,11 @@ export default {
     async someMethod() {
       // alert('hi');
     },
-    async onSuccessMsg(msg) {
+    async onSuccessMsg() {
       // alert(msg);
     },
     async messageDismissed(id) {
       this.removeMessage({ id });
-    },
-    async messageChanged(a, b) {
-      // console.log('mesageChanged');
-      // console.log(a);
-      // console.log(b);
     },
   },
   data: () => ({
