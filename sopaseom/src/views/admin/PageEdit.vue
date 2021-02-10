@@ -21,9 +21,7 @@
         <p>belongs_to : {{ belongs_to }}, mode: {{ mode }}</p>
         <p>oldPermalink: {{ oldPermalink }}</p> -->
       </template>
-      <template #sidebar>
-        Sidebar 영역
-      </template>
+      <template #sidebar> Sidebar 영역 </template>
     </wrap-with-editor>
   </div>
 </template>
@@ -31,7 +29,7 @@
 <script>
 import Editor from '@tinymce/tinymce-vue';
 import upload from '@/upload-client';
-import { BButton, BFormFile, BFormInput } from 'bootstrap-vue';
+import { BButton, BFormFile, BFormInput, BSpinner } from 'bootstrap-vue';
 import tinymceInit from '@/tinymce-configure';
 import {
   dataGraphql,
@@ -42,37 +40,14 @@ import {
 import router from '@/router';
 import WrapWithEditor from '../layout/WrapWithEditor.vue';
 
-// const getPageByIdQuery = `
-// query getPageById($id: String!) {
-//   pageById(id: $id) {
-//     id
-//     title
-//     content
-//     permalink
-//     c_date
-//   }
-// }
-// `;
-// tinymceConfigure();
-
-// import { singleUploadQuery } from '../graphql-client';
-
-// import { BFormFile } from 'bootstrap-vue';
-
-// const client = new GraphQLClient({
-//   url: '/graphql',
-//   fetch,
-//   FormData,
-// });
-
 export default {
   name: 'PageEdit',
   components: {
     Editor,
     WrapWithEditor,
     BButton,
-    BFormFile,
     BFormInput,
+    BSpinner,
   },
   data() {
     return {
@@ -92,7 +67,9 @@ export default {
   async created() {
     if (this.mode !== 'new') {
       const { id } = router.currentRoute.params;
-      const { pageById } = await dataGraphql(getPageByIdQuery, { id: parseInt(id, 10) });
+      const { pageById } = await dataGraphql(getPageByIdQuery, {
+        id: parseInt(id, 10),
+      });
       const self = this;
       ['content', 'title', 'permalink'].forEach((key) => {
         self[key] = pageById[key];
@@ -171,7 +148,10 @@ export default {
       console.log(this.file2);
       try {
         console.log(this.$refs['file-input']);
-        const result = await upload(this.$refs['file-input'].selectedFile, 'hi');
+        const result = await upload(
+          this.$refs['file-input'].selectedFile,
+          'hi',
+        );
         console.log(result);
       } catch (e) {
         console.log(e);

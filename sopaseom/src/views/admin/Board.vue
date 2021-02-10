@@ -16,7 +16,24 @@
       <p class="my-1">정말로 삭제하시겠습니까?</p>
     </b-modal>
 
-    <b-table :items="boards" :fields="boardFields" @row-clicked="rowClicked">
+    <b-table :items="boards" :fields="boardFields" @row-clicked="rowClicked" class="width-auto">
+      <template #head(permalink)="{ label }">
+        <span class="mr-2">{{ label }}</span>
+        <info
+          >게시판의 url을 결정할 때 사용되며, 동시에 게시판의 고유값입니다.
+          (다른 게시판과 겹치면 안 됩니다.)</info
+        >
+      </template>
+      <template #head(title)="{ label }">
+        <span class="mr-2">{{ label }}</span>
+        <info>게시판의 제목입니다.</info>
+      </template>
+      <template #head(description)="{ label }">
+        <span class="mr-2">{{ label }}</span>
+        <info>
+          게시판의 설명입니다. (현재 나타나는 화면은 없습니다.)
+        </info>
+      </template>
       <template #cell(permalink)="row">
         <div class="text-monospace">
           {{ row.value }}
@@ -142,31 +159,13 @@ import {
 } from 'bootstrap-vue';
 import { mapActions } from 'vuex';
 import { queryString, graphql } from '@/loader';
-
-/**
- *
- *
-index	{Number}	The row's index (zero-based) with respect to the displayed rows
-item	Object	The row's item data object
-value	Any	The value for this key in the record (null or undefined if a virtual column), or the
-output of the field's formatter function
-unformatted	Any	The raw value for this key in the item record (null or undefined if a virtual
- column), before being passed to the field's formatter function
-field	Object	The field's normalized definition object (from the fields prop)
-detailsShowing	Boolean	Will be true if the row's row-details scoped slot is visible
-toggleDetails	Function	Can be called to toggle the visibility of the rows row-details scoped slot
-rowSelected	Boolean	Will be true if the row has been selected. Only applicable when table is in
-selectable mode
-selectRow v2.1.0+	Function	Can be called to select the current row. Only applicable when table
- is in selectable mode
-unselectRow v2.1.0+	Function	Can be called to unselect the current row. Only applicable when
- table is in selectable mode
- */
-// import { mapState } from 'vuex';
+import Info from '@/components/admin/Info.vue';
 
 export default {
   name: 'Board',
-  props: ['belongs_to'],
+  props: {
+    belongs_to: String,
+  },
   components: {
     BButton,
     BButtonGroup,
@@ -176,6 +175,7 @@ export default {
     BFormGroup,
     BFormInput,
     BModal,
+    Info,
   },
   data() {
     return {
@@ -212,6 +212,7 @@ export default {
           label: '행동',
         },
       ],
+      /** @type {*} */
       boards: [
         {
           id: 1,
@@ -230,20 +231,20 @@ export default {
     };
   },
   computed: {
+    /** @returns {boolean} */
     hasData() {
       return this.boards.length !== 0;
     },
   },
 
-  async created() {
-    return this.setDataFromServer();
-
-    // console.log(datas);
+  mounted() {
+    this.fetchData();
   },
   methods: {
     ...mapActions(['pushMessage']),
+    pushMessage: mapActions(['pushMessage']).pushMessage,
 
-    async setDataFromServer() {
+    async fetchData() {
       this.state.processing.get = true;
       this.boards = [];
       const res = await graphql(queryString.board.boardsQuery, {
@@ -339,7 +340,7 @@ export default {
       // if (result)
 
       row.toggleDetails();
-      this.setDataFromServer();
+      this.fetchData();
       // console.log('createBoard!');
       // console.log(row);
     },
@@ -367,7 +368,7 @@ export default {
           id: 'failUpdateBoard',
         });
       }
-      this.setDataFromServer();
+      this.fetchData();
     },
     async removeBoard() {
       const row = this.removingRow;
@@ -387,7 +388,7 @@ export default {
           id: 'failRemoveBoard',
         });
       }
-      this.setDataFromServer();
+      this.fetchData();
       this.removingRow = null;
     },
 

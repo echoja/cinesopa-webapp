@@ -1,7 +1,9 @@
 <template>
   <div>
     <!-- field settings required -->
-    <h2>{{ belongs_to }}의 페이지 목록</h2>
+    <header>
+      <h2>{{ belongs_to }}의 페이지 목록</h2>
+    </header>
     <div class="actions">
       <b-button :to="{ name: newPageName }">새 페이지</b-button>
     </div>
@@ -51,10 +53,12 @@ export default {
     BSpinner,
   },
   computed: {
+    /** @returns {string} */
     newPageName() {
       if (this.belongs_to === 'cinesopa') return 'CinesopaNewPage';
       return 'SopaseomNewPage';
     },
+    /** @returns {boolean} */
     hasNoData() {
       return this.state.dataLoaded && this.pages.length === 0;
     },

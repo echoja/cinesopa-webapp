@@ -16,48 +16,38 @@
             class="flex-grow-1"
           ></b-form-input>
         </b-form-group>
-        <!-- <div class="toolbar">
-          <b-button @click="$bvModal.show('media-insert-modal')">
-            파일/이미지 삽입
-          </b-button>
-          <b-modal hide-footer hide-header id="media-insert-modal" size="xl">
-            <file-manager
-              @file-manager-selected="fileSelected"
-              modalId="media-insert-modal"
-              :selectOnlyOne="false"
-            ></file-manager>
-          </b-modal>
-          <b-button @click="test1">테스트</b-button>
-        </div> -->
-        <!-- <div
-          v-if="!state.editorLoaded"
-          class="h-25 d-flex p-2 justify-content-center align-items-center"
-        >
-          <b-spinner variant="secondary" class="m-2 small"></b-spinner>
-          <p class="m-0">에디터 로딩중입니다.</p>
-        </div>
-
-        <editor
-          ref="editor"
-          api-key="gt5higoqzglgrwcu9r7cdbmj408cva4csd4aj2y6qvcr5i5r"
-          v-model="input.content"
-          :init="editorInit"
-          @onInit="onEditorInit"
-        /> -->
         <common-editor height="600" v-model="input.content"></common-editor>
       </div>
+      <b-modal
+        title="다른 페이지로 이동중입니다."
+        id="confirm-routing"
+        @ok="confirmRoutingOk"
+        ok-title="예"
+        cancel-title="아니오"
+      >
+        아직 변경사항이 적용되지 않았습니다. 이동하시겠습니까?
+      </b-modal>
     </template>
     <template #sidebar>
       <!-- :disabled="!changed" -->
       <b-button variant="primary" @click="confirm">{{
         mode === 'new' ? '생성' : '업데이트'
       }}</b-button>
+      <!-- <p class="small m-0">자동저장 기능이 없으므로 수시로 업데이트 해주세요.</p> -->
+      <p v-if="dirty" class="small m-0 text-red">
+        현재 본문에 변경사항이 있습니다.
+      </p>
+
       <hr />
-      <b-form-group
-        id="input-excerpt-group"
-        label="요약"
-        label-for="input-excerpt"
-      >
+      <b-form-group id="input-excerpt-group" label-for="input-excerpt">
+        <template #label>
+          <span class="mr-2">요약</span>
+          <info>
+            게시판 레이아웃에 따라 필요합니다. 만약 요약이 설정되어 있지 않을
+            경우 게시글 내용 첫 부분의 일정 크기만큼 가져옵니다.<br />
+            (현재 요약은 사용되지 않습니다.)
+          </info>
+        </template>
         <b-form-textarea
           id="input-excerpt"
           name="input-excerpt"
@@ -66,7 +56,7 @@
       </b-form-group>
       <b-form-group
         id="input-status-group"
-        label="글 상태"
+        label="공개 여부"
         label-for="input-status"
       >
         <b-form-select
@@ -77,11 +67,14 @@
           :options="options.status"
         ></b-form-select>
       </b-form-group>
-      <b-form-group
-        id="input-c_date-group"
-        label="날짜"
-        label-for="input-c_date"
-      >
+      <b-form-group id="input-c_date-group" label-for="input-c_date">
+        <template #label>
+          <span class="mr-2">작성일</span>
+          <info>
+            작성일을 별도로 설정합니다. <br />게시글을 정렬할 때 기준으로
+            설정됩니다.
+          </info>
+        </template>
         <b-form-datepicker
           value-as-date
           id="input-c_date"
@@ -90,11 +83,11 @@
           locale="ko"
         ></b-form-datepicker>
       </b-form-group>
-      <b-form-group
-        id="input-board-group"
-        label="게시판"
-        label-for="input-board"
-      >
+      <b-form-group id="input-board-group" label-for="input-board">
+        <template #label>
+          <span class="mr-2">게시판</span>
+          <info> 어떤 게시판에 쓸 것인지를 결정합니다. </info>
+        </template>
         <b-form-select
           id="input-board"
           name="input-board"
@@ -104,9 +97,16 @@
       </b-form-group>
       <b-form-group
         id="input-featured_image-group"
-        label="대표 이미지"
         label-for="input-featured_image"
       >
+        <template #label>
+          <span class="mr-2">대표 이미지</span>
+          <info>
+            아카이브와 같은 갤러리형 게시판에서 나타날 이미지를 설정합니다. 대표
+            이미지가 설정되어야 이미지가 제대로 표시됩니다.
+            <small>(본문에서 자동으로 가져오지 않습니다.)</small>
+          </info>
+        </template>
         <!-- <b-form-select
           id="input-board"
           name="input-board"
@@ -169,9 +169,10 @@ import FileManager from '@/components/FileManager.vue';
 import tinymceInit from '@/tinymce-configure';
 import { queryString, graphql } from '@/loader';
 import { baseUrl } from '@/constants';
-import WrapWithEditor from '../layout/WrapWithEditor.vue';
+import WrapWithEditor from '@/views/layout/WrapWithEditor.vue';
+import Info from '@/components/admin/Info.vue';
 
-/** @type {import('@types/tinymce')} */
+/** @type {import('tinymce').Editor} */
 // let editor = null;
 
 export default {
@@ -190,12 +191,16 @@ export default {
     BFormInput,
     // BSpinner,
     BImg,
-    CommonEditor: () => import('@/components/admin/CommonEditor'),
+    CommonEditor: () => import('@/components/admin/CommonEditor.vue'),
+    Info,
   },
   props: ['belongs_to', 'mode'],
   data() {
     return {
-      /** @type {import('@types/tinymce')} */
+      dirty: false,
+      /** @type {import('vue-router').Route} */
+      leaveTo: null,
+      /** @type {import('tinymce').Editor} */
       editor: null,
       featured_image_link: '',
       state: {
@@ -226,15 +231,31 @@ export default {
     };
   },
   computed: {
+    /** @returns {object} */
     editorInit() {
       return tinymceInit();
     },
+    /** @returns {string} */
     id() {
       return this.$route.params.id;
+    },
+    /** @returns {string} */
+    contentComputedForWatch() {
+      return this.input.content;
+    },
+  },
+
+  watch: {
+    contentComputedForWatch(newValue, oldValue) {
+      console.log('# PostEdit contentComputedForWatch');
+      this.dirty = true;
     },
   },
 
   async mounted() {
+    // beforeunload 설정
+    window.addEventListener('beforeunload', this.onBeforeunload);
+
     // 게시판 초기화 설정
     const res = await graphql(queryString.board.boardsQuery, {
       belongs_to: this.belongs_to,
@@ -274,10 +295,29 @@ export default {
       // this.input.
     }
 
+    // dirty 설정.
+    this.$nextTick(() => {
+      this.dirty = false;
+    });
+
     // tinymce 테스트
   },
+  beforeDestroy() {
+    window.removeEventListener('beforeunload', this.onBeforeunload);
+  },
+  beforeRouteLeave(to, from, next) {
+    console.log('# PostEdit beforeRouteLeave');
+    if (typeof this.onBeforeunload() === 'string') {
+      this.$bvModal.show('confirm-routing');
+      this.leaveTo = to;
+      next(false);
+    } else {
+      // Navigate to next view
+      next();
+    }
+  },
   methods: {
-    ...mapActions(['pushMessage']),
+    pushMessage: mapActions(['pushMessage']).pushMessage,
     // onEditorInit(ev, tinymce) {
     //   this.editor = tinymce;
     //   this.state.editorLoaded = true;
@@ -302,6 +342,7 @@ export default {
         msg: '새 글이 성공적으로 작성되었습니다.',
         id: 'postCreateSuccess',
       });
+      this.dirty = false;
       this.$router.push({ name: 'PostEdit', params: { id } });
     },
 
@@ -320,6 +361,7 @@ export default {
             msg: '글이 성공적으로 수정되었습니다.',
             id: 'postUpdateSuccess',
           });
+          this.dirty = false;
         })
         .catch((err) => {
           this.pushMessage({
@@ -361,6 +403,23 @@ export default {
       );
       console.log(event);
       console.log(values);
+    },
+    onBeforeunload(e = {}) {
+      if (this.dirty) {
+        const msg = '변경사항이 있습니다. 정말 나가시겠습니까?';
+
+        // Cancel the event
+        if (e.preventDefault) e.preventDefault(); // If you prevent default behavior in Mozilla Firefox prompt will always be shown
+        // Chrome requires returnValue to be set
+        e.returnValue = msg;
+        return msg;
+      }
+      delete e.returnValue;
+      return undefined;
+    },
+    confirmRoutingOk() {
+      this.dirty = false;
+      this.$router.push(this.leaveTo);
     },
   },
 };

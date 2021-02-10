@@ -58,7 +58,7 @@ module.exports = function (mongoose) {
     search: String, // 검색 필드
     etc_req: String, // 기타 요청
     memo: String, // 메모
-    play_memo_down: String, // 메모 강조 표시를 해제함.
+    memo_unremarked: Boolean, // 메모 강조 표시를 해제함.
     meta: mongoose.Schema.Types.Mixed,
   });
   autoIdSetter(schema, mongoose, 'application', 'id');

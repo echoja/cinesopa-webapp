@@ -1,215 +1,50 @@
 <template>
   <div class="site-option-cinesopa">
-    <h2>소파섬 사이트 정보 수정</h2>
+    <header>
+      <h2>소파섬 사이트 정보 수정</h2>
+    </header>
 
-    <table class="input-table form">
-      <tr
-        class="input-item"
-        v-for="(option, optionIndex) in Object.keys(form)"
-        :key="optionIndex"
-      >
-        <td class="input-title">
-          <label class="input-title-label" :for="`input-${option}`">
-            {{ form[option].label }}
-          </label>
-        </td>
-        <td class="input-content">
-          <!-- 만약 현재 요소가 배열이라면 추가/삭제 등의 기능도 추가 -->
-          <div v-if="form[option].type === 'array'">
-            <table>
-              <tr>
-                <th
-                  v-for="(fieldObj, fieldObjIndex) in typedef[option]"
-                  :key="fieldObjIndex"
-                >
-                  {{ fieldObj.label }}
-                </th>
-                <th>삭제</th>
-              </tr>
-              <tr v-for="(row, rowIndex) in form[option].value" :key="rowIndex">
-                <td
-                  v-for="(field, fieldIndex) in Object.keys(row)"
-                  :key="fieldIndex"
-                >
-                  <!-- 필드가 string일 때 -->
-                  <div v-if="typedef[option][field].type === 'string'">
-                    <b-form-input size="sm" v-model="row[field]">
-                    </b-form-input>
-                  </div>
-
-                  <!-- 필드가 file일 때 -->
-                  <div v-else-if="typedef[option][field].type === 'file'">
-                    <div>
-                      <p class="mb-0">
-                        현재 파일 :
-                        {{ row[field].label ? row[field].label : '없음' }}
-                      </p>
-                    </div>
-                    <div>
-                      <b-button
-                        size="sm"
-                        style="min-width: 100px"
-                        @click="
-                          $bvModal.show(
-                            `input-file-${option}-${row.id}-${field}-modal`,
-                          )
-                        "
-                      >
-                        설정 및 교체
-                      </b-button>
-                      <b-modal
-                        size="xl"
-                        hide-header
-                        hide-footer
-                        :id="`input-file-${option}-${row.id}-${field}-modal`"
-                      >
-                        <file-manager
-                          :modal-id="`input-file-${option}-${row.id}-${field}-modal`"
-                          @file-manager-selected="
-                            fileManagerSelected(row[field], $event)
-                          "
-                        >
-                          <!-- // todo -->
-                        </file-manager>
-                      </b-modal>
-                    </div>
-                  </div>
-                </td>
-                <td>
-                  <b-button
-                    class="remove-item"
-                    @click="removeItem(form, option, fieldIndex)"
-                    >&times;</b-button
-                  >
-                </td>
-              </tr>
-            </table>
-            <div class="button">
-              <b-button @click="addRow(form, option)">추가</b-button>
-            </div>
-          </div>
-
-          <!-- 만약 현재 요소가 string 이라면 일반적으로 수행. -->
-          <b-form-input
-            :id="`input-${option}`"
-            v-else-if="form[option].type === 'string'"
-            v-model="form[option].value"
-          ></b-form-input>
-
-          <!-- 만약 현재 요소가 file 이라면 파일 매니저 불러오기. -->
-          <div v-else-if="form[option].type === 'file'">
-            <div>
-              <p>
-                현재 파일 :
-                {{ form[option].value ? form[option].file.label : '없음' }}
-              </p>
-            </div>
-            <div>
-              <b-button @click="$bvModal.show(`input-file-${option}-modal`)">
-                설정 및 교체하기
-              </b-button>
-              <b-modal
-                size="xl"
-                hide-header
-                hide-footer
-                :id="`input-file-${option}-modal`"
-              >
-                <file-manager
-                  :modal-id="`input-file-${option}-modal`"
-                  @file-manager-selected="
-                    fileManagerSelected(form[option], $event, true)
-                  "
-                ></file-manager>
-              </b-modal>
-            </div>
-          </div>
-
-          <!-- 만약 현재 요소가 boolean 이라면 체크박스 불러오기. -->
-          <b-form-checkbox
-            v-else-if="form[option].type === 'single_checkbox'"
-            v-model="form[option].value"
-          >
-            {{ form[option].description }}
-          </b-form-checkbox>
-
-          <!-- 만약 현재 요소가 editor 이라면 데이터 불러오기. -->
-          <common-editor
-            v-else-if="form[option].type === 'editor'"
-            v-model="form[option].value"
-            height="500"
-          ></common-editor>
-
-                    <!-- 만약 현재 요소가 number 라면 number 용 input 생성 -->
-          <b-form-input
-            :id="`input-${option}`"
-            v-else-if="form[option].type === 'number'"
-            v-model="form[option].value"
-            number
-            type="number"
-          ></b-form-input>
-
-        </td>
-      </tr>
-    </table>
-    <!--
-    <b-form class="form">
-      <b-form-group
-        label="주소"
-        label-for="input-title"
-        label-cols-md="3"
-        label-align-md="right"
-        label-size="sm"
-      >
-        <b-form-input id="input-address" v-model="form.address.value">
-        </b-form-input>
-      </b-form-group>
-      <b-form-group
-        label="전화번호"
-        label-for="input-phone"
-        label-cols-md="3"
-        label-align-md="right"
-        label-size="sm"
-      >
-        <b-form-input id="input-phone" v-model="form.phone.value">
-        </b-form-input> -->
-    <!-- </b-form-group> -->
-    <!-- </b-form> -->
+    <site-option-table>
+      <site-option-row
+        v-model="form.transportation_fee.value"
+        :label="form.transportation_fee.label"
+        description="모든 상품의 배송비를 일괄 설정합니다. 현재 상품별로 배송비를 설정할 수는
+        없습니다. 이미 결제가 완료된 주문의 배송비도 수정할 수 없습니다."
+        :type="form.transportation_fee.type"
+      ></site-option-row>
+      <site-option-row
+        v-model="form.default_notice.value"
+        :label="form.default_notice.label"
+        description="매 상품 설명 페이지 하단에 들어가는 공통 공지의 기본값을 설정합니다. 각 상품 편집에서 이 설정을 덮어쓸 수 있습니다."
+        :type="form.default_notice.type"
+      ></site-option-row>
+    </site-option-table>
     <hr />
     <b-button :disabled="disableConfirm" @click="confirmClicked"
       >변경사항 저장</b-button
     >
-    <pre v-html="prettied"></pre>
   </div>
 </template>
 
 <script>
-import {
-  BButton,
-  BFormInput,
-  VBToggle,
-  BModal,
-  BFormCheckbox,
-} from 'bootstrap-vue';
+import { BButton, VBToggle } from 'bootstrap-vue';
 import {
   siteOptionsQuery,
   graphql,
   getFileInfoQuery,
   setSiteOptionsMutation,
 } from '@/api/graphql-client';
-import FileManager from '@/components/FileManager.vue';
-import CommonEditor from '@/components/admin/CommonEditor.vue';
 
-import prettyPrintJson from 'pretty-print-json';
+import SiteOptionRow from '@/components/admin/SiteOptionRow.vue';
+import SiteOptionTable from '@/components/admin/SiteOptionTable.vue';
+
 import { mapActions } from 'vuex';
 
 export default {
   components: {
-    BFormInput,
     BButton,
-    BModal,
-    BFormCheckbox,
-    FileManager,
-    CommonEditor,
+    SiteOptionRow,
+    SiteOptionTable,
   },
   directives: {
     'b-toggle': VBToggle,
@@ -217,50 +52,6 @@ export default {
   name: 'Site',
   data() {
     return {
-      typedef: {
-        person: {
-          id: {
-            type: 'string',
-            label: '식별자',
-            editable: true,
-          },
-          name: {
-            type: 'string',
-            label: '이름',
-            editable: true,
-          },
-          nickname: {
-            type: 'string',
-            label: '닉네임',
-            editable: true,
-          },
-          position: {
-            type: 'string',
-            label: '직급',
-            editable: true,
-          },
-          work: {
-            type: 'string',
-            label: '직무',
-            editable: true,
-          },
-          email: {
-            type: 'string',
-            label: '이메일',
-            editable: true,
-          },
-          phone: {
-            type: 'string',
-            label: '전화번호',
-            editable: true,
-          },
-          image: {
-            type: 'file',
-            label: '이미지',
-            editable: true,
-          },
-        },
-      },
       form: {
         transportation_fee: {
           label: '기본 배송비',
@@ -273,48 +64,13 @@ export default {
           value: null,
           type: 'editor',
         },
-
-        // address: {
-        //   label: '주소',
-        //   value: null,
-        //   type: 'string',
-        // },
-        // phone: {
-        //   label: '전화번호',
-        //   value: null,
-        //   type: 'string',
-        // },
-        // logo: {
-        //   label: '로고',
-        //   value: null,
-        //   type: 'file',
-        //   file: {
-        //     label: '',
-        //     mimetype: '',
-        //     fileurl: '',
-        //   },
-        // },
-        // person: {
-        //   label: '사람들',
-        //   type: 'array',
-        //   value: [],
-        //   typedef: 'person',
-        // },
-        // is_site_public: {
-        //   label: '사이트 공개 여부',
-        //   value: null,
-        //   type: 'single_checkbox',
-        //   description: '공개합니다',
-        // },
       },
     };
   },
   computed: {
+    /** @returns {boolean} */
     disableConfirm() {
       return false; // todo
-    },
-    prettied() {
-      return prettyPrintJson.toHtml(this.form);
     },
   },
   async mounted() {
@@ -402,45 +158,6 @@ export default {
         msg: '설정을 성공적으로 업데이트 했습니다.',
         id: 'siteOptionUpdateSuccess',
       });
-    },
-    // onlyFilename 일 경우 obj.value 만 filename 으로 설정합니다.
-    async fileManagerSelected(obj, files, onlyFilename) {
-      const file = files[0];
-      if (onlyFilename) {
-        obj.value = file.filename;
-        obj.file.label = file.label;
-        obj.file.alt = file.alt;
-        return;
-      }
-      obj.fileurl = file.fileurl;
-      obj.label = file.label;
-      obj.filename = file.filename;
-      obj.mimetype = file.mimetype;
-      obj.alt = file.alt;
-    },
-
-    async addRow(form, option) {
-      if (form[option].type !== 'array') {
-        return;
-      }
-      if (form[option].value === null) {
-        form[option].value = [];
-      }
-      console.log('# addRow');
-      console.log(form[option]);
-      const toPush = {};
-      Object.keys(this.typedef[option]).forEach((key) => {
-        const typedefFieldObj = this.typedef[option][key];
-        if (typedefFieldObj.type === 'file') {
-          toPush[key] = { label: '', fileurl: '', mimetype: '' };
-        } else {
-          toPush[key] = '';
-        }
-      });
-      form[option].value.push(toPush);
-    },
-    async removeItem(form, option, fieldIndex) {
-      form[option].value.splice(fieldIndex, 1);
     },
   },
 };

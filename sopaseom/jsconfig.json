@@ -1,7 +1,8 @@
 {
   "baseUrl": ".",
+  "include": ["src/**/*"],
   "compilerOptions": {
-    "checkJs": true,
+    // "checkJs": true,
     "baseUrl": ".",
     "module": "es2020",
     "target": "esnext",
@@ -9,7 +10,7 @@
     "moduleResolution": "node",
     "sourceMap": true,
     "paths": {
-      "@/*": ["src/*"],
+      "@/*": ["./src/*"],
     },
   },
   "exclude": ["node_modules"]

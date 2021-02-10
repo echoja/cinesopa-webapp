@@ -55,22 +55,19 @@
                       class="input-table-image-preview"
                       v-if="row[field].mimetype.startsWith('image')"
                       :src="`${row[field].fileurl}?size=file_preview`"
-                      :style="{maxWidth: '100px'}"
+                      :style="{ maxWidth: '100px' }"
                     >
                       이미지
                     </b-img-lazy>
                     <template v-else-if="row[field].label">
                       선택된 파일 :
-                    {{ row[field].label }}
+                      {{ row[field].label }}
                     </template>
-                    <template v-else>
-                      파일을<br>설정해주세요.
-                    </template>
-                    
+                    <template v-else> 파일을<br />설정해주세요. </template>
                   </p>
                 </div>
                 <div class="text-center mt-3">
-                    <!-- style="min-width: 100px" -->
+                  <!-- style="min-width: 100px" -->
                   <b-button
                     size="sm"
                     @click="
@@ -149,6 +146,24 @@
       >
         {{ checkboxLabel }}
       </b-form-checkbox>
+
+      <!-- 만약 현재 요소가 editor 이라면 데이터 불러오기. -->
+      <common-editor
+        v-else-if="type === 'editor'"
+        :value="value"
+        @input="normalInput"
+        height="500"
+      ></common-editor>
+
+      <!-- 만약 현재 요소가 number 라면 number 용 input 생성 -->
+      <b-form-input
+        :id="inputId"
+        v-else-if="type === 'number'"
+        :value="value"
+        @input="normalInput"
+        number
+        type="number"
+      ></b-form-input>
     </td>
   </tr>
 </template>
@@ -164,12 +179,14 @@ import {
   BFormInput,
   BButton,
 } from 'bootstrap-vue';
+import CommonEditor from '@/components/admin/CommonEditor.vue';
 import Info from './Info.vue';
 import FileManager from '../FileManager.vue';
 
 let uuid = 0;
 
 export default {
+  name: 'SiteOptionRow',
   components: {
     BTableSimple,
     BTr,
@@ -181,6 +198,7 @@ export default {
     FileManager,
     BImgLazy,
     Info,
+    CommonEditor,
   },
   props: {
     type: {
@@ -202,12 +220,15 @@ export default {
     };
   },
   computed: {
+    /** @returns {string} */
     inputId() {
       return `input-${this.id}`;
     },
+    /** @returns {string} */
     singleFileModalId() {
       return `input-singlefile-modal-${this.id}`;
     },
+    /** @returns {string} */
     currentFile() {
       return this.value?.label ?? '없음';
     },
@@ -282,8 +303,8 @@ export default {
       this.$emit('input', values);
     },
     normalInput(value) {
-      console.log('# SiteOptionRow normalInput,');
-      console.log(value);
+      // console.log('# SiteOptionRow normalInput,');
+      // console.log(value);
       this.$emit('input', value);
     },
   },

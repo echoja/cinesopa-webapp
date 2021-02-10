@@ -6,22 +6,44 @@
         <b-list-group>
           <b-list-group-item to="/admin"> 대시보드 </b-list-group-item>
           <b-list-group-item to="/admin/statistics"> 통계 </b-list-group-item>
-          <b-list-group-item to="/admin/file"> 파일 <info description="파일 관리자를 엽니다. 파일을 업로드하여 추후에 에디터에서 이미지를 삽입하거나 첨부파일을 만들 수 있습니다."></info> </b-list-group-item>
+          <b-list-group-item to="/admin/file">
+            <span>파일</span>
+            <info>
+              파일 관리자를 엽니다. 파일을 업로드하여 추후에 에디터에서 이미지를
+              삽입하거나 첨부파일을 만들 수 있습니다.
+            </info>
+          </b-list-group-item>
           <b-list-group-item class="py-1 bg-light">
-            cinesopa.kr
+            <span>cinesopa.kr</span>
           </b-list-group-item>
           <b-list-group-item to="/admin/cinesopa/site">
-            사이트 정보
+            <span>사이트 정보</span>
+            <info>
+              <code>cinesopa.kr</code> 사이트의 정보들을 설정합니다.
+            </info>
           </b-list-group-item>
-          <b-list-group-item to="/admin/cinesopa/page">
-            페이지
-          </b-list-group-item>
+          <!-- <b-list-group-item to="/admin/cinesopa/page">
+            <span>페이지</span>
+          </b-list-group-item> -->
           <b-list-group-item to="/admin/cinesopa/board">
-            게시판
+            <span>게시판</span>
+            <info>
+              게시판의 링크나 제목 등을 설정합니다. 메뉴 설정은 할 수 없고 글을
+              추가하려면 <code>글</code> 에서 게시글을 작성할 수 있습니다.
+            </info>
           </b-list-group-item>
-          <b-list-group-item to="/admin/cinesopa/post">글</b-list-group-item>
+          <b-list-group-item to="/admin/cinesopa/post">
+            <span> 글 </span>
+
+            <info> 게시판의 글을 작성/수정/삭제합니다. </info>
+          </b-list-group-item>
           <b-list-group-item to="/admin/cinesopa/film">
-            영화
+            <span>영화</span>
+            <info>
+              영화와 관련된 정보를 추가/편집/삭제합니다. 여기서 관리하는
+              데이터들이
+              <code>sopaseom</code> 사이트에도 동일하게 적용됩니다.
+            </info>
           </b-list-group-item>
           <!-- <b-list-group-item to="/admin/cinesopa/menu">
             메뉴
@@ -34,24 +56,39 @@
           </b-list-group-item>
           <b-list-group-item to="/admin/sopaseom/site">
             사이트 정보
+            <info>
+              <code>sopaseom.com</code> 사이트의 정보들을 설정합니다. 다만
+              개인정보처리방침, 이용약관 등은 페이지에서 설정할 수 있습니다.
+            </info>
           </b-list-group-item>
           <b-list-group-item to="/admin/sopaseom/page">
-            페이지
+            <span>페이지</span>
+            <info> 개인정보처리방침, 이용약관 등을 설정합니다. </info>
           </b-list-group-item>
           <b-list-group-item :to="{ name: 'AdminSopakit' }">
-            소파킷 키워드
+            <span>소파킷 키워드</span>
+            <info> 소파킷의 키워드를 추가/편집/삭제할 수 있습니다. </info>
           </b-list-group-item>
           <b-list-group-item to="/admin/sopaseom/product">
-            소파킷 상품
+            <span> 소파킷 상품</span>
+            <info>
+              소파킷 상품을 편집합니다. 소파킷과 연계된 영화는
+              <u>cinesopa 의 영화</u>에서, 키워드는 소파킷 키워드에서 설정할 수
+              있습니다.
+            </info>
           </b-list-group-item>
           <b-list-group-item :to="{ name: 'AdminOrders', query: { a: 123 } }">
-            주문
+            <span>주문</span>
+            <info> 소파킷 상품의 주문을 관리합니다. </info>
           </b-list-group-item>
           <b-list-group-item to="/admin/sopaseom/application">
-            상영 신청
+            <span>상영 신청</span>
+
+            <info> 공동체 상영 신청을 관리합니다. </info>
           </b-list-group-item>
           <b-list-group-item to="/admin/sopaseom/user">
-            사용자
+            <span>사용자</span>
+            <info> 회원을 관리합니다. </info>
           </b-list-group-item>
           <!-- <b-list-group-item to="/admin/sopaseom/menu">
             메뉴
@@ -123,7 +160,7 @@
           <!-- @input="messageChanged($event, msgObj)" -->
         </div>
 
-        <main>
+        <main class="admin-main">
           <router-view @successMsg="onSuccessMsg"></router-view>
         </main>
       </div>
@@ -176,6 +213,7 @@ import {
   BAlert,
 } from 'bootstrap-vue';
 import { store } from '@/loader';
+import Info from '@/components/admin/Info.vue';
 // const makeListItem = (to, label, color) => ({
 //   id: to,
 //   to,
@@ -199,7 +237,7 @@ export default {
     BListGroup,
     BListGroupItem,
     BAlert,
-    Info: () => import('@/components/admin/Info'),
+    Info,
   },
   computed: {
     ...mapState(['messages']),
@@ -252,6 +290,11 @@ export default {
   }),
 };
 </script>
+<style lang="scss" scoped>
+.info-hover-component {
+  margin-left: 5px;
+}
+</style>
 
 <style>
 body {
@@ -287,9 +330,14 @@ body {
   opacity: 0;
 }
 
-.btn-primary:hover {
+.btn-primary:hover:not(:disabled):not(.disabled) {
   color: #fff;
   background-color: #555;
   border-color: black;
+}
+
+.admin-main header > h2 {
+  font-size: 18px;
+  font-weight: bold;
 }
 </style>

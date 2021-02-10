@@ -1,12 +1,17 @@
 <template>
-  <div>
-    <h2>소파킷 상품 {{ mode === 'new' ? '새로 추가' : '편집' }}</h2>
-    <h3>기본 사항</h3>
+  <div class="product-edit">
+    <h2 class="form-h2">
+      소파킷 상품 {{ mode === 'new' ? '새로 추가' : '편집' }}
+    </h2>
+    <h3 class="form-h3">기본 사항</h3>
     <hr />
     <form-row title="이름">
       <b-form-input size="sm" v-model="product.name"></b-form-input>
     </form-row>
     <form-row title="종류">
+      <template #info>
+        상품의 종류를 설정합니다. (현재는 소파킷 밖에 없습니다.)
+      </template>
       <b-form-select size="sm" v-model="product.product_type">
         <b-form-select-option value="sopakit">소파킷</b-form-select-option>
       </b-form-select>
@@ -47,10 +52,17 @@
       </b-form-radio-group>
     </form-row>
     <hr />
-    <h3>상세 사항</h3>
+    <h3 class="form-h3">상세 사항</h3>
     <hr />
 
     <form-row title="대표 이미지">
+      <template #info>
+        상품의 대표 이미지를 설정합니다.
+        <b-link :to="{ name: 'SopakitItems' }">소파킷 상품 리스트</b-link
+        >(가로로 긴 이미지),
+        <b-link :to="{ name: 'AllItems' }">상품 목록</b-link>에 노출됩니다.
+        소파킷 목업 이미지는 소파킷 키워드 설정에서 할 수 있습니다.
+      </template>
       <single-file-selector
         :initObj="{
           fileurl: product.featured_image_url,
@@ -60,11 +72,38 @@
       ></single-file-selector>
       <!-- featured_image_url featured_image_alt -->
     </form-row>
-    <form-row
-      title="옵션"
-      description="옵션은 최소 하나 이상이어야 합니다. 식별 코드는 임의의 문자열을 넣으면 됩니다. 옵션 이름은 옵션이 하나일 경우 사이트에서 노출되지 않습니다."
-    >
-      <b-table :fields="optionFields" :items="product.options">
+    <form-row title="옵션" description="옵션은 최소 하나 이상이어야 합니다.">
+      <b-table
+        :fields="optionFields"
+        :items="product.options"
+        class="width-auto"
+      >
+        <!-- head -->
+        <template #head(id)="{ label }">
+          <span class="mr-2">{{ label }}</span>
+          <info>
+            임의의 영어+숫자 문자열을 옵션끼리 겹치지 않게 설정하면 됩니다.
+            (다른 상품의 옵션과는 상관없습니다.)
+          </info>
+        </template>
+        <!-- head -->
+        <template #head(content)="{ label }">
+          <span class="mr-2">{{ label }}</span>
+          <info> 실제로 표시될 옵션 이름을 설정합니다. </info>
+        </template>
+        <!-- head -->
+        <template #head(price)="{ label }">
+          <span class="mr-2">{{ label }}</span>
+          <info> 개당 가격을 설정합니다. </info>
+        </template>
+        <!-- head -->
+        <template #head(disabled)="{ label }">
+          <span class="mr-2">{{ label }}</span>
+          <info>
+            비활성화 하게 되면, 사용자가 상품 상세에서 해당 옵션만 구매하거나
+            장바구니에 넣을 수 없습니다.
+          </info>
+        </template>
         <template #cell(id)="{ item }">
           <b-form-input v-model="item.id"></b-form-input>
         </template>
@@ -93,11 +132,18 @@
     <!-- <pre>{{ product.options }}</pre> -->
     <form-row title="상단 콘텐츠">
       <!-- :initContent="'<p>1234</p>'"  -->
+      <template #info>
+        상품 상세 페이지에서 영화 정보 상단에 나타나는 콘텐츠를 설정합니다.
+      </template>
       <common-editor v-model="product.content_sub" height="600"></common-editor>
       <!-- <div>product.content_sub{{ product.content_sub }}</div> -->
     </form-row>
     <form-row title="하단 콘텐츠">
       <!-- :initContent="'<p>1234</p>'" -->
+      <template #info>
+        상품 상세 페이지에서 영화 정보 하단에 나타나는 콘텐츠를 설정합니다.
+      </template>
+
       <common-editor
         v-model="product.content_main"
         height="600"
@@ -108,6 +154,10 @@
       <b-form-input v-model="product.side_phrase"> </b-form-input>
     </form-row>
     <form-row title="안내사항 기본값으로 사용">
+            <template #info>
+        상품 상세 페이지 최하단에 나올 안내사항을 기본값으로 사용할 것인지 설정합니다. (기본값은 <b-link :to="{name: 'SiteOptionSopaseom'}">사이트 정보</b-link>에서 수정할 수 있습니다.)
+      </template>
+
       <b-form-radio-group v-model="product.is_notice_default">
         <b-form-radio :value="true">예</b-form-radio>
         <b-form-radio :value="false">아니오, 직접 작성</b-form-radio>
@@ -125,7 +175,7 @@
     <b-button v-else-if="mode === 'new'" @click="createProductClicked"
       >새 상품을 추가합니다</b-button
     >
-    <pre class="test"> product: {{ product }}</pre>
+    <!-- <pre class="test"> product: {{ product }}</pre> -->
   </div>
 </template>
 
@@ -139,10 +189,12 @@ import {
   BButton,
   BTable,
   BFormCheckbox,
+  BLink,
 } from 'bootstrap-vue';
 import { mapActions } from 'vuex';
-import { makeRequest, makeSimpleMutation, makeSimpleQuery } from '@/api/graphql-client';
+import { makeRequest, makeSimpleQuery } from '@/api/graphql-client';
 import FilmSelector from '@/components/admin/FilmSelector.vue';
+import Info from '@/components/admin/Info.vue';
 
 const getRelatedFilmOnServer = makeSimpleQuery('film');
 
@@ -232,10 +284,12 @@ export default {
     BButton,
     BTable,
     BFormCheckbox,
+    Info,
     FormRow: () => import('@/components/admin/FormRow'),
     CommonEditor: () => import('@/components/admin/CommonEditor'),
     SingleFileSelector: () => import('@/components/admin/SingleFileSelector'),
     FilmSelector,
+    BLink,
   },
   props: {
     mode: {
@@ -293,6 +347,7 @@ export default {
   },
 
   computed: {
+    /** @returns {number} */
     id() {
       return parseInt(this.$route.params.id, 10);
     },

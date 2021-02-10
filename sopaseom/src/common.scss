@@ -1,6 +1,7 @@
-@import 'plugins/custom-style.scss';
+@use 'plugins/custom-style.scss';
 
 $desktop-max-width: 100%;
+$red: custom-style.$red;
 
 $desktop-header-height: 80px;
 // $desktop-min-x-margin: 40px;
@@ -65,22 +66,15 @@ $dt-sopakit-last-page-neg: $dt-sopakit-content-neg + $desktop-subheader-height +
   .left-right-leave-active #{$selector},
   .slide-enter-active #{$selector},
   .slide-leave-active #{$selector} {
-    @content
+    @content;
   }
 }
 
-// @each $class in $animation-classes {
-//   .#{$value} {
-
-//   }
-// }
-// $grid-breakpoints: custom-style.$grid-breakpoints;
-// @include respond-above(sm) {}
 @mixin min-with($breakpoint) {
   // If the breakpoint exists in the map.
-  @if map-has-key($grid-breakpoints, $breakpoint) {
+  @if map-has-key(custom-style.$grid-breakpoints, $breakpoint) {
     // Get the breakpoint value.
-    $breakpoint-value: map-get($grid-breakpoints, $breakpoint);
+    $breakpoint-value: map-get(custom-style.$grid-breakpoints, $breakpoint);
 
     // Write the media query.
     @media (min-width: $breakpoint-value) {
@@ -97,9 +91,9 @@ $dt-sopakit-last-page-neg: $dt-sopakit-content-neg + $desktop-subheader-height +
 // @include respond-above(sm) {}
 @mixin max-with($breakpoint) {
   // If the breakpoint exists in the map.
-  @if map-has-key($grid-breakpoints, $breakpoint) {
+  @if map-has-key(custom-style.$grid-breakpoints, $breakpoint) {
     // Get the breakpoint value.
-    $breakpoint-value: map-get($grid-breakpoints, $breakpoint);
+    $breakpoint-value: map-get(custom-style.$grid-breakpoints, $breakpoint);
 
     // Write the media query.
     @media (max-width: ($breakpoint-value - 1)) {

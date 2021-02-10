@@ -1,14 +1,30 @@
 <template>
   <div>
     <div class="toolbar">
-      <b-button @click="$bvModal.show(modalId)"> 파일/이미지 삽입 </b-button>
-      <b-modal hide-footer hide-header :id="modalId" size="xl">
+      <b-button
+        @click="$bvModal.show(modalId)"
+        class="border-secondary mr-2"
+        size="sm"
+        >파일/이미지 삽입</b-button
+      >
+      <b-modal
+        hide-footer
+        hide-header
+        :id="modalId"
+        size="fw"
+        class="w-100 hello world"
+      >
         <file-manager
           @file-manager-selected="fileSelected"
           :modalId="modalId"
           :selectOnlyOne="false"
         ></file-manager>
       </b-modal>
+      <info>
+        파일/이미지를 삽입하려면 원하는 곳에 커서를 두고 바로 왼쪽 버튼을
+        누르세요. 에디터 내부의 삽입 > 이미지는 url를 이용하여 외부 이미지를
+        가지고 오는 것이기 때문에 업로드가 되지 않습니다.
+      </info>
       <!-- <b-button @click="test1">테스트</b-button> -->
     </div>
     <div
@@ -43,10 +59,12 @@ import Editor from '@tinymce/tinymce-vue';
 
 import FileManager from '@/components/FileManager.vue';
 import tinymceInit from '@/tinymce-configure';
+import Info from '@/components/admin/Info.vue';
 
 let uuid = 0;
 
 export default {
+  name: 'CommonEditor',
   model: {
     prop: 'value',
     event: 'input',
@@ -57,6 +75,7 @@ export default {
     BButton,
     BModal,
     FileManager,
+    Info,
   },
   props: {
     value: String,
@@ -73,9 +92,11 @@ export default {
     };
   },
   computed: {
+    /** @returns {object} */
     editorInit() {
       return tinymceInit({ height: parseInt(this.height, 10) });
     },
+    /** @returns {string} */
     modalId() {
       return `common-editor-file-insert-modal-${this.uuid}`;
     },
@@ -103,7 +124,9 @@ export default {
       files.forEach((file) => {
         const { mimetype, fileurl, alt } = file;
         if (mimetype.startsWith('image')) {
-          this.pushHtmlToEditor(`<img src="${fileurl}?size=common" alt="${alt}">`);
+          this.pushHtmlToEditor(
+            `<img src="${fileurl}?size=common" alt="${alt}">`,
+          );
         }
         // file to do
       });

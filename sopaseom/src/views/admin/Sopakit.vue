@@ -30,7 +30,7 @@
         </div>
       </template> -->
       <template #row-details="{ item, index }">
-        <div class="row-details">
+        <div class="row-details p-3">
           <form-row title="숫자">
             <b-form-input size="sm" v-model="item.num"></b-form-input>
           </form-row>
@@ -65,6 +65,11 @@
             ></single-file-selector>
           </form-row>
           <form-row title="상태">
+            <template #info>
+              소파킷 리스트 페이지에서의 보이는 여부를 설정합니다. 상품
+              리스트에서는 모든 소파킷 상태에 관계없이 모든 상품을 볼 수
+              있습니다.
+            </template>
             <b-form-radio-group v-model="item.status">
               <b-form-radio value="show">공개</b-form-radio>
               <b-form-radio value="hide">비공개</b-form-radio>
@@ -81,18 +86,12 @@
             <b-button @click="createSopakitCancelClicked(index)">취소</b-button>
           </div>
           <div class="button-group" v-else-if="item.mode === 'edit'">
-            <loading-button
+            <apply-button-set
+              @ok="updateSopakitConfirmClicked(index)"
+              @cancel="updateSopakitCancelClicked(index)"
               :loading="item.processingRequest"
-              variant="primary"
-              @click="updateSopakitConfirmClicked(index)"
-              >변경사항 적용</loading-button
-            >
-            <b-button @click="updateSopakitCancelClicked(index)">취소</b-button>
+            ></apply-button-set>
           </div>
-          <pre>
-          {{ item }}
-
-          </pre>
         </div>
       </template>
     </b-table>
@@ -155,6 +154,7 @@ import SingleFileSelector from '@/components/admin/SingleFileSelector.vue';
 import FormRow from '@/components/admin/FormRow.vue';
 import LoadingButton from '@/components/LoadingButton.vue';
 import { mapActions } from 'vuex';
+import ApplyButtonSet from '@/components/admin/button/ApplyButtonSet.vue';
 
 const removeSopakitOnServer = makeSimpleMutation('removeSopakit');
 const createSopakitOnServer = makeSimpleMutation('createSopakit');
@@ -175,6 +175,7 @@ export default {
     LoadingButton,
     BFormRadioGroup,
     BFormRadio,
+    ApplyButtonSet,
   },
   data() {
     return {
@@ -212,15 +213,16 @@ export default {
           label: '상태',
         },
       ],
+      /** @type {*} */
       items: [
-        {
-          year: 2020,
-          num: '01',
-          title: '고독',
-          'managing-date': new Date('2020-01-01'),
-          status: 'show',
-          checked: false,
-        },
+        // {
+        //   year: 2020,
+        //   num: '01',
+        //   title: '고독',
+        //   'managing-date': new Date('2020-01-01'),
+        //   status: 'show',
+        //   checked: false,
+        // },
       ],
     };
   },
@@ -228,18 +230,22 @@ export default {
     // page() {
     //   return this.$route.params.page ?? 0;
     // },
+    /** @returns {boolean} */
     checkedAll() {
       return this.items.every((value) => value.checked === true);
     },
+    /** @returns {boolean} */
     checkedAtleastOne() {
       return this.items.some((value) => value.checked === true);
     },
+    /** @returns {number} */
     totalPages() {
       const o = Math.ceil(this.total / this.perpage);
       if (o === 0) return 1;
       // console.log(o);
       return o;
     },
+    /** @returns {boolean} */
     hasData() {
       return this.items.length !== 0;
     },
@@ -253,17 +259,17 @@ export default {
   async mounted() {
     // 페이지 설정
     const { page } = this.$route.params;
-    if (page) this.page = page;
+    if (page) this.page = parseInt(page, 10);
 
     // 값 받아오기
     await this.fetchData();
   },
 
   methods: {
-    ...mapActions(['pushMessage']),
+    pushMessage: mapActions(['pushMessage']).pushMessage,
     rowClicked(item, index) {
-      console.log('# Sopakit rowClicked item');
-      console.log(item);
+      // console.log('# Sopakit rowClicked item');
+      // console.log(item);
       this.items[index]._showDetails = !this.items[index]._showDetails;
     },
     allCheckClicked() {
@@ -320,6 +326,7 @@ export default {
           removeSopakitOnServer({ id: item.id }, '{success code}'),
         );
       const results = await Promise.allSettled(promises);
+
       // console.log('# Sopakit.vue removeClicked');
       // console.log(results);
       if (results.some((result) => result.status === 'rejected')) {

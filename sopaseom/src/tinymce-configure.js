@@ -63,9 +63,9 @@ const examplePlugin = (editor) => {
   };
 };
 
+// * @param {string} content 초기 내용
 /**
  * Tinymce 초기화 객체를 생성합니다.
- * @param {string} content 초기 내용
  * @returns {object} Tinymce 초기화 객체
  */
 export default ({ height = 800 } = {}) => ({

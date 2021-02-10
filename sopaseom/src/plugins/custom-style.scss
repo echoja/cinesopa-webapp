@@ -17,6 +17,7 @@ $modal-backdrop-opacity: 0.85;
 $modal-content-border-color: black;
 $modal-content-border-width: 2px;
 $modal-content-border-radius: 0px;
+
 $input-placeholder-color: #c8c8c8;
 // $input-placeholder-color: #00f;
 
@@ -38,6 +39,10 @@ $form-feedback-valid-color: #000;
 $custom-checkbox-indicator-border-radius: 0px;
 
 $btn-disabled-opacity: 1;
+
+// tooltip
+
+$tooltip-max-width: 400px;
 
 // $success:
 // $danger:
@@ -88,8 +93,6 @@ $btn-disabled-opacity: 1;
 @import '../../node_modules/bootstrap-vue/src/components/tooltip';
 @import '../../node_modules/bootstrap-vue/src/components/form-tags';
 
-
-
 // buttons
 
 .btn-secondary {
@@ -127,4 +130,38 @@ $btn-disabled-opacity: 1;
 .btn.disabled,
 .btn:disabled {
   opacity: 0.5;
+}
+
+// header
+
+.form-h2 {
+  font-size: 18px;
+  font-weight: bold;
+}
+.form-h3 {
+  font-size: 16px;
+  font-weight: bold;
+}
+
+.width-auto {
+  width: auto !important;
+}
+
+// modal
+.modal-fw {
+  max-width: 100%;
+}
+
+@each $color-name, $color in $colors {
+  .text-#{$color-name} {
+    color: $color !important;
+  }
+}
+
+.tooltip a {
+  color: #fff;
+  text-decoration: underline;
+  &:hover, &:focus {
+    color: #ddd;
+  }
 }

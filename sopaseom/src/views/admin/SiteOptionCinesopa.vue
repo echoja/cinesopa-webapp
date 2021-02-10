@@ -1,6 +1,8 @@
 <template>
   <div class="site-option-cinesopa">
-    <h2>씨네소파 사이트 정보 수정</h2>
+    <header>
+      <h2>씨네소파 사이트 정보 수정</h2>
+    </header>
     <site-option-table>
       <site-option-row
         v-model="form.contact_email.value"
@@ -41,7 +43,7 @@
     <b-button :disabled="disableConfirm" @click="confirmClicked"
       >변경사항 저장</b-button
     >
-    <pre v-html="prettied"></pre>
+    <!-- <pre v-html="prettied"></pre> -->
   </div>
 </template>
 
@@ -54,7 +56,6 @@ import {
   makeSimpleMutation,
 } from '@/api/graphql-client';
 
-import prettyPrintJson from 'pretty-print-json';
 import { mapActions } from 'vuex';
 
 const setSiteOptionsMutationReq = makeSimpleMutation('setSiteOptions');
@@ -109,7 +110,8 @@ export default {
           image: {
             type: 'file',
             label: '이미지',
-            description: '손글씨 이미지를 설정합니다. 최대 크기는 400px * 200px 이고, 이미지의 비율이 맞지 않아도 칸에 올바르게 배치됩니다.'
+            description:
+              '손글씨 이미지를 설정합니다. 최대 크기는 400px * 200px 이고, 이미지의 비율이 맞지 않아도 칸에 올바르게 배치됩니다.',
           },
         },
       },
@@ -169,12 +171,13 @@ export default {
     };
   },
   computed: {
+    /** @returns {boolean} */
     disableConfirm() {
       return false; // todo
     },
-    prettied() {
-      return prettyPrintJson.toHtml(this.form);
-    },
+    // prettied() {
+    //   return prettyPrintJson.toHtml(this.form);
+    // },
   },
   async mounted() {
     await this.initOptionValues(this.form);

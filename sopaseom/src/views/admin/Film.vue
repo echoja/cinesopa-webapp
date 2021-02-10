@@ -13,7 +13,17 @@
       :fields="fields"
       :items="films"
       @row-clicked="rowClicked"
-    ></b-table>
+      class="width-auto"
+    >
+      <template #head(id)="{ label }">
+        <!-- test -->
+        <span class="mr-2">{{ label }}</span>
+        <info
+          >숫자 형태로 자동으로 생성됩니다. url 을 구성할 때 사용됩니다. (예:
+          cinesopa.kr/film/숫자 )</info
+        >
+      </template>
+    </b-table>
     <!-- {{ films }} -->
     <b-pagination-nav
       :link-gen="linkGen"
@@ -33,12 +43,14 @@ import {
   filmsAdminQuery /* removeFilmMutation */,
 } from '@/api/graphql-client';
 import router from '@/router';
+import Info from '@/components/admin/Info.vue';
 
 export default {
   components: {
     BButton,
     BTable,
     BPaginationNav,
+    Info,
   },
   name: 'Film',
   async created() {
@@ -66,10 +78,12 @@ export default {
     };
   },
   computed: {
+    /** @returns {number} */
     page() {
       if (this.$route.params.page === undefined) return 1;
       return parseInt(this.$route.params.page, 10) ?? 1;
     },
+    /** @returns {number} */
     totalPages() {
       const pages = Math.ceil(this.total / this.perpage);
       if (pages <= 0) return 1;

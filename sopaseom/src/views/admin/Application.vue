@@ -33,7 +33,7 @@
         <template v-slot="{ hide }">
           <div class="d-flex position-relative">
             <div class="d-flex flex-column">
-              <span class="text-center"> 시작 날짜 </span>
+              <span class="text-center"> 시작일의 시작 범위 </span>
               <b-calendar
                 v-model="filter.startDate"
                 value-as-date
@@ -41,7 +41,7 @@
               ></b-calendar>
             </div>
             <div class="d-flex flex-column">
-              <span class="text-center"> 끝 날짜 </span>
+              <span class="text-center"> 시작일의 끝 범위 </span>
               <b-calendar
                 v-model="filter.endDate"
                 value-as-date
@@ -63,7 +63,7 @@
           <span class="button-content ml-2">{{ stateFilterText }}</span>
         </template>
         <template v-slot="{ hide }">
-          <b-dropdown-form :style="{ minWidth: '630px' }">
+          <b-dropdown-form :style="{ minWidth: '650px' }">
             <div class="row">
               <div class="col">
                 <h2><font-awesome-icon :icon="['far', 'file']" />서류</h2>
@@ -144,61 +144,86 @@
       </template>
       <template #head(host)="row">
         <span class="table-head-text">주최</span>
-        <info></info>
       </template>
       <template #head(film_title)="row">
         <span class="table-head-text">작품명</span>
-        <info></info>
       </template>
       <template #head(charge)="row">
         <span class="table-head-text">상영료</span>
-        <info></info>
       </template>
       <template #head(start_date)="row">
         <span class="table-head-text">상영시작일</span>
-        <info></info>
+        <info>
+          상영 시작일은 정렬의 기준입니다. 각 신청마다 시작일 뿐만 아니라
+          종료일도 설정할 수 있습니다. 정렬할 때에는 시작일만 고려합니다.
+        </info>
       </template>
       <template #cell(start_date)="row">
         {{ formatDate(row.value) }}
       </template>
       <template #head(applicant_name)="row">
         <span class="table-head-text">신청자</span>
-        <info></info>
+        <info>신청자의 이름입니다.</info>
       </template>
       <template #head(applicant_phone)="row">
         <span class="table-head-text">연락처</span>
-        <info></info>
+        <info>신청자의 연락처입니다.</info>
       </template>
       <template #cell(applicant_phone)="{ value }">
         <eye-box v-if="value" :text="value"></eye-box>
       </template>
       <template #head(applicant_email)="row">
         <span class="table-head-text">이메일</span>
-        <info></info>
+        <info>신청자의 이메일입니다.</info>
       </template>
       <template #cell(applicant_email)="{ value }">
         <eye-box v-if="value" :text="value"></eye-box>
       </template>
       <template #head(destination)="row">
         <span class="table-head-text">주소</span>
-        <info></info>
+        <info>상영본 배송지입니다.</info>
       </template>
       <template #cell(destination)="{ value }">
         <eye-box v-if="value" :text="value"></eye-box>
       </template>
       <template #head(message)="row">
         <span class="table-head-text">메시지</span>
-        <info></info>
+        <info>
+          <div class="text-left">
+            <p class="m-1">
+              메시지는 특수한 상황을 알려주는 용도입니다. 특별한 메시지가 없다면
+              회색으로 나타나며, 메시지가 있다면 검정색으로 나타납니다. 마우스를
+              올리면 메시지를 확인할 수 있습니다.
+            </p>
+            <p class="m-1">다음은 메시지가 나타나는 상황들입니다.</p>
+            <ol class="pl-4">
+              <li>
+                입금이 확인되지 않았을 때 입금예상월보다 초과되었을 때 --> "이번
+                달 안에 입금되어야 합니다.", "입금 예정월이 지났지만 아직 입금이
+                되지 않았습니다."
+              </li>
+              <li>
+                아직 상영본을 보내지 않았는데 상영 날짜가 10일 이하일 때 -->
+                "상영일까지 ~일 남았습니다."
+              </li>
+            </ol>
+          </div>
+        </info>
       </template>
       <template #head(memo)="row">
         <span class="table-head-text">메모</span>
-        <info></info>
+        <info
+          >관리자는 각 신청마다 메모를 설정할 수 있습니다. 메모가 있을 경우
+          <b>검정 색</b>으로 표시되며, 주문에 메모 강조를 끈다고 설정하면 메모가
+          없는 것처럼 옅은 색으로 표시됩니다.</info
+        >
       </template>
       <!-- 편집창 -->
       <template #row-details="row">
         <div class="row-details-iwrapper">
           <h2 class="row-details-header">상세 정보 조회 및 편집</h2>
           <h3 class="detail-header">주최 및 배송</h3>
+          <hr />
           <form-row title="주최">
             <template #info> 주최 단체명이나 회사를 기입합니다. </template>
             <b-form-input v-model="editing.host"></b-form-input>
@@ -270,7 +295,14 @@
               class="mb-2"
             ></b-form-input>
             <div class="d-flex align-items-center">
-              <p class="m-0 mr-2">발송 정보 이메일</p>
+              <p class="m-0 mr-2">
+                발송 정보 이메일
+                <info
+                  >상영본을 발송했다는 내용의 메일을 신청자의 이메일로 보낼 수
+                  있습니다. 샘플 보기에서 내용 확인 및 복사를 할 수 있고, 발송을
+                  하게 되면 메일이 즉시 발송됩니다.</info
+                >
+              </p>
               <b-button
                 size="sm"
                 @click="transportEmailSampleClicked(row)"
@@ -298,9 +330,16 @@
               복사됩니다.
             </info>
           </h3>
-
+          <hr />
           <form-row title="세금계산서 관련 정보 입력 링크">
             <!-- 정보 입력 링크가 살아있을 때 -->
+            <template #info
+              >세금계산서 관련 정보를 입력할 수 있는 별도의 폼 
+              링크를 생성합니다. 바로 아래에서 서류 관련 이메일 발송할 때 이용할
+              수 있습니다. 생성된 링크로 직접 들어가서 링크가 제대로
+              동작하는지도 확인할 수 있고 신청자에게 직접 전달할 수
+              있습니다.</template
+            >
             <div class="d-flex align-items-center" v-if="editing.reqdoc_token">
               <b-button size="sm" class="mr-2">링크 복사</b-button>
               <b-button size="sm" class="mr-2">링크 제거</b-button>
@@ -316,35 +355,46 @@
             </b-button>
           </form-row>
           <form-row title="서류요청 이메일">
+            <template #info
+              >신청자에게 서류 관련 전달/요청 메일을 보낼 수 있습니다.</template
+            >
             <div class="doc-request container-fluid">
-              <div class="row">
+              <div class="row mb-3">
                 <div class="col">
                   <h4>씨네소파가 보낼 것</h4>
                   <b-form-checkbox-group
                     :options="docSendOptions"
                     v-model="docSend"
                   >
-                    <b-form-checkbox value="license"
-                      >씨네소파 사업자등록증</b-form-checkbox
-                    >
+                    <b-form-checkbox value="license">
+                      씨네소파 사업자등록증
+                    </b-form-checkbox>
+                    <info
+                      >sopaseom.com 사이트 옵션에서 먼저 설정해야 합니다.
+                    </info>
                     <b-form-checkbox value="bank"
-                      >씨네소파 통장 사본</b-form-checkbox
-                    >
+                      >씨네소파 통장 사본
+                    </b-form-checkbox>
+                    <info>
+                      sopaseom.com 사이트 옵션에서 먼저 설정해야 합니다.
+                    </info>
                     <div class="d-flex align-items-center">
-                      <b-form-checkbox value="estimate">견적서</b-form-checkbox>
+                      <b-form-checkbox value="estimate">
+                        견적서
+                      </b-form-checkbox>
                       <b-button
                         class="border-0"
                         size="sm"
                         @click="downloadEstimateClicked"
                       >
-                        <font-awesome-icon
-                          :icon="['fas', 'download']"
-                        ></font-awesome-icon>
+                        <font-awesome-icon :icon="['fas', 'download']">
+                        </font-awesome-icon>
                       </b-button>
                     </div>
-                    <b-form-checkbox value="advertisement"
-                      >홍보물</b-form-checkbox
-                    >
+                    <b-form-checkbox value="advertisement">
+                      홍보물
+                    </b-form-checkbox>
+                    <info> 먼저 해당 영화 설정에서 설정해야 합니다. </info>
                   </b-form-checkbox-group>
                 </div>
                 <div class="col">
@@ -356,32 +406,66 @@
                     <b-form-checkbox value="receive">
                       세금계산서 관련 정보 <br />
                       (사업자등록증, 작성일자, 이메일)
+                      <info>
+                        먼저 <b>세금계산서 관련 정보 링크를 생성</b>해야 합니다.
+                        바로 한칸 위에서 링크를 생성해야 활성화됩니다.
+                      </info>
                     </b-form-checkbox>
                   </b-form-checkbox-group>
                 </div>
               </div>
               <div class="row">
-                <div class="col"></div>
+                <div class="col">
+                  <b-button
+                    size="sm"
+                    @click="reqDocLinkSampleClicked(row)"
+                    class="mr-2"
+                    >샘플 보기</b-button
+                  >
+                  <loading-button
+                    :loading="transportEmailSendloading"
+                    size="sm"
+                    @click="reqDocLinkSendClicked(row)"
+                    class="mr-2"
+                    variant="primary"
+                    >발송하기</loading-button
+                  >
+                </div>
               </div>
             </div>
           </form-row>
           <form-row title="세금계산서 상태">
+            <template #info>
+              필터링 하는 데 사용되는 것 외에 특별한 용도는 없습니다.<br />자동으로
+              수정되지 않으므로 직접 설정해야 합니다.
+            </template>
             <b-form-select
               :options="receiptStatusOptions"
               v-model="editing.receipt_status"
             ></b-form-select>
           </form-row>
           <form-row title="서류 요청 상태">
+            <template #info>
+              필터링 하는 데 사용되는 것 외에 특별한 용도는 없습니다.<br />자동으로
+              수정되지 않으므로 직접 설정해야 합니다.
+            </template>
             <b-form-select
               :options="docStatusOptions"
               v-model="editing.doc_status"
             ></b-form-select>
           </form-row>
           <form-row title="입금 예상일">
+            <template #info>
+              신청 목록에서 입금과 관련한 메시지 안내를 줄 때 사용됩니다.
+            </template>
             <b-form-datepicker v-model="editing.deposit_date" value-as-date>
             </b-form-datepicker>
           </form-row>
           <form-row title="정산 상태">
+            <template #info>
+              필터링 하는 데 사용되는 것 외에 특별한 용도는 없습니다.<br />자동으로
+              수정되지 않으므로 직접 설정해야 합니다.
+            </template>
             <b-form-select
               :options="moneyStatusOptions"
               v-model="editing.money_status"
@@ -389,6 +473,10 @@
             </b-form-select>
           </form-row>
           <form-row title="업체 사업자등록증">
+            <template #info>
+              신청자가 링크를 통해 사업자등록증을 업로드했다면 자동으로
+              반영됩니다. 관리자가 직접 파일을 지정하여 업로드할 수 있습니다.
+            </template>
             <b-button
               size="sm"
               @click="compLicenseDownloadClicked"
@@ -422,24 +510,31 @@
             ></b-form-textarea>
           </form-row>
           <h3 class="detail-header">기타</h3>
+          <hr />
           <form-row title="기타 요청">
-            <b-form-textarea
+            {{editing.etc_req}}
+            <!-- <b-form-textarea
               size="sm"
               v-model="editing.etc_req"
-            ></b-form-textarea>
+            ></b-form-textarea> -->
           </form-row>
           <form-row title="메모">
-            <b-form-textarea size="sm" v-model="editing.memo"></b-form-textarea>
+            <b-form-textarea size="sm" v-model="editing.memo" class="mb-2"></b-form-textarea>
+            <b-form-checkbox v-model="editing.memo_unremarked">메모 강조 표시를 해제합니다.</b-form-checkbox>
           </form-row>
-          <div class="d-flex position-sticky bottom-0">
-            <b-button @click="row.item._showDetails = false" class="mr-2"
+          <apply-button-set
+            @ok="detailSaveButtonClicked"
+            @cancel="row.item._showDetails = false"
+          ></apply-button-set>
+          <!-- <div class="d-flex position-sticky bottom-0 justify-content-end"> -->
+          <!-- <b-button @click="row.item._showDetails = false" class="mr-2"
               >취소</b-button
             >
             <b-button @click="detailSaveButtonClicked" variant="primary">
               <font-awesome-icon :icon="['fas', 'save']" class="mr-2" />
               변경사항 저장</b-button
-            >
-          </div>
+            > -->
+          <!-- </div> -->
         </div>
       </template>
     </b-table>
@@ -493,6 +588,7 @@ import ContextMenu from '@/components/context-menu/ContextMenu.vue';
 import ContextMenuButton from '@/components/context-menu/ContextMenuButton.vue';
 import FormRow from '@/components/admin/FormRow.vue';
 import LoadingButton from '@/components/LoadingButton.vue';
+import ApplyButtonSet from '@/components/admin/button/ApplyButtonSet.vue';
 /** @param {object} map 맵 */
 const mapToOption = (map) =>
   Object.keys(map).map((value) => ({
@@ -519,6 +615,7 @@ export default {
     BFormSelect,
     BFormDatepicker,
     BFormTextarea,
+    ApplyButtonSet,
   },
   data() {
     return {

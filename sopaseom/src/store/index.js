@@ -42,9 +42,6 @@ const s = new Vuex.Store({
    * store.getters.funcname 이렇게 속성으로 접근가능함.
    */
   getters: {
-    doubleCount(state) {
-      return state.count * 2;
-    },
 
     // 회원가입 동의 제대로 했는지 체크.
     // 회원가입 정보 적을 때 사용.

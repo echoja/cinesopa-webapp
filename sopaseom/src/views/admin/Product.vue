@@ -85,6 +85,7 @@ query productsQuery($condition: ProductSearch!) {
     list {
     id
     status
+    kit { num title }
     #  product_type
     #  featured_image_url
     #  featured_image_alt
@@ -157,8 +158,8 @@ export default {
           label: '이름',
         },
         {
-          key: 'kit_number',
-          label: '소파킷',
+          key: 'kit',
+          label: '키워드',
         },
         {
           key: 'related_film',
@@ -178,23 +179,22 @@ export default {
     };
   },
   computed: {
-    // page() {
-    //   const { page } = this.$route.params;
-    //   if (typeof page === 'number') return page;
-    //   return 1;
-    // },
+    /** @returns {boolean} */
     checkedAll() {
       return this.items.every((value) => value.checked === true);
     },
+    /** @returns {boolean} */
     checkedAtleastOne() {
       return this.items.some((value) => value.checked === true);
     },
+    /** @returns {number} */
     totalPages() {
       const o = Math.ceil(this.total / this.perpage);
       if (o === 0) return 1;
       // console.log(o);
       return o;
     },
+    /** @returns {boolean} */
     hasData() {
       return this.items.length !== 0;
     },
@@ -208,13 +208,13 @@ export default {
   async mounted() {
     // 페이지 설정
     const { page } = this.$route.params;
-    if (page) this.page = page;
+    if (page) this.page = parseInt(page, 10);
 
     // 값 받아오기
     await this.fetchData();
   },
   methods: {
-    ...mapActions(['pushMessage']),
+    pushMessage: mapActions(['pushMessage']).pushMessage,
     formatDate(date) {
       return moment(date).format('YY-MM-DD hh:mm:ss');
     },
@@ -251,11 +251,12 @@ export default {
       const result = await graphql(productsQuery, {
         condition: {
           product_type: 'sopakit',
-          page: parseInt(this.page, 10) - 1,
-          perpage: parseInt(this.perpage, 10),
+          page: this.page - 1,
+          perpage: this.perpage,
         },
       });
-      // console.log(result);
+      console.log('# Product fetchData');
+      console.log(result);
       const { products } = result.data;
       // 만약 데이터가 없으면 바로 리턴
       if (!products) return;
@@ -265,6 +266,7 @@ export default {
       const mappedProducts = products.list.map((product) => {
         product.checked = false;
         product.related_film = product?.related_film?.title;
+        product.kit = `${product?.kit?.num ?? ''} ${product?.kit?.title ?? ''}`;
         return product;
       });
       this.items = mappedProducts;

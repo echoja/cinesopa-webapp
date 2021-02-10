@@ -1,9 +1,42 @@
 <template>
   <div>
-    <header class="p-3">
-      <h2>글 목록</h2>
+    <header>
+      <h2 class="header">
+        <span class="mr-2">글 목록</span
+        ><info>글을 수정하려면 <b>열</b>을 클릭하세요</info>
+      </h2>
     </header>
-    <b-table :items="items" :fields="fields">
+    <b-table
+      :items="items"
+      :fields="fields"
+      @row-clicked="rowClicked"
+      hover
+      class="width-auto"
+    >
+      <template #head(permalink)="{ label }">
+        <!-- test -->
+        <span class="mr-2">{{ label }}</span>
+        <info
+          >숫자 형태로 자동으로 생성됩니다. url 을 구성할 때 사용됩니다. (예:
+          cinesopa.kr/post/숫자 )</info
+        >
+      </template>
+      <template #head(title_excerpt)="{ label }">
+        <!-- test -->
+        <span>{{ label }}</span>
+      </template>
+      <template #head(boardTitle)="{ label }">
+        <span class="mr-2">{{ label }}</span>
+        <info> 속해 있는 게시판입니다. </info>
+      </template>
+      <template #head(c_date)="{ label }">
+        <!-- test -->
+        <span>{{ label }}</span>
+      </template>
+      <template #head(m_date)="{ label }">
+        <!-- test -->
+        <span>{{ label }}</span>
+      </template>
       <template #cell(checkbox)="row">
         <b-form-checkbox v-model="row.item.checked"></b-form-checkbox>
       </template>
@@ -13,11 +46,12 @@
         </div>
       </template>
       <template #cell(title_excerpt)="row">
-        <!-- <p class="m-0"> -->
-        <b-link :to="{ name: 'PostEdit', params: { id: row.item.id } }">
+        <p class="m-0">
           {{ row.item.title }}
-        </b-link>
-        <!-- </p> -->
+          <!-- <b-link :to="{ name: 'PostEdit', params: { id: row.item.id } }">
+            
+          </b-link> -->
+        </p>
       </template>
       <template #cell(c_date)="row">
         <div class="text-monospace">
@@ -53,6 +87,7 @@ import { mapActions } from 'vuex';
 import { BButton, BFormCheckbox, BLink, BTable } from 'bootstrap-vue';
 import moment from 'moment';
 import { queryString, graphql } from '@/loader';
+import Info from '@/components/admin/Info.vue';
 
 moment.locale('ko');
 
@@ -63,6 +98,7 @@ export default {
     BFormCheckbox,
     BLink,
     BTable,
+    Info,
   },
   props: ['belongs_to'],
   data() {
@@ -118,12 +154,15 @@ export default {
     };
   },
   computed: {
+    /** @returns {boolean} */
     hasData() {
       return this.items.length !== 0;
     },
+    /** @returns {string} */
     page() {
       return this.$route.params.page;
     },
+    /** @returns {boolean} */
     checkedAtleastOne() {
       return this.items.findIndex((item) => item.checked === true) !== -1;
     },
@@ -136,7 +175,7 @@ export default {
     // console.log(`${this.belongs_to}, ${this.page}`);
   },
   methods: {
-    ...mapActions(['pushMessage']),
+    pushMessage: mapActions(['pushMessage']).pushMessage,
     formatDate(date) {
       return moment(date).format('YY-MM-DD hh:mm:ss');
     },
@@ -217,8 +256,21 @@ export default {
       }
       this.setDataFromServer();
     },
+    rowClicked(item, index, event) {
+      this.$router.push({ name: 'PostEdit', params: { id: item.id } });
+    },
   },
 };
 </script>
+
+<style lang="scss" scoped>
+h2.header {
+  font-size: 18px;
+  font-weight: bold;
+}
+.description {
+  font-size: 14px;
+}
+</style>
 
 <style></style>

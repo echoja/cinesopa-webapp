@@ -1,10 +1,10 @@
 <template>
   <div class="file-manager">
     <!-- <b-button @click="$bvModal.hide(modalId)">닫아줘!</b-button> -->
-    <h2>파일매니저</h2>
-    <hr />
+    <!-- <h2>파일매니저</h2>
+    <hr /> -->
     <div class="toolbar">
-      <div class="toolbar-left">
+      <div class="d-flex">
         <!-- <b-button size="sm">모두 선택</b-button> -->
         <b-button
           size="sm"
@@ -31,28 +31,38 @@
           파일들을 삭제하면 복구할 수 없으며, 삽입된 페이지/게시물 내에서도 모두
           찾을 수 없게 됩니다.</b-modal
         >
-        <b-form-file
-          class="d-inline-block w-auto"
-          v-model="uploadingFile"
-          :disabled="uploadingFile.length !== 0"
-          @input="onFileInput"
-          ref="fileUpload"
-          multiple
-          browse-text="업로드"
-          placeholder="클릭하여 파일/이미지 업로드"
-          variant="primary"
-          >파일 새롭게 업로드</b-form-file
-        >
       </div>
-      <div class="toolbar-right">
+      <div>
+        <div class="px-2 py-1 d-flex align-items-center">
+          <b class="mr-2">이미지/파일 업로드</b>
+          <b-form-file
+            class="d-inline-block w-auto"
+            v-model="uploadingFile"
+            :disabled="uploadingFile.length !== 0"
+            @input="onFileInput"
+            ref="fileUpload"
+            multiple
+            browse-text="찾아보기..."
+            placeholder="파일이 선택되지 않았습니다."
+            variant="primary"
+            >파일 새롭게 업로드</b-form-file
+          >
+        </div>
+      </div>
+      <div v-if="selectable">
+        <span>
+          {{ selectDescriptionText }}
+        </span>
         <b-button
           v-if="selectable"
           :disabled="selectedFiles.length === 0"
           variant="primary"
           @click="onSelect"
+          class="mr-2"
         >
           {{ selectMessage }}
         </b-button>
+        <b-button @click="onCancel"> 취소 </b-button>
         <!-- <b-button size="sm" variant="primary">새로 추가</b-button> -->
       </div>
     </div>
@@ -66,7 +76,7 @@
           </div>
           <div
             :class="{ detailed: file.detailed }"
-            class="file-item"
+            class="file-item col-md-4 col-lg-3 col-xl-2"
             v-for="(file, index) in files"
             :key="index"
           >
@@ -90,9 +100,10 @@
             <div class="item-checkbox">
               <b-form-checkbox
                 size="lg"
-                v-bind:checked="file.selected"
-                @change="itemChecked(index, $event)"
+                v-model="file.selected"
               ></b-form-checkbox>
+              <!-- v-bind:checked="file.selected"
+                @change="itemChecked(index, $event)" -->
             </div>
             <!-- </b-link> -->
           </div>
@@ -103,6 +114,25 @@
           @submit.prevent.stop="updateDetail"
           @change="detailFormChanged = true"
         >
+          <h3 class="form-h3">
+            파일 상세 정보 수정
+            <info class="ml-2">
+              <ul class="text-left pl-4">
+                <li>
+                  파일/이미지를 그냥 클릭한 후 상세 정보를 수정할 수 있습니다.
+                </li>
+                <li>
+                  삽입하거나 다른 파일의 세부사항을 수정하기 전에 아래
+                  <b>파일 세부정보 변경사항 적용</b> 버튼을 눌러야 합니다.
+                </li>
+                <li>
+                  대체 텍스트를 수정해도 이미 본문에 삽입한 이미지는 수정되지
+                  않습니다. 이미 삽입된 내용은 에디터에서 직접 수정해야 합니다.
+                </li>
+              </ul>
+            </info>
+          </h3>
+
           <!--------------- b-form-broup start ----------------->
           <b-form-group
             class="main-detail-row"
@@ -174,7 +204,7 @@
             label-align-sm="left"
             label-size="md"
             label-for="detail-label"
-            description="유저들에게 보여질 이름"
+            description="사용자가 파일을 다운로드할 때 나타나는 이름이며 일반적으로 드러나지 않습니다."
           >
             <b-form-input
               v-model="detailForm.label"
@@ -283,6 +313,7 @@ import {
 import { queryString, graphql } from '@/loader';
 import { makeSimpleQuery } from '@/api/graphql-client';
 import upload from '@/upload-client';
+import Info from '@/components/admin/Info.vue';
 
 const detailFormInitValue = () => ({
   filename: null,
@@ -317,6 +348,7 @@ export default {
     BFormInput,
     BForm,
     BFormFile,
+    Info,
   },
   props: {
     modalId: String,
@@ -324,6 +356,7 @@ export default {
       type: String,
       default: '삽입',
     },
+    selectDescription: String,
     selectable: {
       type: Boolean,
       default: true,
@@ -343,14 +376,16 @@ export default {
       files: [],
       uploadingFile: [],
       detailForm: detailFormInitValue(),
-      perpage: 20,
+      perpage: 24,
       page: 1,
     };
   },
   computed: {
+    /** @returns {string} */
     prettySize() {
       return prettyBytes(this.detailForm.size);
     },
+    /** @returns {string} */
     prettyCDate() {
       // eslint-disable-next-line camelcase
       const { c_date } = this.detailForm;
@@ -361,18 +396,27 @@ export default {
       if (c_date) return moment(c_date).format('YYYY.MM.DD a HH:mm:ss');
       return null;
     },
+    /** @returns {object[]} */
     selectedFiles() {
       return this.files.filter((file) => file.selected);
     },
+    /** @returns {object} */
     detailedFile() {
       return this.files[this.detailedIndex];
+    },
+    /** @returns {string} */
+    selectDescriptionText() {
+      const defaultText = this.selectOnlyOne
+        ? '하나를 선택 후 삽입을 누르세요.'
+        : '선택 후 삽입을 누르세요';
+      return this.selectDescription ?? defaultText;
     },
   },
   mounted() {
     this.fetchFiles();
   },
   methods: {
-    ...mapActions(['pushMessage']),
+    pushMessage: mapActions(['pushMessage']).pushMessage,
     mainListClicked() {
       // console.log('ho!');
       this.cancelDetail();
@@ -551,6 +595,9 @@ export default {
       this.$emit('file-manager-selected', this.selectedFiles);
       this.$bvModal.hide(this.modalId);
     },
+    onCancel() {
+      this.$bvModal.hide(this.modalId);
+    },
     itemChecked(index, value) {
       if (this.selectOnlyOne) {
         console.log(`ho index:${index}`);
@@ -562,7 +609,6 @@ export default {
           } else {
             newFile.selected = false;
           }
-          return newFile;
         });
 
         // this.files.forEach((file, forIndex) => {
@@ -607,8 +653,8 @@ h2 {
 }
 .file-item {
   padding: 3px;
-  width: 200px;
-  height: 200px;
+  /* width: 200px;
+  height: 200px; */
   border: 2px solid #ddd;
   margin-left: -2px;
   margin-top: -2px;
