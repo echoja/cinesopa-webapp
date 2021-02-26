@@ -68,10 +68,9 @@ const getFilmSearchStr = (FilmDoc) => {
   ]);
 };
 
-
 /**
- * 
- * @param {MongooseDocument} prodDoc 
+ *
+ * @param {MongooseDocument} prodDoc
  */
 
 const getPostSearchStr = (postDoc) => {
@@ -88,14 +87,18 @@ const getPostSearchStr = (postDoc) => {
 };
 
 /**
- * 
- * @param {MongooseDocument} prodDoc 
+ *
+ * @param {MongooseDocument} prodDoc
  */
 
 const getProductSearchStr = (prodDoc) => {
   const strArray = [];
   const { content_main = '', content_sub = '', name = '' } = prodDoc;
-  strArray.push(name, stripHtml(content_sub).result, stripHtml(content_main).result);
+  strArray.push(
+    name,
+    stripHtml(content_sub).result,
+    stripHtml(content_main).result,
+  );
   return searchArrToStr(strArray);
 };
 
@@ -120,13 +123,11 @@ const makeSchemaHaveSearch = (schema, searchField, fields) => {
   });
 };
 
-
 /**
  * @callback SearchStrGetter
  * @param {MongooseDocument} doc
- * @returns {string} 
+ * @returns {string}
  */
-
 
 /**
  * 해당 스키마에게 getter 를 이용해 search 기능을 만드는 함수
@@ -143,7 +144,7 @@ const makeSchemaHaveSearchByGetter = (schema, searchField, getter) => {
     const docToUpdate = await this.model.findOne(this.getFilter());
     if (docToUpdate) await docToUpdate.save();
   });
-}
+};
 
 module.exports = {
   getFilmSearchStr,
@@ -151,5 +152,5 @@ module.exports = {
   getProductSearchStr,
   getValueOfField,
   makeSchemaHaveSearch,
-  makeSchemaHaveSearchByGetter
+  makeSchemaHaveSearchByGetter,
 };
