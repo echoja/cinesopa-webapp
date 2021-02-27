@@ -1,8 +1,5 @@
 const mongoose = require('mongoose');
-// const AutoIncrementFactory = require('mongoose-sequence');
 const { mongodbUrl } = require('../config/common');
-
-//
 
 /**
  *

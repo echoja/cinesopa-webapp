@@ -4,7 +4,6 @@
   "authors": "EzKorry",
   "version": "0.1.0",
   "main": "pathToMain",
-  "dependencies": {},
   "type": "module",
   "scripts": {
     "cloc": "cloc --vcs=git --not-match-f=\"(yarn\\.lock|package\\.json|package\\-lock\\.json)\" .",
@@ -19,6 +18,5 @@
     "start": "npm run install && npm run build-client && npm run copy && npm run start-prod-server",
     "start-docker": "npm run install-prod && npm run build-client && npm run copy && npm run start-prod-docker-server",
     "test:server-mkdir": "cd server && npm run test:mkdir"
-  },
-  "devDependencies": {}
+  }
 }

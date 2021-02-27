@@ -15,7 +15,7 @@
 /server/uploads/*
 /server/config/*
 /proxy/config/*
-!/server/config/common/index-example.js
+!/server/config/*-example.js
 
 # Editor directories and files
 .idea
