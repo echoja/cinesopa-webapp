@@ -25,13 +25,18 @@
                 :description="fieldObj.description"
               ></info>
             </b-th>
-            <b-th
-              >삭제
-              <info
-                >&times; 버튼을 눌러 해당 항목을 삭제합니다.
-                <b>변경사항 저장</b>을 해야 삭제가 반영됩니다.</info
-              ></b-th
-            >
+            <b-th>
+              동작
+              <info>
+                <ul class="text-left pl-3">
+                  <li>
+                    &times; 버튼을 눌러 해당 항목을 삭제합니다.
+                    <b>변경사항 저장</b>을 해야 삭제가 반영됩니다.
+                  </li>
+                  <li>화살표 버튼을 눌러 순서를 조정합니다.</li>
+                </ul>
+              </info>
+            </b-th>
           </b-tr>
           <b-tr v-for="(row, rowIndex) in value" :key="rowIndex">
             <b-td
@@ -95,11 +100,34 @@
                   </b-modal>
                 </div>
               </div>
+
+              <!-- 필드가 date일 때 -->
+              <div v-else-if="fieldsObj[field].type === 'date'">
+                <b-form-datepicker
+                  value-as-date
+                  :value="row[field]"
+                  size="sm"
+                  @input="inputTableValue($event, rowIndex, field)"
+                ></b-form-datepicker>
+              </div>
             </b-td>
             <b-td>
-              <b-button class="remove-item" @click="removeRow(rowIndex)"
-                >&times;</b-button
-              >
+              <!-- <b-button class="border-secondary" @click="removeRow(rowIndex)">
+                &times;
+              </b-button> -->
+              <b-button class="border-light" @click="removeRow(rowIndex)">
+                <font-awesome-icon :icon="['fas', 'times']"></font-awesome-icon>
+              </b-button>
+              <b-button class="border-light" @click="moveUpClicked(rowIndex)">
+                <font-awesome-icon
+                  :icon="['fas', 'arrow-up']"
+                ></font-awesome-icon>
+              </b-button>
+              <b-button class="border-light" @click="moveDownClicked(rowIndex)">
+                <font-awesome-icon
+                  :icon="['fas', 'arrow-down']"
+                ></font-awesome-icon>
+              </b-button>
             </b-td>
           </b-tr>
         </b-table-simple>
@@ -178,6 +206,7 @@ import {
   BFormCheckbox,
   BFormInput,
   BButton,
+  BFormDatepicker,
 } from 'bootstrap-vue';
 import CommonEditor from '@/components/admin/CommonEditor.vue';
 import Info from './Info.vue';
@@ -199,6 +228,7 @@ export default {
     BImgLazy,
     Info,
     CommonEditor,
+    BFormDatepicker,
   },
   props: {
     type: {
@@ -237,6 +267,10 @@ export default {
   created() {
     this.id = uuid;
     uuid += 1;
+  },
+
+  mounted() {
+    this.parseInitialTableDate();
   },
 
   methods: {
@@ -306,6 +340,48 @@ export default {
       // console.log('# SiteOptionRow normalInput,');
       // console.log(value);
       this.$emit('input', value);
+    },
+    moveUpClicked(fieldIndex) {
+      if (this.type !== 'table' || fieldIndex === 0) {
+        return;
+      }
+      const value = [...this.value];
+      const imsi = value[fieldIndex];
+      value[fieldIndex] = value[fieldIndex - 1];
+      value[fieldIndex - 1] = imsi;
+      this.$emit('input', value);
+    },
+    moveDownClicked(fieldIndex) {
+      if (
+        this.type !== 'table' ||
+        fieldIndex === (this.value?.length ?? 1) - 1
+      ) {
+        return;
+      }
+      const value = [...this.value];
+      const imsi = value[fieldIndex];
+      value[fieldIndex] = value[fieldIndex + 1];
+      value[fieldIndex + 1] = imsi;
+      this.$emit('input', value);
+    },
+    /** 
+     * date 는 그대로 받아오면 string 으로 받아오므로, 이것을 date 형식으로 바꿔줘야 할 필요가 있음.
+     */
+    parseInitialTableDate() {
+      if (this.type !== 'table') return;
+
+      this.value.forEach((row, rowIndex) => {
+        Object.keys(row).forEach((field) => {
+          // date 가 있으나 그 값이 일반 string 으로 이루어져 있을 때
+          if (
+            this.fieldsObj[field].type === 'date' &&
+            typeof row[field] &&
+            row[field].length !== 0
+          ) {
+            this.inputTableValue(new Date(row[field]), rowIndex, field);
+          }
+        });
+      });
     },
   },
 };

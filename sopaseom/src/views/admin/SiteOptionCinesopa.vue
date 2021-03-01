@@ -38,6 +38,13 @@
         작성하면 됩니다."
         type="table"
       ></site-option-row>
+      <site-option-row
+        v-model="form.history.value"
+        :fields-obj="typedef.history"
+        label="연혁"
+        description="회사 소개에서 연혁에 들어갈 내용입니다. 나중에 보여질 때 날짜를 기준으로 자동으로 정렬되므로, 순서는 상관이 없습니다."
+        type="table"
+      ></site-option-row>
     </site-option-table>
     <hr />
     <b-button :disabled="disableConfirm" @click="confirmClicked"
@@ -74,12 +81,6 @@ export default {
     return {
       typedef: {
         person: {
-          id: {
-            type: 'string',
-            label: '식별자',
-            description:
-              '내부적으로 구분짓기 위한 고유 id 값입니다. 겹치지만 않도록 1, 2, 3, 4... 로 설정해주시면 됩니다.',
-          },
           name: {
             type: 'string',
             label: '이름',
@@ -112,6 +113,16 @@ export default {
             label: '이미지',
             description:
               '손글씨 이미지를 설정합니다. 최대 크기는 400px * 200px 이고, 이미지의 비율이 맞지 않아도 칸에 올바르게 배치됩니다.',
+          },
+        },
+        history: {
+          date: {
+            type: 'date',
+            label: '날짜',
+          },
+          content: {
+            type: 'string',
+            label: '내용',
           },
         },
       },
@@ -159,7 +170,10 @@ export default {
           label: '사람들',
           type: 'array',
           value: [],
-          typedef: 'person',
+        },
+        history: {
+          type: 'array',
+          value: [],
         },
         is_site_public: {
           label: '사이트 공개 여부',
@@ -180,11 +194,12 @@ export default {
     // },
   },
   async mounted() {
-    await this.initOptionValues(this.form);
+    await this.initOptionValues();
   },
   methods: {
     ...mapActions(['pushMessage']),
-    async initOptionValues(form) {
+    async initOptionValues() {
+      const { form } = this;
       const names = Object.keys(form);
       const res = await graphql(siteOptionsQuery, {
         names,
@@ -224,7 +239,17 @@ export default {
         formItem.file.mimetype = file.mimetype;
       }
     },
+    sortHistory() {
+      console.log('# SiteOptionCinesopa sortHistory value');
+      console.log(this.form.history.value);
+      const hiv = Array.from(this.form.history.value);
+      hiv.sort((a, b) => (a.date > b.date ? 1 : -1));
+      this.form.history.value = hiv;
+      console.log(hiv);
+    },
     async confirmClicked() {
+      this.sortHistory();
+
       // console.log('# confirmClicked');
       // console.log(this.form);
       const inputs = Object.keys(this.form).map((name) => ({

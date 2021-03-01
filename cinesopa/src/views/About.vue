@@ -206,7 +206,7 @@
             v-for="(event, index) in yearGroup.events"
             :key="index"
           >
-            {{ event.title }}
+            {{ event.content }}
           </div>
         </div>
       </div>
@@ -216,60 +216,81 @@
 
 <script>
 import AOS from 'aos';
-import { parseUploadLink } from '../util';
 import { graphql, siteOptionsQuery } from '@/graphql-client';
+import { parseUploadLink } from '../util';
 
 export default {
   name: 'About',
-  title: '회사소개',
   data() {
     return {
       people: [],
       history: [
         {
           date: new Date('2019-05-03'),
-          title: '영화展; 기억할 만한 지나침[머무는 집] 전시',
+          content: '영화展; 기억할 만한 지나침[머무는 집] 전시',
         },
         {
           date: new Date('2019-04-03'),
-          title: '<기억할 만한 지나침> 전국 개봉',
+          content: '<기억할 만한 지나침> 전국 개봉',
         },
-        { date: new Date('2019-03-03'), title: '<밤의 문이 열린다> 전국 개봉' },
+        {
+          date: new Date('2019-03-03'),
+          content: '<밤의 문이 열린다> 전국 개봉',
+        },
         {
           date: new Date('2019-02-03'),
-          title: '높아서 재송 ‘재송동 사무실’시대 개막',
+          content: '높아서 재송 ‘재송동 사무실’시대 개막',
         },
         {
           date: new Date('2019-01-03'),
-          title: '부산독립영화제 순회상영회 <단, 비>진행',
+          content: '부산독립영화제 순회상영회 <단, 비>진행',
         },
-        { date: new Date('2018-06-03'), title: '<마담B> 전국 개봉' },
-        { date: new Date('2018-05-03'), title: '시민배급단 씨네보배 1기 운영' },
-        { date: new Date('2018-04-03'), title: '부산형 예비사회적 기업 지정' },
-        { date: new Date('2018-03-03'), title: '배급기록집 [소파섬] 1호 출간' },
-        { date: new Date('2018-02-03'), title: '관객리뷰단 씨네보쓰 2기 운영' },
+        { date: new Date('2018-06-03'), content: '<마담B> 전국 개봉' },
+        {
+          date: new Date('2018-05-03'),
+          content: '시민배급단 씨네보배 1기 운영',
+        },
+        {
+          date: new Date('2018-04-03'),
+          content: '부산형 예비사회적 기업 지정',
+        },
+        {
+          date: new Date('2018-03-03'),
+          content: '배급기록집 [소파섬] 1호 출간',
+        },
+        {
+          date: new Date('2018-02-03'),
+          content: '관객리뷰단 씨네보쓰 2기 운영',
+        },
         {
           date: new Date('2018-01-03'),
-          title: '<파란입이 달린 얼굴> 전국 개봉',
+          content: '<파란입이 달린 얼굴> 전국 개봉',
         },
-        { date: new Date('2017-05-03'), title: '배급기록집 [소파섬] 0호 출간' },
-        { date: new Date('2017-04-03'), title: '관객리뷰단 씨네보쓰 1기 운영' },
+        {
+          date: new Date('2017-05-03'),
+          content: '배급기록집 [소파섬] 0호 출간',
+        },
+        {
+          date: new Date('2017-04-03'),
+          content: '관객리뷰단 씨네보쓰 1기 운영',
+        },
         {
           date: new Date('2017-03-03'),
-          title: '<그럼에도 불구하고> 전국 개봉',
+          content: '<그럼에도 불구하고> 전국 개봉',
         },
         {
           date: new Date('2017-02-03'),
-          title: '영화배급협동조합 씨네소파 설립',
+          content: '영화배급협동조합 씨네소파 설립',
         },
         {
           date: new Date('2017-01-03'),
-          title: '영화배급협동조합 씨네소파 창립총회',
+          content: '영화배급협동조합 씨네소파 창립총회',
         },
       ],
     };
   },
   computed: {
+    /** @returns {object} */
     formattedHistory() {
       const yearKeyed = {};
       this.history.forEach((event) => {
@@ -294,11 +315,11 @@ export default {
     // console.log(AOS);
     AOS.init();
     const res = await graphql(siteOptionsQuery, {
-      names: ['person'],
+      names: ['person', 'history'],
     });
     const result = res.data.siteOptions;
-    // console.log('# About = mounted');
-    // console.log(result);
+    console.log('# About = mounted');
+    console.log(result);
     this.people = result[0].value.map((item) => ({
       name: item.name,
       nickname: item.nickname,
@@ -309,6 +330,10 @@ export default {
       // eslint-disable-next-line global-require
       imageLink: item.image.fileurl,
       imageAlt: item.image.alt,
+    }));
+    this.history = result[1].value.map((item) => ({
+      ...item,
+      date: new Date(item.date),
     }));
   },
   methods: {
