@@ -43,73 +43,75 @@
               v-for="(field, fieldIndex) in Object.keys(row)"
               :key="fieldIndex"
             >
-              <!-- 필드가 string일 때 -->
-              <div v-if="fieldsObj[field].type === 'string'">
-                <b-form-input
-                  size="sm"
-                  :value="row[field]"
-                  @input="inputTableValue($event, rowIndex, field)"
-                >
-                </b-form-input>
-              </div>
-              <!-- 필드가 file일 때 -->
-              <div v-else-if="fieldsObj[field].type === 'file'">
-                <div>
-                  <p class="mb-0 text-center">
-                    <b-img-lazy
-                      class="input-table-image-preview"
-                      v-if="row[field].mimetype.startsWith('image')"
-                      :src="`${row[field].fileurl}?size=file_preview`"
-                      :style="{ maxWidth: '100px' }"
-                    >
-                      이미지
-                    </b-img-lazy>
-                    <template v-else-if="row[field].label">
-                      선택된 파일 :
-                      {{ row[field].label }}
-                    </template>
-                    <template v-else> 파일을<br />설정해주세요. </template>
-                  </p>
-                </div>
-                <div class="text-center mt-3">
-                  <!-- style="min-width: 100px" -->
-                  <b-button
+              <template v-if="fieldsObj[field]">
+                <!-- 필드가 string일 때 -->
+                <div v-if="fieldsObj[field].type === 'string'">
+                  <b-form-input
                     size="sm"
-                    @click="
-                      $bvModal.show(
-                        `input-file-${id}-${rowIndex}-${field}-modal`,
-                      )
-                    "
+                    :value="row[field]"
+                    @input="inputTableValue($event, rowIndex, field)"
                   >
-                    설정
-                  </b-button>
-                  <b-modal
-                    size="xl"
-                    hide-header
-                    hide-footer
-                    :id="`input-file-${id}-${rowIndex}-${field}-modal`"
-                  >
-                    <file-manager
-                      :modal-id="`input-file-${id}-${rowIndex}-${field}-modal`"
-                      @file-manager-selected="
-                        handleTableFile($event, rowIndex, field)
+                  </b-form-input>
+                </div>
+                <!-- 필드가 file일 때 -->
+                <div v-else-if="fieldsObj[field].type === 'file'">
+                  <div>
+                    <p class="mb-0 text-center">
+                      <b-img-lazy
+                        class="input-table-image-preview"
+                        v-if="row[field].mimetype.startsWith('image')"
+                        :src="`${row[field].fileurl}?size=file_preview`"
+                        :style="{ maxWidth: '100px' }"
+                      >
+                        이미지
+                      </b-img-lazy>
+                      <template v-else-if="row[field].label">
+                        선택된 파일 :
+                        {{ row[field].label }}
+                      </template>
+                      <template v-else> 파일을<br />설정해주세요. </template>
+                    </p>
+                  </div>
+                  <div class="text-center mt-3">
+                    <!-- style="min-width: 100px" -->
+                    <b-button
+                      size="sm"
+                      @click="
+                        $bvModal.show(
+                          `input-file-${id}-${rowIndex}-${field}-modal`,
+                        )
                       "
                     >
-                      <!-- // todo -->
-                    </file-manager>
-                  </b-modal>
+                      설정
+                    </b-button>
+                    <b-modal
+                      size="xl"
+                      hide-header
+                      hide-footer
+                      :id="`input-file-${id}-${rowIndex}-${field}-modal`"
+                    >
+                      <file-manager
+                        :modal-id="`input-file-${id}-${rowIndex}-${field}-modal`"
+                        @file-manager-selected="
+                          handleTableFile($event, rowIndex, field)
+                        "
+                      >
+                        <!-- // todo -->
+                      </file-manager>
+                    </b-modal>
+                  </div>
                 </div>
-              </div>
 
-              <!-- 필드가 date일 때 -->
-              <div v-else-if="fieldsObj[field].type === 'date'">
-                <b-form-datepicker
-                  value-as-date
-                  :value="row[field]"
-                  size="sm"
-                  @input="inputTableValue($event, rowIndex, field)"
-                ></b-form-datepicker>
-              </div>
+                <!-- 필드가 date일 때 -->
+                <div v-else-if="fieldsObj[field].type === 'date'">
+                  <b-form-datepicker
+                    value-as-date
+                    :value="row[field]"
+                    size="sm"
+                    @input="inputTableValue($event, rowIndex, field)"
+                  ></b-form-datepicker>
+                </div>
+              </template>
             </b-td>
             <b-td>
               <!-- <b-button class="border-secondary" @click="removeRow(rowIndex)">
@@ -364,7 +366,7 @@ export default {
       value[fieldIndex + 1] = imsi;
       this.$emit('input', value);
     },
-    /** 
+    /**
      * date 는 그대로 받아오면 string 으로 받아오므로, 이것을 date 형식으로 바꿔줘야 할 필요가 있음.
      */
     parseInitialTableDate() {
