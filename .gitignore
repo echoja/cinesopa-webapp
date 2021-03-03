@@ -16,6 +16,7 @@
 /server/config/*
 /proxy/config/*
 !/server/config/*-example.js
+!/server/config/*-example.json
 
 # Editor directories and files
 .idea

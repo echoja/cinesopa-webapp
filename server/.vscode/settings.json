@@ -10,8 +10,6 @@
   "prettier.singleQuote": true,
   "prettier.trailingComma": "all",
   "prettier.arrowParens": "always",
-  "typescript.format.enable": false,
-  "javascript.validate.enable": false,
   "search.exclude": {
     "**/node_modules": true,
     "**/dist": true,

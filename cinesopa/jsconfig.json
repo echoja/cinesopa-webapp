@@ -1,12 +1,12 @@
 {
   "baseUrl": ".",
-  "include": [".src/**/*"],
+  "include": ["./src/**/*"],
   "compilerOptions": {
+    "checkJs": true,
     "baseUrl": ".",
     "module": "es2020",
     "target": "esnext",
     "moduleResolution": "node",
-    "checkJs": true,
     "sourceMap": true,
     "paths": {
       "@/*": ["src/*"],
