@@ -430,8 +430,7 @@ import DatePicker from 'tui-date-picker';
 extend('shouldCheck', (value) => value === true);
 
 export default {
-  title: '배급의뢰 - 신청하기',
-  name: 'Distribution',
+  // title: ,
   components: {
     privacy: Privacy,
     'validation-observer': ValidationObserver,
@@ -441,8 +440,9 @@ export default {
   },
   data() {
     return {
-      required: true,
-      // required: false,
+      vuePageTitle: '배급의뢰 - 신청하기',
+      // required: true,
+      required: false,
       checkPrivacy: false,
       submitting: false,
       form: {
@@ -512,8 +512,8 @@ export default {
             },
             '{success code recipient}',
           );
-          // console.log('# Distribution submit result');
-          // console.log(result);
+          console.log('# Distribution submit result');
+          console.log(result);
           this.$router.push({ name: 'SuccessRequest' });
         } else {
           // this.$scrollTo(this.$refs.observer.$el, 500);
@@ -556,6 +556,8 @@ export default {
     },
   },
   computed: {
+
+    /** @returns {string} */
     directorInfoFrom() {
       return this.form.isUserSameWithDirector ? 'user' : 'director';
     },

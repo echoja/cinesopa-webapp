@@ -54,15 +54,7 @@ class UserService {
 
     // 디버그 모드가 아닐 때에만 메일 발송!
     if (!debug) {
-      // await this.#mail.sendMail(
-      //   mailGate,
-      //   '[소파섬] 회원가입 - 이메일 인증',
-      //   `
-      // <div>
-      //   <p>회원가입을 완료하려면 <a href="https://sopaseom.com/verify-email?token=${token}">링크를 클릭</a>하세요.
-      // </div>`,
-      // );
-      await this.#mail.sendMailTemplate(mailGate, subject, 'verify-mail', {
+      await this.#mail.sendTemplatedGmail(mailGate, subject, 'verify-mail', {
         verifyUrl: `https://sopaseom.com/verify-email?token=${token}`,
       });
     }
@@ -119,7 +111,7 @@ class UserService {
     };
     if (!debug) {
       this.#mail
-        .sendMailTemplate(
+        .sendTemplatedGmail(
           mailGate,
           '[소파섬] 비밀번호 변경 링크',
           'change-password',
@@ -129,7 +121,7 @@ class UserService {
         )
         .catch((err) => {
           console.log(
-            '# user service requestChangePassword sendMailTemplate 실패',
+            '# user service requestChangePassword sendTemplatedMail 실패',
           );
           console.error(err);
         });

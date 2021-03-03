@@ -172,7 +172,7 @@ module.exports = {
       // 결제 완료 되었다고 메일을 보냄
       order = await db.getOrder(id);
       mail
-        .sendMailTemplate(
+        .sendTemplatedMail(
           {
             recipientEmail: user.email,
             recipientName: order.payer ?? order?.dest?.name ?? '',

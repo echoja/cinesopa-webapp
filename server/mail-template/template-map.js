@@ -11,6 +11,7 @@ const _fileinfo = {
 /**
  * 기본 arguments를 항상 포함하는 rednerer 함수를 반한합니다.
  * 실제로 호출될 때는 이 함수로 만들어진 renderer 만 호출됩니다.
+ * css inline 화도 수행합니다.
  * @param {import('pug').compileTemplate} renderer
  * @param {Object.<string, string>} defaultArgs
  * @return {MailRendererWrapper}
@@ -47,7 +48,7 @@ const _getDefaultArgs = async () => {
 
 /**
  * 메일 템플릿 맵을 만들어주는 async 함수입니다.
- * @param {Array<Object.<string, string>>} fileinfo {별칭:파일이름}
+ * @param {Object.<string, string>} fileinfo {별칭:파일이름}
  * @param {DefaultArgsGetter} getDefaultArgs async 함수여야 함!!
  * @return {Promise<TemplateMap>}
  */

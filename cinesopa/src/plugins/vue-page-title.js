@@ -12,7 +12,7 @@ import Vue from 'vue';
 const suffix = ' - 영화배급협동조합 씨네소파';
 const pageTitle = {
   watch: {
-    $route(to) {
+    $route() {
       const { title } = this.$options;
       if (typeof title === 'string') {
         document.title = `${title}${suffix}`;

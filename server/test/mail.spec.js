@@ -126,11 +126,11 @@ describe('mail', function () {
       });
     });
 
-    describe('sendMailTemplate', function () {
+    describe('sendTemplatedMail', function () {
       it('제대로 동작해야 함', async function () {
         this.skip() // 메일을 실제로 보내고 싶다면 주석으로 하세요.
         this.timeout(10000);
-        const result = await mailManager.sendMailTemplate(
+        const result = await mailManager.sendTemplatedMail(
           { recipientEmail: 'eszqsc112@naver.com', recipientName: '고객님' },
           '메일 제목~',
           'test',

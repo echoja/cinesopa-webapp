@@ -463,26 +463,7 @@ class DBManager {
       throw Error(`removePage: ${id}에 해당하는 페이지가 존재하지 않습니다`);
     }
   }
-  /*= ====================================
-  옵션 (Global Variables 등)
-  ===================================== */
 
-  /**
-   * 옵션을 얻습니다.
-   * @param {string} name 옵션 이름
-   */
-  async getOption(name) {
-    return null;
-  }
-
-  /**
-   * 옵션을 설정합니다.
-   * @param {string}} name
-   * @param {object} param1
-   */
-  async setOption(name, { type, value }) {
-    return null;
-  }
   /*= ====================================
   파일
   ===================================== */
@@ -1781,6 +1762,15 @@ class DBManager {
     // console.log(result);
     if (result.deletedCount !== 1) return { success: false };
     return { success: true };
+  }
+  
+  /**
+   * 사이트 옵션에 저장되어 있는 download url 및 파일 정보를 가져옵니다.
+   * @param {string} name
+   */
+  async getSiteOptionFileInfo(name) {
+    // todo
+    return null;
   }
 }
 
