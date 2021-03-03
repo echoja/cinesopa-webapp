@@ -30,14 +30,14 @@ const pageTitle = {
   },
   mounted() {
     const { title } = this.$options;
+    const { vuePageTitle } = this;
     if (typeof title === 'string') {
       document.title = `${title}${suffix}`;
     } else if (typeof title === 'function') {
       document.title = `${title.call(this, this)}${suffix}`;
-      // console.log('# vue-page-title title function');
-      // console.log(document.title);
-    } else {
-      // document.title = '영화배급협동조합 씨네소파';
+    }
+    if (vuePageTitle && typeof vuePageTitle === 'string') {
+      document.title = `${vuePageTitle}${suffix}`;
     }
   },
 };
