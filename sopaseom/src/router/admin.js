@@ -14,6 +14,10 @@ export default [
     ...adminRoute('/admin/file', 'File'),
     component: () => import('@/views/admin/File.vue'),
   },
+  {
+    ...adminRoute('/admin/options', 'SiteOptionCommon'),
+    component: () => import('@/views/admin/SiteOptionCommon.vue'),
+  },
 
   /** cinesopa - board, post */
   {

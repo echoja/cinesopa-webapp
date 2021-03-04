@@ -67,30 +67,30 @@ const ACCOUNT = 'ssong@cinesopa.kr';
 /**
  * 메일을 주고 받는 연결점
  * @typedef {Object} MailGate
- * @property {string} senderName
- * @property {string} senderEmail
- * @property {string} recipientName
- * @property {string} recipientEmail
- */
-
-/**
- * @typedef {MailManager} MailManager
+ * @property {string} [senderName]
+ * @property {string} [senderEmail]
+ * @property {string} [recipientName]
+ * @property {string} [recipientEmail]
  */
 
 /**
  * 메일 매니저에 집어넣을 config 입니다.
  * @typedef {Object} MailManagerConfig
- * @property {TemplateMap} templateMap
+ * @property {Promise<TemplateMap>} [templateMapPromise]
  */
 
-class MailManager {
+/**
+ * @typedef {MailManagerC} MailManager
+ */
+
+class MailManagerC {
   /**
    *
    * @param {import("nodemailer").Transporter} transporter
    * @param {MailManagerConfig} config
    */
   constructor(transporter, config) {
-    const { templateMapPromise = new Map() } = config;
+    const { templateMapPromise = Promise.resolve(new Map()) } = config;
 
     /** @type {import("nodemailer").Transporter} */
     this.transporter = transporter;
@@ -157,7 +157,7 @@ class MailManager {
   /**
    * 템플릿 이름 기반으로 보냅니다.
    * @param {MailGate} gate
-   * @param {subject} subject 제목
+   * @param {string} subject 제목
    * @param {string} templateName 템플릿 이름
    * @param {Object} args 템플릿에 렌더링 시 들어갈 것들.
    * @return {Promise<sendTemplatedMailResult>}
@@ -201,8 +201,7 @@ class MailManager {
    * @param {string} subject 제목
    * @param {string} html 내용
    */
-  async sendGmail(gate, subject, html)
-  {
+  async sendGmail(gate, subject, html) {
     // gmail
     this.gmail = google.gmail({
       auth: this.auth,
@@ -294,6 +293,6 @@ module.exports = {
    * @returns {MailManager}
    */
   make(transporter, config = {}) {
-    return new MailManager(transporter, config);
+    return new MailManagerC(transporter, config);
   },
 };

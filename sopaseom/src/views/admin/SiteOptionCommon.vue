@@ -1,34 +1,30 @@
 <template>
-  <div class="site-option-cinesopa">
+  <div class="site-option-common">
     <header>
-      <h2>소파섬 사이트 정보 수정</h2>
+      <h2>관리 정보</h2>
     </header>
 
     <site-option-table>
       <site-option-row
-        v-model="form.transportation_fee.value"
-        :label="form.transportation_fee.label"
-        description="모든 상품의 배송비를 일괄 설정합니다. 현재 상품별로 배송비를 설정할 수는
-        없습니다. 이미 결제가 완료된 주문의 배송비도 수정할 수 없습니다."
-        :type="form.transportation_fee.type"
+        v-model="form.distribution_application_email.value"
+        :label="form.distribution_application_email.label"
+        description="배급 의뢰를 받을 이메일을 설정합니다. 여러 개를 설정할 수 있습니다."
+        :type="form.distribution_application_email.type"
+        :fields-obj="form.distribution_application_email.typedef"
       ></site-option-row>
       <site-option-row
-        v-model="form.default_notice.value"
-        :label="form.default_notice.label"
-        description="매 상품 설명 페이지 하단에 들어가는 공통 공지의 기본값을 설정합니다. 각 상품 편집에서 이 설정을 덮어쓸 수 있습니다."
-        :type="form.default_notice.type"
+        v-model="form.show_application_email.value"
+        :label="form.show_application_email.label"
+        description="공동체 상영 신청을 받을 이메일 및 공동체 상영 관련 알림 메일을 설정합니다. 여러 개를 설정할 수 있습니다."
+        :type="form.show_application_email.type"
+        :fields-obj="form.show_application_email.typedef"
       ></site-option-row>
       <site-option-row
-        v-model="form.option_privacy.value"
-        :label="form.option_privacy.label"
-        description="개인정보보호방침과 관련된 내용입니다."
-        :type="form.option_privacy.type"
-      ></site-option-row>
-      <site-option-row
-        v-model="form.option_policy.value"
-        :label="form.option_policy.label"
-        description="소파섬 이용약관을 설정합니다."
-        :type="form.option_policy.type"
+        v-model="form.shopping_email.value"
+        :label="form.shopping_email.label"
+        description="소파섬 판매와 같은 상품 관련 알림 메일을 설정합니다. 여러 개를 설정할 수 있습니다."
+        :type="form.shopping_email.type"
+        :fields-obj="form.shopping_email.typedef"
       ></site-option-row>
     </site-option-table>
     <hr />
@@ -61,29 +57,45 @@ export default {
   directives: {
     'b-toggle': VBToggle,
   },
-  name: 'SiteOptionSopaseom',
+  name: 'SiteOptionCommon',
   data() {
     return {
       form: {
-        transportation_fee: {
-          label: '기본 배송비',
+        distribution_application_email: {
+          label: '배급의뢰 받을 이메일',
           value: null,
-          type: 'number',
+          type: 'table',
+          typedef: {
+            email: {
+              type: 'string',
+              label: '이메일',
+              description: '이메일을 작성합니다.',
+            },
+          },
         },
-        default_notice: {
-          label: '상품 안내사항 기본값',
+        show_application_email: {
+          label: '공동체상영 신청 받을 이메일',
           value: null,
-          type: 'editor',
+          type: 'table',
+          typedef: {
+            email: {
+              type: 'string',
+              label: '이메일',
+              description: '이메일을 작성합니다.',
+            },
+          },
         },
-        option_privacy: {
-          label: '개인정보처리방침',
+        shopping_email: {
+          label: '상품 판매 관련 알림 받을 메일',
           value: null,
-          type: 'editor',
-        },
-        option_policy: {
-          label: '소파섬 이용약관',
-          value: null,
-          type: 'editor',
+          type: 'table',
+          typedef: {
+            email: {
+              type: 'string',
+              label: '이메일',
+              description: '이메일을 작성합니다.',
+            },
+          },
         },
       },
     };

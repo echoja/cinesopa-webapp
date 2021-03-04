@@ -1,12 +1,11 @@
-const fs = require('fs');
-const pug = require('pug');
-const util = require('util');
-const inlineCss = require('inline-css');
-require('../typedef');
-
+const fs = require("fs");
+const pug = require("pug");
+const util = require("util");
+const inlineCss = require("inline-css");
+require("../typedef");
 
 const _fileinfo = {
-  'verify-mail': 'mail-template/verify-mail.pug',
+  "verify-mail": "mail-template/verify-mail.pug",
 };
 /**
  * 기본 arguments를 항상 포함하는 rednerer 함수를 반한합니다.
@@ -24,7 +23,7 @@ const makeRendererWrapper = (renderer, defaultArgs) => {
       ...args,
     });
     const inlined = await inlineCss(string, {
-      url: '/',
+      url: "/",
     });
     return inlined;
   };
@@ -36,8 +35,8 @@ const makeRendererWrapper = (renderer, defaultArgs) => {
 const _getDefaultArgs = async () => {
   // 각종 기본 Args를 받아옴.
   return {
-    name: 'hi',
-    // todo: 관리자 이메일을 받아올 수 있어야 함. 
+    name: "hi",
+    // todo: 관리자 이메일을 받아올 수 있어야 함.
   };
 };
 
@@ -54,34 +53,45 @@ const _getDefaultArgs = async () => {
  */
 const makeTemplateMap = async (
   fileinfo = _fileinfo,
-  getDefaultArgs = _getDefaultArgs,
+  getDefaultArgs = _getDefaultArgs
 ) => {
   const readFile = util.promisify(fs.readFile);
 
   // fileinfo 의 값을 하나하나 읽어서 [name, pug renderer] 를 내뱉는
   // Promise 의 배열을 만듭니다.
+
   const promises = Object.keys(fileinfo).map((name) => {
     const filename = fileinfo[name];
 
     // Promise 를 반환합니다. (async 함수는 그냥 실행하면 Promise 를 리턴함.)
-    return (async () => {
+    const promise = (async () => {
       // 템플릿 문자열과 defaultArgs 을 동시에 가져옴.
-      const promises = [readFile(filename), getDefaultArgs()];
-      const results = await Promise.allSettled(promises);
-      const [{ value: templateString }, { value: defaultArgs }] = results;
+      const templateStringProm = readFile(filename);
+      const defaultArgsProm = getDefaultArgs();
+
+      const templateString = await Promise.resolve(templateStringProm);
+      const defaultArgs = await Promise.resolve(defaultArgsProm);
 
       // 렌더러 함수를 만들고 거기에 대한 래퍼 함수도 만듬.
-      const renderer = pug.compile(templateString, { filename });
+      const renderer = pug.compile(templateString.toString(), { filename });
       const rendererWrapper = makeRendererWrapper(renderer, defaultArgs);
-      return [name, rendererWrapper];
+
+      /** @type {[string, MailRendererWrapper]} */
+      const result = [name, rendererWrapper];
+      return result;
     })();
+    return promise;
   });
 
   // value 들을 불러옵니다.
   const results = await Promise.allSettled(promises);
-  // console.log('# mail-template generate makeTemplateMap resuts');
-  // console.log(results);
-  const mapInputs = results.map(({ value }) => value);
+  const mapInputs = results.map((result) => {
+    if (result.status === "fulfilled") {
+      return result.value;
+    } else {
+      return null;
+    }
+  });
   return new Map(mapInputs);
 };
 

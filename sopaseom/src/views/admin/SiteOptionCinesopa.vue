@@ -168,11 +168,12 @@ export default {
         // },
         person: {
           label: '사람들',
-          type: 'array',
+          type: 'table',
           value: [],
         },
         history: {
-          type: 'array',
+          label: '연혁',
+          type: 'table',
           value: [],
         },
         is_site_public: {

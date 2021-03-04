@@ -10,7 +10,21 @@
             <span>파일</span>
             <info>
               파일 관리자를 엽니다. 파일을 업로드하여 추후에 에디터에서 이미지를
-              삽입하거나 첨부파일을 만들 수 있습니다.
+              삽입하거나 첨부파일을 만들 수 있습니다. 
+            </info>
+          </b-list-group-item>
+          <b-list-group-item to="/admin/options">
+            <span>관리 정보</span>
+            <info>
+              전체 사이트 관리와 관련된 설정을 할 수 있습니다.
+            </info>
+          </b-list-group-item>
+          <b-list-group-item to="/admin/cinesopa/film">
+            <span>영화</span>
+            <info>
+              영화와 관련된 정보를 추가/편집/삭제합니다. 여기서 관리하는
+              데이터들이
+              <code>sopaseom</code> 사이트에도 동일하게 적용됩니다.
             </info>
           </b-list-group-item>
           <b-list-group-item class="py-1 bg-light">
@@ -37,14 +51,7 @@
 
             <info> 게시판의 글을 작성/수정/삭제합니다. </info>
           </b-list-group-item>
-          <b-list-group-item to="/admin/cinesopa/film">
-            <span>영화</span>
-            <info>
-              영화와 관련된 정보를 추가/편집/삭제합니다. 여기서 관리하는
-              데이터들이
-              <code>sopaseom</code> 사이트에도 동일하게 적용됩니다.
-            </info>
-          </b-list-group-item>
+          
           <!-- <b-list-group-item to="/admin/cinesopa/menu">
             메뉴
           </b-list-group-item>
