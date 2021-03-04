@@ -123,26 +123,26 @@
 </template>
 
 <script>
-import {
-  BDropdown,
-  // BDropdownItem,
-  BFormDatepicker,
-  BCalendar,
-  BButton,
-  BLink,
-} from 'bootstrap-vue';
+// import {
+//   BDropdown,
+//   // BDropdownItem,
+//   BFormDatepicker,
+//   BCalendar,
+//   BButton,
+//   BLink,
+// } from 'bootstrap-vue';
 import moment from 'moment';
 
 let uid = 0;
 
 export default {
   components: {
-    BFormDatepicker,
-    BDropdown,
-    // BDropdownItem,
-    BCalendar,
-    BButton,
-    BLink,
+    // BFormDatepicker,
+    // BDropdown,
+    // // BDropdownItem,
+    // BCalendar,
+    // BButton,
+    // BLink,
   },
   props: {
     value: [String, Date],
@@ -153,6 +153,10 @@ export default {
       type: String,
       required: true,
     },
+    past: {
+      type: Boolean,
+      default: false,
+    },
   },
   data() {
     return {
@@ -161,7 +165,7 @@ export default {
       keyDowned: false,
       contextChangedCount: 0,
       showTime: 0,
-      internalId: 0,
+      internalId: '',
       show: true,
       year: null,
       month: null,
@@ -169,28 +173,37 @@ export default {
     };
   },
   computed: {
+    /** @returns {string} */
     dropdownId() {
       return `calendar-dropdown-${this.internalId}`;
     },
+    /** @returns {string} */
     dateFormatted() {
       return moment(this.value).format('YYYY년 M월 D일');
     },
+    /** @returns {string} */
     buttonText() {
       return this.value === null ? '클릭하여 날짜 선택' : this.dateFormatted;
     },
+    /** @returns {string} */
     hiddenButtonText() {
       return this.value === null
         ? '날짜가 선택되지 않았습니다'
         : `선택된 날짜: ${this.dateFormatted}`;
     },
+    /** @returns {*} */
     yearOptions() {
-      const standard = new Date().getFullYear();
+      let standard = new Date().getFullYear();
       const options = [];
+      if (this.past === true) {
+        standard -= 4;
+      }
       for (let i = standard; i < standard + 5; i += 1) {
         options.push({ value: i, text: `${i}년` });
       }
       return options;
     },
+    /** @returns {*} */
     monthOptions() {
       const options = [];
       for (let i = 1; i <= 12; i += 1) {
@@ -198,6 +211,7 @@ export default {
       }
       return options;
     },
+    /** @returns {boolean} */
     isYoon() {
       if (!this.year) {
         return false;
@@ -213,6 +227,7 @@ export default {
       }
       return false;
     },
+    /** @returns {array} */
     dateOptions() {
       if (this.month === null) {
         return [{ value: null, text: '' }];
@@ -487,6 +502,7 @@ export default {
 .select-box {
   display: flex;
   select {
+    width: auto;
     margin-right: 10px;
   }
   &:focus {

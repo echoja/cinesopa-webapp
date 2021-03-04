@@ -9,28 +9,27 @@ const url =
   process.env.NODE_ENV === 'production' ? 'https://graphql.sopaseom.com/graphql/' : '/graphql';
 
 export const graphql = async (query, variables) => {
-  try {
-    const received = await axios.post(
-      url,
-      JSON.stringify({
-        query,
-        variables,
-      }),
-      {
-        headers,
-        credentials: true,
-      },
-    );
-
-    const { data } = received;
-    if (data) return data;
-    return received;
-  } catch (error) {
-    error.response.data.errors.forEach((value) => {
-      console.error(value);
-    });
-    throw error.response.data;
+  // try {}
+  const received = await axios.post(
+    url,
+    JSON.stringify({
+      query,
+      variables,
+    }),
+    {
+      headers,
+      credentials: true,
+    },
+  );
+  console.log('# graphql-client graphql received');
+  console.log(received);
+  // received 구죠
+  // received.data.errors 가 존재한다면 에러임.
+  if (received?.data?.errors) {
+    console.error(received?.data?.errors);
+    throw new Error('Server Error');
   }
+  return received.data;
 };
 
 export const dataGraphql = async (...args) => {

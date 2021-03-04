@@ -231,6 +231,7 @@
             v-model="form.film.prod_date"
             id="film-prod_date"
             title="제작일"
+            :past="true"
           >
             <!-- <template #button-content>
               날짜 선택
@@ -426,6 +427,7 @@ import { makeSimpleMutation } from '@/graphql-client';
 import BFormDatepickerKorean from '@/components/BFormDatepickerKorean.vue';
 import LoadingButton from '@/components/LoadingButton.vue';
 import DatePicker from 'tui-date-picker';
+import { mapActions } from 'vuex';
 
 extend('shouldCheck', (value) => value === true);
 
@@ -441,8 +443,8 @@ export default {
   data() {
     return {
       vuePageTitle: '배급의뢰 - 신청하기',
-      // required: true,
-      required: false,
+      required: true,
+      // required: false,
       checkPrivacy: false,
       submitting: false,
       form: {
@@ -473,13 +475,11 @@ export default {
     // toast datepicker test;
     // const container = document.getElementById('tui-date-picker-container');
     // const target = document.getElementById('tui-date-picker-target');
-
     // const instance = new DatePicker(container, {
     //   input: {
     //     element: target,
     //   },
     // });
-
     // instance.getDate();
   },
   methods: {
@@ -500,28 +500,23 @@ export default {
     async submit(isValidPromise) {
       this.submitting = true;
       const isValid = await isValidPromise;
-      try {
-        if (isValid) {
-          const requestDistribution = makeSimpleMutation('requestDistribution');
-          const result = await requestDistribution(
-            {
-              input: {
-                user: this.form.user,
-                film: this.form.film,
-              },
+      if (isValid) {
+        const requestDistribution = makeSimpleMutation('requestDistribution');
+        const result = await requestDistribution(
+          {
+            input: {
+              user: this.form.user,
+              film: this.form.film,
             },
-            '{success code recipient}',
-          );
-          console.log('# Distribution submit result');
-          console.log(result);
+          },
+          '{success code recipient}',
+        );
+        console.log('# Distribution submit result');
+        console.log(result);
+        if (result.success === true) {
           this.$router.push({ name: 'SuccessRequest' });
-        } else {
-          // this.$scrollTo(this.$refs.observer.$el, 500);
         }
-      } catch (error) {
-        console.error(error);
-      }
-
+      } 
       this.submitting = false;
     },
     async log(any, errors) {
@@ -556,7 +551,6 @@ export default {
     },
   },
   computed: {
-
     /** @returns {string} */
     directorInfoFrom() {
       return this.form.isUserSameWithDirector ? 'user' : 'director';

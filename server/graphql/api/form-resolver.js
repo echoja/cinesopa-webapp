@@ -10,6 +10,7 @@ const {
 } = require('../../loader');
 
 const { enumFilmAvailableSubtitle } = require('../../db/schema/enum');
+const moment = require('moment');
 
 const requestShowingLabelMap = {
   companyName: '기관 이름',
@@ -40,6 +41,22 @@ const requestShowingLabelMap = {
   others: '기타 요청 사항',
   debug: '(개발모드)',
 };
+
+/**
+ * 상영 신청의 내용을 포맷팅합니다.
+ * @param {string} key
+ * @param {*} value
+ * @returns {string}
+ */
+const formatShowingContent = (key, value) => {
+  if (value instanceof Date) {
+    return moment(value).format('YYYY년 MM월 DD일');
+  } else if (typeof value === 'string') {
+    return value;
+  }
+  return JSON.stringify(value);
+};
+
 const requestDistributionLabelMap = {
   user_name: '신청인 이름',
   user_email: '신청인 메일',
@@ -59,6 +76,21 @@ const requestDistributionLabelMap = {
   film_etc: '비고',
 };
 
+/**
+ * distribution content 를 포맷팅합니다.
+ * @param {string} key key
+ * @param {*} value value
+ * @returns {string}
+ */
+const formatDiscributionContent = (key, value) => {
+  if (value instanceof Date) {
+    return moment(value).format('YYYY년 MM월 DD일');
+  } else if (typeof value === 'string') {
+    return value;
+  }
+  return JSON.stringify(value);
+};
+
 module.exports = {
   Query: {},
   Mutation: {
@@ -69,7 +101,8 @@ module.exports = {
       console.log(input);
       const trs = Object.entries(input).map(([inputKey, inputValue]) => {
         return `<tr><td style="min-width: 150px;">
-        ${requestShowingLabelMap[inputKey]}</td><td>${JSON.stringify(
+        ${requestShowingLabelMap[inputKey]}</td><td>${formatShowingContent(
+          inputKey,
           inputValue,
         )}</td></tr>`;
       });
@@ -86,55 +119,74 @@ module.exports = {
 
       // 디버그 모드일 때에는 메일을 보내지 않습니다.
       if (!debug) {
-        await mail.sendMail(
-          // todo 주소를 관리자 주소로 해야 함.
-          { recipientEmail: 'eszqsc112@naver.com' },
-          subject,
-          html,
-        );
+        /** @type {Array<*>} */
+        const emails =
+          // @ts-ignore
+          (await db.getSiteOption('show_application_email'))?.value ?? [];
+        const promises = emails.map((emailObject) => {
+          const gate = {
+            recipientEmail: emailObject.email,
+          };
+          return mail.sendGmail(gate, subject, html);
+        });
+
+        const results = await Promise.allSettled(promises);
+        if (results.some((result) => result.status === 'rejected')) {
+          return { success: false };
+        }
       }
       return { success: true };
     }).only(ACCESS_ALL),
+
+    /** 배급 의뢰 받았을 때 실행되는 resolver */
     requestDistribution: makeResolver(async (obj, args, context, info) => {
       const { input } = args;
-      console.log('# form-resolver requestDistribution input');
-      console.log(input);
-      const userEntries = Object.keys(input.user).map((userKey) => {
+      // console.log('# form-resolver requestDistribution input');
+      // console.log(input);
+      const userEntries = Object.keys(input.user ?? []).map((userKey) => {
         const titleKey = `user_${userKey}`;
         return {
           title: requestDistributionLabelMap[titleKey],
-          content: JSON.stringify(input.user[userKey]),
+          content: formatDiscributionContent(titleKey, input.user[userKey]),
         };
       });
 
-      const filmEntries = Object.keys(input.film).map((filmKey) => {
+      const filmEntries = Object.keys(input.film ?? []).map((filmKey) => {
         const titleKey = `film_${filmKey}`;
         return {
           title: requestDistributionLabelMap[titleKey],
-          content: JSON.stringify(input.film[filmKey]),
+          content: formatDiscributionContent(titleKey, input.film[filmKey]),
         };
       });
+
       const entries = [...userEntries, ...filmEntries];
       const trs = entries.map(
         (entry) =>
           `<tr><td style="min-width: 150px;">${entry.title}</td><td>${entry.content}</td></tr>`,
       );
+
       const html = `<table>${trs.join('')}</table>`;
-      console.log('# form-resolver requestDistribution html');
-      console.log(html);
+      // console.log('# form-resolver requestDistribution html');
+      // console.log(html);
 
       const subject = `${input.film.title} 배급 의뢰`;
-      console.log(subject);
+      // console.log(subject);
 
-      await mail.sendMail(
-        // todo 주소를 관리자 주소로 해야 함.
-        { recipientEmail: 'eszqsc112@naver.com' },
-        subject,
-        html,
-      );
+      /** @type {Array<*>} */
+      const emails =
+        // @ts-ignore
+        (await db.getSiteOption('distribution_application_email'))?.value ?? [];
+      const promises = emails.map((emailObject) => {
+        const gate = {
+          recipientEmail: emailObject.email,
+        };
+        return mail.sendGmail(gate, subject, html);
+      });
 
-      // const { id } = args;
-      // return db.removeFilm(id);
+      const results = await Promise.allSettled(promises);
+      if (results.some((result) => result.status === 'rejected')) {
+        return { success: false };
+      }
       return { success: true };
     }).only(ACCESS_ALL),
   },
