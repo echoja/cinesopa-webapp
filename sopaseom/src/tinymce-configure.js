@@ -68,7 +68,7 @@ const examplePlugin = (editor) => {
  * Tinymce 초기화 객체를 생성합니다.
  * @returns {object} Tinymce 초기화 객체
  */
-export default ({ height = 800 } = {}) => ({
+export default ({ height = 800, autoresize = false } = {}) => ({
   content_css: [
     '//fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@100;300;400;500;700;900&family=Noto+Serif+KR:wght@200;300;400;500;600;700;900&display=swap',
     '//fonts.googleapis.com/css2?family=Indie+Flower&family=Nanum+Gothic:wght@400;700',
@@ -113,6 +113,7 @@ export default ({ height = 800 } = {}) => ({
     // 'advlist autolink lists link charmap print preview anchor',
     'searchreplace visualblocks code fullscreen',
     'insertdatetime media table paste code help wordcount',
+    autoresize ? 'autoresize' : '',
   ],
   toolbar1: ` undo redo | fontselect | formatselect | fontsizeselect | bold italic underline forecolor backcolor | 
      alignleft aligncenter alignright alignjustify | 

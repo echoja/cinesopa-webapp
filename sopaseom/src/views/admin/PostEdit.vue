@@ -16,7 +16,7 @@
             class="flex-grow-1"
           ></b-form-input>
         </b-form-group>
-        <common-editor height="600" v-model="input.content"></common-editor>
+        <common-editor height="600" :autoresize="true" v-model="input.content"></common-editor>
       </div>
       <b-modal
         title="다른 페이지로 이동중입니다."

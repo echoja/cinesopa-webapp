@@ -81,6 +81,7 @@ export default {
     value: String,
     initContent: String,
     height: String,
+    autoresize: [String, Boolean],
   },
   data() {
     return {
@@ -92,9 +93,17 @@ export default {
     };
   },
   computed: {
+    /** @returns {boolean} */
+    isAutoresize() {
+      return (
+        this.autoresize === '' ||
+        this.autoresize === 'true' ||
+        this.autoresize === true
+      );
+    },
     /** @returns {object} */
     editorInit() {
-      return tinymceInit({ height: parseInt(this.height, 10) });
+      return tinymceInit({ height: parseInt(this.height, 10), autoresize: this.isAutoresize });
     },
     /** @returns {string} */
     modalId() {
