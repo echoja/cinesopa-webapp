@@ -171,7 +171,7 @@
           <b-link
             href="#videos"
             class="scrollactive-item"
-            v-if="film.videos.length !== 0"
+            v-if="commonVideos.length !== 0"
           >
             비디오
           </b-link>
@@ -311,7 +311,7 @@
         class="detailed-info-item"
         id="videos"
         tabindex="-1"
-        v-if="film.videos.length !== 0"
+        v-if="commonVideos.length !== 0"
       >
         <h2>비디오</h2>
         <div class="swiper-container">
