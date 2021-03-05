@@ -79,5 +79,24 @@ p {
 }
 </style>
 
+<style lang="scss">
+.tooltip-inner a {
+  color: #fff;
+  text-decoration: underline;
+  &:hover, &:focus {
+    color: #ddd;
+  }
+}
+
+.tooltip-inner {
+  code {
+    display: inline-block;
+    padding: 1px 3px;
+    border-radius: 3px;
+    background-color: rgba(255, 255, 255, 0.25);
+  }
+}
+</style>
+
 <style>
 </style>

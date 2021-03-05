@@ -13,15 +13,15 @@
         <div class="swiper-slide">Slide 2</div>
         <div class="swiper-slide">Slide 3</div>
       </div>
-      <!-- If we need pagination -->
-      <div class="swiper-pagination"></div>
+      <!--  If we need pagination -->
+      <!-- <div class="swiper-pagination"></div> -->
 
       <!-- If we need navigation buttons -->
-      <div class="swiper-button-prev"></div>
-      <div class="swiper-button-next"></div>
+      <!-- <div class="swiper-button-prev"></div>
+      <div class="swiper-button-next"></div> -->
 
       <!-- If we need scrollbar -->
-      <div class="swiper-scrollbar"></div>
+      <!-- <div class="swiper-scrollbar"></div> -->
     </div>
     <div style="height: 500px"><parallax :speed="-200">Hello</parallax></div>
 
@@ -30,14 +30,14 @@
 </template>
 
 <script>
-// import Swiper, { Mousewheel } from 'swiper';
+import Swiper, { Mousewheel } from 'swiper';
 // import Swiper styles
-// import 'swiper/swiper-bundle.css';
+import 'swiper/swiper-bundle.css';
 import Parallax from '../components/parallax.vue';
 // import Parallax from '../components/parallax.vue';
 
 // Swiper.use([Mousewheel]);
-function Swiper() {}
+// function Swiper() {}
 
 export default {
   components: {
@@ -59,12 +59,8 @@ export default {
     },
   },
   mounted() {
-    const swiper = new Swiper('.swiper-container', {
-      mousewheel: {
-        releaseOnEdges: true,
-      },
-    });
-    this.swiper = swiper;
+    // const swiper = 
+    this.swiper = new Swiper('.swiper-container');
     window.addEventListener('wheel', this.onWheel, {
       passive: false,
     });

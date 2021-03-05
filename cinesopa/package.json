@@ -33,6 +33,7 @@
     "mutationobserver-shim": "^0.3.7",
     "regenerator-runtime": "^0.13.7",
     "rellax": "^1.12.1",
+    "swiper": "^6.4.15",
     "tui-date-picker": "^4.1.0",
     "vee-validate": "^3.4.0",
     "vue": "^2.6.12",

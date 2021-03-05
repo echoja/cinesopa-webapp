@@ -135,11 +135,11 @@ const routes = [
       title: '이메일무단수집거부',
     },
   },
-  // {
-  //   path: '/test',
-  //   name: 'Test',
-  //   component: () => import('../views/Test.vue'),
-  // },
+  {
+    path: '/test',
+    name: 'Test',
+    component: () => import('../views/Test.vue'),
+  },
   {
     path: '/:permalink',
     name: 'Page',

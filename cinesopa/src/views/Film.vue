@@ -144,35 +144,47 @@
             href="#synopsis"
             class="scrollactive-item first"
             v-if="filmSynopsis"
-            >시놉시스</b-link
           >
+            시놉시스
+          </b-link>
           <b-link
             href="#people"
             class="scrollactive-item"
             v-if="filmPeople.length !== 0"
-            >배우/제작진</b-link
           >
+            배우/제작진
+          </b-link>
           <b-link
             href="#awards"
             class="scrollactive-item"
             v-if="film.awards.length !== 0"
-            >수상내역</b-link
           >
+            수상내역
+          </b-link>
           <b-link
             href="#steel"
             class="scrollactive-item"
             v-if="film.photos.length !== 0"
-            >포토</b-link
           >
+            포토
+          </b-link>
+          <b-link
+            href="#videos"
+            class="scrollactive-item"
+            v-if="film.videos.length !== 0"
+          >
+            비디오
+          </b-link>
           <b-link
             href="#reviews"
             class="scrollactive-item"
             v-if="film.reviews.length !== 0"
-            >리뷰</b-link
           >
-          <b-link href="#note" class="scrollactive-item" v-if="film.note"
-            >제작노트</b-link
-          >
+            리뷰
+          </b-link>
+          <b-link href="#note" class="scrollactive-item" v-if="film.note">
+            제작노트
+          </b-link>
         </scrollactive>
       </affix>
     </div>
@@ -294,6 +306,34 @@
           </b-carousel-slide>
         </b-carousel>
       </div>
+      <!-- 비디오 -->
+      <div
+        class="detailed-info-item"
+        id="videos"
+        tabindex="-1"
+        v-if="film.videos.length !== 0"
+      >
+        <h2>비디오</h2>
+        <div class="swiper-container">
+          <div class="swiper-wrapper">
+            <div
+              class="swiper-slide"
+              v-for="video in commonVideos"
+              :key="video.youtube_iframe"
+            >
+              <div
+                class="iframe-wrapper"
+                :data-title="video.title"
+                :id="video.wrapperId"
+                v-html="video.youtube_iframe"
+                :style="{ 'padding-bottom': `${video.ratio * 100}%` }"
+              ></div>
+            </div>
+          </div>
+          <div class="swiper-button-next"></div>
+          <div class="swiper-button-prev"></div>
+        </div>
+      </div>
       <!-- 리뷰 -->
       <div
         class="detailed-info-item"
@@ -319,6 +359,7 @@
           </div>
         </div>
       </div>
+
       <!-- 제작노트 -->
       <div v-if="film.note" class="detailed-info-item" tabindex="-1" id="note">
         <h2>제작노트</h2>
@@ -330,11 +371,16 @@
 
 <script>
 import moment from 'moment';
+import Swiper, { Navigation } from 'swiper';
+
 import { filmDetailQuery, graphql } from '../graphql-client';
 import { parseUploadLink } from '../util';
+import DistributionVue from './Distribution.vue';
+
+Swiper.use([Navigation]);
 /**
  * @param {any[]} array
- * @param {string} key
+ * @param {function(number):object} keyFinder
  */
 const groupBy = (array, keyFinder) => {
   const result = {};
@@ -348,15 +394,27 @@ const groupBy = (array, keyFinder) => {
 
 export default {
   name: 'Film',
-  title: (context) => context.film.title,
   data() {
     return {
-      vuePageTitle: '',
+      /** @type {import('swiper').Swiper} */
+      videoSwiper: null,
+      videoPlayer: {},
       film: {
         title: '',
         title_en: '',
         people: [],
         reviews: [],
+
+        /**
+         * @typedef {object} Video
+         * @property {boolean} is_main_trailer
+         * @property {string} title
+         * @property {string} youtube_iframe
+         * @property {number} ratio
+         * @property {string} wrapperId
+         */
+
+        /** @type {Array<Video>} */
         videos: [],
         awards: [],
         photos: [
@@ -376,117 +434,25 @@ export default {
         prod_date: new Date('2020-05-11'),
         synopsis: '',
         youtubeIframeCode: '',
-        // title: '여름날',
-        // title_en: 'Days in a Summer',
-        // open_year: '2020',
-        // people: [
-        //   {
-        //     role_type: 'director',
-        //     name: '김여름',
-        //   },
-        //   {
-        //     role_type: 'actor',
-        //     name: '정유라',
-        //     role: '승희',
-        //   },
-        //   {
-        //     role_type: 'actor',
-        //     name: '김록경',
-        //     role: '거제청년',
-        //   },
-        //   {
-        //     role_type: 'staff',
-        //     name: '김여름',
-        //     role: '촬영',
-        //   },
-        // ],
-        // reviews: [
-        //   {
-        //     title: '그 뒤에는 아무 것도 없었다.',
-        //     url: 'http://naver.com',
-        //     source: '네이버 블로그',
-        //     author: '아이린',
-        //   },
-        //   {
-        //     title: '아름답지만 슬픈 이야기',
-        //     url: 'http://naver.com',
-        //     source: '티스토리 블로그',
-        //     author: '제시',
-        //   },
-        //   {
-        //     title: '고독 속에서 피어나는 한 송이 꽃',
-        //     url: 'http://naver.com',
-        //     source: '완경일보',
-        //     author: '아무개',
-        //   },
-        // ],
-        // awards: [
-        //   {
-        //     festival_name: '제 8회 무주산골영화제',
-        //     year: 2020,
-        //     person_name: '오정석',
-        //     award_name: '영화 창(窓)',
-        //     award_type: '후보',
-        //   },
-        //   {
-        //     festival_name: '제 24회 인디포럼',
-        //     year: 2020,
-        //     person_name: '오정석',
-        //     award_name: '폐막작',
-        //     award_type: '초청',
-        //   },
-        //   {
-        //     festival_name: '제 24회 인디포럼',
-        //     year: 2020,
-        //     person_name: '오정석',
-        //     award_name: '배회하는 시네마의 주체들',
-        //     award_type: '초청',
-        //   },
-
-        //   {
-        //     festival_name: '제 45회 서울독립영화제',
-        //     year: 2019,
-        //     person_name: '오정석',
-        //     award_name: '경쟁부문_장편',
-        //     award_type: '후보',
-        //   },
-        // ],
-        // photos: [
-        //   // eslint-disable-next-line global-require
-        //   require('../assets/test/steel2.jpg'),
-        //   // eslint-disable-next-line global-require
-        //   require('../assets/test/steel23.jpg'),
-        //   // eslint-disable-next-line global-require
-        //   // require('../assets/test/test-poster.jpg'),
-        // ],
-        // // eslint-disable-next-line global-require
-        // poster_url: require('../assets/test/test-poster.jpg'),
-        // watch_grade: '전체관람가',
-        // show_time: 6491,
-        // genres: ['드라마'],
-        // open_date: new Date('2020-08-20'),
-        // synopsis: `<p>‘승희’(김유라)는 서울 생활을 정리하고 고향
-        // 거제도에 내려왔지만<br> 남겨진 것은 엄마의 빈 자리 뿐이다.<br>
-        // 의지할 곳 없이 마을을 서성이던 ‘승희’는 ‘거제 청년(김록경)’과
-        // 우연히 만난다.</p><p> 그들은 평범한 일상 속에서 자신처럼 고립되어 있는
-        // 폐왕성에 도착하고,<br>그곳에서 누구나 언젠가 지나쳐야만 하는 유배된
-        // 시간과 만난다.</p>`,
-        // youtubeIframeCode: `<iframe width="1280" height="691"
-        // src="https://www.youtube.com/embed/OeuIAQnrbZo"
-        // frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-        // allowfullscreen></iframe>`,
       },
       trailerRatio: 0,
       filmSummary: [],
     };
   },
   computed: {
+    /** @returns {string} */
+    vuePageTitle() {
+      return this.film.title;
+    },
+
+    /** @returns {string} */
     filmDirector() {
       return this.film.people
         .filter((person) => person.role_type === 'director')
         .map((person) => person.name)
         .join(', ');
     },
+    /** @returns {number} */
     filmOpenYear() {
       // console.log(this.film.open_date);
       if (this.film.open_date.getTime() > 0) {
@@ -494,12 +460,14 @@ export default {
       }
       return null;
     },
+    /** @returns {number} */
     filmProdYear() {
       if (this.film.prod_date.getTime() > 0) {
         return this.film.prod_date.getFullYear();
       }
       return null;
     },
+    /** @returns {string} */
     mainTrailerIframe() {
       const main = this.film.videos.find(
         (video) => video.is_main_trailer === true,
@@ -510,24 +478,35 @@ export default {
       }
       return '';
     },
+    /** @returns {Array<Video>} */
+    commonVideos() {
+      return this.film.videos
+        .filter((video) => !video.is_main_trailer)
+        .map((video) => video);
+    },
+    /** @returns {string} */
     filmActors() {
       return this.film.people
         .filter((person) => person.role_type === 'actor')
         .map((person) => `${person.name}(${person.role})`)
         .join(', ');
     },
+    /** @returns {string} */
     filmGenres() {
       return this.film.genres.join(', ');
     },
+    /** @returns {number} */
     filmShowMinutes() {
       return Math.floor(this.film.show_time / 60);
     },
+    /** @returns {string} */
     filmOpenDate() {
       if (this.film.open_date.getTime() === 0) {
-        return null;
+        return '';
       }
       return moment(this.film.open_date).format('yyyy.MM.DD');
     },
+    /** @returns {Array<*>} */
     filmPeople() {
       const result = [];
       const refined = {
@@ -550,6 +529,7 @@ export default {
 
       return result;
     },
+    /** @returns {string} */
     filmSynopsis() {
       // if (this.film.synopsis) {
       //   return this.film.synopsis.replace(/\n/gi, '<br>');
@@ -557,6 +537,7 @@ export default {
       return this.film.synopsis;
       // return null;
     },
+    /** @returns {Array<*>} */
     filmPeopleFields() {
       return [
         {
@@ -570,6 +551,7 @@ export default {
         },
       ];
     },
+    /** @returns {object} */
     filmAwards() {
       const result = groupBy(this.film.awards, (item) => item.year);
       // eslint-disable-next-line no-restricted-syntax
@@ -579,6 +561,12 @@ export default {
       // console.log(result);
       return result;
     },
+    /** @returns {Array<string>} */
+    videoIds() {
+      return this.film.videos.map((video) => {
+        return video.youtube_iframe.match('(?<=embed/).+?(?=")')[0];
+      });
+    },
     // filmAwardsKeys() {
     //   const filmAwards = this.filmAwards;
     //   return Object.keys(filmAwards).sort()
@@ -587,10 +575,6 @@ export default {
 
   created() {},
   async mounted() {
-    // this.film = [];
-    // console.dir(this.$refs.trailer);
-    /** @type {HTMLDivElement} */
-
     const res = await graphql(filmDetailQuery, {
       id: parseInt(this.$route.params.id, 10),
     });
@@ -599,8 +583,6 @@ export default {
       this.$router.push({ name: '404' });
       return;
     }
-
-    // console.log(film);
 
     // 영화 개봉일 설정
     const newFilm = { ...film };
@@ -634,15 +616,76 @@ export default {
     // 메인예고편 높이 계산 및 iframe title 속성 추가해주기
     this.$nextTick(() => {
       const trailerDiv = this.$refs.trailer;
-      const iframe = trailerDiv.querySelector('iframe');
+      let iframe = null;
+      if (trailerDiv instanceof Element) {
+        iframe = trailerDiv.querySelector('iframe');
+      }
       if (iframe) {
-        this.trailerRatio = iframe.height / iframe.width;
+        this.trailerRatio =
+          parseInt(iframe.height, 10) / parseInt(iframe.width, 10);
         iframe.setAttribute('title', `${this.film.title} 메인 예고편`);
       }
     });
 
-    // 제목 (vuePageTitle) 설정
-    this.vuePageTitle = `${this.film.title}`;
+    // 비디오가 있을 경우 wrapper id 를 설정해놓기.
+    if (Array.isArray(this.film.videos)) {
+      this.film.videos = this.film.videos.map((video) => ({
+        ...video,
+        wrapperId: this.getVideoWrapperId(video.youtube_iframe),
+        ratio: this.getRatio(video.youtube_iframe),
+      }));
+    }
+
+    // 비디오 swiper 초기화하기
+    // this.$loadScript('https://www.youtube.com/iframe_api')
+    //   .then((/** @type {HTMLScriptElement} */ result) => {
+    //     const onPlayerReady = (event) => {
+    //       event.target.playVideo();
+    //     };
+    //     const makeYoutube = async (id, link) => {
+    //       // @ts-ignore
+    //       this.videoPlayer[id] = new YT.Player(id, {
+    //         height: '300',
+    //         width: '480',
+    //         playerVars: { autoplay: 1, controls: 0 },
+    //         videoId: link,
+    //         events: {
+    //           onReady: onPlayerReady,
+    //         },
+    //       });
+    //     };
+    //   })
+    //   .catch((err) => {
+    //     console.error(err);
+    //   });
+    // console.log('Film.vue mounted videoIds');
+    // console.log(this.videoIds);
+
+    // 비디오 목록 Swiper 초기화 및 리사이즈
+    // $nextTick 해줘야 실제로 데이터 테이블이 html 로 적용된 상태에서 swiper 가 동작함.
+    this.$nextTick(() => {
+      this.videoSwiper = new Swiper('.swiper-container', {
+        navigation: {
+          nextEl: '.swiper-button-next',
+          prevEl: '.swiper-button-prev',
+        },
+      });
+
+      // 어차피 100% 이므로 width 속성과 height 속성 삭제
+      this.film.videos.forEach((video) => {
+        const wrapper = document.getElementById(video.wrapperId);
+        const iframe = wrapper.querySelector('iframe');
+        iframe.setAttribute('title', video.title);
+        iframe.style.width = '100%';
+        iframe.style.height = `${video.ratio * 100}%`;
+        iframe.removeAttribute('width');
+        iframe.removeAttribute('height');
+      });
+    });
+
+    // 다른 비디오들 title 속성 추가해주기
+    // this.$nextTick();
+    // console.log(this.videoSwiper);
 
     // console.log(`iframe.height: ${iframe.height}`);
     // console.log(`iframe.width: ${iframe.width}`);
@@ -659,31 +702,38 @@ export default {
       // /** @type {Element} */
       // let a;
 
-      // console.log('# Film.vue onScrollactiveItemChanged');
-      // console.log(currentItem);
-      // console.log(event);
+      console.log('# Film.vue onScrollactiveItemChanged');
+      console.log(currentItem);
+      console.log(event);
       // 클릭으로 넘어간 경우는 그냥 event 가 null 이더라.
       // 클릭이 아닌 경우는, scroll 등이 있다.
       if (event === null) {
         const selector = currentItem.attributes?.href?.value;
-        // console.log(selector);
         const id = selector.slice(1);
-        document.getElementById(id).focus();
-        // currentItem.
+        document.getElementById(id).focus({
+          preventScroll: true,
+        });
       }
     },
-    onScrollactiveClicked(event, a, b, c) {
-      // console.log('# Film.vue onScrollactiveClicked');
-      // console.log(event);
-      // console.log(a);
-      // console.log(b);
-      // console.log(c);
+    onScrollactiveClicked() {
+      // ?
     },
     parseUploadLink,
     steelSlidingStart(slide) {
       if (!this.film.photos[slide].loaded) {
         this.film.photos[slide].loaded = true;
       }
+    },
+    getVideoWrapperId(iframeHtml) {
+      return `${iframeHtml.match('(?<=embed/).+?(?=")')[0]}-wrapper`;
+    },
+    getRatio(iframeHtml) {
+      const width = parseInt(iframeHtml.match('width="(\\d+?)"')?.[1], 10);
+      const height = parseInt(iframeHtml.match('height="(\\d+?)"')?.[1], 10);
+      console.log('# Film getRatio');
+      console.log(width);
+      console.log(height);
+      return height / width || 9 / 16;
     },
   },
 };
@@ -966,6 +1016,37 @@ export default {
   font-size: 80%;
   color: #767676;
 }
+
+.swiper-button-next,
+.swiper-button-prev {
+  border: 7px solid transparent;
+  border-color: transparent;
+  border-width: 15px 10px;
+  box-sizing: content-box;
+  background-color: rgb(34 58 86 / 20%);
+  border-radius: 3px;
+  background-repeat: no-repeat;
+  background-size: contain;
+  background-position: center;
+  transform: scale(1.5);
+}
+
+.swiper-button-next {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 50.51 98.2'%3E%3Cpolygon fill='%23fff' points='1.41 98.2 0 96.79 47.69 49.1 0 1.41 1.41 0 50.52 49.1 1.41 98.2' /%3E%3C/svg%3E");
+}
+.swiper-button-prev {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 50.3 97.78'%3E%3Cpolygon fill='%23fff' points='48.89 0 50.3 1.41 2.82 48.89 50.3 96.37 48.89 97.78 0 48.89 48.89 0' /%3E%3C/svg%3E");
+}
+
+.swiper-button-prev::after,
+.swiper-button-next::after {
+  content: '';
+}
+
+.iframe-wrapper {
+  height: 0;
+  position: relative;
+}
 </style>
 
 <style lang="scss">
@@ -977,7 +1058,13 @@ export default {
   width: 100%;
   height: 100%;
 }
-
+.iframe-wrapper iframe {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
 #people th {
   width: 110px;
 }

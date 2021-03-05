@@ -1,14 +1,30 @@
 <template>
   <div class="film-edit">
     <header class="p-3">
-      <h1>
+      <h1 class="form-h2">
         영화 편집
-        <b-button size="sm" @click="$bvModal.show('kobis-form-modal')"
-          >영진위로부터 가져오기</b-button
-        >
-        <b-modal hide-footer size="xl" id="kobis-form-modal" title="영화 검색 및 선택">
-          <kobis-form @selected="importFilmSelected"></kobis-form>
-        </b-modal>
+        <span class="header-suffix">
+          <info class="ml-1 mr-3">
+            최하단 <code>변경 사항을 적용합니다.</code> 버튼을 눌러야
+            저장됩니다.
+          </info>
+          <b-button size="sm" @click="$bvModal.show('kobis-form-modal')">
+            영진위로부터 가져오기 ...
+          </b-button>
+          <info class="ml-1">
+            영화진흥위원회 데이터베이스로부터 정보를 가져옵니다. 영진위의 데이터
+            자체가 일부 누락되어 있을 수도 있고, 정확하지 않을 수 있으므로
+            추가적인 검수가 필요합니다.
+          </info>
+          <b-modal
+            hide-footer
+            size="xl"
+            id="kobis-form-modal"
+            title="영화 검색 및 선택"
+          >
+            <kobis-form @selected="importFilmSelected"></kobis-form>
+          </b-modal>
+        </span>
       </h1>
     </header>
     <b-form class="container-fluid" @submit.stop.prevent="confirm" v-if="show">
@@ -266,7 +282,7 @@
             label-size="md"
             label-for="input-note"
           >
-          <common-editor v-model="film.note" height="600"></common-editor>
+            <common-editor v-model="film.note" height="600"></common-editor>
             <!-- <b-form-textarea
               size="sm"
               id="input-note"
@@ -638,11 +654,7 @@
           <div id="edit-videos">
             <h2>
               비디오
-              <b-button
-                size="sm"
-                @click="importVideoByLink"
-                variant="outline-secondary"
-              >
+              <b-button size="sm" @click="addVideo" variant="outline-secondary">
                 새로 추가
               </b-button>
             </h2>
@@ -752,9 +764,9 @@
         </div>
       </b-row>
     </b-form>
-    <p>모드: {{ mode }}</p>
+    <!-- <p>모드: {{ mode }}</p>
     <div>{{ film }}</div>
-    <div>{{ input }}</div>
+    <div>{{ input }}</div> -->
   </div>
 </template>
 
@@ -789,8 +801,8 @@ import {
   createFilmMutation,
   makeSimpleQuery,
 } from '@/api/graphql-client';
-import router from '@/router';
 import FileManager from '@/components/FileManager.vue';
+import Info from '@/components/admin/Info.vue';
 
 export default {
   name: 'FilmEdit',
@@ -817,6 +829,7 @@ export default {
     BModal,
     KobisForm: () => import('@/components/admin/KobisForm'),
     CommonEditor: () => import('@/components/admin/CommonEditor'),
+    Info,
   },
   props: ['mode'],
 
@@ -873,6 +886,7 @@ export default {
   },
 
   computed: {
+    /** @returns {array} */
     photosView() {
       return [
         {
@@ -883,6 +897,7 @@ export default {
         },
       ];
     },
+    /** @returns {number} */
     id() {
       const { id } = this.$route.params;
       if (id) return parseInt(id, 10);
@@ -1097,10 +1112,10 @@ export default {
     async removeReview(index) {
       this.film.reviews.splice(index, 1);
     },
-    async importVideoByLink() {
+    async addVideo() {
       this.film.videos.push({
         youtube_iframe: '',
-        is_main_trailer: '',
+        is_main_trailer: false,
         title: '',
       });
     },
@@ -1198,9 +1213,12 @@ export default {
 };
 </script>
 
-<style></style>
-
 <style lang="scss" scoped>
+.header-suffix {
+  font-size: 16px;
+  font-weight: normal;
+}
+
 #edit-people,
 #edit-companies,
 #edit-reviews,
@@ -1220,10 +1238,6 @@ span.after-input {
 .photo-preview {
   max-height: 100px;
   max-width: 200px;
-}
-
-.form-row {
-  max-width: 550px;
 }
 
 h2 {

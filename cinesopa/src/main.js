@@ -18,6 +18,7 @@ import router from './router';
 import store from './store';
 import './util.scss';
 import 'aos/dist/aos.css';
+import 'swiper/swiper-bundle.css';
 
 Vue.config.productionTip = false;
 
