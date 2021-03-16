@@ -144,8 +144,7 @@ class DBManager {
   // @returns {?MongooseDocument[]} 유저 Mongoose Document
   /**
    * 모든 유저를 구합니다.
-   * @param {number} page 0 이 1페이지를 뜻함.
-   * @param {number} perpage 1페이지당 유저 개수
+   * @param {UserSearch} condition 0 이 1페이지를 뜻함.
    */
   async getUsers(condition) {
     const { page, perpage, email } = condition;
@@ -296,10 +295,12 @@ class DBManager {
   /**
    * 이메일 기준으로 비밀번호를 찾습니다.
    * @param {string} email 이메일
-   * @returns {?string} 비밀번호
+   * @returns {Promise<Encrypted>|null} 비밀번호
    * @throws 계정 정보를 찾을 수 없을 때
    */
   async getPassword(email) {
+    /** @type {Logininfo} */
+    // @ts-ignore
     const login = await model.Login.findOne({ email });
     if (!login) {
       throw Error(`getPassword: ${email} 의 계정 정보를 찾을 수 없습니다.`);
@@ -316,8 +317,8 @@ class DBManager {
    * @returns {Promise<boolean>} 맞으면 true, 틀리면 false
    */
   async isCorrectPassword(email, pwd) {
-    // console.log("--model keys--");
-    // console.log(Object.keys(model));
+    /** @type {Logininfo} */
+    // @ts-ignore
     const login = await model.Login.findOne({ email });
 
     if (!login) return false;

@@ -185,18 +185,25 @@
  * 유저 정보를 담는 객체
  * @typedef {Object} Userinfo
  * @property {string} email
- * @property {boolean} has_pwd
- * @property {Destinfo} default_dest
- * @property {Date} c_date:
- * @property {number} wrong_pwd_count
- * @property {Date} blocked_date
- * @property {number} blocked_count
- * @property {string} role
- * @property {string} kakao_access_token
- * @property {string} kakao_refresh_token
- * @property {string} kakao_id
- * @property {boolean} verified
- * @property {UserAgreedinfo} user_agreed
+ * @property {boolean=} has_pwd
+ * @property {Destinfo=} default_dest
+ * @property {Date=} c_date:
+ * @property {number=} wrong_pwd_count
+ * @property {Date=} blocked_date
+ * @property {number=} blocked_count
+ * @property {string=} role
+ * @property {string=} kakao_access_token
+ * @property {string=} kakao_refresh_token
+ * @property {string=} kakao_id
+ * @property {boolean=} verified
+ * @property {UserAgreedinfo=} user_agreed
+ */
+
+/**
+ * @typedef {Object} UserSearch
+ * @property {number=} page 0이 1페이지를 뜻함.
+ * @property {number=} perpage 페이지 개수
+ * @property {string=} email
  */
 
 /**
