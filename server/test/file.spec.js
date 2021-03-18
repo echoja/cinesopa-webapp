@@ -4,13 +4,14 @@ const fs = require('fs');
 const express = require('express');
 const { expect } = require('chai');
 const makeAgent = require('supertest').agent;
+const Throttle = require('superagent-throttle');
 // const { upload, createFileFromMockFile } = require('./tool');
 const { fake } = require('sinon');
 const { model } = require('../loader');
 const fileServiceFactory = require('../service/file');
 const fileManager = require('../manager/file');
 const rimraf = require('rimraf');
-const { makeSimpleQuery } = require('./tool');
+const { makeSimpleQuery, doAdminLogin } = require('./tool');
 
 const {
   fileQuery,
@@ -419,6 +420,37 @@ describe('file', function () {
         expect(fs.existsSync(found[1].path)).to.be.true;
         expect(fs.existsSync(found[2].path)).to.be.true;
       });
+      it('업로드 중간에 취소되었을 시 관련된 파일과 데이터베이스가 깔끔해야 함.', async function () {
+        await doAdminLogin(agent);
+        const throttle = new Throttle({
+          active: true, // set false to pause queue
+          rate: 5, // how many requests can be sent every `ratePer`
+          ratePer: 10000, // number of ms in which `rate` requests may be sent
+          concurrent: 2, // how many requests can be sent concurrently
+        })
+          .on('sent', (request) => {
+            console.log('# file.spec.js upload throttle onSent');
+            console.dir(request, {depth: 1});
+          })
+          .on('received', (request) => {
+            console.log('# file.spec.js upload throttle onReceived');
+            console.dir(request, {depth: 1});
+          })
+          .on('drained', () => {
+            console.log('# file.spec.js upload throttle onDrained');
+          });
+
+        const res = await agent
+          .post('/upload')
+          .use(throttle.plugin())
+          .attach('bin', path.join(__dirname, 'res', 'bigfile'));
+        console.log('# throttle upload end');
+      });
+      it.only('확장자가 없는 파일이라도 제대로 업로드 되어야 함.', async function() {
+        await doAdminLogin(agent);
+        const res = await agent.post('/upload').attach('bin', path.join(__dirname, 'res', 'smallfile'));
+        expect(res.status).to.equal(200);
+      })
     });
     describe('get Middleware', function () {
       it('업로드된 파일은 제대로 가져올 수 있어야 함', async function () {
@@ -517,7 +549,7 @@ describe('file', function () {
         // eslint-disable-next-line mocha/no-setup-in-describe
         const filesReq = makeSimpleQuery(agent, 'files');
 
-        it.only('제대로 동작해야 함', async function () {
+        it('제대로 동작해야 함', async function () {
           const result = await filesReq(
             {},
             `
@@ -530,7 +562,7 @@ describe('file', function () {
           );
           expect(result.total).to.equal(2);
         });
-        it.only('기본 값으로 관리되는 것만 불러와져야 함', async function () {
+        it('기본 값으로 관리되는 것만 불러와져야 함', async function () {
           await model.File.updateOne({ managed: false });
           const result = await filesReq(
             {},

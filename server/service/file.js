@@ -34,8 +34,10 @@ class FileService {
         });
         fullpath = fileObj.path;
         fileinfo.origin = fileObj.originalname;
-        const fileRegex = /(.+)\.([0-9a-zA-Z]+)$/;
-        const [_, label, extension] = fileObj.originalname.match(fileRegex);
+        const fileRegex = /([^\.\n]+)(\.([0-9a-zA-Z]+))?$/;
+        const [_1, label, _2, extension] = fileObj.originalname.match(
+          fileRegex,
+        );
         fileinfo.extension = extension;
         fileinfo.label = label;
         fileinfo.alt = label;
