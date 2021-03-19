@@ -21,7 +21,7 @@ module.exports = function (mongoose) {
     c_date: { type: Date, default: Date.now }, // 만든 일시
     m_date: { type: Date, default: Date.now }, // 수정된 일시
     film_title: String, // 작품명
-    charge: Number, // 상영료
+    charge: Number, // 상영료 (부가세 포함)
     start_date: Date, // 상영 시작일시
     end_date: Date, // 상영 종료일시
     session_count: Number, // 상영회차

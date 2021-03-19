@@ -12,6 +12,7 @@ const fileServiceFactory = require('../service/file');
 const fileManager = require('../manager/file');
 const rimraf = require('rimraf');
 const { makeSimpleQuery, doAdminLogin } = require('./tool');
+const supertest = require('supertest');
 
 const {
   fileQuery,
@@ -21,6 +22,9 @@ const {
 } = require('./graphql-request');
 const { initTestServer, graphqlSuper, doLogin, doLogout } = require('./tool');
 const { promisify } = require('util');
+const { totalmem } = require('os');
+const { nodeModuleNameResolver } = require('typescript');
+const { graphql } = require('graphql');
 
 const app = express();
 
@@ -420,37 +424,82 @@ describe('file', function () {
         expect(fs.existsSync(found[1].path)).to.be.true;
         expect(fs.existsSync(found[2].path)).to.be.true;
       });
-      it('업로드 중간에 취소되었을 시 관련된 파일과 데이터베이스가 깔끔해야 함.', async function () {
+      it.only('업로드 중간에 취소되었을 시 관련된 파일과 데이터베이스가 깔끔해야 함.', async function () {
         await doAdminLogin(agent);
         const throttle = new Throttle({
           active: true, // set false to pause queue
           rate: 5, // how many requests can be sent every `ratePer`
           ratePer: 10000, // number of ms in which `rate` requests may be sent
           concurrent: 2, // how many requests can be sent concurrently
-        })
+        });
+        throttle
           .on('sent', (request) => {
             console.log('# file.spec.js upload throttle onSent');
-            console.dir(request, {depth: 1});
+            // console.dir(request, { depth: 1 });
           })
           .on('received', (request) => {
             console.log('# file.spec.js upload throttle onReceived');
-            console.dir(request, {depth: 1});
+            // console.dir(request, { depth: 1 });
           })
           .on('drained', () => {
             console.log('# file.spec.js upload throttle onDrained');
           });
-
-        const res = await agent
-          .post('/upload')
-          .use(throttle.plugin())
-          .attach('bin', path.join(__dirname, 'res', 'bigfile'));
+        const stream = fs.createWriteStream(path.join(__dirname, 'uploads', 'test'));
+        try {
+          const server = app.listen(9000, () => {
+            setTimeout(() => {
+              server.close((err) => {
+                console.log('close error');
+                console.log(err);
+              })
+            }, 1000)
+          })
+          const res = await agent
+            .post('/upload')
+            .use(throttle.plugin())
+            .attach('bin', path.join(__dirname, 'res', 'bigfile'))
+            .on('progress', (e) => {
+              // console.log('# throttle progress');
+              // console.log(e);
+              // if (typeof e.total === 'number') {
+              //   const percent = e.loaded / e.total;
+              //   if (percent >= 0.5) {
+              //     console.dir(throttle);
+              //     throw Error('stop!!');
+              //   }
+              // }
+            });
+            // .pipe(stream).on('error', (error) => {
+            //   console.log('# pipe error');
+            //   console.log(error);
+            // })
+            // .on('error', (err) => {
+            //   console.log('# on error error');
+            //   console.log(err);
+            // })
+            // .end((err, res) => {
+            //   console.log('# end err');
+            //   console.log(err);
+            // });
+            console.log(res.body);
+        } catch (e) {
+          console.log('# agent try catch error');
+          console.log(e);
+        }
+        // // expect(res.status).to.equal(200);
+        // await (async () => new Promise((resolve, reject) => {
+        //   if (!setTimeout(resolve, 10000))
+        //     reject();
+        // }))();
         console.log('# throttle upload end');
       });
-      it.only('확장자가 없는 파일이라도 제대로 업로드 되어야 함.', async function() {
+      it('확장자가 없는 파일이라도 제대로 업로드 되어야 함.', async function () {
         await doAdminLogin(agent);
-        const res = await agent.post('/upload').attach('bin', path.join(__dirname, 'res', 'smallfile'));
+        const res = await agent
+          .post('/upload')
+          .attach('bin', path.join(__dirname, 'res', 'smallfile'));
         expect(res.status).to.equal(200);
-      })
+      });
     });
     describe('get Middleware', function () {
       it('업로드된 파일은 제대로 가져올 수 있어야 함', async function () {

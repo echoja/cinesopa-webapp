@@ -26,7 +26,7 @@ class FileService {
     return async (req, res, next) => {
       let fullpath = '';
       try {
-        // console.log('ho~~~~~~!~!~!~!~!~!~!~!~!');
+        console.log('# file service #initCreateFileMiddleware');
         const fileinfo = {};
         const { file: fileObj } = req;
         ['filename', 'mimetype', 'path', 'encoding', 'size'].forEach((key) => {
@@ -41,6 +41,7 @@ class FileService {
         fileinfo.extension = extension;
         fileinfo.label = label;
         fileinfo.alt = label;
+        console.log(fileinfo);
         // 이메일
         const email = req?.user?.email;
         if (email) fileinfo.owner = email;

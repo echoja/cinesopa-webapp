@@ -93,7 +93,7 @@ const doGuestLogin = async (agent) => {
 };
 
 const testDatabaseServer = (hookFunctions) => {
-  const mongod = new MongoMemoryServer({ binary: { version: '4.2.9' } });
+  const mongod = new MongoMemoryServer({ binary: { version: 'latest' } });
 
   hookFunctions.before('db 초기화', async function () {
     // console.log('testDatabaseServer - before!!');

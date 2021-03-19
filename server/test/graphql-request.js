@@ -1,7 +1,7 @@
 const filmResponse = `{
   title
   title_en 
-  kobis_code 
+  kobis_code
   genres 
   show_time
   type_name 
