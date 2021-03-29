@@ -42,7 +42,8 @@
     "uuid": "^8.3.0"
   },
   "scripts": {
-    "start-dev": "nodemon --trace-warnings --trace-uncaught index.js",
+    "start-dev-old": "nodemon --trace-warnings --trace-uncaught index.js",
+    "start-dev": "tsc-watch --onSuccess \"node ts-build/src/index.js\"",
     "start:ci": "node index.js",
     "test:no": "mocha --trace-warnings",
     "test": "mocha --reporter mochawesome --trace-warnings",
@@ -51,7 +52,9 @@
   },
   "devDependencies": {
     "@types/chai": "^4.2.14",
+    "@types/express-session": "^1.17.3",
     "@types/graphql-upload": "^8.0.3",
+    "@types/nodemailer": "^6.4.1",
     "assert": "^2.0.0",
     "axios": "^0.21.1",
     "babel-eslint": "^10.1.0",
@@ -73,6 +76,7 @@
     "sinon": "^9.0.3",
     "superagent-throttle": "^1.0.1",
     "supertest": "^4.0.2",
+    "tsc-watch": "^4.2.9",
     "typescript": "^4.1.3"
   }
 }

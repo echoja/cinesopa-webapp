@@ -1,7 +1,16 @@
 module.exports = {
   root: true,
+  extends: [
+    'standard',
+    'plugin:react/recommended',
+    'plugin:@typescript-eslint/eslint-recommended',
+    'plugin:@typescript-eslint/recommended',
+    'plugin:mocha/recommended',
+    'plugin:chai-friendly/recommended',
+  ],
+  parser: '@typescript-eslint/parser',
+  plugins: ['@typescript-eslint', 'html'],
   parserOptions: {
-    parser: 'babel-eslint',
     ecmaVersion: 12,
   },
   env: {
@@ -12,13 +21,6 @@ module.exports = {
     mocha: true,
     es2021: true,
   },
-  extends: [
-    'eslint:recommended',
-    // 'airbnb-base',
-    'plugin:mocha/recommended',
-    'plugin:chai-friendly/recommended',
-  ],
-  plugins: ['import', 'html'],
   // 'classPrivateMethods', 'babel'
   rules: {
     // "off" or 0 - turn the rule off

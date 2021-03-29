@@ -13,19 +13,19 @@ const request = require('supertest');
 const random = require('random');
 
 // const auth = require('../service/auth');
-const authValidatorMaker = require('../auth/validator');
+const authValidatorMaker = require('../src/auth/validator');
 const {
   db,
   auth,
   validator,
   // file: { uploadMiddleware },
-} = require('../loader');
-const fileManager = require('../manager/file');
-const fileServiceMaker = require('../service/file');
-const { graphQLServerMiddleware } = require('../graphql');
-const local = require('../auth/passport');
-const { enumAuthmap } = require('../db/schema/enum');
-const { make: makeAuthMiddleware } = require('../auth/auth-middleware');
+} = require('../src/loader');
+const fileManager = require('../src/manager/file');
+const fileServiceMaker = require('../src/service/file');
+const { graphQLServerMiddleware } = require('../src/graphql');
+const local = require('../src/auth/passport');
+const { enumAuthmap } = require('../src/db/schema/enum');
+const { make: makeAuthMiddleware } = require('../src/auth/auth-middleware');
 const { loginQuery } = require('./graphql-request');
 
 const uploadDest = 'test/uploads';

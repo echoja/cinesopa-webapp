@@ -1,0 +1,151 @@
+type Destinfo {
+  name: String
+  address: String
+  address_detail: String
+  phone: String
+  request: String
+}
+
+input DestinfoInput {
+  name: String
+  address: String
+  address_detail: String
+  phone: String
+  request: String
+}
+
+type Application {
+  id: Int
+  user: String # 유저 이메일
+  status: String
+  method: String
+  c_date: DateTime
+  expected_date: DateTime # 도착 예정일
+  cancelled_date: DateTime # 주문 취소일
+  return_req_date: DateTime # 반품 신청일
+  cash_receipt: String # 현금영수증 번호
+  transport_number: String # 송장 번호
+  transport_company: String # 택배 회사
+  transport_fee: Int
+  bootpay_id: String
+  bootpay_payment_info: JSON
+  meta: JSON
+  items: [CartItem]
+  dest: Destinfo
+  payer: String
+}
+
+input ApplicationInput {
+  user: String # 유저 이메일
+  status: String
+  method: String
+  c_date: DateTime
+  expected_date: DateTime # 도착 예정일
+  cancelled_date: DateTime # 주문 취소일
+  return_req_date: DateTime # 반품 신청일
+  cash_receipt: String # 현금영수증 번호
+  transport_number: String # 송장 번호
+  transport_company: String # 택배 회사
+  transport_fee: Int
+  bootpay_id: String
+  bootpay_payment_info: JSON
+  meta: JSON
+  dest: DestinfoInput
+  payer: String
+}
+
+input ApplicationSearch {
+  date_gte: DateTime
+  date_lte: DateTime
+  status: String
+  method: String
+  page: Int
+  perpage: Int
+  user: String
+}
+
+input CreateApplicationFromCartInput {
+  items_id: [Int]!
+  method: String!
+  dest: DestinfoInput!
+  transport_fee: Int!
+  bootpay_id: String
+}
+
+type ApplicationsResult {
+  total: Int
+  list: [Application]
+}
+
+type MyApplicationsResult {
+  total: Int
+  list: [Application]
+  transporting: Int
+  application_count: [ApplicationCountGroupedByStatusResult]
+}
+
+type CreateApplicationFromCartResult {
+  success: Boolean
+  code: String
+  application_id: Int
+}
+
+type removeApplicationResult {
+  success: Boolean
+  code: String
+}
+
+type updateApplicationResult {
+  success: Boolean
+  code: String
+}
+
+type ReqCancelApplicationResult {
+  success: Boolean
+  code: String
+}
+
+type NobankApplicationinfoResult {
+  success: Boolean
+  code: String
+  application: Application
+}
+
+type FinishPaymentResult {
+  success: Boolean
+  code: String
+  application: Application
+}
+
+type ApplicationCountGroupedByStatusResult {
+  status: String
+  count: Int
+}
+
+extend type Query {
+  applicationAdmin(id: Int!): Application
+  applicationsAdmin(condition: ApplicationSearch!): ApplicationsResult
+
+  # 마이페이지 - 주문내역에서 사용되는 쿼리
+  myApplications(condition: ApplicationSearch!): MyApplicationsResult
+
+  # 결제 완료시 기본적으로 보일 정보를 알려주는 곳
+  myApplication(id: Int!): Application
+
+  # 무통장 입금시 정보를 추가적으로 출력해야 하는 페이지에서 사용됨
+  nobankApplicationinfo(id: Int!): NobankApplicationinfoResult
+
+  applicationCountGroupedByStatus: [ApplicationCountGroupedByStatusResult]
+}
+
+extend type Mutation {
+  # createApplicationFromCart: Application
+  createApplicationFromCart(
+    input: CreateApplicationFromCartInput!
+    payer: String
+  ): CreateApplicationFromCartResult # 새 주문 생성
+  finishPayment(id: Int!, receiptId: String!): FinishPaymentResult
+  reqCancelApplication(id: Int!): ReqCancelApplicationResult
+  updateApplication(id: Int!, input: ApplicationInput!): updateApplicationResult
+  removeApplication(id: Int!): removeApplicationResult
+}

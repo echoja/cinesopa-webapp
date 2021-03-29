@@ -15,9 +15,10 @@
     "**/dist": true,
     "**/package-lock.json": true,
     "**/bower_components": true,
+    "**/ts-build": true,
     "**/*.code-search": true,
     "package-lock.json": true,
-    "package-lock.json.bak": true,
+    "package-lock.json.bak": true
   },
   "compile-hero.disable-compile-files-on-did-save-code": false
 }

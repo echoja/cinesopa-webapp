@@ -333,6 +333,14 @@ export default [
       },
     ],
   },
+  {
+    path: '/request-tax-info',
+    name: 'ReuqestTaxInfo',
+    component: () => import('@/views/client/RequestTaxInfo.vue'),
+    meta: {
+      layout: () => import('@/views/layout/LayoutPlain.vue'),
+    },
+  },
 
   // {
   //   path: '/admin/page/new',

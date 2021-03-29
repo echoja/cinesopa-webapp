@@ -14,6 +14,7 @@
 /server/cert/*
 /server/uploads/*
 /server/config/*
+ts-build
 /proxy/config/*
 !/server/config/*-example.js
 !/server/config/*-example.json

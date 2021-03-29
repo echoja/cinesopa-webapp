@@ -21,6 +21,10 @@ export const graphql = async (query, variables) => {
       {
         headers,
         credentials: true,
+        onUploadProgress: (progressEvent) => {
+          console.log('graphql-client onUploadProgress');
+          console.dir(progressEvent);
+        },
       },
     );
 

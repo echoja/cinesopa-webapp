@@ -322,10 +322,10 @@
           <h3 class="detail-header d-flex align-items-center">
             <span class="mr-2">서류 및 정산</span>
             <b-button size="sm" class="mr-2" @click="receiptCopyClicked(row)"
-              >세금계산서 발행 내용 복사</b-button
+              >세금계산서 발행 정보 복사</b-button
             >
             <info
-              >세금계산서 발행 내용과 관련하여 클립보드로 복사를 합니다. 작품명,
+              >세금계산서 발행 정보과 관련하여 클립보드로 복사를 합니다. 작품명,
               세금계산서 작성 일자, 발행 이메일, 공급가액, 부가가치세액이
               복사됩니다.
             </info>
@@ -493,7 +493,7 @@
               variant="primary"
             >
               <font-awesome-icon :icon="['fas', 'upload']" class="mr-2" />
-              <span>직접 업로드</span></b-button
+              <span>직접 등록</span></b-button
             >
           </form-row>
           <form-row title="세금계산서 작성 일자">

@@ -56,10 +56,22 @@ export default {
   color: #777;
 }
 
-
 .form-row.fake .form-header {
   padding: 10px;
   flex: 0 0 200px;
+}
+
+@include max-with(md) {
+  .form-row {
+    display: block;
+    margin: 0 1vw;
+  }
+  .form-header {
+    display: block;
+    margin: 0 0  5px;
+    padding: 0;
+    border: 0;
+  }
 }
 </style>
 

@@ -246,7 +246,7 @@ const postsQuery = `
 query getPosts($condition: PostSearch!) {
   posts(condition: $condition) {
     total
-    posts ${postResponse}
+    list ${postResponse}
   }
 }`;
 const postAdminQuery = `
@@ -259,7 +259,7 @@ const postsAdminQuery = `
 query getPostsAdmin($condition: PostSearch!) {
   postsAdmin(condition: $condition) {
     total
-    posts ${postResponse}
+    list ${postResponse}
   }
 }`;
 const postsCountQuery = `

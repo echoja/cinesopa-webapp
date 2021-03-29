@@ -1,0 +1,21 @@
+{
+  "compilerOptions": {
+    "incremental": true,
+    "checkJs": true,
+    "baseUrl": ".",
+    "module": "es2020",
+    "target": "esnext",
+    "moduleResolution": "node",
+    "sourceMap": true,
+    "paths": {
+      "@/*": ["src/*"],
+      "@config/*": ["config/*"]
+    },
+    "outDir": "ts-build",
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "allowSyntheticDefaultImports": true,
+  },
+  "include": ["src/**/*", "config/**/*"],
+  "exclude": ["node_modules/*"],
+}

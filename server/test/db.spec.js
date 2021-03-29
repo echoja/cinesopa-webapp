@@ -4,7 +4,7 @@
  * 모든 스키마는 자동으로 id가 1부터 채워진다고 가정합니다.
  */
 
-require('../typedef');
+// require('../typedef');
 const { expect } = require('chai');
 const { isTypedArray } = require('lodash');
 const { it } = require('mocha');
