@@ -3,7 +3,7 @@ import autoIdSetter from "./auto-id-setter";
 /**
  * @param {Mongoose} mongoose
  */
-module.exports = function (mongoose) {
+ export default function (mongoose) {
   const schema = new mongoose.Schema({
     c_date: { type: Date, default: Date.now },
     encoding: String,

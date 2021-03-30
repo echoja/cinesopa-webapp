@@ -3,7 +3,7 @@ import { Fulfilled } from "@/typedef";
 import Hangul from "hangul-js";
 import { ACCESS_ALL, ACCESS_ADMIN, ACCESS_AUTH, ACCESS_UNAUTH, makeResolver, db } from "@/loader";
 
-module.exports = {
+export default {
   Query: {
     sopakits: makeResolver(async (obj, args, context, info) => {
       const { condition } = args;

@@ -15,14 +15,15 @@ type RemoveSiteOptionResult {
   success: Boolean
   code: String
 }
-extend type Query {
-  siteOption(name: String!): SiteOptionResult
-  siteOptions(names: [String!]!): [SiteOptionResult]
-}
 
 input SetSiteOptionInput {
   name: String!
   value: JSON!
+}
+
+extend type Query {
+  siteOption(name: String!): SiteOptionResult
+  siteOptions(names: [String!]!): [SiteOptionResult]
 }
 
 extend type Mutation {

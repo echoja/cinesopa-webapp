@@ -91,25 +91,18 @@ type ApplicationsResult {
   list: [Application]
 }
 
-type MyApplicationsResult {
-  total: Int
-  list: [Application]
-  transporting: Int
-  application_count: [ApplicationCountGroupedByStatusResult]
-}
-
-type CreateApplicationFromCartResult {
+type CreateApplicationResult {
   success: Boolean
   code: String
   application_id: Int
 }
 
-type removeApplicationResult {
+type RemoveApplicationResult {
   success: Boolean
   code: String
 }
 
-type updateApplicationResult {
+type UpdateApplicationResult {
   success: Boolean
   code: String
 }
@@ -136,30 +129,47 @@ type ApplicationCountGroupedByStatusResult {
   count: Int
 }
 
+type SubmitApplicationResult {
+  success: Boolean
+  code: String
+}
+type TaxInfoInput {
+  name: String
+}
+type UpdateNewTaxReqLinkResult {
+  name: String
+}
+
+type RemoveTaxReqLinkResult {
+  name: String
+}
+type SubmitTaxInformationResult
+
 extend type Query {
   applicationAdmin(id: Int!): Application
   applicationsAdmin(condition: ApplicationSearch!): ApplicationsResult
 
-  # 마이페이지 - 주문내역에서 사용되는 쿼리
-  myApplications(condition: ApplicationSearch!): MyApplicationsResult
+  # # 마이페이지 - 주문내역에서 사용되는 쿼리
+  # myApplications(condition: ApplicationSearch!): MyApplicationsResult
 
-  # 결제 완료시 기본적으로 보일 정보를 알려주는 곳
-  myApplication(id: Int!): Application
+  # # 결제 완료시 기본적으로 보일 정보를 알려주는 곳
+  # myApplication(id: Int!): Application
 
-  # 무통장 입금시 정보를 추가적으로 출력해야 하는 페이지에서 사용됨
-  nobankApplicationinfo(id: Int!): NobankApplicationinfoResult
+  # # 무통장 입금시 정보를 추가적으로 출력해야 하는 페이지에서 사용됨
+  # nobankApplicationinfo(id: Int!): NobankApplicationinfoResult
 
-  applicationCountGroupedByStatus: [ApplicationCountGroupedByStatusResult]
+  # applicationCountGroupedByStatus: [ApplicationCountGroupedByStatusResult]
 }
 
 extend type Mutation {
-  # createApplicationFromCart: Application
-  createApplicationFromCart(
-    input: CreateApplicationFromCartInput!
-    payer: String
-  ): CreateApplicationFromCartResult # 새 주문 생성
-  finishPayment(id: Int!, receiptId: String!): FinishPaymentResult
-  reqCancelApplication(id: Int!): ReqCancelApplicationResult
-  updateApplication(id: Int!, input: ApplicationInput!): updateApplicationResult
-  removeApplication(id: Int!): removeApplicationResult
+  submitApplication(input: ApplicationInput!): SubmitApplicationResult
+  submitTaxInformation(
+    token: String!
+    input: TaxInfoInput
+  ): SubmitTaxInformationResult
+  createApplication(input: ApplicationInput!): CreateApplicationResult
+  removeApplication(id: Int!): RemoveApplicationResult
+  updateApplication(id: Int!, input: ApplicationInput!): UpdateApplicationResult
+  updateNewTaxReqLink(id: Int!): UpdateNewTaxReqLinkResult
+  removeTaxReqLink(id: Int!): RemoveTaxReqLinkResult
 }

@@ -7,7 +7,7 @@ import autoIdSetter from "./auto-id-setter";
  * @param {Monboose} mongoose
  * @param {boolean} setId auto-id-setter 로 id 필드를 설정할 건지를 결정.
  */
-module.exports = function (mongoose) {
+export default function (mongoose) {
   const SiteOption = new mongoose.Schema({
     name: String,
     type: { type: String, enum: enumSiteOptionType },

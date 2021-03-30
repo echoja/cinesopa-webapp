@@ -23,8 +23,6 @@ module.exports = {
       const { condition } = args;
       return db.getApplications(condition);
     }).only(ACCESS_ADMIN),
-
-    // 결제 완료시 기본적으로 보일 정보를 보여주는 곳!
   },
   Mutation: {
     /** 제출 */

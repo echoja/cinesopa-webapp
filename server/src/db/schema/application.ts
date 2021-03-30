@@ -23,7 +23,7 @@ const autoIdSetter = require('./auto-id-setter');
 
 
 
-module.exports = function (mongoose: Mongoose) {
+ export default function (mongoose: Mongoose) {
 
   const schema = new mongoose.Schema({
     host: String, // 주최

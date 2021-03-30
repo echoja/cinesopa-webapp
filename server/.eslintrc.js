@@ -9,7 +9,7 @@ module.exports = {
     'plugin:chai-friendly/recommended',
   ],
   parser: '@typescript-eslint/parser',
-  plugins: ['@typescript-eslint', 'html'],
+  plugins: ['@typescript-eslint', 'html', 'graphql'],
   parserOptions: {
     ecmaVersion: 12,
   },
@@ -42,6 +42,25 @@ module.exports = {
     'no-plusplus': 0,
     'no-return-await': 1,
     camelcase: 0,
+    'graphql/template-strings': [
+      'error',
+      {
+        // Import default settings for your GraphQL client. Supported values:
+        // 'apollo', 'relay', 'lokka', 'fraql', 'literal'
+        env: 'literal',
+
+        // Import your schema JSON here
+        // schemaJson: require('./schema.json'),
+
+        // OR provide absolute path to your schema JSON (but not if using `eslint --cache`!)
+        // schemaJsonFilepath: path.resolve(__dirname, './schema.json'),
+
+        // OR provide the schema in the Schema Language format
+        // schemaString: printSchema(schema),
+
+        // tagName is gql by default
+      },
+    ],
     // 'prefer-template': 0,
     // 'no-nested-ternary': 0,
     // 'max-classes-per-file': 0,

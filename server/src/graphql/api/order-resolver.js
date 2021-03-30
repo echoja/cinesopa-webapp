@@ -66,7 +66,7 @@ module.exports = {
     }).only(ACCESS_AUTH),
 
     // 무통장 입금시 정보를 추가적으로 출력해야 하는 페이지에서 사용됨
-    nobankOrderInfo: makeResolver(async (obj, args, context, info) => {
+    nobankOrderinfo: makeResolver(async (obj, args, context, info) => {
       const { id } = args;
       const { email } = context.getUser();
       const order = await db.getOrder(id);

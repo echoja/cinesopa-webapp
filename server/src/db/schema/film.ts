@@ -11,7 +11,7 @@ import autoIdSetter from "./auto-id-setter";
  *
  * @param {Mongoose} mongoose
  */
-module.exports = function (mongoose) {
+ export default function (mongoose) {
   const Tag = tagSchemaMaker(mongoose, false);
 
   const Person = new mongoose.Schema({

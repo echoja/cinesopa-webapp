@@ -14,7 +14,7 @@ input DestinfoInput {
   request: String
 }
 
-type Application {
+type Order {
   id: Int
   user: String # 유저 이메일
   status: String
@@ -35,7 +35,7 @@ type Application {
   payer: String
 }
 
-input ApplicationInput {
+input OrderInput {
   user: String # 유저 이메일
   status: String
   method: String
@@ -54,7 +54,7 @@ input ApplicationInput {
   payer: String
 }
 
-input ApplicationSearch {
+input OrderSearch {
   date_gte: DateTime
   date_lte: DateTime
   status: String
@@ -64,7 +64,7 @@ input ApplicationSearch {
   user: String
 }
 
-input CreateApplicationFromCartInput {
+input CreateOrderFromCartInput {
   items_id: [Int]!
   method: String!
   dest: DestinfoInput!
@@ -72,80 +72,80 @@ input CreateApplicationFromCartInput {
   bootpay_id: String
 }
 
-type ApplicationsResult {
+type OrdersResult {
   total: Int
-  list: [Application]
+  list: [Order]
 }
 
-type MyApplicationsResult {
+type MyOrdersResult {
   total: Int
-  list: [Application]
+  list: [Order]
   transporting: Int
-  application_count: [ApplicationCountGroupedByStatusResult]
+  order_count: [OrderCountGroupedByStatusResult]
 }
 
-type CreateApplicationFromCartResult {
+type CreateOrderFromCartResult {
   success: Boolean
   code: String
-  application_id: Int
+  order_id: Int
 }
 
-type removeApplicationResult {
-  success: Boolean
-  code: String
-}
-
-type updateApplicationResult {
+type removeOrderResult {
   success: Boolean
   code: String
 }
 
-type ReqCancelApplicationResult {
+type updateOrderResult {
   success: Boolean
   code: String
 }
 
-type NobankApplicationinfoResult {
+type ReqCancelOrderResult {
   success: Boolean
   code: String
-  application: Application
+}
+
+type NobankOrderinfoResult {
+  success: Boolean
+  code: String
+  order: Order
 }
 
 type FinishPaymentResult {
   success: Boolean
   code: String
-  application: Application
+  order: Order
 }
 
-type ApplicationCountGroupedByStatusResult {
+type OrderCountGroupedByStatusResult {
   status: String
   count: Int
 }
 
 extend type Query {
-  applicationAdmin(id: Int!): Application
-  applicationsAdmin(condition: ApplicationSearch!): ApplicationsResult
+  orderAdmin(id: Int!): Order
+  ordersAdmin(condition: OrderSearch!): OrdersResult
 
   # 마이페이지 - 주문내역에서 사용되는 쿼리
-  myApplications(condition: ApplicationSearch!): MyApplicationsResult
+  myOrders(condition: OrderSearch!): MyOrdersResult
 
   # 결제 완료시 기본적으로 보일 정보를 알려주는 곳
-  myApplication(id: Int!): Application
+  myOrder(id: Int!): Order
 
   # 무통장 입금시 정보를 추가적으로 출력해야 하는 페이지에서 사용됨
-  nobankApplicationinfo(id: Int!): NobankApplicationinfoResult
+  nobankOrderinfo(id: Int!): NobankOrderinfoResult
 
-  applicationCountGroupedByStatus: [ApplicationCountGroupedByStatusResult]
+  orderCountGroupedByStatus: [OrderCountGroupedByStatusResult]
 }
 
 extend type Mutation {
-  # createApplicationFromCart: Application
-  createApplicationFromCart(
-    input: CreateApplicationFromCartInput!
+  # createOrderFromCart: Order
+  createOrderFromCart(
+    input: CreateOrderFromCartInput!
     payer: String
-  ): CreateApplicationFromCartResult # 새 주문 생성
+  ): CreateOrderFromCartResult # 새 주문 생성
   finishPayment(id: Int!, receiptId: String!): FinishPaymentResult
-  reqCancelApplication(id: Int!): ReqCancelApplicationResult
-  updateApplication(id: Int!, input: ApplicationInput!): updateApplicationResult
-  removeApplication(id: Int!): removeApplicationResult
+  reqCancelOrder(id: Int!): ReqCancelOrderResult
+  updateOrder(id: Int!, input: OrderInput!): updateOrderResult
+  removeOrder(id: Int!): removeOrderResult
 }

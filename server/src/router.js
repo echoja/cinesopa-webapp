@@ -5,7 +5,7 @@ const { enumAuthmap } = require('./db/schema/enum');
 const passport = require('passport');
 
 // const upload = require("multer")({ dest: "uploads/" }).single("bin");
-const { graphQLServerMiddleware } = require('./graphql');
+const { graphQLServerMiddleware } = require('./graphql').default;
 const {
   file: { uploadMiddleware, getFileMiddleware },
   makeAuthMiddleware,

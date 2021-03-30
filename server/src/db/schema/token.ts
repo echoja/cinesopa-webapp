@@ -1,6 +1,6 @@
 import { enumTokenPurpose } from "./enum";
 
-module.exports = function (mongoose) {
+export default function (mongoose) {
   const Token = new mongoose.Schema({
     email: String,
     token: String,

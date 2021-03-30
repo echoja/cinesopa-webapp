@@ -6,7 +6,7 @@ import { enumSopakitStatus } from "./enum";
  *
  * @param {Mongoose} mongoose
  */
-module.exports = function (mongoose) {
+ export default function (mongoose) {
 
   const schema = new mongoose.Schema({
     num: String, // 숫자

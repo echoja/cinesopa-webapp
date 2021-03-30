@@ -3,7 +3,7 @@ import makeDestinfo from "./destinfo";
 
 const role = enumAuthmap.slice(0, -1);
 
-module.exports = function (mongoose) {
+export default function (mongoose) {
   const Destinfo = makeDestinfo(mongoose);
   const UserAgreed = new mongoose.Schema({
     privacy: Boolean,

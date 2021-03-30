@@ -8,7 +8,7 @@ import autoIdSetter from "./auto-id-setter";
  *
  * @param {Mongoose} mongoose
  */
-module.exports = (mongoose) => {
+export default (mongoose) => {
   const CartItem = makeCartItem(mongoose, false, false);
   const Destinfo = makeDestinfo(mongoose);
   const Order = new mongoose.Schema({

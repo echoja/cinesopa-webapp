@@ -7,7 +7,7 @@ import { makeSchemaHaveSearchByGetter, getProductSearchStr } from "./tool";
  *
  * @param {Mongoose} mongoose
  */
-module.exports = function (mongoose) {
+export default function (mongoose) {
   const Option = new mongoose.Schema({
     id: String,
     disabled: { type: Boolean, default: 'false' },
