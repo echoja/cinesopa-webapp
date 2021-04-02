@@ -11,7 +11,7 @@ const {
   ACCESS_AUTH,
   ACCESS_UNAUTH,
   makeResolver,
-} = require('../../loader');
+} = require('@/loader');
 const { enumAuthmap } = require('../../db/schema/enum');
 const { auth } = require('../../service');
 

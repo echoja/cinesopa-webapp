@@ -133,7 +133,7 @@ type SubmitApplicationResult {
   success: Boolean
   code: String
 }
-type TaxInfoInput {
+input TaxInfoInput {
   name: String
 }
 type UpdateNewTaxReqLinkResult {
@@ -143,7 +143,9 @@ type UpdateNewTaxReqLinkResult {
 type RemoveTaxReqLinkResult {
   name: String
 }
-type SubmitTaxInformationResult
+type SubmitTaxInformationResult {
+  name: String
+}
 
 extend type Query {
   applicationAdmin(id: Int!): Application

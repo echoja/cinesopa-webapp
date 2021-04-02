@@ -2,7 +2,7 @@
   "ext": "js,json,graphql,ts",
   "watch": ["./src/**/*.ts", "./src/**/*.js", "./src/**/*.graphql"],
   "ignore": ["./src/**/*.spec.ts", "./src/**/*.spec.js"],
-  "exec": "copyfiles ./**/*.graphql ./ts-build && ts-node-dev -r tsconfig-paths/register --files ./src/index.js --inspect",
+  "exec": "copyfiles ./src/**/*.graphql ./src/**/*.pug ./ts-build && ts-node -r tsconfig-paths/register --files ./src/index.js -- --inspect --trace-warnings --trace-uncaught",
   "env": {
     "NODE_ENV": "development"
   }

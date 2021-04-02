@@ -46,8 +46,12 @@
   },
   "scripts": {
     "start-dev-old": "nodemon --trace-warnings --trace-uncaught index.js",
-    "start-dev": "nodemon --trace-warnings --trace-uncaught",
+    "start-dev-old2": "nodemon -- --trace-warnings --trace-uncaught",
+    "start-dev-old3": "copyfiles ./src/**/*.graphql ./src/**/*.pug ./ts-build && ts-node-dev --respawn --debug --transpile-only -r tsconfig-paths/register --files ./src/index.js --inspect --trace-warnings --trace-uncaught",
+    "start-dev": "NODE_ENV=development ts-node-dev --transpile-only --respawn -r tsconfig-paths/register --watch ./src/**/*.pug,./src/**/*.graphql --trace-warnings --trace-uncaught -- ./src/index.js",
     "start:ci": "node index.js",
+    "start": "NODE_ENV=production ts-node --transpile-only -r tsconfig-paths/register src/index.js",
+    "watch": "tsc --watch",
     "test:no": "mocha --trace-warnings",
     "test": "mocha --reporter mochawesome --trace-warnings",
     "test-server:multer": "nodemon test/multer-test-server.js",

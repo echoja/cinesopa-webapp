@@ -1,4 +1,5 @@
 /* 외부 모듈들 */
+const path = require('path');
 
 const mongoose = require('mongoose');
 const nodemailer = require('nodemailer');
@@ -7,22 +8,27 @@ const nodemailer = require('nodemailer');
 const model = require('./db/model').make(mongoose);
 const db = require('./manager/db').make(model);
 
-
 /* mail template */
 
 const mailTemplateFileInfo = {
-  'verify-mail': 'mail-template/verify-mail.pug',
-  'payment-success': 'mail-template/payment-success.pug',
-  'change-password': 'mail-template/change-password.pug',
-  'changed-agreed': 'mail-template/changed-agreed.pug',
-  'advertisement': 'mail-template/advertisement.pug',
+  'verify-mail': path.resolve(__dirname, 'mail-template/verify-mail.pug'),
+  'payment-success': path.resolve(
+    __dirname,
+    'mail-template/payment-success.pug',
+  ),
+  'change-password': path.resolve(
+    __dirname,
+    'mail-template/change-password.pug',
+  ),
+  'changed-agreed': path.resolve(__dirname, 'mail-template/changed-agreed.pug'),
+  advertisement: path.resolve(__dirname, 'mail-template/advertisement.pug'),
 };
 const { makeTemplateMap } = require('./mail-template/template-map');
 const mailDefaultArgsGetter = async () => ({
   // todo
 });
 
-/** 
+/**
  * mail Template Map
  * 파일로부터 템플릿 정보를 받아오므로 일단 Promise 형태입니다.
  * 추후 이용할 때 Promise.resolve() 함수를 이용해 Promise 형태를 풀어야 합니다.
@@ -52,12 +58,10 @@ const templateArgsRefiner = require('./mail-template/template-args-refiner').mak
 /* bootpay */
 const bootpay = require('./manager/bootpay').make();
 
-
-
 /* service */
 const user = require('./service/user').make(db, mail);
 
-const page = require('./service/page').make(db);
+// const page = require('./service/page').make(db);
 const payment = require('./service/payment').make(db, bootpay);
 
 const auth = require('./service/auth').make(db);
@@ -77,7 +81,6 @@ const makeAuthMiddleware = require('./auth/auth-middleware').make;
 
 /* passport graphql lodal strategy */
 const local = require('./auth/passport').default;
-
 
 const localAuthConfig = local.make(db);
 
@@ -99,7 +102,9 @@ const ACCESS_ALL = [...alist];
 const ACCESS_AUTH = alist.slice(0, -1);
 const ACCESS_UNAUTH = alist.slice(-1);
 const ACCESS_ADMIN = alist.slice(0, 1);
-const makeResolver = require('./graphql/make-resolver').default.init(ACCESS_UNAUTH[0]);
+const makeResolver = require('./graphql/make-resolver').default.init(
+  ACCESS_UNAUTH[0],
+);
 
 // eslint-disable-next-line operator-linebreak
 // const uploadBaseUrl =
@@ -119,7 +124,6 @@ const downloadBaseUrl = '/download/';
 // const mailGenerator = require('./mail-template/generate');
 // console.log(mailGenerator('verify-mail', {}));
 
-
 module.exports = {
   mail,
   templateArgsRefiner,
@@ -127,7 +131,7 @@ module.exports = {
   db,
   user,
   auth,
-  page,
+  // page,
   fileManager,
   validator,
   file,

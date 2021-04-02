@@ -56,10 +56,12 @@ const makeTemplateMap = async (
   fileinfo = _fileinfo,
   getDefaultArgs = _getDefaultArgs,
 ) => {
-  const readFile = util.promisify(fs.readFile);
+  const readFile = fs.promises.readFile;
 
   // fileinfo 의 값을 하나하나 읽어서 [name, pug renderer] 를 내뱉는
   // Promise 의 배열을 만듭니다.
+  console.log("# template-map.js makeTemplateMap start");
+  console.log(fileinfo);
 
   const promises = Object.keys(fileinfo).map((name) => {
     const filename = fileinfo[name];
@@ -93,6 +95,13 @@ const makeTemplateMap = async (
       return null;
     }
   });
+  // console.log('# template-map.js makeTemplateMap 34');
+  // console.log(results);
+  // console.log(mapInputs);
+
+  // const o = [1, 2, 3];
+  // o[4] = '12';
+  
   return new Map(mapInputs);
 };
 

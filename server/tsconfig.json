@@ -6,18 +6,18 @@
     "module": "CommonJS",
     "target": "esnext",
     "moduleResolution": "node",
-    "typeRoots": ["node_modules/@types", "src/@types"],
     "sourceMap": true,
     "paths": {
       "@/*": ["src/*"],
       "@config/*": ["config/*"]
     },
     "outDir": "ts-build",
+    "diagnostics": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
-    "allowSyntheticDefaultImports": true
+    "allowSyntheticDefaultImports": true,
+    // "listEmittedFiles": true
   },
-  "files": ["src/@types/graphql.d.ts"],
   "include": ["src/**/*", "config/**/*"],
   "exclude": ["node_modules", "**/*.spec.ts", "**/*.spec.js"]
 }
