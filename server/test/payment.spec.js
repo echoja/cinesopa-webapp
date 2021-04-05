@@ -1,6 +1,6 @@
 const { expect } = require('chai');
 const { initTestServer, graphqlSuper, doLogin, guestEmail } = require('./tool');
-const { db, model, payment } = require('../loader');
+const { db, model, payment } = require('@/loader');
 const paymentServiceMaker = require('../service/payment').make;
 const sinon = require('sinon');
 

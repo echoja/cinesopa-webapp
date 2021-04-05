@@ -13,7 +13,7 @@ const {
   guestEmail,
 } = require('./tool');
 
-const { model, db } = require('../loader');
+const { model, db } = require('@/loader');
 const passport = require('../auth/passport');
 const { resetBehavior } = require('sinon');
 

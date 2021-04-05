@@ -1,5 +1,7 @@
 // require('./typedef');
 
+import { Handler } from "express";
+
 /** ******************* */
 /* express middleware */
 /** ******************* */
@@ -10,7 +12,7 @@
  * 
  * @param {import('express').Handler} asyncFunc
  */
-export const aw = (asyncFunc) => async (req, res, next) => {
+export const aw = (asyncFunc: Handler): Handler => async (req, res, next) => {
   try {
     return await asyncFunc(req, res, next);
   } catch (error) {

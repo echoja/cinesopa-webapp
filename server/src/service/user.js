@@ -1,7 +1,14 @@
-// require('../typedef');
+// require('@/typedef');
 const { enumTokenPurpose } = require('../db/schema/enum');
 
-const { DBManager, MailManager, UserAgreedinfo, CustomPassportContext, Tokeninfo, Userinfo} = require('@/typedef');
+const {
+  DBManager,
+  MailManager,
+  UserAgreedinfo,
+  CustomPassportContext,
+  Tokeninfo,
+  Userinfo,
+} = require('@/typedef');
 
 // const { enumAuthmap, enumTokenPurpose } = require('../db/schema/enum');
 const crypto = require('crypto');
@@ -16,9 +23,9 @@ class UserService {
   #mail;
 
   /**
-   * 
-   * @param {DBManager} dbManager 
-   * @param {MailManager} mailManager 
+   *
+   * @param {DBManager} dbManager
+   * @param {MailManager} mailManager
    */
   constructor(dbManager, mailManager) {
     this.#db = dbManager;
@@ -48,7 +55,7 @@ class UserService {
 
     // 토큰 생성
     const token = crypto.randomBytes(20).toString('hex');
-    await this.#db.createToken(email, token, 'email_verification');
+    await this.#db.createToken({ email, token, purpose: 'email_verification' });
     const mailGate = {
       recipientEmail: email,
       recipientName: '',
@@ -108,7 +115,7 @@ class UserService {
     // }
 
     const token = crypto.randomBytes(20).toString('hex');
-    await this.#db.createToken(email, token, 'change_password');
+    await this.#db.createToken({ email, token, purpose: 'change_password'});
 
     const mailGate = {
       recipientEmail: email,
@@ -152,8 +159,13 @@ class UserService {
   async changePassword(token, pwd) {
     /** @type {Tokeninfo} */
     let tokenDoc = null;
+
+    /** @type {boolean} */
+    let isValidTTL;
     try {
-      tokenDoc = await this.#db.getToken(token, 'change_password');
+      const result = await this.#db.getToken(token, 'change_password');
+      tokenDoc = result.token;
+      isValidTTL = result.isValidTTL;
     } catch (error) {
       return { success: false, code: 'no_such_token' };
     }
@@ -181,7 +193,11 @@ class UserService {
    * @returns {Promise<Userinfo>}
    */
   async verifyEmail(token) {
-    const tokenDoc = await this.#db.getToken(token, 'email_verification'); // 토큰을 찾지 못하면 에러.
+    const { isValidTTL, token: tokenDoc } = await this.#db.getToken(
+      token,
+      'email_verification',
+    );
+
     const email = tokenDoc.email;
     const user = await this.#db.getUserByEmail(email);
     // console.log('--verifyEmail - user--');
@@ -192,7 +208,10 @@ class UserService {
     //   c_date: tokenDoc.c_date,
     //   ttl: tokenDoc.ttl,
     // })
-    if (Date.now() - tokenDoc.c_date.getTime() > tokenDoc.ttl * 1000) { // need check
+
+    // 토큰 검사
+    if (!isValidTTL) {
+      // need check
       throw Error('token-expired');
     }
     // 유효시간 올바름.

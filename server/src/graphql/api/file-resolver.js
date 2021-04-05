@@ -8,7 +8,7 @@ const {
   db,
   file,
   fileManager,
-} = require('../../loader');
+} = require('@/loader');
 
 // 관리자
 

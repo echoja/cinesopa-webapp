@@ -47,7 +47,7 @@ const {
 } = require('./graphql-request');
 // const auth = require('../service/auth');
 // const authValidatorMaker = require('../auth/validator');
-const { db: manager, model } = require('../loader');
+const { db: manager, model } = require('@/loader');
 // const { graphQLServerMiddleware } = require('../graphql');
 // const local = require('../auth/local');
 // const { noConflict } = require("lodash");

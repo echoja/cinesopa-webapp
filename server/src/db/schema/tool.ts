@@ -1,15 +1,15 @@
-import { getVariableValues } from "graphql/execution/values";
-import { search } from "hangul-js";
-import Hangul from "hangul-js";
-import { Document, Query, Schema } from "mongoose";
-import stripHtml from "string-strip-html";
+import { getVariableValues } from 'graphql/execution/values';
+import { search } from 'hangul-js';
+import Hangul from 'hangul-js';
+import { Document, Query, Schema } from 'mongoose';
+import { stripHtml } from 'string-strip-html';
 
 /**
  * 문자열 배열을 한글해체된 문자열 하나로 만들어주는 함수
  * @param {string[]} arr 문자열 배열
  * @returns {string} 한글.
  */
- export const searchArrToStr = (arr) =>
+export const searchArrToStr = (arr) =>
   Hangul.disassembleToString(arr.join('#').replace(/ /g, ''));
 
 /**
@@ -17,7 +17,7 @@ import stripHtml from "string-strip-html";
  * @param {Object} obj 객체
  * @param {string} field field1.field2.field3 으로 이루어진 문자열
  */
- export const getValueOfField = (obj, field) => {
+export const getValueOfField = (obj, field) => {
   // field 값이 잘못되었다면 그냥 null 리턴.
   if (field === null || field === '' || typeof field === 'undefined') {
     return null;
@@ -49,7 +49,7 @@ import stripHtml from "string-strip-html";
  * @param {MongooseDocument} doc
  * @param {string[]} fields nested 값은 .으로 표현. 예: ['a', 'b.c', 'd']
  */
- export const getSearchStr = (doc, fields) => {
+export const getSearchStr = (doc, fields) => {
   let arr = fields.map((field) => getValueOfField(doc, field));
   arr = arr.flat(20);
   return searchArrToStr(arr);
@@ -59,7 +59,7 @@ import stripHtml from "string-strip-html";
  *
  * @param {Filminfo} FilmDoc
  */
- export const getFilmSearchStr = (FilmDoc) => {
+export const getFilmSearchStr = (FilmDoc) => {
   return getSearchStr(FilmDoc, [
     'title',
     'title_en',
@@ -73,7 +73,7 @@ import stripHtml from "string-strip-html";
  * @param {MongooseDocument} prodDoc
  */
 
- export const getPostSearchStr = (postDoc) => {
+export const getPostSearchStr = (postDoc) => {
   // console.log(`getPostSearchStr called! title: ${postDoc.title}`);
   const strArray = [];
   const { title = '', content = '' } = postDoc;
@@ -91,7 +91,7 @@ import stripHtml from "string-strip-html";
  * @param {MongooseDocument} prodDoc
  */
 
- export const getProductSearchStr = (prodDoc) => {
+export const getProductSearchStr = (prodDoc) => {
   const strArray = [];
   const { content_main = '', content_sub = '', name = '' } = prodDoc;
   strArray.push(
@@ -123,7 +123,7 @@ export const makeSchemaHaveSearch = (schema, searchField, fields) => {
   });
 };
 
-type SearchStrGetter = (doc:Document) => string;
+type SearchStrGetter = (doc: Document) => string;
 /**
  * @callback SearchStrGetter
  * @param {MongooseDocument} doc
@@ -136,7 +136,11 @@ type SearchStrGetter = (doc:Document) => string;
  * @param {string} searchField
  *  @param {SearchStrGetter} getter
  */
-export const makeSchemaHaveSearchByGetter = (schema: Schema, searchField: string, getter: SearchStrGetter) => {
+export const makeSchemaHaveSearchByGetter = (
+  schema: Schema,
+  searchField: string,
+  getter: SearchStrGetter,
+) => {
   schema.pre('save', function () {
     this[searchField] = getter(this);
   });

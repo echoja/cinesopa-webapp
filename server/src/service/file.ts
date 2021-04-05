@@ -1,35 +1,41 @@
-const path = require('path');
-const multer = require('multer');
+import path from 'path';
+import multer from 'multer';
 // const { promisify } = require('util');
-const {imageSize: sizeOf} = require('image-size');
-const sharp = require('sharp');
-const fs = require('fs');
+import { imageSize as sizeOf } from 'image-size';
+import sharp from 'sharp';
+import fs from 'fs';
+import rateLimit from 'express-rate-limit';
 
-// require('../typedef');
-const { aw } = require('../util');
-const {DBManager, FileManager, Fileinfo} = require("@/typedef")
-
+// require('@/typedef');
+import { aw } from '../util';
+import { DBManager, FileManager, Fileinfo } from '@/typedef';
+import { Handler, ErrorRequestHandler, IRouterHandler } from 'express';
 // const sizeOf = promisify(sizeOfCallbackBased);
 
 class FileService {
-  /** @type {DBManager} */
-  #db;
-  /** @type {FileManager} */
-  #file;
-  /** @type {string} */
-  #dest;
-  /** @type {string} */
-  #uploadField;
-  
-  uploadMiddleware;
+  #db: DBManager;
+  #file: FileManager;
+  #dest: string;
+  #uploadField: string;
 
-  #initCreateFileMiddleware = (db, file) => {
+  uploadMiddleware: (Handler | ErrorRequestHandler)[];
+
+  uploadPublicMiddleware: (Handler | ErrorRequestHandler)[];
+
+  /**
+   * 파일을 새롭게 생성하는 미들웨어 팩토리 함수
+   * multer 이후에 오게 되면 req.file 로 파일 객체에 접근할 수 있음.
+   * @param {DBManager} db
+   * @param {FileManager} file
+   * @returns {Handler}
+   */
+  #initCreateFileMiddleware = (db: DBManager, file: FileManager): Handler => {
     return async (req, res, next) => {
       console.log('# file service #initCreateFileMiddleware called!');
       let fullpath = '';
       try {
         console.log('# file service #initCreateFileMiddleware');
-        const fileinfo = {};
+        const fileinfo: Fileinfo = {};
         const { file: fileObj } = req;
         ['filename', 'mimetype', 'path', 'encoding', 'size'].forEach((key) => {
           fileinfo[key] = fileObj[key];
@@ -79,27 +85,93 @@ class FileService {
     };
   };
 
-  #initMulterMiddleware = (dest, uploadField) => {
+  /**
+   *
+   * @param {string} dest
+   * @param {string} uploadField
+   * @returns {Handler}
+   */
+  #initMulterMiddleware = (dest: string, uploadField: string): Handler => {
     return multer({ dest }).single(uploadField);
   };
 
-  #initMulterErrorHandler = () => {
-    return (err, req, res, next) => {
+  /**
+   *
+   * @param {string} dest
+   * @param {string} uploadField
+   * @returns {Handler}
+   */
+  #initPublicMulterMiddleware = (
+    dest: string,
+    uploadField: string,
+  ): Handler => {
+    return multer({ dest, limits: { fileSize: 10485760 } }).single(uploadField);
+  };
+
+  #initMulterErrorHandler = (): ErrorRequestHandler => {
+    const handler = (err, req, res, next) => {
       if (err) {
-        console.log('# file servide initMulterErrorHandler called');
+        console.log('# file service initMulterErrorHandler called');
         console.log(err);
         next(err);
       }
     };
+    return handler;
   };
 
-  constructor(db, file, dest, uploadField) {
+  /**
+   * 업로드 토큰을 검사합니다.
+   */
+  #initCheckUploadToken = (): Handler => {
+    return aw(async (req, res, next) => {
+      const token = req.params.token;
+      // 토큰 파라미터가 설정되어 있지 않으면 오류
+      if (typeof token !== 'string') {
+        return res.status(401).send();
+      }
+      const { isValidTTL, token: tokenDoc } = await this.#db.getToken(
+        token,
+        'taxinfo_request',
+      );
+      // 토큰이 존재하지 않거나 시간이 문제가 있다면
+      if (!tokenDoc || !isValidTTL) {
+        return res.status(401).send();
+      }
+      next();
+    });
+  };
+
+  constructor(
+    db: DBManager,
+    file: FileManager,
+    dest: string,
+    uploadField: string,
+  ) {
     this.#db = db;
     this.#file = file;
     this.#dest = dest;
     this.#uploadField = uploadField;
     this.uploadMiddleware = [
       this.#initMulterMiddleware(this.#dest, this.#uploadField),
+      this.#initMulterErrorHandler(),
+      this.#initCreateFileMiddleware(this.#db, this.#file),
+    ];
+
+    this.uploadPublicMiddleware = [
+      rateLimit({
+        windowMs: 1000 * 5,
+        max: 1,
+        message:
+          '짧은 시간에 업로드가 너무 많이 요청되었습니다. 잠시 후 다시 시도해주세요.',
+      }),
+      rateLimit({
+        windowMs: 1000 * 60 * 60 * 24,
+        max: 50,
+        message:
+          '하루 업로드가 제한되었습니다. 문의사항으로 연락주시기 바랍니다.',
+      }),
+      this.#initCheckUploadToken(),
+      this.#initPublicMulterMiddleware(this.#dest, this.#uploadField),
       this.#initMulterErrorHandler(),
       this.#initCreateFileMiddleware(this.#db, this.#file),
     ];
@@ -135,7 +207,7 @@ class FileService {
     const foundByFilename = await this.#db.getFile(fileNameNoExt);
     // console.log(foundByFilename.path);
     // console.log(__dirname);
-    const {size} = req.query; // need check! req.query.size 에서 바로 접근하던 걸  { size } = req.query 로 변경함.
+    const { size } = req.query; // need check! req.query.size 에서 바로 접근하던 걸  { size } = req.query 로 변경함.
     if (foundByFilename && typeof size === 'string') {
       const absPath = await this.resizeImage(foundByFilename, size);
       res.set('Content-Type', foundByFilename.mimetype);
@@ -248,8 +320,9 @@ class FileService {
     const untracked = actualFilenames.filter(
       (actualFilename) =>
         // eslint-disable-next-line implicit-arrow-linebreak
-        dbFiles.list.findIndex((dbFile) => dbFile.filename === actualFilename) ===
-        -1,
+        dbFiles.list.findIndex(
+          (dbFile) => dbFile.filename === actualFilename,
+        ) === -1,
     );
     return untracked;
   }
@@ -293,7 +366,7 @@ class FileService {
 
 const absPath = (relative) => path.join(__dirname, '../', relative);
 
-module.exports = {
+export default {
   make(dbManager, fileManager, deststr, uploadFieldstr) {
     return new FileService(dbManager, fileManager, deststr, uploadFieldstr);
     // console.log(path.join(dest));

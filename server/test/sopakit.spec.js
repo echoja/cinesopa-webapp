@@ -13,7 +13,7 @@ const {
   makeSimpleMutation,
 } = require('./tool');
 const { graphql } = require('graphql');
-const { model, db } = require('../loader');
+const { model, db } = require('@/loader');
 
 describe('cartitem', function () {
   // eslint-disable-next-line mocha/no-setup-in-describe

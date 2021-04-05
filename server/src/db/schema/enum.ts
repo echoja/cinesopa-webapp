@@ -46,6 +46,7 @@ export type ProductType = typeof enumProductType[number];
 export const enumTokenPurpose = [
   'email_verification',
   'change_password',
+  'taxinfo_request',
 ] as const;
 export type TokenPurpose = typeof enumTokenPurpose[number];
 export const enumPageRole = ['cinesopa', 'sopaseom', 'sopakit'] as const;

@@ -6,8 +6,8 @@ const {
   ACCESS_UNAUTH,
   makeResolver,
   db,
-} = require('../../loader');
-require('../../typedef');
+} = require('@/loader');
+require('@/typedef');
 
 module.exports = {
   Query: {

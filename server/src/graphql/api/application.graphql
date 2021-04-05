@@ -71,11 +71,14 @@ input ApplicationInput {
 input ApplicationSearch {
   date_gte: DateTime
   date_lte: DateTime
-  status: String
+  transport_status: [String]
+  doc_status: [String]
+  money_status: [String]
+  receipt_status: [String]
   method: String
   page: Int
   perpage: Int
-  user: String
+  search: String
 }
 
 input CreateApplicationFromCartInput {
@@ -137,7 +140,9 @@ input TaxInfoInput {
   name: String
 }
 type UpdateNewTaxReqLinkResult {
-  name: String
+  success: Boolean
+  code: String
+  token: String
 }
 
 type RemoveTaxReqLinkResult {

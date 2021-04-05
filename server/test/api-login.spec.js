@@ -23,7 +23,7 @@ const axios = require('axios');
 const { expect } = require('chai');
 
 const { graphqlSuper, initTestServer } = require('./tool');
-const { db } = require('../loader');
+const { db } = require('@/loader');
 
 const headers = {
   'Content-Type': 'application/json',

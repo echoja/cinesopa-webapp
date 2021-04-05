@@ -1,4 +1,4 @@
-import { MailGate } from './../typedef';
+import { MailGate } from '@/typedef';
 import { gmail_v1 } from 'googleapis';
 
 import nodemailer from 'nodemailer';

@@ -7,7 +7,7 @@ const {
   makeResolver,
   db,
   mail,
-} = require('../../loader');
+} = require('@/loader');
 
 const { enumFilmAvailableSubtitle } = require('../../db/schema/enum');
 const moment = require('moment');

@@ -29,14 +29,14 @@ import {
   ICartitem,
   ISiteOption,
   IApplication,
-} from './../typedef';
+} from '@/typedef';
 const { MongooseDocument, Model } = require('mongoose');
 const mongoose = require('mongoose');
 
 import { model, Document, Mongoose } from 'mongoose';
 
-/** @typedef {import('../typedef').Applicationinfo} Applicationinfo */
-/** @typedef {import('../typedef').Postinfo} Postinfo */
+/** @typedef {import('@/typedef').Applicationinfo} Applicationinfo */
+/** @typedef {import('@/typedef').Postinfo} Postinfo */
 
 import Page from './schema/page';
 import User from './schema/user';

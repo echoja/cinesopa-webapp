@@ -1,4 +1,4 @@
-// // require('../typedef');
+// // require('@/typedef');
 // // const { model } = require('@/loader');
 // const { Pageinfo, DBManager } = require("@/typedef");
 

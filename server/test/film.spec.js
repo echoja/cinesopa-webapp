@@ -2,7 +2,7 @@ const { expect } = require('chai');
 const random = require('random');
 // const { upload, createFileFromMockFile } = require('./tool');
 const { fake } = require('sinon');
-const { model, db } = require('../loader');
+const { model, db } = require('@/loader');
 const {
   filmQuery,
   filmsQuery,

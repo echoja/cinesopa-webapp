@@ -6,6 +6,11 @@ import {
   enumAuthmap,
   AuthType,
   OrderStatus,
+  TokenPurpose,
+  ApplicationTransportStatus,
+  ApplicationDocStatus,
+  ApplicationMoneyStatus,
+  ApplicationReceiptStatus,
 } from './db/schema/enum';
 import { db } from './loader';
 import { Express } from 'express';
@@ -191,8 +196,15 @@ export interface Applicationinfo extends ApplicationinfoBase, IIdOption {}
 export interface ApplicationInput extends ApplicationinfoBase {}
 
 export interface ApplicationSearch {
-  start_sd: Date;
-  end_sd: Date;
+  date_gte: Date;
+  date_lte: Date;
+  transport_status: ApplicationTransportStatus[];
+  doc_status: ApplicationDocStatus[];
+  money_status: ApplicationMoneyStatus[];
+  receipt_status: ApplicationReceiptStatus[];
+  method: string;
+  page: number;
+  perpage: number;
   search: string;
 }
 
@@ -506,8 +518,10 @@ interface FileinfoBase {
   encoding?: string; //
   mimetype?: string; //
   filename?: string; // 실제 저장되는 파일 이름 (multer에 의해 생성)
+  fileurl?: string;
   origin?: string; // 본래 파일 이름
   description?: string; //
+  extension?: string;
   label?: string; //
   alt?: string; //
   path?: string; // 전체 경로
@@ -635,7 +649,8 @@ export interface Tokeninfo {
   token?: string; //
   ttl?: number; // 유효 시간 (초)
   c_date?: Date; //
-  purpose?: string; //
+  purpose?: TokenPurpose; //
+  appl_id?: number;
 }
 
 interface BoardinfoBase {
@@ -645,6 +660,15 @@ interface BoardinfoBase {
   belongs_to?: string; //
   board_type?: string; //
   meta?: object; //
+}
+export interface CreateTokenOptions {
+  email: string;
+  token: string;
+  purpose: TokenPurpose;
+  /** 초 단위 */
+  ttl?: number;
+  /** 이메일과 목적에 따라 오직 하나밖에 존재할 수 없는지, 아니면 중복하여 가질 수 있는지. */
+  unique?: boolean;
 }
 /**
  * 게시판 정보를 담는 객체
@@ -789,6 +813,7 @@ declare global {
   namespace Express {
     export interface User {
       role?: string;
+      email?: string;
     }
   }
   namespace session {

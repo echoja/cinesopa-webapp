@@ -3,7 +3,7 @@ const pug = require('pug');
 const util = require('util');
 const inlineCss = require('inline-css');
 const { MailRendererWrapper, TemplateMap } = require('@/typedef');
-require('../typedef');
+require('@/typedef');
 
 const _fileinfo = {
   'verify-mail': 'mail-template/verify-mail.pug',
@@ -60,8 +60,8 @@ const makeTemplateMap = async (
 
   // fileinfo 의 값을 하나하나 읽어서 [name, pug renderer] 를 내뱉는
   // Promise 의 배열을 만듭니다.
-  console.log("# template-map.js makeTemplateMap start");
-  console.log(fileinfo);
+  // console.log("# template-map.js makeTemplateMap start");
+  // console.log(fileinfo);
 
   const promises = Object.keys(fileinfo).map((name) => {
     const filename = fileinfo[name];

@@ -1,4 +1,4 @@
-// require('../typedef');
+// require('@/typedef');
 
 const { Orderinfo, Cartiteminfo, FmtCartiteminfo } = require('@/typedef');
 

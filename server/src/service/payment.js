@@ -1,6 +1,6 @@
-// require('../typedef');
+// require('@/typedef');
 
-const {Orderinfo, BootpayManager, DBManager} = require('../typedef');
+const {Orderinfo, BootpayManager, DBManager} = require('@/typedef');
 
 // /**
 //  *
@@ -10,7 +10,7 @@ const {Orderinfo, BootpayManager, DBManager} = require('../typedef');
 //   if (!order) {
 //     return 0;
 //   }
-//   /** @type {import('../typedef').CartItemOptioninfo[]} */
+//   /** @type {import('@/typedef').CartItemOptioninfo[]} */
 //   // need-check
 //   const flatted = order.items.map((item) => item.options ?? []).flat(2);
 //   // console.log(flatted);

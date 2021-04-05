@@ -3,7 +3,6 @@ const path = require("path");
 const fs = require("fs");
 const FormData = require("form-data");
 const { inspect } = require("util");
-const { upload, createFileFromMockFile } = require("./tool");
 const axios = require("axios");
 const express = require("express");
 const { title } = require("process");
@@ -17,11 +16,12 @@ const uploadMiddleware = require("multer")({
 
 app.post("/upload", uploadMiddleware, (req, res, next) => {
   res.send(
-    `req: ${inspect(req, { compact: false })}
-    
-res: ${inspect(res.file)}
+//     `req: ${inspect(req, { compact: false })}
 
-`
+//     res: ${inspect(req.file)}
+
+// `
+
   );
   console.log(inspect(req, { compact: false, colors: true }));
 });

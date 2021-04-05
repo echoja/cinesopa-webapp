@@ -54,7 +54,7 @@ const allResolvers = [
 ];
 
 const graphqlPaths = glob.sync(path.resolve(__dirname, './api/*.graphql'));
-console.log(graphqlPaths);
+// console.log(graphqlPaths);
 const typesSchema = loadSchemaSync(graphqlPaths, {
   loaders: [new GraphQLFileLoader()],
 });

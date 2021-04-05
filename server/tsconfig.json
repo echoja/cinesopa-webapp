@@ -16,8 +16,7 @@
     "esModuleInterop": true,
     "skipLibCheck": true,
     "allowSyntheticDefaultImports": true,
-    // "listEmittedFiles": true
   },
-  "include": ["src/**/*", "config/**/*"],
+  "include": ["src/**/*", "config/**/*", "test/**/*"],
   "exclude": ["node_modules", "**/*.spec.ts", "**/*.spec.js"]
 }

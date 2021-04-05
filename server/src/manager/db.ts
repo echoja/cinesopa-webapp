@@ -17,14 +17,18 @@ import {
   ApplicationInput,
   ApplicationSearch,
   GetOrderCountGroupedByStatusResult,
-} from './../typedef';
+  TokenPurpose,
+  Tokeninfo,
+  IToken,
+  CreateTokenOptions,
+} from '@/typedef';
 //@ts-check
 
 // const crypto = require('crypto');
 import crypto from 'crypto';
 import { LeanDocument, Unpacked } from 'mongoose';
 
-// require('../typedef');
+// require('@/typedef');
 // const {
 //   MongooseDocument,
 //   DocumentQuery,
@@ -353,41 +357,43 @@ export class DBManager {
 
   /**
    * 새로운 토큰을 만듭니다. 이전에 있던 토큰은 모두 삭제합니다.
-   * @param {string} email
-   * @param {Tokeninfo} token
-   * @param {string} purpose
    */
-  async createToken(email, token, purpose) {
-    // 토큰이 올바른 purpose 인지 체크.
-    const purposeFoundIndex = enumTokenPurpose.findIndex(
-      (value) => value == purpose,
-    );
-    if (purposeFoundIndex === -1) {
-      throw Error(`createToken: 올바르지 않은 purpose입니다.: ${purpose}`);
-    }
+
+  async createToken(input: CreateTokenOptions): Promise<LeanDocument<IToken>> {
+    if (!input.ttl) input.ttl = 60 * 30;
+    if (!input.unique) input.unique = true;
+
+    // // 토큰이 올바른 purpose 인지 체크. --> typescript 덕분에 필요없어짐.
+    // const purposeFoundIndex = enumTokenPurpose.findIndex(
+    //   (value) => value == purpose,
+    // );
+    // if (purposeFoundIndex === -1) {
+    //   throw Error(`createToken: 올바르지 않은 purpose입니다.: ${purpose}`);
+    // }
 
     // 이미 존재하는 토큰을 삭제함.
-    await model.Token.deleteMany({ email, purpose });
-    const tokenDoc = new model.Token({
-      token,
-      purpose,
-      email,
-      ttl: 1800,
-    });
+    if (input.unique) {
+      await model.Token.deleteMany({
+        email: input.email,
+        purpose: input.purpose,
+      });
+    }
+    const tokenDoc = new model.Token(input);
 
     // 토큰을 저장함.
     await tokenDoc.save();
+    return tokenDoc.toObject();
   }
 
   /**
    * 토큰을 얻습니다. ttl에 대한 계산을 하지는 않습니다.
    * (ttl 계산은 service 단에서 하도록 함.)
-   * @param {string} token
-   * @param {string} purpose
-   * @returns {Promise<Tokeninfo>}
    * @throws 토큰을 찾지 못했을 때
    */
-  async getToken(token, purpose) {
+  async getToken(
+    token: string,
+    purpose: TokenPurpose,
+  ): Promise<{ isValidTTL: boolean; token: Tokeninfo }> {
     // console.log(`db-getEmailVefificationToken-token: ${token}`);
     const result = await model.Token.findOne({
       token,
@@ -395,16 +401,18 @@ export class DBManager {
     })
       .lean()
       .exec();
-    if (!result) throw Error(`토큰 ${token}이 존재하지 않습니다.`);
-    return result;
+    const isValidTTL =
+      Date.now() - result.c_date.getTime() <= result.ttl * 1000;
+    // if (!result) throw Error(`토큰 ${token}이 존재하지 않습니다.`);
+    return { isValidTTL, token: result };
   }
 
-  async removeToken(token) {
+  async removeToken(token: string) {
     await model.Token.deleteOne({ token });
   }
 
-  async clearToken(email, purpose) {
-    await model.Token.deleteMany({ email, purpose });
+  async clearToken(condition: Tokeninfo) {
+    await model.Token.deleteMany(condition);
   }
 
   /*= ====================================
@@ -636,7 +644,7 @@ export class DBManager {
       $gte?: Date;
     }
     if (prod_lte || prod_gte) {
-      console.log('getFilms: prod!!');
+      // console.log('getFilms: prod!!');
       const prod_date: DateCond = {};
       if (prod_lte) prod_date.$lte = prod_lte;
       if (prod_gte) prod_date.$gte = prod_gte;
@@ -1748,7 +1756,9 @@ export class DBManager {
   /**
    * 각 Status 마다 주문의 갯수를 구합니다.
    */
-  async getOrderCountGroupedByStatus(condition: OrderSearch) : Promise<GetOrderCountGroupedByStatusResult> {
+  async getOrderCountGroupedByStatus(
+    condition: OrderSearch,
+  ): Promise<GetOrderCountGroupedByStatusResult> {
     const refined_condition = condition;
     delete refined_condition.page;
     delete refined_condition.perpage;
@@ -1830,7 +1840,7 @@ export class DBManager {
 
   async removeApplication(id: number) {}
   async updateApplication(id: number, input: ApplicationInput) {}
-  async removeAndNewTaxReqToken(id: number, input: any) {}
+  async removeAndNewTaxReqToken(id: number) {}
   async removeTaxReqLink(id: number) {}
 }
 

@@ -115,6 +115,7 @@
           class="border-0"
           :style="{ width: '300px' }"
           placeholder="검색 ..."
+          v-model="filter.search"
         >
         </b-form-input>
         <loading-button :loading="loading" class="border-0">
@@ -334,11 +335,10 @@
           <form-row title="세금계산서 관련 정보 입력 링크">
             <!-- 정보 입력 링크가 살아있을 때 -->
             <template #info
-              >세금계산서 관련 정보를 입력할 수 있는 별도의 폼 
-              링크를 생성합니다. 바로 아래에서 서류 관련 이메일 발송할 때 이용할
-              수 있습니다. 생성된 링크로 직접 들어가서 링크가 제대로
-              동작하는지도 확인할 수 있고 신청자에게 직접 전달할 수
-              있습니다.</template
+              >세금계산서 관련 정보를 입력할 수 있는 별도의 폼 링크를
+              생성합니다. 바로 아래에서 서류 관련 이메일 발송할 때 이용할 수
+              있습니다. 생성된 링크로 직접 들어가서 링크가 제대로 동작하는지도
+              확인할 수 있고 신청자에게 직접 전달할 수 있습니다.</template
             >
             <div class="d-flex align-items-center" v-if="editing.reqdoc_token">
               <b-button size="sm" class="mr-2">링크 복사</b-button>
@@ -347,7 +347,7 @@
                 만료일: {{ formatTime(editing.reqdoc_expire_date) }}
               </p>
             </div>
-            <b-button size="sm" v-else>
+            <b-button @click="createReqTaxinfoButtonClicked" size="sm" v-else>
               <font-awesome-icon
                 :icon="['far', 'plus-square']"
               ></font-awesome-icon>
@@ -512,15 +512,21 @@
           <h3 class="detail-header">기타</h3>
           <hr />
           <form-row title="기타 요청">
-            {{editing.etc_req}}
+            {{ editing.etc_req }}
             <!-- <b-form-textarea
               size="sm"
               v-model="editing.etc_req"
             ></b-form-textarea> -->
           </form-row>
           <form-row title="메모">
-            <b-form-textarea size="sm" v-model="editing.memo" class="mb-2"></b-form-textarea>
-            <b-form-checkbox v-model="editing.memo_unremarked">메모 강조 표시를 해제합니다.</b-form-checkbox>
+            <b-form-textarea
+              size="sm"
+              v-model="editing.memo"
+              class="mb-2"
+            ></b-form-textarea>
+            <b-form-checkbox v-model="editing.memo_unremarked"
+              >메모 강조 표시를 해제합니다.</b-form-checkbox
+            >
           </form-row>
           <apply-button-set
             @ok="detailSaveButtonClicked"
@@ -548,9 +554,9 @@
       <context-menu-button @click="TESTLinkClicked">
         테스트 링크
       </context-menu-button>
-      <!-- <pre>
+      <pre>
       {{ payload }}
-      </pre> -->
+      </pre>
     </context-menu>
     <pre>{{ $cm._map }}</pre>
     <pre>
@@ -589,6 +595,7 @@ import ContextMenuButton from '@/components/context-menu/ContextMenuButton.vue';
 import FormRow from '@/components/admin/FormRow.vue';
 import LoadingButton from '@/components/LoadingButton.vue';
 import ApplyButtonSet from '@/components/admin/button/ApplyButtonSet.vue';
+import { makeSimpleMutation, makeSimpleQuery } from '@/api/graphql-client';
 /** @param {object} map 맵 */
 const mapToOption = (map) =>
   Object.keys(map).map((value) => ({
@@ -633,6 +640,7 @@ export default {
         receiptStatus: [],
         moneyStatus: [],
         docStatus: [],
+        search: '',
       },
       tableFields: [
         {
@@ -696,6 +704,7 @@ export default {
       docReceiveOptions: [],
       docReceive: [],
       transportEmailSendloading: false,
+      method: String,
     };
   },
   watch: {
@@ -759,6 +768,15 @@ export default {
       });
   },
   methods: {
+    async createReqTaxinfoButtonClicked() {
+      const updateNewTaxReqLink = makeSimpleMutation('updateNewTaxReqLink');
+      await updateNewTaxReqLink(
+        {},
+        `{
+        success code token
+        }`,
+      );
+    },
     async debouncedFetchData() {
       if (!this.debouncedFetchDataFunction) {
         this.debouncedFetchDataFunction = debounce(700, true, this.fetchData);
@@ -767,7 +785,25 @@ export default {
     },
     async fetchData() {
       this.loading = true;
-      await debounce;
+      const get = makeSimpleQuery('applicationsAdmin');
+      const result = await get(
+        {
+          date_gte: this.filter.startDate,
+          date_lte: this.filter.endDate,
+          transport_status: this.filter.transportStatus,
+          doc_status: this.filter.docStatus,
+          money_status: this.filter.moneyStatus,
+          receipt_status: this.filter.receiptStatus,
+          method: String,
+          page: this.page,
+          perpage: 20,
+          search: this.filter.search,
+        },
+        `{
+
+        }`,
+      );
+      // await debounce;
       this.loading = false;
     },
     startDateDFN(ymd, date) {
@@ -862,6 +898,9 @@ export default {
       console.log('clicked!!!');
     },
     detailSaveButtonClicked() {
+      // todo
+    },
+    async reqDocLinkSendClicked() {
       // todo
     },
   },

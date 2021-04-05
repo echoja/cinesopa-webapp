@@ -10,7 +10,7 @@ const {
   doLogout,
 } = require('./tool');
 
-const { model, db } = require('../loader');
+const { model, db } = require('@/loader');
 
 const high_symbol = Symbol('HIGH');
 const low_symbol = Symbol('LOW');

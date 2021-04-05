@@ -69,7 +69,7 @@ const auth = require('./service/auth').make(db);
 const dest = 'uploads/';
 const field = 'bin';
 const fileManager = require('./manager/file');
-const file = require('./service/file').make(db, fileManager, dest, field);
+const file = require('./service/file').default.make(db, fileManager, dest, field);
 
 /* validator */
 const validatorInitializer = require('./auth/validator');

@@ -1,4 +1,4 @@
-// require('../typedef');
+// require('@/typedef');
 
 // const connectMongo = require('connect-mongo'); 테스트에서 DANGLING 유발!!!
 const { enumAuthmap } = require('../db/schema/enum');

@@ -5,7 +5,7 @@ const {
   graphqlSuper,
   doLogin,
 } = require('./tool');
-const { db, model } = require('../loader');
+const { db, model } = require('@/loader');
 const {
   postsCountQuery,
   postAdminQuery,

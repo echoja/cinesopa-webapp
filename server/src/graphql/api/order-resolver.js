@@ -11,8 +11,8 @@ const {
   payment,
   mail,
   templateArgsRefiner,
-} = require('../../loader');
-require('../../typedef');
+} = require('@/loader');
+require('@/typedef');
 
 module.exports = {
   Query: {

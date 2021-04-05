@@ -7,7 +7,7 @@ const { expect } = require('chai');
 const inlineCss = require('inline-css');
 const { makeTemplateMap } = require('../mail-template/template-map');
 const readFile = util.promisify(fs.readFile);
-const { model, templateArgsRefiner } = require('../loader');
+const { model, templateArgsRefiner } = require('@/loader');
 const { initTestServer, guestEmail } = require('./tool');
 
 

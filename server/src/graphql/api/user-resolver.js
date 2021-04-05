@@ -1,4 +1,4 @@
-const {CustomPassportContext} = require('../../typedef');
+const {CustomPassportContext} = require('@/typedef');
 
 const _ = require('lodash');
 const { getDateFromObj } = require('../../util');
@@ -12,7 +12,7 @@ const {
   ACCESS_AUTH,
   ACCESS_UNAUTH,
   makeResolver,
-} = require('../../loader');
+} = require('@/loader');
 const { enumAuthmap } = require('../../db/schema/enum');
 const IsEmail = require('isemail');
 

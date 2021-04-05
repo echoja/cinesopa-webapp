@@ -6,7 +6,7 @@ const {
   ACCESS_UNAUTH,
   makeResolver,
   db,
-} = require('../../loader');
+} = require('@/loader');
 
 const boardResolver = makeResolver(async (obj, args, context, info) => {
   const { condition } = args;

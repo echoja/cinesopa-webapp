@@ -1,4 +1,4 @@
-require('../../typedef');
+require('@/typedef');
 
 const _ = require('lodash');
 const { getDateFromObj } = require('../../util');

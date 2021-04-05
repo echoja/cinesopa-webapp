@@ -8,7 +8,7 @@ const {
   db,
   file,
   uploadBaseUrl,
-} = require('../../loader');
+} = require('@/loader');
 
 const { GetPostsResult, PostinfoOutput } = require('@/typedef');
 

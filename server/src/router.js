@@ -1,13 +1,12 @@
 const express = require('express');
 const path = require('path');
 const history = require('connect-history-api-fallback');
-const { enumAuthmap } = require('./db/schema/enum');
 const passport = require('passport');
 
 // const upload = require("multer")({ dest: "uploads/" }).single("bin");
 const { graphQLServerMiddleware } = require('./graphql').default;
 const {
-  file: { uploadMiddleware, getFileMiddleware },
+  file: { uploadMiddleware, getFileMiddleware, uploadPublicMiddleware },
   makeAuthMiddleware,
   validator,
   user,
@@ -15,13 +14,15 @@ const {
 } = require('./loader');
 
 const router = express.Router();
-
 // 업로드 하는 endpoint
 router.post(
   '/upload',
-  makeAuthMiddleware(validator, [enumAuthmap[0]]), // need check '.ADMIN' to '[0]'
+  makeAuthMiddleware(validator, ['ADMIN']), 
   uploadMiddleware,
 );
+
+// 일반 유저가 업로드하는 endpoint
+
 
 // 이미 업로드된 파일을 가져오는 endpoint
 router.get('/upload/:filename', getFileMiddleware);

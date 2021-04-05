@@ -1,4 +1,4 @@
-// require('../typedef');
+// require('@/typedef');
 import { DBManager } from '@/typedef';
 
 const passport = require('passport');

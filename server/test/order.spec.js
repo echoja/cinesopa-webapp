@@ -12,7 +12,7 @@ const {
   makeSimpleQuery,
 } = require('./tool');
 const { graphql } = require('graphql');
-const { model, db } = require('../loader');
+const { model, db } = require('@/loader');
 const destinfo = require('../db/schema/destinfo');
 
 describe('order', function () {

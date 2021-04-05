@@ -20,7 +20,7 @@
       <form-row title="부가가치세액">{{ taxFormatted }} 원</form-row>
       <form-row title="총액">{{ chargeFormatted }} 원</form-row>
       <form-row title="사업자등록증">
-        <b-form-file v-model="businessLicenseFileObj"> </b-form-file>
+        <b-form-file plain v-model="businessLicenseFileObj"> </b-form-file>
       </form-row>
       <form-row title="세금계산서 작성일자">
         <b-form-checkbox
@@ -63,9 +63,9 @@
     </div>
     <hr />
     <div class="mb-5">
+    <!-- </div> -->
       <b-button
         class="border-round"
-    </div>
         @click="$bvModal.show('confirm-modal')"
         variant="primary"
       >
@@ -83,8 +83,8 @@
       cancel-title="아니오"
       hide-header
       centered
-      >정말로 제출하시겠습니까?</b-modal
-    >
+      >정말로 제출하시겠습니까?
+      </b-modal>
     <b-modal centered no-close-on-backdrop id="sending-modal" hide-header hide-footer>
       <div>제출중입니다.</div>
     </b-modal>
@@ -126,7 +126,7 @@ export default {
         charge: 550000, // 부가세 포함
         business_license_url: '', // 사업자등록증 url
         receipt_date: null, // 세금계산서 발행 날짜
-        receipt_email: 'test@naver.com', //  세금계산서 받을 이메일주소
+        receipt_email: '', //  세금계산서 받을 이메일주소
         receipt_etc_req: '', // 기타 요청사항
       },
       no_receipt_date: false,
@@ -157,7 +157,7 @@ export default {
     /** @returns {string} */
     dateRange() {
       return `
-        ${moment(this.application.start_date).format('yyyy.MM.DD')} ~ 
+        ${moment(this.application.start_date).format('yyyy.MM.DD')} ~
         ${moment(this.application.end_date).format('yyyy.MM.DD')}`;
     },
     /** @returns {string} */

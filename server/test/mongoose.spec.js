@@ -9,7 +9,7 @@ const mongoose = require('mongoose');
 const { MongoMemoryServer } = require('mongodb-memory-server');
 
 const { modelSymbol } = require('mongoose/lib/helpers/symbols');
-const { model } = require('../loader');
+const { model } = require('@/loader');
 
 describe('mongoose schema and model', function () {
   /** @type {MongoMemoryServer} */

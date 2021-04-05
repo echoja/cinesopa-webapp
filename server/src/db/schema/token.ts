@@ -7,6 +7,7 @@ export default function (mongoose) {
     ttl: Number,
     c_date: { type: Date, default: Date.now },
     purpose: { type: String, enum: enumTokenPurpose },
+    appl_id: Number,
   });
   Token.index({ token: 1 });
   return Token;

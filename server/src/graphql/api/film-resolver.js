@@ -6,7 +6,7 @@ const {
   ACCESS_UNAUTH,
   makeResolver,
   db,
-} = require('../../loader');
+} = require('@/loader');
 const { enumFilmAvailableSubtitle } = require('../../db/schema/enum');
 
 // (id: Int!): Film

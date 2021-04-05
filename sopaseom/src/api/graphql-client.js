@@ -21,10 +21,10 @@ export const graphql = async (query, variables) => {
       {
         headers,
         credentials: true,
-        onUploadProgress: (progressEvent) => {
-          console.log('graphql-client onUploadProgress');
-          console.dir(progressEvent);
-        },
+        // onUploadProgress: (progressEvent) => {
+        //   console.log('graphql-client onUploadProgress');
+        //   console.dir(progressEvent);
+        // },
       },
     );
 
@@ -138,8 +138,8 @@ query getPage($permalink: String!, $belongs_to: String!) {
     title
     content
     permalink
-    c_date 
-    m_date 
+    c_date
+    m_date
     role
     belongs_to
     meta_json
@@ -154,8 +154,8 @@ query getPages($belongs_to: String!, $page: Int, $perpage: Int) {
     title
     content
     permalink
-    c_date 
-    m_date 
+    c_date
+    m_date
     role
     belongs_to
     meta_json
@@ -170,8 +170,8 @@ query getPageById($id: Int!) {
     title
     content
     permalink
-    c_date 
-    m_date 
+    c_date
+    m_date
     role
     belongs_to
     meta_json
@@ -185,8 +185,8 @@ mutation createPage($permalink: String!, $belongs_to: String!, $pageinfo: PageIn
     title
     content
     permalink
-    c_date 
-    m_date 
+    c_date
+    m_date
     role
     belongs_to
     meta_json
@@ -201,8 +201,8 @@ mutation updatePage($permalink: String!, $belongs_to: String!, $pageinfo: PageIn
     title
     content
     permalink
-    c_date 
-    m_date 
+    c_date
+    m_date
     role
     belongs_to
     meta_json
@@ -217,8 +217,8 @@ mutation removePage($permalink: String!, $belongs_to: String!) {
     title
     content
     permalink
-    c_date 
-    m_date 
+    c_date
+    m_date
     role
     belongs_to
     meta_json
@@ -237,11 +237,11 @@ mutation removePage($permalink: String!, $belongs_to: String!) {
 
 const filmResponse = `{
   title
-  title_en 
-  kobis_code 
-  genres 
+  title_en
+  kobis_code
+  genres
   show_time
-  type_name 
+  type_name
   prod_date
   open_date
   people {
@@ -255,7 +255,7 @@ const filmResponse = `{
     name_en
     role
   }
-  watch_grade 
+  watch_grade
   reviews {
     title
     url
@@ -288,7 +288,7 @@ const filmResponse = `{
     award_name
     award_type
   }
-  note 
+  note
   tags {
     name
   }
@@ -301,8 +301,8 @@ const filmResponse = `{
   badge_color
   available_subtitles
   status
-  synopsis 
-  meta 
+  synopsis
+  meta
 }
 `;
 
@@ -405,7 +405,7 @@ const prodBlock = `{
 #      name
 #      role
 #    }
-#    watch_grade  
+#    watch_grade
 #    synopsis
   }
 }`;
@@ -460,15 +460,13 @@ const stringify = (obj) => {
 /**
  * @param {GraphQLParamListItem[]} paramList
  */
-const makeOuterParamList = (paramList) => {
-  return paramList.map((param) => `$${param.varName}: ${param.typeName}`).join(', ');
-};
+const makeOuterParamList = (paramList) =>
+  paramList.map((param) => `$${param.varName}: ${param.typeName}`).join(', ');
 /**
  * @param {GraphQLParamListItem[]} paramList
  */
-const makeInnerParamlist = (paramList) => {
-  return paramList.map((param) => `${param.varName}: $${param.varName}`).join(', ');
-};
+const makeInnerParamlist = (paramList) =>
+  paramList.map((param) => `${param.varName}: $${param.varName}`).join(', ');
 
 /**
  * @typedef {Object} CreateQueryStringOption

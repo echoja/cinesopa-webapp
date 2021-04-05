@@ -1,5 +1,5 @@
 const fs = require('fs');
-const axios = require('axios');
+const axios = require('axios').default;
 const path = require('path');
 const sanitizeFilename = require('sanitize-filename');
 // eslint-disable-next-line import/no-extraneous-dependencies
@@ -10,7 +10,7 @@ const mongoose = require('mongoose');
 const passport = require('passport');
 const uuidv4 = require('uuid').v4;
 const request = require('supertest');
-const random = require('random');
+const random = require('random').default;
 
 // const auth = require('../service/auth');
 const authValidatorMaker = require('../src/auth/validator');
@@ -21,9 +21,9 @@ const {
   // file: { uploadMiddleware },
 } = require('../src/loader');
 const fileManager = require('../src/manager/file');
-const fileServiceMaker = require('../src/service/file');
-const { graphQLServerMiddleware } = require('../src/graphql');
-const local = require('../src/auth/passport');
+const fileServiceMaker = require('../src/service/file').default;
+const { graphQLServerMiddleware } = require('../src/graphql').default;
+const local = require('../src/auth/passport').default;
 const { enumAuthmap } = require('../src/db/schema/enum');
 const { make: makeAuthMiddleware } = require('../src/auth/auth-middleware');
 const { loginQuery } = require('./graphql-request');
@@ -127,7 +127,7 @@ const testDatabaseServer = (hookFunctions) => {
     const promises = [];
     Object.keys(collections).forEach((key) => {
       const collection = collections[key];
-      promises.push(collection.deleteMany());
+      promises.push(collection.deleteMany({}));
     });
     await Promise.allSettled(promises);
   });
@@ -202,7 +202,7 @@ const initTestServer = (hookFunctions) => {
     // 권한 테스트용
     webapp.get(
       '/auth-test-admin',
-      makeAuthMiddleware(authValidator, [enumAuthmap.ADMIN]),
+      makeAuthMiddleware(authValidator, ['ADMIN']),
       (req, res, next) => {
         res.send({ message: 'success' });
       },
@@ -211,7 +211,7 @@ const initTestServer = (hookFunctions) => {
     // 권한 테스트용 (실패)
     webapp.get(
       '/auth-test-error',
-      makeAuthMiddleware(authValidator, 'ADMIN'),
+      makeAuthMiddleware(authValidator, ['ADMIN']),
       (req, res, next) => {
         res.send({ message: 'success' });
       },
@@ -220,7 +220,7 @@ const initTestServer = (hookFunctions) => {
     // 업로드용
     webapp.post(
       '/upload',
-      makeAuthMiddleware(validator, [enumAuthmap.ADMIN]),
+      makeAuthMiddleware(validator, ["ADMIN"]),
       uploadMiddleware,
     );
     // 파일 get용.
@@ -241,38 +241,38 @@ const doLogout = async (agent) => {
   await agent.get('/logout');
 };
 
-/**
- * HTML File 객체를 만듭니다.
- * @param {MockFile} file
- * @returns {File}
- * @deprecated
- */
-const createFileFromMockFile = (file) => {
-  const blob = new Blob([file.body], { type: file.mimeType });
-  blob.lastModifiedDate = new Date();
-  blob.name = file.name;
-  return blob;
-};
+// /**
+//  * HTML File 객체를 만듭니다.
+//  * @param {MockFile} file
+//  * @returns {File}
+//  * @deprecated
+//  */
+// const createFileFromMockFile = (file) => {
+//   const blob = new Blob([file.body], { type: file.mimeType });
+//   blob.lastModifiedDate = new Date();
+//   blob.name = file.name;
+//   return blob;
+// };
 
-/**
- * HTML FileList 객체를 만듭니다.
- * @param {MockFile[]} files
- * @returns {FileList}
- * @deprecated
- */
-const createMockFileList = (files) => {
-  const fileList = {
-    length: files.length,
-    item(index) {
-      return fileList[index];
-    },
-  };
-  files.forEach(
-    (file, index) => (fileList[index] = createFileFromMockFile(file)),
-  );
+// /**
+//  * HTML FileList 객체를 만듭니다.
+//  * @param {MockFile[]} files
+//  * @returns {FileList}
+//  * @deprecated
+//  */
+// const createMockFileList = (files) => {
+//   const fileList = {
+//     length: files.length,
+//     item(index) {
+//       return fileList[index];
+//     },
+//   };
+//   files.forEach(
+//     (file, index) => (fileList[index] = createFileFromMockFile(file)),
+//   );
 
-  return fileList;
-};
+//   return fileList;
+// };
 
 /**
  * 테스트용 html를 만듭니다. 경로는 test 이름 기반입니다. Mocha 전용입니다.
@@ -361,7 +361,7 @@ const makeInnerParamlist = (paramList) => {
  */
 const makeReqString = (
   reqName,
-  { type = 'query', paramList, resultString } = {},
+  { type = 'query', paramList, resultString },
 ) => {
   if (typeof reqName !== 'string') return '# makeReqString: No reqName Error';
   return `${type} ${reqName}${capitalize(type)}(${makeOuterParamList(
@@ -441,19 +441,19 @@ const makeSimpleQuery = (agent, endpoint) => {
   };
 };
 
-/**
- *
- * @param {string} url
- * @param {FormData} fd
- */
-const upload = (url, fd) => {
-  fd.append('bin', fd);
-  return axios.post(url, fd, {
-    headers: {
-      'Content-Type': 'multipart/form-data',
-    },
-  });
-};
+// /**
+//  *
+//  * @param {string} url
+//  * @param {FormData} fd
+//  */
+// const upload = (url, fd) => {
+//   fd.append('bin', fd);
+//   return axios.post(url, fd, {
+//     headers: {
+//       'Content-Type': 'multipart/form-data',
+//     },
+//   });
+// };
 
 const randomDate = () => {
   return new Date(random.int(1990, 2020), random.int(1, 12), random.int(1, 20));
@@ -461,7 +461,7 @@ const randomDate = () => {
 
 /**
  * 폴더 안의 파일들을 삭제합니다.
- * @param {string} fullpath 폴더의 경로
+ * @param {string} directory 폴더의 경로
  */
 const clearDirectory = async (directory) => {
   const files = await fs.promises.readdir(directory)
@@ -486,7 +486,7 @@ module.exports = {
   doLogout,
   testDatabaseServer,
   initTestServer,
-  createMockFileList,
+  // createMockFileList,
   makeHtmlReport,
   capitalize,
   stringify,
@@ -495,7 +495,7 @@ module.exports = {
   makeSimpleRequestString,
   makeSimpleMutation,
   makeSimpleQuery,
-  upload,
+  // upload,
   randomDate,
   clearDirectory,
 };

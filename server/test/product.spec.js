@@ -10,7 +10,7 @@ const {
   guestEmail,
 } = require('./tool');
 const { graphql } = require('graphql');
-const { model, db } = require('../loader');
+const { model, db } = require('@/loader');
 
 const createProductMutation = `
 mutation createProductMutation($input: ProductInput!) {
