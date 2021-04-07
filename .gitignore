@@ -18,6 +18,7 @@ ts-build
 /proxy/config/*
 !/server/config/*-example.js
 !/server/config/*-example.json
+/server/test/output
 
 # Editor directories and files
 .idea

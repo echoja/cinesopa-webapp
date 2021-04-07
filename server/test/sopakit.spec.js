@@ -1,7 +1,7 @@
 const { expect } = require('chai');
 // const {} = require('./graphql-request');
 const {
-  initTestServer,
+  createTestServer,
   graphqlSuper,
   doLogout,
   doAdminLogin,
@@ -17,7 +17,7 @@ const { model, db } = require('@/loader');
 
 describe('cartitem', function () {
   // eslint-disable-next-line mocha/no-setup-in-describe
-  const { agent } = initTestServer({ before, beforeEach, after, afterEach });
+  const { agent } = createTestServer(this);
   describe('db', function () {
     describe('getSopakits', function () {
       it('제대로 동작해야 함', async function () {
@@ -152,7 +152,7 @@ describe('cartitem', function () {
       });
     });
     describe('sopakitsShown', function () {
-      it.only('제대로 동작해야 함', async function () {
+      it('제대로 동작해야 함', async function () {
         const promises = [
           model.Film.create({ title: 'film1' }),
           model.Film.create({ title: 'film2' }),

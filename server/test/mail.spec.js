@@ -1,17 +1,15 @@
 const nodemailer = require('nodemailer');
 const { expect } = require('chai');
+const { MailManager } = require('@/typedef');
+const mail = require('@/manager/mail').default;
+const { makeTemplateMap } = require('@/mail-template/template-map');
 const { gmailEmail, gmailPassword } = require('../config/common');
-const { makeTemplateMap } = require('../mail-template/template-map');
-
-const mail = require('../manager/mail');
 
 describe('mail', function () {
   describe('makeWeakTransporter', function () {
     it('잘 동작해야 함', function () {
       const test = mail.makeWeakTransporter(
-        (args) => {
-          return args;
-        },
+        (args) => args,
         'naver',
         'myname',
         'mypassword',
@@ -96,13 +94,20 @@ describe('mail', function () {
           test,
         );
         manager
-          .sendMail('테스트 제목', '<p><b>내용</b></p>')
+          .sendMail(
+            {
+              recipientEmail: 'eszqsc112@naver.com',
+              recipientName: '김태훈 고객님',
+            },
+            '테스트 제목',
+            '<p><b>내용</b></p>',
+          )
           .then((value) => {
             done();
           })
           .catch((error) => {
             console.error(error);
-            done('에러가 나지 않아야 함');
+            done(new Error('에러가 나지 않아야 함'));
           });
       });
 
@@ -115,10 +120,17 @@ describe('mail', function () {
         );
         const manager = mail.make({}, test);
         manager
-          .sendMail('제목', '내용')
+          .sendMail(
+            {
+              recipientEmail: 'eszqsc112@naver.com',
+              recipientName: '김태훈 고객님',
+            },
+            '제목',
+            '내용',
+          )
           .then((value) => {
             // console.log(value);
-            done('에러가 나야 함');
+            done(new Error('에러가 나야 함'));
           })
           .catch((error) => {
             done();
@@ -128,7 +140,7 @@ describe('mail', function () {
 
     describe('sendTemplatedMail', function () {
       it('제대로 동작해야 함', async function () {
-        this.skip() // 메일을 실제로 보내고 싶다면 주석으로 하세요.
+        this.skip(); // 메일을 실제로 보내고 싶다면 주석으로 하세요.
         this.timeout(10000);
         const result = await mailManager.sendTemplatedMail(
           { recipientEmail: 'eszqsc112@naver.com', recipientName: '고객님' },

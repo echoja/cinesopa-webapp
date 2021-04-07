@@ -107,13 +107,11 @@ module.exports = {
       // cartitem 중 만약 하나라도 status 가 rejected 이거나 일치하지 않는 user가 나오면 검증 실패이므로
       // 아무런 작업도 하지 않고 바로 리턴.
       if (
-        results.some((result) => {
-          return (
+        results.some((result) => (
             result.status === 'rejected' ||
             !result.value ||
             result.value.user !== email
-          );
-        })
+          ))
       ) {
         return { success: false, code: 'cartitem_not_owned_by_user' };
       }

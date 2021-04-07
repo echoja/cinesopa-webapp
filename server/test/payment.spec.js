@@ -1,22 +1,20 @@
 const { expect } = require('chai');
-const { initTestServer, graphqlSuper, doLogin, guestEmail } = require('./tool');
-const { db, model, payment } = require('@/loader');
-const paymentServiceMaker = require('../service/payment').make;
 const sinon = require('sinon');
+const { db, model, payment } = require('@/loader');
+const paymentServiceMaker = require('@/service/payment').make;
+const { createTestServer, graphqlSuper, doLogin, guestEmail } = require('./tool');
 
 describe('payment service', function () {
   // eslint-disable-next-line mocha/no-setup-in-describe
-  const { agent } = initTestServer({
-    before,
-    beforeEach,
-    after,
-    afterEach,
-  });
+  const { agent } = createTestServer(this);
   describe('finishPayment', function () {
+
     // 테스트를 위해 이 녀석을 수정해주세요!!
     // 절대 실제 receipt_id 를 넣지 말아주세요!
     const bootpay_id = '5fd9d6a802f57e003de08f56';
-    it.only('제대로 동작해야 함', async function () {
+    
+    it('제대로 동작해야 함', async function () {
+      this.skip();
       const results = await Promise.allSettled([
         model.Order.create({
           user: guestEmail,
@@ -50,9 +48,10 @@ describe('payment service', function () {
       ]);
       // console.dir(results[0], { depth: 4 });
       // console.log(results[0].value.toObject());
-      const {
-        value: { id },
-      } = results[0];
+      // const {
+      //   value: { id },
+      // } = results[0];
+      const id = results[0].status === 'fulfilled' ? results[0].value.id : -1;
       // console.log(id);
       const result = await payment.finishPayment(id);
       // success 가 참이어야 함.
@@ -77,7 +76,7 @@ describe('payment service', function () {
         'order의 상태가 변경되어 있어야 함',
       );
     });
-    it.only('부트페이에서 verifyPayment에 실패할 경우, 실패해야 함.', async function () {
+    it('부트페이에서 verifyPayment에 실패할 경우, 실패해야 함.', async function () {
       const results = await Promise.allSettled([
         model.Order.create({
           user: guestEmail,
@@ -110,9 +109,7 @@ describe('payment service', function () {
         model.Cartitem.create({}),
       ]);
       // console.dir(results[0], { depth: 4 });
-      const {
-        value: { id },
-      } = results[0];
+      const id = results[0].status === 'fulfilled' ? results[0].value.id : -1;
       const paymentService = paymentServiceMaker(db, {
         verifyPayment: sinon.fake(() => ({ success: false, code: 'test' })),
       });
@@ -134,7 +131,7 @@ describe('payment service', function () {
         'order의 상태가 변경되면 안 됨.',
       );
     });
-    it.only('order id 가 잘못되었을 경우 실패해야 함.', async function () {
+    it('order id 가 잘못되었을 경우 실패해야 함.', async function () {
       const results = await Promise.allSettled([
         model.Order.create({
           user: guestEmail,
@@ -167,9 +164,7 @@ describe('payment service', function () {
         model.Cartitem.create({}),
       ]);
       // console.dir(results[0], { depth: 4 });
-      const {
-        value: { id },
-      } = results[0];
+      const id = results[0].status === 'fulfilled' ? results[0].value.id : -1;
       const result = await payment.finishPayment(1234);
       // success 가 참이어야 함.
       // console.log(result);

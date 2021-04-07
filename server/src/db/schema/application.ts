@@ -3,7 +3,7 @@
  */
 
 import { IApplication } from '@/typedef';
-import { Document, Mongoose } from 'mongoose';
+import { Mongoose, Schema } from 'mongoose';
 
 
 
@@ -23,7 +23,7 @@ const autoIdSetter = require('./auto-id-setter');
 
 
 
- export default function (mongoose: Mongoose) {
+ export default function (mongoose: Mongoose): Schema {
 
   const schema = new mongoose.Schema({
     host: String, // 주최
@@ -89,4 +89,4 @@ const autoIdSetter = require('./auto-id-setter');
   });
 
   return schema;
-};
+}

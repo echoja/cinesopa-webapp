@@ -1,6 +1,6 @@
 const { expect } = require('chai');
 
-const { pwd_verify, pwd_encrypt, make: makeDB } = require('../manager/db');
+const { pwd_verify, pwd_encrypt, make: makeDB } = require('@/manager/db');
 
 describe('암호화', function () {
   const testpwd = '13241324';
@@ -8,7 +8,8 @@ describe('암호화', function () {
     let encrypted = '';
     it('pwd_encrypt 실행', async function () {
       const encryptObj = await pwd_encrypt(testpwd);
-      encrypted = encryptObj.result;
+      encrypted = encryptObj.pwd;
+      expect(encrypted).to.be.a('string');
     });
 
     it('pwd_encrypt 같은 값 두번 실행시 다른 암호화 값이 나와야 함', async function () {

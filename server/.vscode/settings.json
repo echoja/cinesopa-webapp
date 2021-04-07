@@ -1,7 +1,8 @@
 {
   "files.exclude": {
     "**/.git": true,
-    "**/node_modules": true
+    "**/node_modules": true,
+    "**/mochawesome-report": true,
   },
   "prettier.endOfLine": "lf",
   "files.eol": "\n",
@@ -18,7 +19,7 @@
     "**/ts-build": true,
     "**/*.code-search": true,
     "package-lock.json": true,
-    "package-lock.json.bak": true
+    "package-lock.json.bak": true,
   },
   "compile-hero.disable-compile-files-on-did-save-code": false
 }

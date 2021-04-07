@@ -1,14 +1,14 @@
-import { MailGate } from '@/typedef';
-import { gmail_v1 } from 'googleapis';
+import { MailGate , TemplateMap } from '@/typedef';
+import { gmail_v1 , google, Auth } from 'googleapis';
 
-import nodemailer from 'nodemailer';
+import nodemailer, { Transporter } from 'nodemailer';
 
 import path from 'path';
-import { google, Auth } from 'googleapis';
+
 import MailComposer from 'nodemailer/lib/mail-composer';
 import Mail from 'nodemailer/lib/mailer';
-import { TemplateMap } from '@/typedef';
-import { Transporter } from 'nodemailer';
+
+
 
 const SCOPES = [
   'https://mail.google.com/',
@@ -64,7 +64,7 @@ const ACCOUNT = 'ssong@cinesopa.kr';
 //   } catch (e) {
 //     console.log('# getMessgaeList Failed');
 //     console.error(e);
-//   }
+//   }TemplateMap
 // };
 
 /**
@@ -75,10 +75,15 @@ const ACCOUNT = 'ssong@cinesopa.kr';
 
 export class MailManager {
   transporter: Transporter;
+
   templateMapPromise: Promise<TemplateMap>;
+
   templateMap: TemplateMap;
+
   auth: Auth.GoogleAuth;
+
   gmail: gmail_v1.Gmail;
+
   gate: MailGate;
 
   /**
@@ -133,10 +138,10 @@ export class MailManager {
           return reject(error);
         }
 
-        this.transporter.sendMail(mailOptions, (error, info) => {
-          if (error) {
-            console.error(error);
-            return reject(error);
+        this.transporter.sendMail(mailOptions, (sendMailError: Error, info) => {
+          if (sendMailError) {
+            console.error(sendMailError);
+            return reject(sendMailError);
           }
           console.log(info);
           return resolve();

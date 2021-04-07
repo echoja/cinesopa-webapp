@@ -1,7 +1,6 @@
-const {CustomPassportContext} = require('@/typedef');
+const { CustomPassportContext, AuthType } = require('@/typedef');
 
 const _ = require('lodash');
-const { getDateFromObj } = require('../../util');
 const {
   db,
   user,
@@ -13,8 +12,9 @@ const {
   ACCESS_UNAUTH,
   makeResolver,
 } = require('@/loader');
-const { enumAuthmap } = require('../../db/schema/enum');
 const IsEmail = require('isemail');
+const { getDateFromObj } = require('@/util');
+const { enumAuthmap } = require('@/db/schema/enum');
 
 /**
  *
@@ -67,12 +67,12 @@ const logoutMe = makeResolver(async (obj, args, context, info) => {
 }).only(ACCESS_AUTH);
 
 const checkAuth = makeResolver(async (obj, args, context, info) => {
+  /** @type {{role: AuthType}} */
+  const { role } = args;
 
-  /** @type {string} */
-  const role = args.role;
-
-  /** @type {string} */
-  const redirectLink = args.redirectLink;
+  /** @type {{redirectLink: string}} */
+  const { redirectLink } = args;
+  
   const { should_verified = false } = args;
   const contextUser = context.getUser();
   console.log('# user-resolver checkAuth');
@@ -93,9 +93,8 @@ const checkAuth = makeResolver(async (obj, args, context, info) => {
         `# checkAuth: USER ${contextUser.email} 님의 뷰 접근이 승인되었습니다.`,
       );
       return { permissionStatus: 'OK', user: contextUser };
-    } else {
-      result.emailVerificationRequired = true;
     }
+    result.emailVerificationRequired = true;
   }
 
   // redirect 설정

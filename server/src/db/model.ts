@@ -29,11 +29,10 @@ import {
   ICartitem,
   ISiteOption,
   IApplication,
+  ModelWrapper,
 } from '@/typedef';
-const { MongooseDocument, Model } = require('mongoose');
-const mongoose = require('mongoose');
 
-import { model, Document, Mongoose } from 'mongoose';
+import mongoose, { model, Document, Mongoose } from 'mongoose';
 
 /** @typedef {import('@/typedef').Applicationinfo} Applicationinfo */
 /** @typedef {import('@/typedef').Postinfo} Postinfo */
@@ -83,7 +82,7 @@ import Application from './schema/application';
 
 /** @returns mongoose Model 딕셔너리 */
 
-function makeModule(mongoose) {
+function makeModule(mongoose: Mongoose): ModelWrapper {
   const modelMap = {
     Page: model<IPage>('Page', Page(mongoose)),
     User: model<IUser>('User', User(mongoose)),
@@ -116,9 +115,7 @@ function makeModule(mongoose) {
   return modelMap;
 }
 
-export const make = (mongoose: Mongoose) => {
-  return makeModule(mongoose);
-};
+export const make = (mongoose: Mongoose) => makeModule(mongoose);
 
 // module.exports = {
 //   /**

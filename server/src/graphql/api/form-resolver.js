@@ -9,8 +9,9 @@ const {
   mail,
 } = require('@/loader');
 
-const { enumFilmAvailableSubtitle } = require('../../db/schema/enum');
 const moment = require('moment');
+const { isBraced } = require('@/typedef');
+const { enumFilmAvailableSubtitle } = require('../../db/schema/enum');
 
 const requestShowingLabelMap = {
   companyName: '기관 이름',
@@ -51,7 +52,8 @@ const requestShowingLabelMap = {
 const formatShowingContent = (key, value) => {
   if (value instanceof Date) {
     return moment(value).format('YYYY년 MM월 DD일');
-  } else if (typeof value === 'string') {
+  }
+  if (typeof value === 'string') {
     return value;
   }
   return JSON.stringify(value);
@@ -85,7 +87,8 @@ const requestDistributionLabelMap = {
 const formatDiscributionContent = (key, value) => {
   if (value instanceof Date) {
     return moment(value).format('YYYY년 MM월 DD일');
-  } else if (typeof value === 'string') {
+  }
+  if (typeof value === 'string') {
     return value;
   }
   return JSON.stringify(value);
@@ -99,13 +102,13 @@ module.exports = {
       const { input } = args;
       console.log('# form-resolver requestShowing');
       console.log(input);
-      const trs = Object.entries(input).map(([inputKey, inputValue]) => {
-        return `<tr><td style="min-width: 150px;">
+      const trs = Object.entries(input).map(
+        ([inputKey, inputValue]) => `<tr><td style="min-width: 150px;">
         ${requestShowingLabelMap[inputKey]}</td><td>${formatShowingContent(
           inputKey,
           inputValue,
-        )}</td></tr>`;
-      });
+        )}</td></tr>`,
+      );
       const { debug } = input;
 
       const html = `<table>${trs.join('')}</table>`;
@@ -119,10 +122,9 @@ module.exports = {
 
       // 디버그 모드일 때에는 메일을 보내지 않습니다.
       if (!debug) {
-
         const optionRes = await db.getSiteOption('show_application_email');
         if (!Array.isArray(optionRes.value))
-          return;
+          return { success: false, code: 'unexpected_option_type' };
         const emails = optionRes?.value ?? [];
 
         // /** @type {Array<*>} */
@@ -130,8 +132,15 @@ module.exports = {
         //   // @ts-ignore
         //   (await db.getSiteOption('show_application_email'))?.value ?? [];
         const promises = emails.map((emailObject) => {
+          // need check
+
+          if (!isBraced(emailObject))
+            return async () => {
+              /* empty */
+            };
+
           const gate = {
-            recipientEmail: emailObject.email,
+            recipientEmail: emailObject.email ?? '',
           };
           return mail.sendGmail(gate, subject, html);
         });
@@ -178,15 +187,23 @@ module.exports = {
       const subject = `${input.film.title} 배급 의뢰`;
       // console.log(subject);
 
-      const optionRes = await db.getSiteOption('distribution_application_email');
-      
-      if (!Array.isArray(optionRes.value))
-        return;
+      const optionRes = await db.getSiteOption(
+        'distribution_application_email',
+      );
 
-      const emails = optionRes?.value ?? [];
-      const promises = emails.map((emailObject) => {
+      const opt = optionRes.value;
+      if (!Array.isArray(opt))
+        return { success: false, code: 'unexpected_option_type' };
+
+      const promises = opt.map((emailObject) => {
+        // need check
+        if (!isBraced(emailObject))
+          return async () => {
+            /* empty */
+          };
+
         const gate = {
-          recipientEmail: emailObject.email,
+          recipientEmail: emailObject.email ?? '',
         };
         return mail.sendGmail(gate, subject, html);
       });

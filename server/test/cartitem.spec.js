@@ -1,7 +1,9 @@
 const { expect } = require('chai');
 // const {} = require('./graphql-request');
+const { graphql } = require('graphql');
+const { model, db } = require('@/loader');
 const {
-  initTestServer,
+  createTestServer,
   graphqlSuper,
   doLogout,
   doAdminLogin,
@@ -11,8 +13,6 @@ const {
   makeSimpleMutation,
   makeSimpleQuery,
 } = require('./tool');
-const { graphql } = require('graphql');
-const { model, db } = require('@/loader');
 
 const cartitemsQuery = `
 query cartitemsQuery {
@@ -39,7 +39,7 @@ query cartitemsQuery {
 }
 `;
 
-//addCartitem(input: CartitemInput!): AddCartitemResult
+// addCartitem(input: CartitemInput!): AddCartitemResult
 const addCartitemMutation = `
 mutation addCartitemMutation ($input: CartitemInput!) {
   addCartitem(input: $input) {
@@ -70,7 +70,7 @@ mutation updateOptionCountMutation(
 
 describe('cartitem', function () {
   // eslint-disable-next-line mocha/no-setup-in-describe
-  const { agent } = initTestServer({ before, beforeEach, after, afterEach });
+  const { agent } = createTestServer(this);
   describe('db', function () {
     describe('getCartitems', function () {
       it('잘 동작해야 함', async function () {
@@ -185,10 +185,12 @@ describe('cartitem', function () {
         const r1 = await db.addCartitem({
           // product_id: 0,
           modified: new Date(),
-          options: {
-            id: 'ho',
-            count: '3',
-          },
+          options: [
+            {
+              id: 'ho',
+              count: 3,
+            },
+          ],
           user: guestEmail,
         });
         expect(r1.success).to.be.false;
@@ -196,10 +198,12 @@ describe('cartitem', function () {
         const r2 = await db.addCartitem({
           product_id: 0,
           // modified: new Date(),
-          options: {
-            id: 'ho',
-            count: '3',
-          },
+          options: [
+            {
+              id: 'ho',
+              count: 3,
+            },
+          ],
           user: guestEmail,
         });
         expect(r2.success).to.be.false;
@@ -218,10 +222,12 @@ describe('cartitem', function () {
         const r4 = await db.addCartitem({
           product_id: 0,
           modified: new Date(),
-          options: {
-            id: 'ho',
-            count: '3',
-          },
+          options: [
+            {
+              id: 'ho',
+              count: 3,
+            },
+          ],
           // user: guestEmail,
         });
         expect(r4.success).to.be.false;
@@ -276,12 +282,14 @@ describe('cartitem', function () {
           modified: oldDate,
           product_id: 123,
           options: [{ id: 'abc', count: 5 }],
+          user: 'hello',
         });
         const result = await db.updateCartitemOption(
           item.id,
           'abc',
           3,
           newDate,
+          'hello',
         );
         // console.log(result);
         const after = await model.Cartitem.findOne({ id: item.id })
@@ -298,12 +306,14 @@ describe('cartitem', function () {
           product_id: 123,
           modified: newDate,
           options: [{ id: 'abc', count: 5 }],
+          user: 'hello',
         });
         const result = await db.updateCartitemOption(
           item.id,
           'abc',
           3,
           oldDate,
+          'hello',
         );
         const after = await model.Cartitem.findOne({ id: item.id })
           .lean()
@@ -318,12 +328,14 @@ describe('cartitem', function () {
           modified: oldDate,
           product_id: 123,
           options: [{ id: 'abc', count: 5 }],
+          user: 'hello',
         });
         const result = await db.updateCartitemOption(
           item.id,
           'abcdefg',
           3,
           newDate,
+          'hello',
         );
         // console.log(result);
         const after = await model.Cartitem.findOne({ id: item.id })
@@ -339,6 +351,7 @@ describe('cartitem', function () {
           'abcdefg',
           3,
           new Date(),
+          'hello',
         );
         expect(result.success).to.be.false;
       });
@@ -420,7 +433,7 @@ describe('cartitem', function () {
         expect(res.success).to.be.true;
         expect(res.list.length).to.equal(2);
       });
-      it.only("instant_payment 도 제대로 잘 성공해야 함.", async function () {
+      it('instant_payment 도 제대로 잘 성공해야 함.', async function () {
         const cartitem = await model.Cartitem.create({
           usage: 'instant_payment',
           user: guestEmail,
@@ -435,7 +448,7 @@ describe('cartitem', function () {
         });
         await doGuestLogin(agent);
         const ids = [cartitem.id];
-        const res = await req({ids}, resultString);
+        const res = await req({ ids }, resultString);
         console.log(res);
         expect(res.success).to.be.true;
         expect(res.list.length).to.equal(1);
@@ -500,7 +513,6 @@ describe('cartitem', function () {
         expect(res.success).to.be.false;
         expect(res.list).to.be.null;
       });
-      
     });
     describe('addCartitem', function () {
       const resultString = `{ success code 

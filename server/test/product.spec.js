@@ -1,16 +1,16 @@
 const { expect } = require('chai');
 // const {} = require('./graphql-request');
+const { graphql } = require('graphql');
+const { model, db } = require('@/loader');
 const {
-  initTestServer,
+  createTestServer,
   graphqlSuper,
   doLogout,
   doAdminLogin,
   doGuestLogin,
-  adminEamil,
+  adminEmail,
   guestEmail,
 } = require('./tool');
-const { graphql } = require('graphql');
-const { model, db } = require('@/loader');
 
 const createProductMutation = `
 mutation createProductMutation($input: ProductInput!) {
@@ -98,15 +98,13 @@ query productsAdminQuery($condition: ProductSearch!) {
 
 describe('product', function () {
   // eslint-disable-next-line mocha/no-setup-in-describe
-  const { agent } = initTestServer({ before, beforeEach, after, afterEach });
+  const { agent } = createTestServer(this);
   describe('db', function () {
     describe('getProduct', function () {
       it('잘 동작해야 함.', async function () {
         const result = await model.Product.create({
           content_main: 'cm',
           content_sub: 'cs',
-          kit_number: 'kn',
-          kit_title: 'kt',
         });
         const { id } = result;
         const found = await db.getProduct(id);
@@ -125,7 +123,6 @@ describe('product', function () {
         });
         await model.Product.create({
           content_main: 'cm',
-          kit_title: 'kt',
           product_type: 'sopakit',
         });
         await model.Product.create({
@@ -133,28 +130,16 @@ describe('product', function () {
           content_sub: 'cs',
         });
         await model.Product.create({
-          kit_number: 'kn',
-          kit_title: 'kt',
         });
         await model.Product.create({
           content_main: 'cm',
-          kit_title: 'kt',
-          kit_number: 'I2SPECITAL',
           product_type: 'sopakit',
         });
         await model.Product.create({
           content_main: 'cm',
           content_sub: 'cs',
-          kit_number: 'IAmSpecial!!',
         });
         await model.Product.create({
-          content_main: 'cm',
-          kit_title: 'kt',
-
-          product_type: 'sopakit',
-        });
-        await model.Product.create({
-          content_main: 'cm',
           content_sub: 'cs',
         });
       });
@@ -172,7 +157,6 @@ describe('product', function () {
         // console.log(result);
         expect(result.total).to.equal(9);
         expect(result.list.length).to.equal(2);
-        expect(result.list[0].kit_number).to.equal('IAmSpecial!!');
       });
       it('product_type이 잘 동작해야 함.', async function () {
         const result = await db.getProducts({ product_type: 'sopakit' });
@@ -189,7 +173,6 @@ describe('product', function () {
         // console.log(result);
         expect(result.total).to.equal(4);
         expect(result.list.length).to.equal(1);
-        expect(result.list[0].kit_number).to.equal('I2SPECITAL');
       });
     });
     describe('createProduct', function () {
@@ -197,8 +180,6 @@ describe('product', function () {
         await db.createProduct({
           content_main: 'cm',
           content_sub: 'cs',
-          kit_number: 'kn',
-          kit_title: 'kt',
         });
         const res = await model.Product.findOne({ content_main: 'cm' })
           .lean()
@@ -211,12 +192,9 @@ describe('product', function () {
         const product = await model.Product.create({
           content_main: 'cm',
           content_sub: 'cs',
-          kit_number: 'kn',
-          kit_title: 'kt',
         });
         const result = await db.updateProduct(product.id, {
           content_main: 'hello_world',
-          kit_number: '1234',
         });
         // console.log(result);
         const updated = await model.Product.findOne({ id: product.id })
@@ -224,8 +202,6 @@ describe('product', function () {
           .exec();
         expect(updated.content_main).to.equal('hello_world');
         expect(updated.content_sub).to.equal('cs');
-        expect(updated.kit_number).to.equal('1234');
-        expect(updated.kit_title).to.equal('kt');
       });
       it('관련된 cartitem 의 정보도 갱신되어야 함.', async function () {
         const ci = await model.Cartitem.create({
@@ -240,8 +216,6 @@ describe('product', function () {
         const prod = await model.Product.create({
           content_main: 'cm',
           content_sub: 'cs',
-          kit_number: 'kn',
-          kit_title: 'kt',
           related_cartitems: [ci.id],
           product_type: 'sopakit',
           name: '슈펴사품',
@@ -279,8 +253,6 @@ describe('product', function () {
         const prod = await model.Product.create({
           content_main: 'cm',
           content_sub: 'cs',
-          kit_number: 'kn',
-          kit_title: 'kt',
           related_cartitems: [5, 6, 7, ci.id, ci2.id, 100, 101, 102, 103],
           product_type: 'sopakit',
           name: '슈펴사품',
@@ -303,8 +275,6 @@ describe('product', function () {
         const item = await model.Product.create({
           content_main: 'cm',
           content_sub: 'cs',
-          kit_number: 'kn',
-          kit_title: 'kt',
         });
         const { id } = item;
         await db.removeProduct(id);
@@ -551,8 +521,6 @@ describe('product', function () {
           input: {
             content_main: 'cm',
             content_sub: 'cs',
-            kit_number: 'kn',
-            kit_title: 'kt',
           },
         });
         const result = res.body.data.createProduct;
@@ -566,12 +534,10 @@ describe('product', function () {
         const doc = await model.Product.create({
           content_main: 'cm',
           content_sub: 'cs',
-          kit_number: 'kn',
-          kit_title: 'kt',
         });
         const res = await graphqlSuper(agent, updateProductMutation, {
           id: doc.id,
-          input: { content_sub: 'cs2', kit_number: 'kn2' },
+          input: { content_sub: 'cs2' },
         });
         const result = res.body.data.updateProduct;
         // console.log(result);
@@ -580,8 +546,6 @@ describe('product', function () {
         const updated = await model.Product.findOne({ id: doc.id });
         expect(updated.content_main).to.equal('cm');
         expect(updated.content_sub).to.equal('cs2');
-        expect(updated.kit_number).to.equal('kn2');
-        expect(updated.kit_title).to.equal('kt');
       });
     });
     describe('removeProduct', function () {
@@ -590,8 +554,6 @@ describe('product', function () {
         const doc = await model.Product.create({
           content_main: 'cm',
           content_sub: 'cs',
-          kit_number: 'kn',
-          kit_title: 'kt',
         });
         const res = await graphqlSuper(agent, removeProductMutation, {
           id: doc.id,

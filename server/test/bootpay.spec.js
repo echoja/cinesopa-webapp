@@ -1,5 +1,5 @@
 const { expect } = require('chai');
-const bootpay = require('../manager/bootpay').make();
+const bootpay = require('@/manager/bootpay').make();
 
 // 테스트 실행할 때 실행하는 컴퓨터가
 // 부트페이의 rest api 에서 허용가능한 ip인지를 먼저 체크해주세요.
@@ -41,13 +41,13 @@ describe('bootpay Manager', function () {
     });
   });
   describe('verifyPayment', function () {
-    it.only('제대로 동작해야 함', async function () {
+    it('제대로 동작해야 함', async function () {
       const res = await bootpay.verifyPayment(receipt_id, 3000);
       // console.log(res);
       expect(res.success).to.be.true;
       expect(res.info.price).to.equal(3000);
     });
-    it.only('가격이 다를 경우 틀려야 함', async function () {
+    it('가격이 다를 경우 틀려야 함', async function () {
       const res = await bootpay.verifyPayment(receipt_id, 4000);
       // console.log(res);
       expect(res.success).to.be.false;

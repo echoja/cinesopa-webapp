@@ -77,7 +77,7 @@ module.exports = {
     /** 세금계산서 링크 삭제 */
     removeTaxReqLink: makeResolver(async (obj, args, context, info) => {
       const { id } = args;
-      await db.removeTaxReqLink(id);
+      // await db.removeTaxReqLink(id);
       return { success: true };
     }).only(ACCESS_ADMIN),
 

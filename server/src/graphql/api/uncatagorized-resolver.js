@@ -1,7 +1,6 @@
 require('@/typedef');
 
 const _ = require('lodash');
-const { getDateFromObj } = require('../../util');
 const {
   db,
   user,
@@ -12,20 +11,10 @@ const {
   ACCESS_UNAUTH,
   makeResolver,
 } = require('@/loader');
+const { getDateFromObj } = require('../../util');
 const { enumAuthmap } = require('../../db/schema/enum');
 const { auth } = require('../../service');
 
-// const alist = enumAuthmap;
-// const ACCESS_ALL = alist;
-// const ACCESS_AUTH = alist.slice(0, -1);
-// const ACCESS_UNAUTH = alist.slice(-1);
-// const ACCESS_ADMIN = alist.slice(0, 1);
-// const makeResolver = require('../make-resolver').init(ACCESS_UNAUTH[0]);
-
-// const checkAuth = async (obj, args, context, info) => {
-//   const { redirectLink, role } = args;
-//   return await validator.accessCheck(redirectLink, role, context);
-// };
 
 
 const createPage = makeResolver(async (obj, args, context, info) => {

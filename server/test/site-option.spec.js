@@ -1,7 +1,7 @@
 const { expect } = require('chai');
 // const {} = require('./graphql-request');
 const {
-  initTestServer,
+  createTestServer,
   graphqlSuper,
   doLogout,
   doAdminLogin,
@@ -67,7 +67,7 @@ mutation removeSiteOptionMutation($name: String!) {
 `;
 describe('cartitem', function () {
   // eslint-disable-next-line mocha/no-setup-in-describe
-  const { agent } = initTestServer({ before, beforeEach, after, afterEach });
+  const { agent } = createTestServer(this);
   describe('db', function () {
     describe('setSiteOption', function () {
       it('제대로 동작해야 함 (type: string)', async function () {

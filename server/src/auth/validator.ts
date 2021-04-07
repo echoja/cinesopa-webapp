@@ -2,33 +2,35 @@
 //  * @typedef {AuthValidator} AuthValidator
 //  */
 
-import {AuthmapLevel, CustomPassportContext, AuthType} from '@/typedef';
+import { AuthmapLevel, CustomPassportContext, AuthType } from '@/typedef';
 
 const _ = require('lodash');
 
 /** 권한 등을 검증하는 객체 */
 export class AuthValidator {
-  authmapLevel;
-  symbolArray;
+  authmapLevel: AuthmapLevel;
+
   /**
    * AuthValidator 를 생성합니다.
    * @param {Object.<symbol, number>} authmapLevel
    */
-  constructor(authmapLevel) {
-    /** @type {Object.<symbol, number>} */
+  constructor(authmapLevel: AuthmapLevel) {
     this.authmapLevel = authmapLevel;
-    this.symbolArray = Object.getOwnPropertySymbols(authmapLevel);
   }
 
   /**
    * 현재 콘텍스트(graphql로 들어온 요청)가 조건에 부합하는지 체크.
    * context 의 role이 condition 이상이기만 하면 됨.
-   * @param {CustomPassportContext} context 콘텍스트 객체
-   * @param {string} condition 조건
-   * @param {Object.<string, symbol>} enumAuthmap 문자를 symbol로 바꾸는 수단
-   * @returns {Promise<boolean>} 올바르면 true, 틀리면 false.
+   * @param context 콘텍스트 객체
+   * @param condition 조건
+   * @param enumAuthmap 문자를 symbol로 바꾸는 수단
+   * @returns 올바르면 true, 틀리면 false.
    */
-  async isOkContext(context: CustomPassportContext, condition: string) { // need check
+  async isOkContext(
+    context: CustomPassportContext,
+    condition: AuthType,
+  ): Promise<boolean> {
+    // need check
     return new Promise((resolve, reject) => {
       try {
         // console.log("## isOkContext");
@@ -53,7 +55,7 @@ export class AuthValidator {
    * @param {symbol} condition 조건 권한
    * @returns {Promise<boolean>} 올바르면 true, 틀리면 false.
    */
-  async isOk(given: string, condition: string) : Promise<boolean> {
+  async isOk(given: AuthType, condition: AuthType): Promise<boolean> {
     return new Promise((resolve, reject) => {
       let result = false;
       try {
@@ -65,132 +67,112 @@ export class AuthValidator {
         console.log(err);
         return reject(
           Error(`given(${given.toString()}) or condition(${condition.toString()}) should be in [
-          ${Object.getOwnPropertySymbols(this.authmapLevel).map((value) => value.toString()).join(', ')}]`),
+          ${Object.getOwnPropertySymbols(this.authmapLevel)
+            .map((value) => value.toString())
+            .join(', ')}]`),
         );
       }
     });
   }
 
   /**
-   * this.contains 와 동일하나,
-   * `authmap` 기반으로 `given`에서 해당하는 심볼을 찾아 `condition`을 검사합니다.
-   * @param {string} given
-   * @param {symbol[]} condition
-   * @param {Object.<string, symbol>} authmap
-   */
-  async containsRaw(given, condition, authmap) {
-    const givenSymbol = authmap[given];
-    return this.contains(givenSymbol, condition);
-  }
-
-  /**
    * 주어진 권한이 조건에 포함되는지 체크하는 함수.
-   * @param {symbol} given 주어진 권한
-   * @param {symbol[]} condition 조건 권한의 리스트
-   * @returns {Promise<boolean>} 포함되면 true, 포함되지 않으면 false.
+   * @param given 주어진 권한
+   * @param condition 조건 권한의 리스트
+   * @returns 포함되면 true, 포함되지 않으면 false.
    */
-  async contains(given, condition) {
-    // console.log(given);
-    // console.log(condition);
-    // console.log(`${Array.isArray(condition)}`);
-    // console.log(condition);
-    return new Promise((resolve, reject) => {
-      const symbolKeys = Object.getOwnPropertySymbols(this.authmapLevel);
-      // console.log(symbolKeys);
-      // for (const key in condition) {
-      //   if (condition.hasOwnProperty(key)) {
-      //     const element = condition[key];
+  async contains(given: AuthType, condition: AuthType[]): Promise<boolean> {
 
-      //   }
-      // }
-      // console.log("--symbolKeys and condition--");
-      // console.log(symbolKeys);
-      // console.log(condition);
-      condition.forEach((value) => {
-        if (!symbolKeys.includes(value)) {
-          return reject(
-            Error(
-              `condition에 있는 모든 요소(${value})는 [${_.map(
-                symbolKeys,
-                (item) => item.toString(),
-              )}]에 포함되어야 합니다.`,
-            ),
-          );
-        }
-      });
-      if (condition.includes(given)) {
-        return resolve(true);
-      }
-      return resolve(false);
-    });
+    if (condition.includes(given)) {
+      return (true);
+    }
+    return (false);
+
+    // return new Promise((resolve, reject) => {
+    //   const symbolKeys = Object.getOwnPropertySymbols(this.authmapLevel);
+    //   condition.forEach((value) => {
+    //     if (!symbolKeys.includes(value)) {
+    //       return reject(
+    //         Error(
+    //           `condition에 있는 모든 요소(${value})는 [${_.map(
+    //             symbolKeys,
+    //             (item) => item.toString(),
+    //           )}]에 포함되어야 합니다.`,
+    //         ),
+    //       );
+    //     }
+    //   });
+    //   if (condition.includes(given)) {
+    //     return resolve(true);
+    //   }
+    //   return resolve(false);
+    // });
   }
 
-  /**
-   * 클라이언트에서 해당 페이지에 권한이 있는지 없는지 체크하는 리졸버와 이어지는 함수.
-   * 각 api에 대해 체크하는 게 아니라서 에러를 일으킬 필요가 없고,
-   * 클라이언트에게 로그인이 필요하거나 권한이 없다고 알려주는 역할임.
-   * 로그인에 필요한 페이지에 접속했을 시, 현재 링크를 req.session.redirectLink 에 저장하여
-   * 나중에 로그인이 성공했을 시 redirectLink 로 즉시 이동할 수 있도록 함.
-   *
-   * @param {string} redirectLink
-   * @param {symbol[]} roleAvailable 조건 권한. 유저는 roleAvailable 안에 있어야 가능함.
-   * @param {PassportContext} context Resolver 로부터 받는 context 객체
-   * @returns {Promise<{permissionStatus: string, user?: object}>} 권한 상태와 유저 객체
-   */
-  async accessCheck(redirectLink, roleAvailable, context) {
-    // console.log(roleAvailable);
-    // console.log;
-    return new Promise((resolve, reject) => {
-      const {
-        isUnauthenticated,
-        req: { session },
-        getUser,
-      } = context;
-      // console.log(`accessCheck - session print:${context.req.sessionID}`);
-      // console.dir(session);
-      if (isUnauthenticated()) {
-        // 리다이렉트 링크 설정
-        if (redirectLink !== '') {
-          session.redirectLink = redirectLink;
-        }
-        return resolve({
-          permissionStatus: 'LOGIN_REQUIRED',
-        });
-      }
-      const user = getUser();
+  //   /**
+  //    * 클라이언트에서 해당 페이지에 권한이 있는지 없는지 체크하는 리졸버와 이어지는 함수.
+  //    * 각 api에 대해 체크하는 게 아니라서 에러를 일으킬 필요가 없고,
+  //    * 클라이언트에게 로그인이 필요하거나 권한이 없다고 알려주는 역할임.
+  //    * 로그인에 필요한 페이지에 접속했을 시, 현재 링크를 req.session.redirectLink 에 저장하여
+  //    * 나중에 로그인이 성공했을 시 redirectLink 로 즉시 이동할 수 있도록 함.
+  //    *
+  //    * @param {string} redirectLink
+  //    * @param {symbol[]} roleAvailable 조건 권한. 유저는 roleAvailable 안에 있어야 가능함.
+  //    * @param {PassportContext} context Resolver 로부터 받는 context 객체
+  //    * @returns {Promise<{permissionStatus: string, user?: object}>} 권한 상태와 유저 객체
+  //    */
+  //   async accessCheck(redirectLink, roleAvailable, context) {
+  //     // console.log(roleAvailable);
+  //     // console.log;
+  //     return new Promise((resolve, reject) => {
+  //       const {
+  //         isUnauthenticated,
+  //         req: { session },
+  //         getUser,
+  //       } = context;
+  //       // console.log(`accessCheck - session print:${context.req.sessionID}`);
+  //       // console.dir(session);
+  //       if (isUnauthenticated()) {
+  //         // 리다이렉트 링크 설정
+  //         if (redirectLink !== '') {
+  //           session.redirectLink = redirectLink;
+  //         }
+  //         return resolve({
+  //           permissionStatus: 'LOGIN_REQUIRED',
+  //         });
+  //       }
+  //       const user = getUser();
 
-      /**
-       *  만약 user.role 이 string이라면, 해당하는 symbol 로 변환하도록 함.
-       */
-      const role = typeof user.role === 'string'
-        ? this.symbolArray.find((value) => value.description === user.role)
-        : user.role;
-      this.contains(role, roleAvailable)
-        .then((value) => {
-          if (value) {
-            return resolve({
-              permissionStatus: 'OK',
-              user,
-            });
-          }
-          return resolve({
-            permissionStatus: 'NO_PERMISSION',
-          });
-        })
-        .catch((error) => reject(error));
-    });
-  }
+  //       /**
+  //        *  만약 user.role 이 string이라면, 해당하는 symbol 로 변환하도록 함.
+  //        */
+  //       const role = typeof user.role === 'string'
+  //         ? this.symbolArray.find((value) => value.description === user.role)
+  //         : user.role;
+  //       this.contains(role, roleAvailable)
+  //         .then((value) => {
+  //           if (value) {
+  //             return resolve({
+  //               permissionStatus: 'OK',
+  //               user,
+  //             });
+  //           }
+  //           return resolve({
+  //             permissionStatus: 'NO_PERMISSION',
+  //           });
+  //         })
+  //         .catch((error) => reject(error));
+  //     });
+  //   }
 }
-
 
 /** authMapLevel 로 초기화합니다. */
-export const make = (authmapLevel: AuthmapLevel) => {
-  return new AuthValidator(authmapLevel);
-}
+export const make = (authmapLevel: AuthmapLevel): AuthValidator =>
+  new AuthValidator(authmapLevel);
 
 // export default {
 //   /**
-//    * 
+//    *
 //    * @param {Object.<string, number>} authmapLevel
 //    */
 //   make(authmapLevel) {

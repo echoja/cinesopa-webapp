@@ -13,19 +13,19 @@ const request = require('supertest');
 const random = require('random').default;
 
 // const auth = require('../service/auth');
-const authValidatorMaker = require('../src/auth/validator');
+const authValidatorMaker = require('@/auth/validator');
 const {
   db,
   auth,
   validator,
   // file: { uploadMiddleware },
-} = require('../src/loader');
-const fileManager = require('../src/manager/file');
-const fileServiceMaker = require('../src/service/file').default;
-const { graphQLServerMiddleware } = require('../src/graphql').default;
-const local = require('../src/auth/passport').default;
-const { enumAuthmap } = require('../src/db/schema/enum');
-const { make: makeAuthMiddleware } = require('../src/auth/auth-middleware');
+} = require('@/loader');
+const fileManager = require('@/manager/file');
+const fileServiceMaker = require('@/service/file').default;
+const { graphQLServerMiddleware } = require('@/graphql').default;
+const local = require('@/auth/passport').default;
+const { enumAuthmap } = require('@/db/schema/enum');
+const { make: makeAuthMiddleware } = require('@/auth/auth-middleware');
 const { loginQuery } = require('./graphql-request');
 
 const uploadDest = 'test/uploads';
@@ -77,6 +77,11 @@ const doLogin = async (agent, email, pwd) =>
     email,
     pwd,
   });
+
+const doLogout = async (agent) => {
+  await agent.get('/logout');
+};
+
 const doAdminLogin = async (agent) => {
   if (!agent) throw Error('agent 가 설정되지 않았습니다.');
   return graphqlSuper(agent, loginQuery, {
@@ -92,22 +97,28 @@ const doGuestLogin = async (agent) => {
   });
 };
 
+/**
+ * 
+ * @param {Mocha.Suite} hookFunctions 
+ */
 const testDatabaseServer = (hookFunctions) => {
   const mongod = new MongoMemoryServer({ binary: { version: 'latest' } });
 
-  hookFunctions.before('db 초기화', async function () {
+  hookFunctions.timeout(1000000);
+  hookFunctions.beforeAll('db 초기화', async function () {
     // console.log('testDatabaseServer - before!!');
     const uri = await mongod.getUri();
+    console.log(uri);
+    /** @type {mongoose.ConnectOptions} */
     const mongooseOpts = {
       useNewUrlParser: true,
-      // autoReconnect: true,
-      // reconnectTries: Number.MAX_VALUE,
-      // reconnectInterval: 1000,
       useUnifiedTopology: true,
       useCreateIndex: true,
       useFindAndModify: false,
     };
+    console.log('과연 연결이 될까?');
     await mongoose.connect(uri, mongooseOpts);
+    console.log('과연 연결이 되었다!');
   });
 
   hookFunctions.beforeEach('유저 세팅', async function () {
@@ -132,7 +143,7 @@ const testDatabaseServer = (hookFunctions) => {
     await Promise.allSettled(promises);
   });
 
-  hookFunctions.after('서버 및 db 종료', async function () {
+  hookFunctions.afterAll('서버 및 db 종료', async function () {
     // console.log('testDatabaseServer - after!!');
     await mongoose.connection.dropDatabase();
     await mongoose.connection.close();
@@ -142,7 +153,11 @@ const testDatabaseServer = (hookFunctions) => {
   return mongod;
 };
 
-const initTestServer = (hookFunctions) => {
+/**
+ * this 를 넘겨wnaustj createTestServer 수행
+ * @param {Mocha.Suite} hookFunctions 
+ */
+const createTestServer = (hookFunctions) => {
   // const model = require("../db/model").make(mongoose);
 
   /** @type {import("express").Express} */
@@ -151,8 +166,8 @@ const initTestServer = (hookFunctions) => {
   const agent = makeAgent(webapp);
   /** DB 세팅 */
   // delete require.cache[require.resolve('passport')];
-  // timeout(10000);
-  hookFunctions.before('웹서버 초기화', async function () {
+  
+  hookFunctions.beforeAll('웹서버 초기화', async function () {
     // const autoIncrement = AutoIncrementFactory(mongoose);
     // autoIncrement.initialize(mongoose.connection);
     // setAutoIncrement(autoIncrement, 'Page', 'id');
@@ -220,7 +235,7 @@ const initTestServer = (hookFunctions) => {
     // 업로드용
     webapp.post(
       '/upload',
-      makeAuthMiddleware(validator, ["ADMIN"]),
+      makeAuthMiddleware(validator, ['ADMIN']),
       uploadMiddleware,
     );
     // 파일 get용.
@@ -237,43 +252,6 @@ const initTestServer = (hookFunctions) => {
   return { mongod, agent, webapp, uploadDest, fileService };
 };
 
-const doLogout = async (agent) => {
-  await agent.get('/logout');
-};
-
-// /**
-//  * HTML File 객체를 만듭니다.
-//  * @param {MockFile} file
-//  * @returns {File}
-//  * @deprecated
-//  */
-// const createFileFromMockFile = (file) => {
-//   const blob = new Blob([file.body], { type: file.mimeType });
-//   blob.lastModifiedDate = new Date();
-//   blob.name = file.name;
-//   return blob;
-// };
-
-// /**
-//  * HTML FileList 객체를 만듭니다.
-//  * @param {MockFile[]} files
-//  * @returns {FileList}
-//  * @deprecated
-//  */
-// const createMockFileList = (files) => {
-//   const fileList = {
-//     length: files.length,
-//     item(index) {
-//       return fileList[index];
-//     },
-//   };
-//   files.forEach(
-//     (file, index) => (fileList[index] = createFileFromMockFile(file)),
-//   );
-
-//   return fileList;
-// };
-
 /**
  * 테스트용 html를 만듭니다. 경로는 test 이름 기반입니다. Mocha 전용입니다.
  * 만들어진 html 파일은 직접 삭제하세요. 삭제 코드는 위험하여 넣지 않았습니다.
@@ -282,8 +260,8 @@ const doLogout = async (agent) => {
  * @param {string} html
  * @returns {Promise<void>}
  */
-const makeHtmlReport = async (self, html) => {
-  return new Promise((resolve, reject) => {
+const makeHtmlReport = async (self, html) =>
+  new Promise((resolve, reject) => {
     const filename = `${sanitizeFilename(self.test.fullTitle())}.html`;
     const fullpath = path.join(__dirname, foldername, filename);
     fs.writeFile(fullpath, html, function (err) {
@@ -293,7 +271,6 @@ const makeHtmlReport = async (self, html) => {
       return resolve();
     });
   });
-};
 
 /**
  * 제일 첫 글자를 대문자로 만듭니다.
@@ -334,19 +311,13 @@ const stringify = (obj) => {
 /**
  * @param {GraphQLParamListItem[]} paramList
  */
-const makeOuterParamList = (paramList) => {
-  return paramList
-    .map((param) => `$${param.varName}: ${param.typeName}`)
-    .join(', ');
-};
+const makeOuterParamList = (paramList) =>
+  paramList.map((param) => `$${param.varName}: ${param.typeName}`).join(', ');
 /**
  * @param {GraphQLParamListItem[]} paramList
  */
-const makeInnerParamlist = (paramList) => {
-  return paramList
-    .map((param) => `${param.varName}: $${param.varName}`)
-    .join(', ');
-};
+const makeInnerParamlist = (paramList) =>
+  paramList.map((param) => `${param.varName}: $${param.varName}`).join(', ');
 /**
  * @typedef {Object} CreateQueryStringOption
  * @property {string} type 'query' | 'mutation'
@@ -376,12 +347,10 @@ const makeReqString = (
  * @param {string} reqName
  * @param {CreateQueryStringOption} defs
  */
-const makeRequest = (agent, reqName, defs) => {
-  return async (args) => {
-    const res = await graphqlSuper(agent, makeReqString(reqName, defs), args);
-    const result = res.body.data[reqName];
-    return result;
-  };
+const makeRequest = (agent, reqName, defs) => async (args) => {
+  const res = await graphqlSuper(agent, makeReqString(reqName, defs), args);
+  const result = res.body.data[reqName];
+  return result;
 };
 
 // simpleRequest${capitalize(endpoint)} { }
@@ -410,35 +379,31 @@ const makeSimpleRequestString = (endpoint, args, resultString) => {
  * 간단한 Mutation 요청 함수를 만듭니다.
  * @param {string} endpoint
  */
-const makeSimpleMutation = (agent, endpoint) => {
-  return async (args, resultString) => {
-    const reqStr = `mutation ${endpoint}Mutation ${makeSimpleRequestString(
-      endpoint,
-      args,
-      resultString,
-    )}`;
-    // console.log("# graphql-client makeSimpleMutation");
-    // console.log(reqStr);
-    const res = await graphqlSuper(agent, reqStr);
-    return res.body.data[endpoint];
-  };
+const makeSimpleMutation = (agent, endpoint) => async (args, resultString) => {
+  const reqStr = `mutation ${endpoint}Mutation ${makeSimpleRequestString(
+    endpoint,
+    args,
+    resultString,
+  )}`;
+  // console.log("# graphql-client makeSimpleMutation");
+  // console.log(reqStr);
+  const res = await graphqlSuper(agent, reqStr);
+  return res.body.data[endpoint];
 };
 
 /**
  * 간단한 Query 요청 함수를 만듭니다.
  * @param {string} endpoint
  */
-const makeSimpleQuery = (agent, endpoint) => {
-  return async (args, resultString) => {
-    const str = `query ${endpoint}Query ${makeSimpleRequestString(
-      endpoint,
-      args,
-      resultString,
-    )}`;
-    // console.log(str);
-    const res = await graphqlSuper(agent, str);
-    return res.body.data[endpoint];
-  };
+const makeSimpleQuery = (agent, endpoint) => async (args, resultString) => {
+  const str = `query ${endpoint}Query ${makeSimpleRequestString(
+    endpoint,
+    args,
+    resultString,
+  )}`;
+  // console.log(str);
+  const res = await graphqlSuper(agent, str);
+  return res.body.data[endpoint];
 };
 
 // /**
@@ -455,19 +420,20 @@ const makeSimpleQuery = (agent, endpoint) => {
 //   });
 // };
 
-const randomDate = () => {
-  return new Date(random.int(1990, 2020), random.int(1, 12), random.int(1, 20));
-};
+const randomDate = () =>
+  new Date(random.int(1990, 2020), random.int(1, 12), random.int(1, 20));
 
 /**
  * 폴더 안의 파일들을 삭제합니다.
  * @param {string} directory 폴더의 경로
  */
 const clearDirectory = async (directory) => {
-  const files = await fs.promises.readdir(directory)
-  const removePromises = files.map((file) => fs.promises.unlink(path.join(directory, file)))
+  const files = await fs.promises.readdir(directory);
+  const removePromises = files.map((file) =>
+    fs.promises.unlink(path.join(directory, file)),
+  );
   await Promise.allSettled(removePromises);
-}
+};
 
 // /**
 //  * @typedef {object} MockFile
@@ -485,8 +451,7 @@ module.exports = {
   doLogin,
   doLogout,
   testDatabaseServer,
-  initTestServer,
-  // createMockFileList,
+  createTestServer,
   makeHtmlReport,
   capitalize,
   stringify,
@@ -495,7 +460,6 @@ module.exports = {
   makeSimpleRequestString,
   makeSimpleMutation,
   makeSimpleQuery,
-  // upload,
   randomDate,
   clearDirectory,
 };

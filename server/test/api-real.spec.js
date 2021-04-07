@@ -44,6 +44,7 @@ const {
   createBoardMutation,
   removeBoardMutation,
   updateBoardMutation,
+  getPageByIdQuery,
 } = require('./graphql-request');
 // const auth = require('../service/auth');
 // const authValidatorMaker = require('../auth/validator');
@@ -53,7 +54,7 @@ const { db: manager, model } = require('@/loader');
 // const { noConflict } = require("lodash");
 // const { make: makeAuthMiddleware } = require('../auth/auth-middleware');
 // const { enumAuthmap } = require('../db/schema/enum');
-const { graphqlSuper, initTestServer, doLogin } = require('./tool');
+const { graphqlSuper, createTestServer, doLogin } = require('./tool');
 
 // const makeAgent = request.agent;
 
@@ -64,7 +65,7 @@ const { graphqlSuper, initTestServer, doLogin } = require('./tool');
  */
 describe('REAL API', function () {
   // eslint-disable-next-line mocha/no-setup-in-describe
-  const { agent } = initTestServer({ before, beforeEach, after, afterEach });
+  const { agent } = createTestServer(this);
 
   describe('auth-middleware', function () {
     it('권한이 성공해야 함', async function () {
@@ -112,7 +113,7 @@ describe('REAL API', function () {
             .expect(200)
             .end((err, res) => {
               if (err) done();
-              else done('에러가 나야 합니다.');
+              else done(new Error('에러가 나야 합니다.'));
             });
         })
         .catch((err) => {

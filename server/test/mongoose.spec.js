@@ -32,7 +32,7 @@ describe('mongoose schema and model', function () {
     const promises = [];
     Object.keys(collections).forEach((key) => {
       const collection = collections[key];
-      promises.push(collection.deleteMany());
+      promises.push(collection.deleteMany({}));
     });
     await Promise.allSettled(promises);
   });
@@ -102,7 +102,7 @@ describe('mongoose schema and model', function () {
     it('새 doc을 만들었을 때 search 가 무사히 생겨야 함. (훅에 의해 생성됨.)', async function () {
       const test = await model.Film.create(filmInput);
       expect(test.search).to.equal(
-        'ㅇㅣㄱㅓㅅㅇㅡㄴㅅㅠㅍㅓㅍㅏㅇㅜㅓㅈㅔㅁㅗㄱㅇㅣㄷㅏ.#Thisissuperpowertitle.#ㅎㅏ#ha#ㅎㅗ#gh#ㅎㅔㅎㅔ#hehe',
+        'ㅇㅣㄱㅓㅅㅇㅡㄴㅅㅠㅍㅓㅍㅏㅇㅜㅓㅈㅔㅁㅗㄱㅇㅣㄷㅏ.#Thisissuperpowertitle.#ㅎㅏ#ㅎㅗ#ㅎㅔㅎㅔ#ha#gh#hehe',
       );
     });
 
@@ -116,7 +116,7 @@ describe('mongoose schema and model', function () {
       const updated = await model.Film.findOne({ id: 1 }).lean().exec();
       // console.log(updated);
       expect(updated.search).to.equal(
-        'ㅎㅔㄹㄹㅗㅁㅐㄴ~#helloman~#ㅎㅏ#ha#ㅎㅗ#gh#ㅎㅔㅎㅔ#hehe',
+        'ㅎㅔㄹㄹㅗㅁㅐㄴ~#helloman~#ㅎㅏ#ㅎㅗ#ㅎㅔㅎㅔ#ha#gh#hehe',
       );
     });
   });
@@ -145,7 +145,7 @@ describe('mongoose schema and model', function () {
         'ㅇㅣㄱㅓㅅㅇㅡㄴㅂㅏㄲㅜㅣㄴㅈㅔㅁㅗㄱㅇㅣㅇㅔㅇㅛ~~~!#ㅇㅣㄱㅓㅅㅇㅡㄴㅋㅗㄴㅌㅔㄴㅌㅡㅇㅣㅂㄴㅣㄷㅏㅇ.',
       );
     });
-    it.only('새 doc을 만든 후 수정했을 때 m_date 가 갱신되어야 함.', function (done) {
+    it('새 doc을 만든 후 수정했을 때 m_date 가 갱신되어야 함.', function (done) {
       this.timeout(10000);
       model.Post.create({
         title: '안녕하세요',

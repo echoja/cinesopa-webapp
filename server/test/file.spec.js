@@ -8,23 +8,23 @@ const Throttle = require('superagent-throttle');
 // const { upload, createFileFromMockFile } = require('./tool');
 const { fake } = require('sinon');
 const { model } = require('@/loader');
-const fileServiceFactory = require('../service/file');
-const fileManager = require('../manager/file');
+const fileServiceFactory = require('@/service/file').default;
+const fileManager = require('@/manager/file');
 const rimraf = require('rimraf');
-const { makeSimpleQuery, doAdminLogin } = require('./tool');
 const supertest = require('supertest');
 
+const { promisify } = require('util');
+const { totalmem } = require('os');
+const { nodeModuleNameResolver } = require('typescript');
+const { graphql } = require('graphql');
+const { createTestServer, graphqlSuper, doLogin, doLogout } = require('./tool');
 const {
   fileQuery,
   filesQuery,
   updateFileMutation,
   removeFileMutation,
 } = require('./graphql-request');
-const { initTestServer, graphqlSuper, doLogin, doLogout } = require('./tool');
-const { promisify } = require('util');
-const { totalmem } = require('os');
-const { nodeModuleNameResolver } = require('typescript');
-const { graphql } = require('graphql');
+const { makeSimpleQuery, doAdminLogin } = require('./tool');
 
 const app = express();
 
@@ -291,7 +291,7 @@ describe('file', function () {
         fileManager
           .removeFile(fullpath)
           .then((result) => {
-            done('에러가 일어나야 합니다.');
+            done(new Error('에러가 일어나야 합니다.'));
           })
           .catch((err) => {
             done();
@@ -334,12 +334,7 @@ describe('file', function () {
 
   describe('실제 api 테스트', function () {
     // eslint-disable-next-line mocha/no-setup-in-describe
-    const { agent, uploadDest, fileService: fileTestService } = initTestServer({
-      before,
-      beforeEach,
-      afterEach,
-      after,
-    });
+    const { agent, uploadDest, fileService: fileTestService } = createTestServer(this);
     // console.log(fileTestService);
     const adminLogin = async () => {
       await doLogin(agent, 'testAdmin', 'abc');
@@ -424,7 +419,7 @@ describe('file', function () {
         expect(fs.existsSync(found[1].path)).to.be.true;
         expect(fs.existsSync(found[2].path)).to.be.true;
       });
-      it.only('업로드 중간에 취소되었을 시 관련된 파일과 데이터베이스가 깔끔해야 함.', async function () {
+      it('업로드 중간에 취소되었을 시 관련된 파일과 데이터베이스가 깔끔해야 함.', async function () {
         await doAdminLogin(agent);
         const throttle = new Throttle({
           active: true, // set false to pause queue

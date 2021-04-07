@@ -1,7 +1,8 @@
-const path = require('path');
-const fs = require('fs');
+import path from 'path';
+import fs from 'fs';
 
 import {
+  SiteOptionType,
   Userinfo,
   OrderSearch,
   SopakitSearch,
@@ -21,12 +22,47 @@ import {
   Tokeninfo,
   IToken,
   CreateTokenOptions,
+  Pageinfo,
+  TagFilminfo,
+  Taginfo,
+  IFilm,
+  DateCond,
+  PromGetDBItems,
+  DateCondition,
+  IFile,
+  UserSearch,
+  IUser,
+  Boardinfo,
+  IBoard,
+  PromLD,
+  PromLDList,
+  IPost,
+  Logininfo,
+  GetDBItems,
+  IPage,
+  Fileinfo,
+  Filminfo,
+  FilmInput,
+  ITag,
+  TaginfoAggregated,
+  Postinfo,
+  PostSearch,
+  PostStatus,
+  ISopakit,
+  Sopakitinfo,
+  IProduct,
+  ICartitem,
+  IOrder,
+  OrderInput,
+  ISiteOption,
+  IApplication,
+  AnyType,
+  Orderinfo,
 } from '@/typedef';
-//@ts-check
 
 // const crypto = require('crypto');
 import crypto from 'crypto';
-import { LeanDocument, Unpacked } from 'mongoose';
+import { LeanDocument, UpdateWriteOpResult } from 'mongoose';
 
 // require('@/typedef');
 // const {
@@ -35,17 +71,16 @@ import { LeanDocument, Unpacked } from 'mongoose';
 //   Model,
 //   SchemaTypes: { ObjectId },
 // } = require('mongoose');
-const { enumTokenPurpose } = require('../db/schema/enum');
 // const { ManagerCreater } = require("./manager-loader");
 
 // /** @typedef {Object.<string, Model<import('mongoose').Document<any, {}>, {}>>} ModelWrapper */
-// /** @typedef {DBManager} DBManager */
+// /** @typedef DBManager */
 
-// /** @type {ModelWrapper} */
+// /** @type */
 let model: ModelWrapper;
 
-/** @type {boolean} */
-let initialized: boolean;
+// /** @type */
+// let initialized: boolean;
 
 /*= ====================================
 내부 편의 함수
@@ -54,7 +89,7 @@ let initialized: boolean;
 /**
  * 비밀번호 암호화 함수. 평문을 암호화하여 저장함.
  *
- * @param {string} plain 평문
+ * @param plain 평문
  * @returns  암호화된 base64 기반 암호.
  */
 export const pwd_encrypt = async (plain: string): Promise<Encrypted> =>
@@ -70,12 +105,15 @@ export const pwd_encrypt = async (plain: string): Promise<Encrypted> =>
 
 /**
  * 비밀번호가 맞는지 체크합니다.
- * @param {string} given
- * @param {Encrypted} encrypted
- * @returns {Promise<boolean>} 맞으면 true, 틀리면 false
+ * @param given
+ * @param encrypted
+ * @returns 맞으면 true, 틀리면 false
  */
 
-export const pwd_verify = async (given, encrypted) =>
+export const pwd_verify = async (
+  given: string,
+  encrypted: Encrypted,
+): Promise<boolean> =>
   new Promise((resolve, reject) => {
     let result = '';
     crypto.scrypt(given, encrypted.salt, 64, (err, derivedKey) => {
@@ -87,11 +125,11 @@ export const pwd_verify = async (given, encrypted) =>
 
 /**
  * 유저를 구하려고 시도합니다.
- * @param {string} caller 호출하는 함수의 이름
- * @param {string} email 유저의 이메일
+ * @param caller 호출하는 함수의 이름
+ * @param email 유저의 이메일
  * @throws 유저 찾기 실패시
  */
-const _getUserByEmailOrThrow = async (caller, email) => {
+const _getUserByEmailOrThrow = async (caller: string, email: string) => {
   const user = await model.User.findOne({ email }).exec();
   if (!user) {
     throw Error(`${caller}: 이메일에 해당하는 유저를 찾을 수 없습니다.`);
@@ -102,7 +140,7 @@ const _getUserByEmailOrThrow = async (caller, email) => {
 // export type DBManager = typeof DBManagerImpl;
 
 /**
- * @typedef {DBManagerImpl} DBManager
+ * @typedef DBManager
  */
 
 /**
@@ -116,39 +154,15 @@ const _getUserByEmailOrThrow = async (caller, email) => {
  */
 export class DBManager {
   /*= ====================================
-  일반
-  ===================================== */
-
-  /**
-   * 어떤 모델에 대하여 조건을 걸어 doc 여러 개를 찾는 다용도 함수
-   * @param {string} modelName 모델 이름
-   * @param {Object} condition 조건
-   * @returns {Object[]} 검색 결과 (다수)
-   */
-  async findMany(modelName, condition) {
-    return model[modelName].find(condition).lean().exec();
-  }
-
-  /**
-   * 어떤 모델에 대하여 조건을 걸어 doc 하나를 찾는 다용도 함수
-   * @param {string} modelName 모델 이름
-   * @param {Object} condition 조건
-   * @returns {Object} 검색 결과 (하나)
-   */
-  async findOne(modelName, condition) {
-    return model[modelName].findOne(condition).lean().exec();
-  }
-
-  /*= ====================================
   유저
   ===================================== */
 
   /**
    * 이메일이 존재하는지 여부를 검사합니다.
-   * @param {string} email 이메일
-   * @returns {Promise<boolean>} 존재한다면 true, 존재하지 않는다면 false
+   * @param email 이메일
+   * @returns 존재한다면 true, 존재하지 않는다면 false
    */
-  async userExists(email) {
+  async userExists(email: string): Promise<boolean> {
     if (await model.User.findOne({ email })) return true;
     return false;
   }
@@ -156,10 +170,10 @@ export class DBManager {
   // @returns {?MongooseDocument} 유저 Mongoose Document
   /**
    * 이메일을 기준으로 유저를 얻습니다.
-   * @param {string} email 이메일
+   * @param email 이메일
    * @returns {Promise<Userinfo>}
    */
-  async getUserByEmail(email) {
+  async getUserByEmail(email: string): Promise<Userinfo> {
     // console.log(`db.getUserByEmail start: ${email}`);
     // console.dir(await model.User.find().lean());
     return model.User.findOne({ email }).lean().exec();
@@ -168,9 +182,9 @@ export class DBManager {
   // @returns {?MongooseDocument[]} 유저 Mongoose Document
   /**
    * 모든 유저를 구합니다.
-   * @param {UserSearch} condition 0 이 1페이지를 뜻함.
+   * @param condition 0 이 1페이지를 뜻함.
    */
-  async getUsers(condition) {
+  async getUsers(condition: UserSearch): PromGetDBItems<IUser> {
     const { page, perpage, email } = condition;
     let query = model.User.find();
 
@@ -188,13 +202,14 @@ export class DBManager {
       list,
     };
   }
+
   /**
    * 로그인 정보만 db에 기록합니다. 유저(User)는 일체 건드리지 않습니다.
    * 반드시 다른 기능과 조합되어야 합니다!
-   * @param {string} email 해당 이메일
-   * @param {string} pwd 암호화되기 전
+   * @param email 해당 이메일
+   * @param pwd 암호화되기 전
    */
-  async upsertOnlyLogin(email, pwd) {
+  async upsertOnlyLogin(email: string, pwd: string): Promise<void> {
     if (typeof email !== 'string' || typeof pwd !== 'string') {
       throw Error('upsertOnlyLogin: 인수가 잘못되었습니다.');
     }
@@ -207,12 +222,16 @@ export class DBManager {
 
   /**
    * 새 유저(비밀번호 기반)를 생성합니다. 카카오는 그냥 로그인만 하도록 합니다.
-   * @param {string} email 이메일
-   * @param {string} pwd 비밀번호 (아직 암호화 전)
-   * @param {Userinfo} userinfo 유저 정보
+   * @param email 이메일
+   * @param pwd 비밀번호 (아직 암호화 전)
+   * @param userinfo 유저 정보
    * @throws 이메일이 이미 존재할 때, 비밀번호 정보가 없을 때.
    */
-  async createUser(email, pwd, userinfo: Userinfo = {}) {
+  async createUser(
+    email: string,
+    pwd: string,
+    userinfo: Userinfo = {},
+  ): Promise<void> {
     // email이 겹친다면 에러
     if (await model.User.findOne({ email }).exec()) {
       throw Error(`createUser: 이미 ${email}이 존재합니다.`);
@@ -228,18 +247,16 @@ export class DBManager {
     const newUser = new model.User(userinfo);
     await newUser.save();
     await this.upsertOnlyLogin(email, pwd);
-
-    return;
   }
 
   /**
    * 카카오 유저를 새롭게 갱신하는 함수. 이미 이메일이 존재한다면 업데이트만 하고,
    * 아예 계정이 없다면 새롭게 유저를 만듭니다.
    * 무조건 role은 guest 입니다.
-   * @param {string} email
-   * @param {Userinfo} userinfo
+   * @param email
+   * @param userinfo
    */
-  async upsertKakaoUser(email, userinfo) {
+  async upsertKakaoUser(email: string, userinfo: Userinfo): Promise<void> {
     if (
       typeof email !== 'string' ||
       typeof userinfo !== 'object' ||
@@ -278,7 +295,6 @@ export class DBManager {
       verified: true,
       has_pwd: false,
     });
-    return;
   }
 
   // async agreementForKakaoUser(email, user_agreed) {
@@ -287,11 +303,11 @@ export class DBManager {
 
   /**
    * 이메일 기준 유저의 정보를 업데이트합니다.
-   * @param {string} email 이메일
-   * @param {Userinfo} userinfo 유저 정보
+   * @param email 이메일
+   * @param userinfo 유저 정보
    * @throws 이메일이 존재하지 않을 때.
    */
-  async updateUser(email, userinfo) {
+  async updateUser(email: string, userinfo: Userinfo): PromLD<IUser> {
     const user = await model.User.findOne({ email }).exec();
     if (!user) throw Error(`updateUser: ${email}이 존재하지 않습니다`);
     return user.updateOne(userinfo).exec();
@@ -300,10 +316,10 @@ export class DBManager {
   // @returns {?DocumentQuery} 삭제된 유저
   /**
    * 이메일 기준으로 유저를 삭제합니다.
-   * @param {string} email 이메일
+   * @param email 이메일
    * @throws 이메일을 찾을 수 없을 때
    */
-  async removeUserByEmail(email) {
+  async removeUserByEmail(email: string): Promise<void> {
     // console.dir(model.User);
     const user = await model.User.findOne({ email }).exec();
     if (!user) throw Error(`removeUserByEmail: ${email} 을 찾을 수 없습니다.`);
@@ -318,14 +334,12 @@ export class DBManager {
 
   /**
    * 이메일 기준으로 비밀번호를 찾습니다.
-   * @param {string} email 이메일
-   * @returns {Promise<Encrypted>|null} 비밀번호
+   * @param email 이메일
+   * @returns 비밀번호
    * @throws 계정 정보를 찾을 수 없을 때
    */
-  async getPassword(email) {
-    /** @type {Logininfo} */
-    // @ts-ignore
-    const login = await model.Login.findOne({ email });
+  async getPassword(email: string): Promise<Encrypted> | null {
+    const login: Logininfo = await model.Login.findOne({ email });
     if (!login) {
       throw Error(`getPassword: ${email} 의 계정 정보를 찾을 수 없습니다.`);
     }
@@ -336,14 +350,12 @@ export class DBManager {
 
   /**
    * 이메일과 비밀번호가 맞는지 체크합니다
-   * @param {string} email 이메일
-   * @param {string} pwd 비밀번호
-   * @returns {Promise<boolean>} 맞으면 true, 틀리면 false
+   * @param email 이메일
+   * @param pwd 비밀번호
+   * @returns 맞으면 true, 틀리면 false
    */
-  async isCorrectPassword(email, pwd) {
-    /** @type {Logininfo} */
-    // @ts-ignore
-    const login = await model.Login.findOne({ email });
+  async isCorrectPassword(email: string, pwd: string): Promise<boolean> {
+    const login: Logininfo = await model.Login.findOne({ email });
 
     if (!login) return false;
     const { pwd: originPwd, salt } = login;
@@ -359,7 +371,7 @@ export class DBManager {
    * 새로운 토큰을 만듭니다. 이전에 있던 토큰은 모두 삭제합니다.
    */
 
-  async createToken(input: CreateTokenOptions): Promise<LeanDocument<IToken>> {
+  async createToken(input: CreateTokenOptions): PromLD<IToken> {
     if (!input.ttl) input.ttl = 60 * 30;
     if (!input.unique) input.unique = true;
 
@@ -407,11 +419,13 @@ export class DBManager {
     return { isValidTTL, token: result };
   }
 
-  async removeToken(token: string) {
+  /** 일치하는 토큰 하나를 삭제합니다. */
+  async removeToken(token: string): Promise<void> {
     await model.Token.deleteOne({ token });
   }
 
-  async clearToken(condition: Tokeninfo) {
+  /** 조건에 맞는 토큰을 모두 삭제합니다. */
+  async clearToken(condition: Tokeninfo): Promise<void> {
     await model.Token.deleteMany(condition);
   }
 
@@ -420,10 +434,10 @@ export class DBManager {
   ===================================== */
   /**
    * 새로운 페이지를 생성합니다.
-   * @param {Pageinfo} pageinfo
+   * @param pageinfo
    * @throws 같은 permalink의 페이지가 있을 때.
    */
-  async createPage(pageinfo) {
+  async createPage(pageinfo: Pageinfo): Promise<void> {
     const { permalink, belongs_to } = pageinfo;
     console.log(`db.createPage-${permalink}, ${belongs_to}`);
     if (await model.Page.findOne({ permalink, belongs_to })) {
@@ -435,30 +449,34 @@ export class DBManager {
 
   /**
    * Permalink와 belongs_to를 기준으로 페이지를 가져옵니다.
-   * @param {string} permalink
-   * @param {string} belongs_to
+   * @param permalink
+   * @param belongs_to
    * @returns {Promise<Pageinfo>}
    */
-  async getPageView(permalink, belongs_to) {
+  async getPageView(permalink: string, belongs_to: string): Promise<Pageinfo> {
     return model.Page.findOne({ permalink, belongs_to }).lean().exec();
   }
 
   /**
    * number를 기준으로 페이지를 가져옵니다.
-   * @param {number} id
+   * @param id
    * @returns {Promise<Pageinfo>}
    */
-  async getPage(id) {
+  async getPage(id: number): Promise<Pageinfo> {
     return model.Page.findOne({ id }).lean().exec();
   }
 
   /**
    * 페이지 리스트를 얻습니다.
-   * @param {string} belongs_to
-   * @param {number} page 페이지. 0이 1페이지임.
-   * @param {number} perpage 한 페이지당 파일의 개수
+   * @param belongs_to
+   * @param page 페이지. 0이 1페이지임.
+   * @param perpage 한 페이지당 파일의 개수
    */
-  async getPages(belongs_to, page, perpage) {
+  async getPages(
+    belongs_to: string,
+    page: number,
+    perpage: number,
+  ): PromLDList<IPage> {
     return model.Page.find({ belongs_to })
       .limit(perpage)
       .skip(perpage * page)
@@ -468,11 +486,11 @@ export class DBManager {
 
   /**
    * 페이지를 갱신합니다.
-   * @param {number} id
-   * @param {Pageinfo} pageinfo
+   * @param id
+   * @param pageinfo
    * @throws 페이지를 찾을 수 없을 때
    */
-  async updatePage(id, pageinfo) {
+  async updatePage(id: number, pageinfo: Pageinfo): Promise<void> {
     const page = await model.Page.findOne({ id }).exec();
     if (!page) {
       throw Error(`updatePage: ${id}에 해당하는 페이지가 존재하지 않습니다`);
@@ -482,10 +500,10 @@ export class DBManager {
 
   /**
    * 페이지를 삭제합니다.
-   * @param {number} id
+   * @param id
    * @throws 페이지를 찾을 수 없을 때
    */
-  async removePage(id) {
+  async removePage(id: number): Promise<void> {
     const deletionResult = await model.Page.deleteOne({ id }).exec();
     // console.log();
     if (deletionResult.n === 0) {
@@ -499,11 +517,11 @@ export class DBManager {
 
   /**
    *
-   * @param {Fileinfo} fileinfo
-   * @param {string} owner 파일을 소유한 사람의 이메일
+   * @param fileinfo
+   * @param owner 파일을 소유한 사람의 이메일
    * @throws 유저를 찾을수 없을 때
    */
-  async createFile(fileinfo, owner) {
+  async createFile(fileinfo: Fileinfo, owner: string): Promise<void> {
     const user = await _getUserByEmailOrThrow('createFile', owner);
     const file = fileinfo;
     file.owner = user.email;
@@ -515,7 +533,7 @@ export class DBManager {
 
   /**
    * 파일관리자 창에서 관리할 수 있는 파일들을 가져옵니다.
-   * @param {FileCondition} condition 페이지
+   * @param condition 페이지
    */
   // async getFiles(condition) {
   //   const {page = 0, perpage = 20} = condition;
@@ -531,27 +549,26 @@ export class DBManager {
 
   /**
    * 파일을 구합니다.
-   * @param {string} filename 파일이름
-   * @returns {Promise<Fileinfo>}
+   * @param filename 파일이름
    */
-  async getFile(filename) {
+  async getFile(filename: string): Promise<LeanDocument<IFile>> {
     return model.File.findOne({ filename }).lean().exec();
   }
 
   /**
    * 파일을 id 기준으로 구합니다.
-   * @param {string} id
+   * @param id
    */
-  async getFileById(id) {
+  async getFileById(id: string): Promise<LeanDocument<IFile>> {
     return model.File.findOne({ _id: id }).lean().exec();
   }
 
   /**
    * 사이트 옵션의 이름으로 파일을 구합니다.
-   * @param {string} name
-   * @returns {Promise<Fileinfo>}
+   * @param name 파일이름
+   * @returns
    */
-  async getFilebyOptionName(name) {
+  async getFilebyOptionName(name: string): Promise<LeanDocument<IFile>> {
     const option = await model.SiteOption.findOne({ name }).lean().exec();
     if (!option || typeof option.value !== 'string') return null;
     return model.File.findOne({ filename: option.value }).lean().exec();
@@ -559,9 +576,9 @@ export class DBManager {
 
   /**
    * 조건에 따른 파일을 구합니다.
-   * @param {FileCondition} condition 페이지
+   * @param condition 페이지
    */
-  async getFiles(condition: FileCondition = {}) {
+  async getFiles(condition: FileCondition = {}): PromGetDBItems<IFile> {
     const { page = 0, perpage = 20, managed = true } = condition;
     const query = model.File.find({ managed }).sort({
       c_date: -1,
@@ -581,20 +598,21 @@ export class DBManager {
 
   /**
    * 파일의 정보를 갱신합니다.
-   * @param {string} filename
-   * @param {Fileinfo} fileinfo
+   * @param filename
+   * @param fileinfo
    * @returns {Promise<Fileinfo>}
    */
-  async updateFile(filename, fileinfo) {
-    return model.File.updateOne({ filename }, fileinfo).lean().exec();
+  async updateFile(filename: string, fileinfo: Fileinfo): PromLD<IFile> {
+    await model.File.updateOne({ filename }, fileinfo).lean().exec();
+    return model.File.findOne({ filename }).lean().exec();
   }
 
   /**
    * 파일을 찾아 삭제합니다.
-   * @param {string} filename
+   * @param filename
    */
-  async removeFile(filename) {
-    return model.File.deleteOne({ filename }).lean().exec();
+  async removeFile(filename: string): Promise<void> {
+    await model.File.deleteOne({ filename }).lean().exec();
   }
 
   /*= ====================================
@@ -603,46 +621,37 @@ export class DBManager {
 
   /**
    * 영화의 정보를 가져옵니다.
-   * @param {number} id
+   * @param id
    */
-  async getFilm(id) {
+  async getFilm(id: number): PromLD<IFilm> {
     return model.Film.findOne({ id }).lean().exec();
   }
 
   /**
-   * 영화 검색시 날짜 조건에 대한 타입
-   * @typedef {object} DateCondition
-   * @property {Date} prod_gte 제작일이 ~ 이후인 영화 필터링
-   * @property {Date} prod_lte 제작일이 ~ 이전인 영화 필터링
-   * @property {Date} open_gte 개봉일이 ~ 이후인 영화 필터링
-   * @property {Date} open_lte 개봉일이 ~ 이전인 영화 필터링
-   */
-
-  /**
    * 영화를 조건에 맞게 검색합니다.
-   * @param {number} page 해당하는 페이지 (1페이지가 0임)
-   * @param {number} perpage 한 페이지당 항목 개수
-   * @param {DateCondition} param2 날짜 조건
-   * @param {[string]} tags 해당하는 태그들
-   * @param {string} search 검색할 문자열. 한글이 분리된 상태, 띄어쓰기가 없는 상태여야 함.
-   * @returns {Promise<MongooseDocument[]>}
+   * @param page 해당하는 페이지 (1페이지가 0임)
+   * @param perpage 한 페이지당 항목 개수
+   * @param param2 날짜 조건
+   * @param tags 해당하는 태그들
+   * @param search 검색할 문자열. 한글이 분리된 상태, 띄어쓰기가 없는 상태여야 함.
    */
 
   async getFilms(
-    page,
-    perpage,
-    { prod_gte = null, prod_lte = null, open_gte = null, open_lte = null } = {},
-    tags,
-    search = null,
+    page: number,
+    perpage: number,
+    {
+      prod_gte = null,
+      prod_lte = null,
+      open_gte = null,
+      open_lte = null,
+    }: DateCondition = {},
+    tags: string[] = null,
+    search: string = null,
     is_opened = null,
     status = null,
-  ) {
+  ): PromGetDBItems<IFilm> {
     let query = model.Film.find().sort({ open_date: -1 });
 
-    interface DateCond {
-      $lte?: Date;
-      $gte?: Date;
-    }
     if (prod_lte || prod_gte) {
       // console.log('getFilms: prod!!');
       const prod_date: DateCond = {};
@@ -656,13 +665,57 @@ export class DBManager {
       if (open_lte) open_date.$lte = open_lte;
       if (open_gte) open_date.$gte = open_gte;
       query = query.find({ open_date });
+
+      if (prod_lte || prod_gte) {
+        // console.log('getFilms: prod!!');
+        const prod_date: DateCond = {};
+        if (prod_lte) prod_date.$lte = prod_lte;
+        if (prod_gte) prod_date.$gte = prod_gte;
+        query = query.find({ prod_date });
+      }
+      if (open_lte || open_gte) {
+        console.log('getFilms: open!!');
+        const open_date: DateCond = {};
+        if (open_lte) open_date.$lte = open_lte;
+        if (open_gte) open_date.$gte = open_gte;
+        query = query.find({ open_date });
+      }
+      if (search !== null && search.length > 0) {
+        console.log(`getFilms: search: ${search}`);
+        // query = query.find({ $text: { $search: search } }); // 단어 단위로 검색을 할 때 필요함. 검색 엔진 같은 느낌임.
+        query = query.find({ search: new RegExp(`${search}`) });
+      }
+      if (tags && tags.length > 0) {
+        console.log('getFilms: tags!!');
+        query = query.find({ 'tags.name': { $all: tags } });
+      }
+
+      if (is_opened !== null) {
+        query = query.find({ is_opened });
+      }
+
+      if (status) {
+        query = query.find({ status });
+      }
+
+      // 페이지 하기 전의 영화 총 개수 구하기
+      const total = (await query.exec()).length;
+
+      // 페이지 설정 및 open_date 로 정렬
+      if (page !== null && perpage) {
+        console.log('getFilms: page, perpage!!');
+        query = query
+          .limit(perpage)
+          .skip(perpage * page)
+          .sort({ open_date: -1 });
+      }
+
+      return {
+        total,
+        list: await query.lean().exec(),
+      };
     }
-    if (search !== null && search.length > 0) {
-      console.log(`getFilms: search: ${search}`);
-      // query = query.find({ $text: { $search: search } }); // 단어 단위로 검색을 할 때 필요함. 검색 엔진 같은 느낌임.
-      query = query.find({ search: new RegExp(`${search}`) });
-    }
-    if (tags && tags.length !== 0) {
+    if (tags && tags.length > 0) {
       console.log('getFilms: tags!!');
       query = query.find({ 'tags.name': { $all: tags } });
     }
@@ -696,7 +749,7 @@ export class DBManager {
   /**
    * 공개 상태의 Featured 인 모든 영화를 구합니다.
    */
-  async getFeaturedFilms() {
+  async getFeaturedFilms(): PromGetDBItems<IFilm> {
     const featureds = await model.Film.find({
       status: 'public',
       is_featured: true,
@@ -709,17 +762,15 @@ export class DBManager {
 
   /**
    * 새 영화를 만듭니다.
-   * @param {Filminfo} filminfo
-   * @returns {Promise<Filminfo>}
+   * @param filminfo
    */
-  async createFilm(filminfo) {
+  async createFilm(filminfo: FilmInput): PromLD<IFilm> {
     // 만약 태그가 있다면, model 에 맞게 태그를 변형시켜줌.
-    const args = { ...filminfo };
-    if (args.tags) {
-      args.tags = args.tags.map((name) => ({
-        name,
-      }));
-    }
+    const args: Filminfo = {
+      ...filminfo,
+      tags: filminfo.tags ? filminfo.tags.map((name) => ({ name })) : [],
+    };
+
     // film 생성
     const film = await model.Film.create(args);
 
@@ -737,18 +788,24 @@ export class DBManager {
   /**
    * 영화의 정보를 갱신합니다.
    * 태그는 이름의 배열로 받습니다. 예: ['태그1', '태그2', '태그3]
-   * @param {number} id
-   * @param {Filminfo} filminfo
-   * @returns {Promise<Filminfo>}
+   * @param id
+   * @param filminfo
+   * @returns
    */
-  async updateFilm(id, filminfo) {
+
+  async updateFilm(
+    // need check 확인필요.
+    id: number,
+    filminfo: FilmInput,
+  ): Promise<UpdateWriteOpResult> {
     // 만약 태그가 있다면, model 에 맞게 태그를 변형시켜줌.
-    const args = { ...filminfo };
-    if (args.tags) {
-      args.tags = args.tags.map((name) => ({
-        name,
-      }));
-    }
+    const args: Filminfo = {
+      ...filminfo,
+      tags: filminfo.tags ? filminfo.tags.map((name) => ({ name })) : null,
+    };
+
+    // 태그 항목이 없다면 아예 키를 삭제해야 함.
+    if (!args.tags) delete args.tags;
 
     // 우선 영화를 찾고, 없을시 null 리턴합니다.
     const film = await model.Film.findOne({ id }).lean().exec();
@@ -773,37 +830,26 @@ export class DBManager {
     // console.log(tagsToAdd);
 
     // 각각 태그에 대해 영화 정보를 추가/삭제 합니다.
-    const promises = tagsToAdd
-      .map((tag) =>
-        this.addFilmToTag(tag.name, { id: film.id, title: film.title }),
-      )
-      .concat(
-        tagsToRemove.map((tag) => this.removeFilmFromTag(tag.name, film.id)),
-      );
-    const promiseResult = await Promise.allSettled(promises);
+    const addPromises = tagsToAdd.map((tag) =>
+      this.addFilmToTag(tag.name, { id: film.id, title: film.title }),
+    );
+    const removePromises = tagsToRemove.map((tag) =>
+      this.removeFilmFromTag(tag.name, film.id),
+    );
+    await Promise.allSettled([...addPromises, ...removePromises]);
 
     // console.log('# db updateFilm ta promiseResult');
     // console.dir(promiseResult, { depth: 4 });
     // 영화에 대해 태그를 설정합니다.
-    return model.Film.updateOne(
-      { id },
-      args,
-      // {
-      //   ...args,
-      //   $pull: { tags: { $in: tagsToRemove } },
-      //   $push: { tags: { $each: tagsToAdd } },
-      // },
-    )
-      .lean()
-      .exec();
+    return model.Film.updateOne({ id }, args).lean().exec();
   }
 
   /**
    * 영화을 찾아 삭제합니다.
-   * @param {number} id
+   * @param id
    * @return {Promise<Filminfo>}
    */
-  async removeFilm(id) {
+  async removeFilm(id: number): Promise<Filminfo> {
     const doc = await model.Film.findOne({ id }).lean().exec();
     await Promise.allSettled([
       model.Film.deleteOne({ id }).exec(),
@@ -816,11 +862,11 @@ export class DBManager {
   태그
   ===================================== */
 
-  async getTags(condition: TagSearch = {}) {
+  async getTags(condition: TagSearch = {}): PromGetDBItems<ITag> {
     const { limit = 20 } = condition;
 
     const total = (await model.Tag.find().lean().exec()).length;
-    const tags = await model.Tag.aggregate([
+    const tags: TaginfoAggregated[] = await model.Tag.aggregate([
       {
         $addFields: {
           size: { $size: { $ifNull: ['$related_films', []] } },
@@ -836,6 +882,7 @@ export class DBManager {
     // console.log(tags);
 
     // 영화 정보를 태그에 넣기.
+    console.log(tags);
 
     const films = new Set(
       tags.map((tag) => tag.related_films.map((film) => film.id)).flat(20),
@@ -843,18 +890,25 @@ export class DBManager {
     // console.log('# db getTags films');
     // console.log(films);
     // console.log([...films.values()])
-
-    const filmPromises = [...films.values()].map((id) => this.getFilm(id));
+    const filmPromises = [...films.values()].map((id) =>
+      (async () => ({
+        filmId: id,
+        doc: await this.getFilm(id),
+      }))(),
+    );
     const filmResults = await Promise.allSettled(filmPromises);
-    // console.log(filmResults);
+    console.log('# db getTags');
+    console.log(filmResults);
     const filmDocs = new Map(
       filmResults
         .filter(
           (result): result is Fulfilled<typeof result> =>
             result.status === 'fulfilled',
         )
-        .map((result) => [result.value.id, result.value]),
+        .map((result) => [result.value.filmId, result.value.doc]),
     );
+
+    console.log(filmDocs);
 
     tags.forEach((tag) => {
       tag.related_films = tag.related_films.map((film) =>
@@ -868,13 +922,12 @@ export class DBManager {
   }
 
   /**
-   * 해당 태그에 영화를 추가합니다. 만약 태그가 없을시
-   * 새로 생성합니다.
-   * @param {string} name 태그의 이름
-   * @param {TagFilminfo} filminfo 영화의 id 값
-   * @return {Promise<Taginfo>}
+   * 해당 태그에 영화 정보를 추가합니다. 만약 태그가 없을시
+   * 새로 생성합니다. Film 모델은 건드리지 않습니다.
+   * @param name 태그의 이름
+   * @param filminfo 영화 정보
    */
-  async addFilmToTag(name, filminfo) {
+  async addFilmToTag(name: string, filminfo: TagFilminfo): PromLD<ITag> {
     // 일단 tag name 을 검색하고, 없으면 새로운 태그를 만들어 리턴합니다.
     let tag = await model.Tag.findOne({ name }).lean().exec();
     if (!tag) {
@@ -894,14 +947,16 @@ export class DBManager {
     // 있으면 그냥 그대로 리턴합니다.
     return tag;
   }
+
   /**
    * 태그에서 해당 영화 정보를 삭제합니다.
    * 태그에서 모든 영화가 삭제되었다고 해서 태그는 사라지지 않습니다.
-   * @param {string} name 태그의 이름
-   * @param {number} filmId 영화 id
+   * 영화에서의 정보는 건드리지 않습니다.
+   * @param name 태그의 이름
+   * @param filmId 영화 id
    */
-  async removeFilmFromTag(name, filmId) {
-    return model.Tag.updateOne(
+  async removeFilmFromTag(name: string, filmId: number): Promise<void> {
+    await model.Tag.updateOne(
       { name },
       { $pull: { related_films: { id: filmId } } },
     );
@@ -925,9 +980,9 @@ export class DBManager {
 
   /**
    * 새로운 게시판을 만듭니다.
-   * @param {Boardinfo} input
+   * @param input
    */
-  async createBoard(input) {
+  async createBoard(input: Boardinfo): PromLD<IBoard> {
     const board = await model.Board.create(input);
     if (board) return board.toObject();
     return null;
@@ -935,51 +990,54 @@ export class DBManager {
 
   /**
    * id에 따라서 게시판을 얻습니다. (id는 mongodb id 입니다.)
-   * @param {number} id
+   * @param id
    */
-  async getBoardById(id) {
+  async getBoardById(id: number): PromLD<IBoard> {
     return model.Board.findOne({ _id: id }).lean().exec();
   }
 
   /**
    * 어디에 위치해있는지에 따라 게시판을 얻습니다.
-   * @param {string} belongs_to
-   * @param {string} permalink
+   * @param belongs_to
+   * @param permalink
    */
-  async getBoardByPermalink(belongs_to, permalink) {
+  async getBoardByPermalink(
+    belongs_to: string,
+    permalink: string,
+  ): PromLD<IBoard> {
     return model.Board.findOne({ belongs_to, permalink }).lean().exec();
   }
 
   /**
    * 모든 게시판을 얻습니다.
    */
-  async getBoards() {
+  async getBoards(): PromLDList<IBoard> {
     return model.Board.find().lean().exec();
   }
 
   /**
    * 소속된 모든 게시판을 얻습니다.
-   * @param {string} belongs_to
+   * @param belongs_to
    */
-  async getBoardsAssigned(belongs_to) {
+  async getBoardsAssigned(belongs_to: string): PromLDList<IBoard> {
     return model.Board.find({ belongs_to }).lean().exec();
   }
 
   /**
    * 게시판을 갱신합니다.
-   * @param {number} id
-   * @param {Boardinfo} input
+   * @param id
+   * @param input
    */
-  async updateBoard(id, input) {
+  async updateBoard(id: number, input: Boardinfo): PromLD<IBoard> {
     await model.Board.updateOne({ id }, input).exec();
     return model.Board.findOne({ id }).lean().exec();
   }
 
   /**
    * 게시판을 삭제합니다.
-   * @param {number} id
+   * @param id
    */
-  async removeBoard(id) {
+  async removeBoard(id: number): PromLD<IBoard> {
     const doc = await model.Board.findOne({ id }).lean().exec();
     await model.Board.deleteOne({ id }).exec();
     return doc;
@@ -991,7 +1049,7 @@ export class DBManager {
 
   // /**
   //  * api로부터 전달된 id를 다듬습니다.
-  //  * @param {Postinfo} input
+  //  * @param input
   //  */
   // async importPostInput(input) {
   //   const refined_input = input;
@@ -1015,9 +1073,9 @@ export class DBManager {
 
   /**
    * 게시물을 만듭니다.
-   * @param {Postinfo} input
+   * @param input
    */
-  async createPost(input) {
+  async createPost(input: Postinfo): PromLD<IPost> {
     // const refined_input = await this.importPostInput(input);
     // refined_input.m_date = new Date();
 
@@ -1028,22 +1086,25 @@ export class DBManager {
 
   /**
    * 게시물 하나를 얻습니다.
-   * @param {number} id
-   * @param {string} status
+   * @param id
+   * @param status
    */
-  async getPost(id, status) {
-    const cond: { id: number; status?: string } = { id };
+  async getPost(id: number, status?: PostStatus): PromLD<IPost> {
+    const cond: { id: number; status?: PostStatus } = { id };
     if (status) cond.status = status;
     return model.Post.findOne(cond).lean().exec();
   }
 
   /**
    * 조건에 따라 포스트를 필터링합니다.
-   * @param {PostSearch} condition
-   * @param {*} status public 또는 private
+   * @param condition
+   * @param  status public 또는 private
    * @throws 만약 board 조건이 있지만 해당하는 게시판을 찾을 수 없을 때
    */
-  async getPosts(condition, status) {
+  async getPosts(
+    condition: PostSearch,
+    status?: PostStatus,
+  ): PromGetDBItems<IPost> {
     const {
       page,
       perpage,
@@ -1112,22 +1173,23 @@ export class DBManager {
   }
 
   /**
-   * @typedef {Object} getPostsCountParams
-   * @property {string[]} boards 보드들 permalink. or 연산됨.
-   * @property {string} belongs_to 어디에 속해 있는지.
-   * @property {string} status `public` 또는 `private`
+   * @typedef getPostsCountParams
+   * @property boards 보드들 permalink. or 연산됨.
+   * @property belongs_to 어디에 속해 있는지.
+   * @property status `public` 또는 `private`
    */
 
   /**
    * 게시물의 개수를 알 수 있는 것
-   * @param {getPostsCountParams} param0
-   * @returns {Promise<number>} 게시물 개수
+   * @returns 게시물 개수
    */
-  async getPostsCount(param: {
-    boards?: string[];
-    belongs_to?: string;
-    status?: string;
-  }) {
+  async getPostsCount(
+    param: {
+      boards?: string[];
+      belongs_to?: string;
+      status?: string;
+    } = {},
+  ): Promise<number> {
     const { boards, belongs_to, status } = param;
     let query = model.Post.find();
 
@@ -1161,10 +1223,10 @@ export class DBManager {
 
   /**
    * 게시물을 업데이트합니다.
-   * @param {number} id
-   * @param {Postinfo} input
+   * @param id
+   * @param input
    */
-  async updatePost(id, input) {
+  async updatePost(id: number, input: Postinfo): PromLD<IPost> {
     // const refined_input = input;
     // refined_input.m_date = new Date();
     // const refined_input = await this.importPostInput(input);
@@ -1174,10 +1236,10 @@ export class DBManager {
 
   /**
    * 게시글을 찾아 삭제합니다.
-   * @param {number} id
+   * @param id
    * @returns 삭제될 doc
    */
-  async removePost(id) {
+  async removePost(id: number): PromLD<IPost> {
     const doc = await model.Post.findOne({ id }).lean().exec();
     await model.Post.deleteOne({ id }).exec();
     return doc;
@@ -1188,17 +1250,17 @@ export class DBManager {
 
   /**
    * 소파킷 키워드 정보를 얻습니다.
-   * @param {number} id 소파킷 키워드 id
+   * @param id 소파킷 키워드 id
    */
-  async getSopakit(id) {
+  async getSopakit(id: number): PromLD<ISopakit> {
     return model.Sopakit.findOne({ id }).lean().exec();
   }
 
   /**
    * 소파킷 정보들을 얻습니다.
-   * @param {SopakitSearch} condition
+   * @param condition
    */
-  async getSopakits(condition: SopakitSearch = {}) {
+  async getSopakits(condition: SopakitSearch = {}): PromGetDBItems<ISopakit> {
     const { page, perpage, status } = condition;
     let query = model.Sopakit.find().sort({ managing_date: -1 });
 
@@ -1222,27 +1284,27 @@ export class DBManager {
 
   /**
    * 소파킷 키워드를 새로 만듭니다.
-   * @param {Sopakitinfo} input
+   * @param input
    */
-  async createSopakit(input) {
+  async createSopakit(input: Sopakitinfo): PromLD<ISopakit> {
     return model.Sopakit.create(input);
   }
 
   /**
    * 해당 소파킷 키워드의 정보를 갱신합니다.
-   * @param {number} id
+   * @param id
    * @param {Sopakitinfo}} input
    */
-  async updateSopakit(id, input) {
+  async updateSopakit(id: number, input: Sopakitinfo): PromLD<ISopakit> {
     await model.Sopakit.updateOne({ id }, input).exec();
     return model.Sopakit.findOne({ id }).lean().exec();
   }
 
   /**
    * 소파킷 키워드를 삭제합니다.
-   * @param {number} id
+   * @param id
    */
-  async removeSopakit(id) {
+  async removeSopakit(id: number): PromLD<ISopakit> {
     const doc = await model.Sopakit.findOne({ id }).lean().exec();
     await model.Sopakit.deleteOne({ id }).exec();
     return doc;
@@ -1278,11 +1340,15 @@ export class DBManager {
   /**
    * 상품들을 얻습니다.
    * page 는 값이 0이 들어와야 1페이지에 해당하는 상품들을 얻습니다.
-   * @param {ProductSearch} condition
+   * @param condition
    */
-  async getProducts(condition: ProductSearch = {}) {
+  async getProducts(
+    condition: ProductSearch = {},
+  ): Promise<{ total: number; list: Productinfo[] }> {
     const { product_type, page, perpage, status, search } = condition;
     let query = model.Product.find();
+
+    // 조건 필터링
     if (product_type) {
       query = query.find({ product_type });
     }
@@ -1297,6 +1363,8 @@ export class DBManager {
     if (typeof page === 'number' && typeof perpage === 'number') {
       query = query.limit(perpage).skip(perpage * page);
     }
+
+    // 리스트 생성
     const list = await query.lean().exec();
     const resultList: Productinfo[] = list.map((item) => ({
       ...item,
@@ -1327,20 +1395,26 @@ export class DBManager {
     });
     return { total, list: resultList };
   }
+
   /**
    * 새 상품을 생성합니다.
-   * @param {Productinfo} input
+   * @param input
    */
-  async createProduct(input) {
+  async createProduct(input: Productinfo): PromLD<IProduct> {
     return model.Product.create(input);
   }
+
   /**
    * 상품의 정보를 업데이트합니다. 관련된 cartitem 도 모두 업데이트 합니다.
    * 이 때 해당 cartitem 이 존재하지 않는다면 가볍게 무시하고, 해당 cartitem 을 삭제합니다.
-   * @param {number} id
-   * @param {Productinfo} input
+   * @param id
+   * @param input
    */
-  async updateProduct(id, input) {
+
+  async updateProduct(
+    id: number,
+    input: Productinfo,
+  ): Promise<{ success?: boolean; code?: string; id?: number }> {
     const product = await model.Product.findOne({ id });
 
     // product 가 존재하지 않을 경우 success 는 false
@@ -1350,8 +1424,8 @@ export class DBManager {
 
     // related_cartitems 에 연결되어 있는 cartitems 를 업데이트 하면서
     // 존재하지 않는 related_cartitems 를 삭제함.
-    const promises = product.related_cartitems.map((cartitemId) => {
-      return (async () => {
+    const promises = product.related_cartitems.map((cartitemId) =>
+      (async () => {
         const cartitem = await model.Cartitem.findOne({
           id: cartitemId,
         }).exec();
@@ -1362,8 +1436,8 @@ export class DBManager {
         cartitem.product = { ...input };
         await cartitem.save();
         return { result: 'success', id: cartitemId };
-      })();
-    });
+      })(),
+    );
 
     const results = await Promise.allSettled(promises);
     // console.log('results!!!!!');
@@ -1391,14 +1465,15 @@ export class DBManager {
     // console.log(product._doc);
     return { success: true };
   }
+
   /**
    * 해당 제품을 삭제합니다. 관련된 cartitem 도 모두 삭제합니다.
-   * @param {number} id
+   * @param id
    */
-  async removeProduct(id) {
+  async removeProduct(id: number): Promise<void> {
     // todo cartitem 관련 삭제
 
-    return model.Product.deleteOne({ id });
+    await model.Product.deleteOne({ id });
   }
 
   /*= ====================================
@@ -1406,15 +1481,15 @@ export class DBManager {
   ===================================== */
   /**
    * Cartitem 을 id 값에 따라서 불러옵니다.
-   * @param {number} id id 값
+   * @param id id 값
    */
-  async getCartitem(id) {
+  async getCartitem(id: number): PromLD<ICartitem> {
     return model.Cartitem.findOne({ id }).lean().exec();
   }
 
   /**
-   * @typedef {Object} GetCartitemsCondition
-   * @property {string} [usage=normal] normal or instant_payment. 기본값이 'normal' 이므로 모든 usage 를 찾으려면 null 로 설정해야 함.
+   * @typedef GetCartitemsCondition
+   * @property [usage=normal] normal or instant_payment. 기본값이 'normal' 이므로 모든 usage 를 찾으려면 null 로 설정해야 함.
    */
 
   /**
@@ -1423,7 +1498,7 @@ export class DBManager {
   async getCartitems(
     email: string,
     condition: CartiteminfoSearch = { usage: 'normal' },
-  ) {
+  ): PromLDList<ICartitem> {
     const { usage } = condition;
     let query = model.Cartitem.find({ user: email });
     if (usage) {
@@ -1438,9 +1513,15 @@ export class DBManager {
   /**
    * 카트 아이템을 추가한다. 만약 이미 존재한다면 개수만 추가한다.
    * input 에 user, options, product_id, modified 인수가 들어와야 한다.
-   * @param {CartIteminfo} input
+   * @param input
    */
-  async addCartitem(input: Cartiteminfo = {}) {
+  async addCartitem(
+    input: Cartiteminfo = {},
+  ): Promise<{
+    success?: boolean;
+    code?: string;
+    doc?: LeanDocument<ICartitem>;
+  }> {
     const { user, options, product_id, modified, usage } = input;
 
     // const productId = input.product_id;
@@ -1564,13 +1645,19 @@ export class DBManager {
    * 카트아이템 id 와 해당 옵션 id를 이용하여 count를 수정합니다.
    * modified 가 current 보다 최근일 경우, 수정하지 않습니다.
    * 해당 카트아이템이 해당 이메일(유저) 것이 아니라면, 수정하지 않습니다.
-   * @param {number} id
-   * @param {string} optionId
-   * @param {number} count
-   * @param {Date} current
-   * @param {string} email
+   * @param id
+   * @param optionId
+   * @param count
+   * @param current
+   * @param email
    */
-  async updateCartitemOption(id, optionId, count, current, email) {
+  async updateCartitemOption(
+    id: number,
+    optionId: string,
+    count: number,
+    current: Date,
+    email: string,
+  ): Promise<{ success: boolean; code: string }> {
     const item = await model.Cartitem.findOne({ id, user: email });
 
     // 아이템이 존재하지 않는다면 에러.
@@ -1588,26 +1675,27 @@ export class DBManager {
 
     found.count = count;
     item.modified = current;
-    const saved = await item.save();
+    await item.save();
 
     // console.log('#db updateCartitemOption');
     // console.log(saved);
     return { success: true, code: '' };
   }
+
   /**
    * cartitem 을 삭제합니다. product 에 있는 id는 삭제하지 않습니다.
-   * @param {number} id
+   * @param id
    */
-  async removeCartitem(id) {
+  async removeCartitem(id: number): Promise<{ success: boolean }> {
     await model.Cartitem.deleteOne({ id }).lean().exec();
     return { success: true };
   }
 
   /**
    * 오래된 instant_payment cartitem 을 삭제합니다. 기본 기준 값은 14일입니다.
-   * @param {number} dateBefore
+   * @param dateBefore
    */
-  async removeOldInstantPaymentCartitem(dateBefore = 14) {
+  async removeOldInstantPaymentCartitem(dateBefore = 14): Promise<void> {
     const now = new Date();
     const lte = new Date(
       now.getFullYear(),
@@ -1629,7 +1717,9 @@ export class DBManager {
   /**
    * 주문 여러개를 얻습니다.
    */
-  async getOrders(condition: OrderSearch = {}) {
+  async getOrders(
+    condition: OrderSearch = {},
+  ): Promise<GetDBItems<IOrder> & { transporting: number }> {
     const {
       date_gte = new Date(0),
       date_lte = new Date(),
@@ -1701,40 +1791,42 @@ export class DBManager {
       transporting,
     };
   }
+
   /**
    * 주문 하나에 대한 상세 정보를 얻습니다.
    * @returns {Promise<Orderinfo>}
    */
-  async getOrder(id) {
+  async getOrder(id): PromLD<IOrder> {
     return model.Order.findOne({ id }).lean().exec();
   }
 
   /**
    * 주문을 새롭게 만듭니다.
-   * @param {OrderInput} input
+   * @param input
    */
-  async createOrder(input) {
+  async createOrder(input: Orderinfo): PromLD<IOrder> {
     const order = await model.Order.create(input);
     if (order) return order.toObject();
     return null;
   }
+
   /**
    * 주문 정보를 갱신합니다.
-   * @param {number} id
-   * @param {OrderInput} input
+   * @param id
+   * @param input
    */
-  async updateOrder(id, input) {
+  async updateOrder(id: number, input: OrderInput): Promise<void> {
     // console.log('#db updateOrder input');
     // console.log(input);
-    return model.Order.updateOne({ id }, input).lean().exec();
+    await model.Order.updateOne({ id }, input).lean().exec();
   }
 
   /**
    * 주문을 삭제합니다.
-   * @param {number} id
+   * @param id
    */
-  async removeOrder(id) {
-    return model.Order.deleteOne({ id });
+  async removeOrder(id: number): Promise<void> {
+    await model.Order.deleteOne({ id });
   }
 
   /**
@@ -1743,10 +1835,10 @@ export class DBManager {
    * 결제 대기중인 주문을 이야기합니다.
    * 이 주문들은 결제 모듈에서 결제에 실패했기 때문에 계속 남아있습니다.
    * 호출 시점은 특정 주문이 마치고 난 이후입니다.
-   * @param {string} email
+   * @param email
    */
-  async removeDangledOrder(email) {
-    return model.Order.deleteMany({
+  async removeDangledOrder(email: string): Promise<void> {
+    await model.Order.deleteMany({
       user: email,
       method: { $ne: 'nobank' },
       status: 'payment_confirming',
@@ -1782,11 +1874,15 @@ export class DBManager {
   ===================================== */
   /**
    * 사이트 옵션을 설정합니다. 이미 있는 설정일 경우 덮어씌웁니다.
-   * @param {string} name
+   * @param name
    * @param {*} value
-   * @param {string} type
+   * @param type
    */
-  async setSiteOption(name, value, type) {
+  async setSiteOption(
+    name: string,
+    value: AnyType,
+    type: SiteOptionType,
+  ): Promise<{ name?: string; success?: boolean; code?: string }> {
     const found = await model.SiteOption.findOne({ name }).exec();
     if (found) {
       found.type = type;
@@ -1802,18 +1898,20 @@ export class DBManager {
     });
     return { name, success: true, code: 'created' };
   }
+
   /**
    * 사이트 옵션 값을 얻습니다. (파일일 경우는 받지 않습니다.)
-   * @param {string} name
+   * @param name
    */
-  async getSiteOption(name) {
+  async getSiteOption(name: string): PromLD<ISiteOption> {
     return model.SiteOption.findOne({ name }).lean().exec();
   }
+
   /**
    * 사이트 옵션을 삭제합니다.
-   * @param {string} name
+   * @param name
    */
-  async removeSiteOption(name) {
+  async removeSiteOption(name: string): Promise<{ success: boolean }> {
     const result = await model.SiteOption.deleteOne({ name });
     // console.log('# removesiteOption');
     // console.log(result);
@@ -1823,9 +1921,9 @@ export class DBManager {
 
   /**
    * 사이트 옵션에 저장되어 있는 download url 및 파일 정보를 가져옵니다.
-   * @param {string} name
+   * @param name
    */
-  async getSiteOptionFileInfo(name) {
+  async getSiteOptionFileInfo(name: string) {
     // todo
     return null;
   }
@@ -1834,14 +1932,95 @@ export class DBManager {
   공동체 상영 신청 Application
   ===================================== */
 
-  async getApplication(id: number) {}
-  async getApplications(input: ApplicationSearch) {}
-  async createApplication(input: ApplicationInput) {}
+  /** 상영 신청 하나를 id로 찾습니다. */
+  async getApplication(id: number): PromLD<IApplication> {
+    return model.Application.findOne({ id });
+  }
 
-  async removeApplication(id: number) {}
-  async updateApplication(id: number, input: ApplicationInput) {}
-  async removeAndNewTaxReqToken(id: number) {}
-  async removeTaxReqLink(id: number) {}
+  /** 조건에 따른 상영 신청들을 찾습니다. */
+  async getApplications(
+    input: ApplicationSearch,
+  ): PromGetDBItems<IApplication> {
+    const {
+      perpage,
+      date_gte,
+      date_lte,
+      doc_status,
+      money_status,
+      receipt_status,
+      search,
+      transport_status,
+    } = input;
+    let { page } = input;
+    if (!page) page = 0;
+
+    const query = model.Application.find();
+
+    if (date_lte || date_gte) {
+      // console.log('getFilms: prod!!');
+      const start_date: DateCond = {};
+      if (date_lte) start_date.$lte = date_lte;
+      if (date_gte) start_date.$gte = date_gte;
+      query.find({ start_date });
+    }
+
+    if (search && search.length > 0) {
+      console.log(`getApplications: search: ${search}`);
+      // query.find({ $text: { $search: search } }); // 단어 단위로 검색을 할 때 필요함. 검색 엔진 같은 느낌임.
+      query.find({ search: new RegExp(`${search}`) });
+    }
+
+    // 각종 상태 필터링
+    if (doc_status && doc_status.length !== 0) {
+      query.find({ doc_status: { $in: doc_status } });
+    }
+    if (money_status && money_status.length !== 0) {
+      query.find({ money_status: { $in: money_status } });
+    }
+    if (receipt_status && receipt_status.length !== 0) {
+      query.find({ receipt_status: { $in: receipt_status } });
+    }
+    if (transport_status && transport_status.length !== 0) {
+      query.find({ transport_status: { $in: transport_status } });
+    }
+
+    // 페이지 하기 전의 총 개수 구하기
+    const total = (await query.exec()).length;
+
+    // 페이지 설정 및 start_date 로 정렬
+    if (page !== null && perpage) {
+      console.log('getApplications: page, perpage!!');
+      query
+        .limit(perpage)
+        .skip(perpage * page)
+        .sort({ start_date: -1 });
+    }
+
+    return {
+      total,
+      list: await query.lean().exec(),
+    };
+  }
+
+  /** 상영 신청을 생성합니다. */
+  async createApplication(input: ApplicationInput): PromLD<IApplication> {
+    return model.Application.create(input);
+  }
+
+  /** 상영 신청을 삭제합니다. */
+  async removeApplication(id: number): Promise<{ success: boolean }> {
+    await model.Application.deleteOne({ id });
+    return { success: true };
+  }
+
+  /** 상영 신청을 업데이트합니다. */
+  async updateApplication(
+    id: number,
+    input: ApplicationInput,
+  ): Promise<{ success: boolean }> {
+    await model.Application.updateOne({ id }, input);
+    return { success: true };
+  }
 }
 
 /**
@@ -1849,10 +2028,10 @@ export class DBManager {
  * @param {Object.<string, Model<MongooseDocument, {}>>} model 모델들의 집합
  * @returns {DBManager}
  */
-export const make = (modelInput) => {
-  console.log(`db making: ${Object.keys(modelInput).join(', ')}`);
-  if (modelInput.make) throw Error('dbManager: model not initialized!');
-  initialized = true;
+export const make = (modelInput: ModelWrapper): DBManager => {
+  console.log(`DBManager make started: ${Object.keys(modelInput).join(', ')}`);
+  // if (modelInput.make) throw Error('dbManager: model not initialized!');
+  // initialized = true;
   model = modelInput;
   const manager = new DBManager();
   // manager.uploadFolder = 'uploads'; // removed! need check

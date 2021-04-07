@@ -10,9 +10,10 @@ const { isTypedArray } = require('lodash');
 const { it } = require('mocha');
 const { MongoMemoryServer } = require('mongodb-memory-server');
 const mongoose = require('mongoose');
-const modelMaker = require('../db/model');
+const { DBManager, ModelWrapper } = require('@/typedef');
+const modelMaker = require('@/db/model');
 
-const { make: makeDB } = require('../manager/db');
+const { make: makeDB } = require('@/manager/db');
 const tool = require('./tool');
 
 describe('실제 모델기반 DB 테스트', function () {
@@ -47,7 +48,7 @@ describe('실제 모델기반 DB 테스트', function () {
     const promises = [];
     Object.keys(collections).forEach((key) => {
       const collection = collections[key];
-      promises.push(collection.deleteMany());
+      promises.push(collection.deleteMany({}));
     });
     await Promise.allSettled(promises);
   });
@@ -58,30 +59,29 @@ describe('실제 모델기반 DB 테스트', function () {
     await mongod.stop();
   });
 
-  describe('findMany 테스트', function () {
-    it('제대로 작동해야 함', function (done) {
-      const newPost = async (title) => {
-        const p = model.Post({ title });
-        return p.save();
-      };
-      Promise.allSettled([newPost('1'), newPost('1'), newPost('2')])
-        .then((resultho) => {
-          manager
-            .findMany('Post', { title: '1' })
-            .then((result) => {
-              expect(result.length).to.equal(2);
-              done();
-            })
-            .catch((err) => {
-              done(err);
-            });
-        })
-        .catch((err) => {
-          done(err);
-        });
-    });
-  });
-
+  // describe('findMany 테스트', function () {
+  //   it('제대로 작동해야 함', function (done) {
+  //     const newPost = async (title) => {
+  //       const p = model.Post({ title });
+  //       return p.save();
+  //     };
+  //     Promise.allSettled([newPost('1'), newPost('1'), newPost('2')])
+  //       .then((resultho) => {
+  //         manager
+  //           .findMany('Post', { title: '1' })
+  //           .then((result) => {
+  //             expect(result.length).to.equal(2);
+  //             done();
+  //           })
+  //           .catch((err) => {
+  //             done(err);
+  //           });
+  //       })
+  //       .catch((err) => {
+  //         done(err);
+  //       });
+  //   });
+  // });
 
   describe('Page', function () {
     it('.createPage', function (done) {
@@ -258,7 +258,7 @@ describe('실제 모델기반 DB 테스트', function () {
           await model.Film.create({ title: `ho${i + 1}` });
         }
         const found = await manager.getFilms(2, 4);
-        expect(found.length).to.equal(4);
+        expect(found.list.length).to.equal(4);
         expect(found[0].id).to.equal(9);
         expect(found[1].id).to.equal(10);
         expect(found[2].id).to.equal(11);
@@ -365,10 +365,10 @@ describe('실제 모델기반 DB 테스트', function () {
           }),
         );
         Object.values(expectFound).forEach((value, index) => {
-          expect(value.length).to.equal(1, `expectFound - ${index}`);
+          expect(value.list.length).to.equal(1, `expectFound - ${index}`);
         });
         Object.values(expectNotFound).forEach((value, index) => {
-          expect(value.length).to.equal(0, `expectNotFound - ${index}`);
+          expect(value.list.length).to.equal(0, `expectNotFound - ${index}`);
         });
       });
 
@@ -383,7 +383,7 @@ describe('실제 모델기반 DB 테스트', function () {
         const result = await manager.getFilms(null, null, {
           prod_gte: new Date('2000-02-04'),
         });
-        expect(result.length).to.equal(4);
+        expect(result.list.length).to.equal(4);
       });
 
       it('태그 검색이 잘 되어야 함', async function () {
@@ -401,8 +401,8 @@ describe('실제 모델기반 DB 테스트', function () {
           'hi',
           'nnnooooo',
         ]);
-        expect(yes.length).to.equal(1);
-        expect(no.length).to.equal(0);
+        expect(yes.list.length).to.equal(1);
+        expect(no.list.length).to.equal(0);
       });
       describe('검색', function () {
         afterEach('인덱스 상태 출력', function () {
@@ -428,11 +428,11 @@ describe('실제 모델기반 DB 테스트', function () {
             null,
             'ㅅㅜㅍㅓㄱ',
           );
-          expect(result.length).to.equal(1);
+          expect(result.list.length).to.equal(1);
         });
         it('분해되지 않은 한글이라면 실패', async function () {
           const result = await manager.getFilms(null, null, {}, null, '마스터');
-          expect(result.length).to.equal(0);
+          expect(result.list.length).to.equal(0);
         });
         it('감독이름 검색이 성공해야 함', async function () {
           const r2 = await model.Film.find({
@@ -446,7 +446,7 @@ describe('실제 모델기반 DB 테스트', function () {
             null,
             'ㅎㅏㅇㅜㅣ',
           );
-          expect(result.length).to.equal(1);
+          expect(result.list.length).to.equal(1);
         });
         it('복합 검색이 잘 되어야 함', async function () {
           const made = await model.Film.create({
@@ -466,7 +466,7 @@ describe('실제 모델기반 DB 테스트', function () {
             ['hi', 'ho'],
             'ㄷㅏㄹㅗ',
           );
-          expect(yes.length).to.equal(1);
+          expect(yes.list.length).to.equal(1);
         });
       });
 
@@ -511,7 +511,7 @@ describe('실제 모델기반 DB 테스트', function () {
   });
 
   describe('Post', function () {
-  
+    // blank
   });
 
   describe('Board', function () {
@@ -545,18 +545,24 @@ describe('실제 모델기반 DB 테스트', function () {
     });
     describe('getBoards', function () {
       it('제대로 작동해야 함', async function () {
+        const promise = [];
         for (let i = 0; i < 8; i++) {
-          await manager.createBoard({
-            title: '하이',
-            permalink: 'abc',
-            belongs_to: 'cinesopa',
-          });
-          await manager.createBoard({
-            title: '하이',
-            permalink: 'abc',
-            belongs_to: 'sopaseom',
-          });
+          promise.push(
+            manager.createBoard({
+              title: '하이',
+              permalink: 'abc',
+              belongs_to: 'cinesopa',
+            }),
+          );
+          promise.push(
+            manager.createBoard({
+              title: '하이',
+              permalink: 'abc',
+              belongs_to: 'sopaseom',
+            }),
+          );
         }
+        await Promise.allSettled(promise);
         const docs = await manager.getBoards();
         // console.log(docs);
         expect(docs.length).to.equal(16);
@@ -564,18 +570,24 @@ describe('실제 모델기반 DB 테스트', function () {
     });
     describe('getBoardsAssigned', function () {
       it('제대로 작동해야 함', async function () {
+        const promise = [];
         for (let i = 0; i < 8; i++) {
-          await manager.createBoard({
-            title: '하이',
-            permalink: 'abc',
-            belongs_to: 'cinesopa',
-          });
-          await manager.createBoard({
-            title: '하이',
-            permalink: 'abc',
-            belongs_to: 'sopaseom',
-          });
+          promise.push(
+            manager.createBoard({
+              title: '하이',
+              permalink: 'abc',
+              belongs_to: 'cinesopa',
+            }),
+          );
+          promise.push(
+            manager.createBoard({
+              title: '하이',
+              permalink: 'abc',
+              belongs_to: 'sopaseom',
+            }),
+          );
         }
+        await Promise.allSettled(promise);
         const docs = await manager.getBoardsAssigned('cinesopa');
         // console.log(docs);
         expect(docs.length).to.equal(8);
@@ -613,10 +625,10 @@ describe('실제 모델기반 DB 테스트', function () {
         // console.log(pdoc);
         const found = await manager.getPosts({
           board_belongs_to: 'cinesopa',
-          board_permalink: 'hi',
+          board_permalinks: ['hi'],
         });
         // console.log(found);
-        expect(found.length).to.equal(1);
+        expect(found.list.length).to.equal(1);
       });
 
       it('post가 특정 board에 속해있지 않을 때는 결과가 없어야 함', async function () {
@@ -632,10 +644,10 @@ describe('실제 모델기반 DB 테스트', function () {
         // console.log(pdoc);
         const found = await manager.getPosts({
           board_belongs_to: 'cinesopa',
-          board_permalink: 'him',
+          board_permalinks: ['him'],
         });
         // console.log(found);
-        expect(found.length).to.equal(0);
+        expect(found.list.length).to.equal(0);
       });
     });
   });

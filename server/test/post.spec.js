@@ -1,7 +1,7 @@
 const { expect } = require('chai');
 const {
   testDatabaseServer,
-  initTestServer,
+  createTestServer,
   graphqlSuper,
   doLogin,
 } = require('./tool');
@@ -20,12 +20,7 @@ const {
 
 describe('Post', function () {
   // eslint-disable-next-line mocha/no-setup-in-describe
-  const { mongod, agent } = initTestServer({
-    before,
-    beforeEach,
-    after,
-    afterEach,
-  });
+  const { mongod, agent } = createTestServer(this);
   // const mongod = testDatabaseServer({ before, beforeEach, after, afterEach });
 
   describe('db manager', function () {
@@ -96,7 +91,7 @@ describe('Post', function () {
         expect(yes.length).to.equal(1);
         expect(no.length).to.equal(0);
       });
-      it.only('board 및 permalink 가 제대로 동작해야 함.', async function () {
+      it('board 및 permalink 가 제대로 동작해야 함.', async function () {
         const board1 = await model.Board.create({
           permalink: 'board1',
           belongs_to: 'cinesopa',
@@ -262,7 +257,7 @@ describe('Post', function () {
         // console.log(onlyManaged.body);
         expect(onlyManaged.body.data.posts.list.length).to.equal(1);
       });
-      it.only('페이지네이션 되었을 때 total과 결과가 제대로 나와야 함', async function () {
+      it('페이지네이션 되었을 때 total과 결과가 제대로 나와야 함', async function () {
         const promises = [];
         Array.from({ length: 20 }, (x, i) => i).forEach((value, index) => {
           promises.push(
@@ -280,7 +275,7 @@ describe('Post', function () {
         expect(result.list.length).to.equal(3);
         expect(result.total).to.equal(21);
       });
-      it.only('카테고리가 제대로 분리되어져야함.', async function () {
+      it('카테고리가 제대로 분리되어져야함.', async function () {
         const board1 = await model.Board.create({
           title: '',
           description: '',

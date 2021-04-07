@@ -16,31 +16,27 @@ const _fileinfo = {
  * @param {Object.<string, string>} defaultArgs
  * @return {MailRendererWrapper}
  */
-const makeRendererWrapper = (renderer, defaultArgs) => {
-  return async (args = {}) => {
-    const string = renderer({
-      currentYear: new Date().getFullYear(),
-      ...defaultArgs,
-      ...args,
-    });
-    const inlined = await inlineCss(string, {
-      url: '/',
-    });
-    return inlined;
-  };
+const makeRendererWrapper = (renderer, defaultArgs) => async (args = {}) => {
+  const string = renderer({
+    currentYear: new Date().getFullYear(),
+    ...defaultArgs,
+    ...args,
+  });
+  const inlined = await inlineCss(string, {
+    url: '/',
+  });
+  return inlined;
 };
 
 /**
  * 기본 arguments 를 받습니다.
  */
-const _getDefaultArgs = async () => {
+const _getDefaultArgs = async () =>
   // 각종 기본 Args를 받아옴.
-  return {
+  ({
     name: 'hi',
     // todo: 관리자 이메일을 받아올 수 있어야 함.
-  };
-};
-
+  });
 /**
  * @callback DefaultArgsGetter
  * @return {Promise<Object.<string, string>>}
@@ -56,7 +52,7 @@ const makeTemplateMap = async (
   fileinfo = _fileinfo,
   getDefaultArgs = _getDefaultArgs,
 ) => {
-  const readFile = fs.promises.readFile;
+  const { readFile } = fs.promises;
 
   // fileinfo 의 값을 하나하나 읽어서 [name, pug renderer] 를 내뱉는
   // Promise 의 배열을 만듭니다.
@@ -91,9 +87,8 @@ const makeTemplateMap = async (
   const mapInputs = results.map((result) => {
     if (result.status === 'fulfilled') {
       return result.value;
-    } else {
-      return null;
     }
+    return null;
   });
   // console.log('# template-map.js makeTemplateMap 34');
   // console.log(results);
@@ -101,7 +96,7 @@ const makeTemplateMap = async (
 
   // const o = [1, 2, 3];
   // o[4] = '12';
-  
+
   return new Map(mapInputs);
 };
 

@@ -7,15 +7,18 @@ import fs from 'fs';
 import rateLimit from 'express-rate-limit';
 
 // require('@/typedef');
-import { aw } from '../util';
 import { DBManager, FileManager, Fileinfo } from '@/typedef';
 import { Handler, ErrorRequestHandler, IRouterHandler } from 'express';
+import { aw } from '../util';
 // const sizeOf = promisify(sizeOfCallbackBased);
 
 class FileService {
   #db: DBManager;
+
   #file: FileManager;
+
   #dest: string;
+
   #uploadField: string;
 
   uploadMiddleware: (Handler | ErrorRequestHandler)[];
@@ -29,8 +32,7 @@ class FileService {
    * @param {FileManager} file
    * @returns {Handler}
    */
-  #initCreateFileMiddleware = (db: DBManager, file: FileManager): Handler => {
-    return async (req, res, next) => {
+  #initCreateFileMiddleware = (db: DBManager, file: FileManager): Handler => async (req, res, next) => {
       console.log('# file service #initCreateFileMiddleware called!');
       let fullpath = '';
       try {
@@ -83,7 +85,6 @@ class FileService {
         console.error(error);
       }
     };
-  };
 
   /**
    *
@@ -91,9 +92,7 @@ class FileService {
    * @param {string} uploadField
    * @returns {Handler}
    */
-  #initMulterMiddleware = (dest: string, uploadField: string): Handler => {
-    return multer({ dest }).single(uploadField);
-  };
+  #initMulterMiddleware = (dest: string, uploadField: string): Handler => multer({ dest }).single(uploadField);
 
   /**
    *
@@ -104,9 +103,7 @@ class FileService {
   #initPublicMulterMiddleware = (
     dest: string,
     uploadField: string,
-  ): Handler => {
-    return multer({ dest, limits: { fileSize: 10485760 } }).single(uploadField);
-  };
+  ): Handler => multer({ dest, limits: { fileSize: 10485760 } }).single(uploadField);
 
   #initMulterErrorHandler = (): ErrorRequestHandler => {
     const handler = (err, req, res, next) => {
@@ -122,9 +119,8 @@ class FileService {
   /**
    * 업로드 토큰을 검사합니다.
    */
-  #initCheckUploadToken = (): Handler => {
-    return aw(async (req, res, next) => {
-      const token = req.params.token;
+  #initCheckUploadToken = (): Handler => aw(async (req, res, next) => {
+      const {token} = req.params;
       // 토큰 파라미터가 설정되어 있지 않으면 오류
       if (typeof token !== 'string') {
         return res.status(401).send();
@@ -139,7 +135,6 @@ class FileService {
       }
       next();
     });
-  };
 
   constructor(
     db: DBManager,
@@ -247,6 +242,7 @@ class FileService {
   async getFiles() {
     return this.#db.getFiles();
   }
+
   /**
    * 이미지를 리사이즈하고 절대 경로를 반환합니다.
    * @param {Fileinfo} fileinfo
@@ -310,6 +306,7 @@ class FileService {
     await this.#db.createFile(replacement, owner);
     await this.#db.removeFile(replacement.filename);
   }
+
   /**
    * 실제 파일은 존재하지만 db에서 추적되지 않는 파일을 얻습니다.
    * @returns {Promise<string[]>} filename 의 배열

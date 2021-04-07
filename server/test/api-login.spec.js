@@ -15,15 +15,12 @@
  * 3. local.js 에서 정의한 GraphQLLocalStrategy 객체
  * 4. local.make(...)에서 에서 만든 getUserByAuth 함수
  */
-const a = 10;
-const request = require('supertest');
 
-const session = require('express-session');
-const axios = require('axios');
+const axios = require('axios').default;
 const { expect } = require('chai');
 
-const { graphqlSuper, initTestServer } = require('./tool');
 const { db } = require('@/loader');
+const { graphqlSuper, createTestServer } = require('./tool');
 
 const headers = {
   'Content-Type': 'application/json',
@@ -34,7 +31,6 @@ const loginQuery = `
 mutation Login ($email: String!, $pwd: String!) {
   login(provider: {email:$email, pwd: $pwd}) {
     user {
-      name
       email
       role
     }
@@ -48,7 +44,6 @@ query checkAuth($redirectLink: String!, $role: Permission!) {
   checkAuth(redirectLink:$redirectLink, role: $role) {
     permissionStatus
     user {
-      name
       email
       c_date
       role
@@ -81,14 +76,7 @@ const graphqlRequest = async (url, query, variables) =>
 describe('로그인 및 로그아웃 (권한)', function () {
   this.timeout(10000);
 
-  /** @type {import("supertest").SuperAgentTest} */
-  // eslint-disable-next-line mocha/no-setup-in-describe
-  const { agent } = initTestServer({
-    before,
-    beforeEach,
-    after,
-    afterEach,
-  });
+  const { agent } = createTestServer(this);
   describe('login', function () {
     beforeEach('기본 유저 생성', async function () {
       await db.createUser('eszqsc112@naver.com', '13241324');

@@ -1,4 +1,5 @@
-import { CustomPassportContext, AuthType, AuthTypes, Resolver } from "@/typedef"; 
+import { CustomPassportContext, AuthType, AuthTypes, Resolver } from "@/typedef";
+ 
 let _default_access: AuthType;
 
 /**
@@ -11,7 +12,7 @@ const makeResolver = (func: Resolver) => ({
      * @param {AuthTypes} access
      * @returns {Resolver}
      */
-  only(access: AuthTypes) {
+  only(access: AuthTypes): Resolver {
     return async (obj, args, context: CustomPassportContext, info) => {
       // 권한 체크...
       let currentRole: AuthType;

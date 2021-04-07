@@ -5,10 +5,11 @@ const util = require('util');
 
 const { expect } = require('chai');
 const inlineCss = require('inline-css');
-const { makeTemplateMap } = require('../mail-template/template-map');
+const { makeTemplateMap } = require('@/mail-template/template-map');
 const readFile = util.promisify(fs.readFile);
 const { model, templateArgsRefiner } = require('@/loader');
-const { initTestServer, guestEmail } = require('./tool');
+const { createTestServer, guestEmail } = require('./tool');
+const path = require('path');
 
 
 // describe('email-template', function () {
@@ -29,9 +30,7 @@ const createHTMLByTemplate = async (args, filename) => {
 describe('email-template', function () {
 
   // eslint-disable-next-line mocha/no-setup-in-describe
-  const { agent } = initTestServer({
-    before, after, beforeEach, afterEach
-  });
+  const { agent } = createTestServer(this);
 
   describe('라이브러리 (pug 등)', function () {
     it('기본 동작 테스트 (test/output/email-template.test.html 파일 출력내용 참조)', async function () {
@@ -68,7 +67,7 @@ describe('email-template', function () {
 
     describe('payment-success', function () {
       it('제대로 동작해야 함', async function () {
-        const filename = 'mail-template/payment-success.pug';
+        const filename = path.resolve(__dirname, '../src/mail-template/payment-success.pug');
         const template = await readFile(filename);
         const render = pug.compile(template.toString(), {
           filename,
@@ -135,12 +134,12 @@ describe('email-template', function () {
       });
     });
     describe("change-password", function () {
-      it.only("제대로 동작해야 함", async function () {
+      it("제대로 동작해야 함", async function () {
         
         const args = {
           tokenUrl: 'https://naver.com/'
         }
-        await createHTMLByTemplate(args, 'mail-template/change-password.pug');
+        await createHTMLByTemplate(args, path.resolve(__dirname, '../src/mail-template/change-password.pug'));
       });
     });
   });
@@ -258,7 +257,7 @@ describe('email-template', function () {
         });
         const args = templateArgsRefiner.createPaymentSuccessArgs(order.toObject());
         // console.dir(args, { depth: 5 });
-        await createHTMLByTemplate(args, 'mail-template/payment-success.pug');
+        await createHTMLByTemplate(args, path.resolve(__dirname, '../src/mail-template/payment-success.pug'));
       });
     });
   });

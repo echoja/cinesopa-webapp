@@ -4,7 +4,7 @@ const random = require('random');
 const { fake } = require('sinon');
 const { model, db } = require('@/loader');
 const {
-  initTestServer,
+  createTestServer,
   graphqlSuper,
   doLogin,
   doLogout,
@@ -14,7 +14,7 @@ const {
 } = require('./tool');
 describe('tag', function () {
   // eslint-disable-next-line mocha/no-setup-in-describe
-  const { agent } = initTestServer({ before, beforeEach, after, afterEach });
+  const { agent } = createTestServer(this);
   describe('api', function () {
     describe('getTags', function () {
       it('잘 동작해야 함', async function () {

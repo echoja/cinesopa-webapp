@@ -1,7 +1,14 @@
-import { Fulfilled } from "@/typedef";
+import { Fulfilled } from '@/typedef';
 
-import Hangul from "hangul-js";
-import { ACCESS_ALL, ACCESS_ADMIN, ACCESS_AUTH, ACCESS_UNAUTH, makeResolver, db } from "@/loader";
+import Hangul from 'hangul-js';
+import {
+  ACCESS_ALL,
+  ACCESS_ADMIN,
+  ACCESS_AUTH,
+  ACCESS_UNAUTH,
+  makeResolver,
+  db,
+} from '@/loader';
 
 export default {
   Query: {
@@ -24,7 +31,7 @@ export default {
         product_type: 'sopakit',
         status: 'public',
       });
-      let kitIdSet = new Set<number>(); // need check
+      const kitIdSet = new Set<number>(); // need check
       const promises = [];
       // console.log('# sopakit-resolver sopakitsShown products');
       // console.log(products);
@@ -44,7 +51,10 @@ export default {
       const results = await Promise.allSettled(promises);
       const sopakitMap = new Map(
         results
-          .filter((result) : result is Fulfilled<typeof result> => result.status === 'fulfilled')
+          .filter(
+            (result): result is Fulfilled<typeof result> =>
+              result.status === 'fulfilled',
+          )
           .filter(({ value }) => value.status === 'show')
           .map(({ value }) => [value.id, value]),
       ); // need check
@@ -58,17 +68,19 @@ export default {
 
       // 영화 정보 갖고오기
       const filmResults = await Promise.allSettled(
-        products.map((product) => db.getFilm(product.related_film)),
+        products.map((product) => db.getFilm(product.related_film.id)),
       );
       const filmMap = new Map(
         filmResults
-          .filter((result) : result is Fulfilled<typeof result> => result.status === 'fulfilled')
+          .filter(
+            (result): result is Fulfilled<typeof result> =>
+              result.status === 'fulfilled',
+          )
           .filter(({ value }) => value)
           .map(({ value }) => [value.id, value]),
       );
       // console.log('# sopakit-resolver sopakitsShown filmMap');
       // console.log(filmMap);
-
 
       // 결과 형성하기. 키워드가 있느냐 없느냐에 따라서 상품을 둘로 나눔.
       products.forEach((product) => {
@@ -77,7 +89,6 @@ export default {
         // 만약 현재 product의 kit_id 에 대한 kit 정보를 찾아놓았다면,
         // 키워드가 있다는 뜻이므로 sopakitProductMap 에 추가함.
         if (sopakitMap.has(kit_id)) {
-
           // sopakitProductMap의 값이 초기화가 되어 있지 않을 경우 빈 배열 만들기
           if (!sopakitProductMap.has(kit_id)) {
             sopakitProductMap.set(kit_id, []);
@@ -100,12 +111,19 @@ export default {
       // console.log('forEachBefore');
 
       // sopakitsShownItems 완성
-      for (const [sopakitId, sopakitDoc] of sopakitMap) {
+      sopakitMap.forEach((sopakitDoc, sopakitId) => {
+        // need-check
         sopakitsShownItems.push({
           sopakit: sopakitDoc,
           products: sopakitProductMap.get(sopakitId),
         });
-      }
+      });
+      // for (const [sopakitId, sopakitDoc] of sopakitMap) {
+      //   sopakitsShownItems.push({
+      //     sopakit: sopakitDoc,
+      //     products: sopakitProductMap.get(sopakitId),
+      //   });
+      // }
       const result = {
         sopakitsShownItems,
         noKeywordProducts,

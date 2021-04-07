@@ -12,7 +12,7 @@ const {
   filmsFeaturedQuery,
 } = require('./graphql-request');
 const {
-  initTestServer,
+  createTestServer,
   graphqlSuper,
   doLogin,
   doLogout,
@@ -21,7 +21,7 @@ const {
 } = require('./tool');
 describe('film', function () {
   // eslint-disable-next-line mocha/no-setup-in-describe
-  const { agent } = initTestServer({ before, beforeEach, after, afterEach });
+  const { agent } = createTestServer(this);
 
   describe('데이터베이스', function () {
     beforeEach('덤프 Film 만들기', async function () {
@@ -371,17 +371,17 @@ describe('film', function () {
 
         await db.updateFilm(1, { tags: ['ho', 'hu', 'hun'] });
 
-        const [
-          { value: hi },
-          { value: ho },
-          { value: hu },
-          { value: hun },
-        ] = await Promise.allSettled([
+        const results = await Promise.allSettled([
           model.Tag.findOne({ name: 'hi' }).lean().exec(),
           model.Tag.findOne({ name: 'ho' }).lean().exec(),
           model.Tag.findOne({ name: 'hu' }).lean().exec(),
           model.Tag.findOne({ name: 'hun' }).lean().exec(),
         ]);
+
+        const hi = results[0].status === 'fulfilled' ? results[0].value : null;
+        const ho = results[1].status === 'fulfilled' ? results[1].value : null;
+        const hu = results[2].status === 'fulfilled' ? results[2].value : null;
+        const hun = results[3].status === 'fulfilled' ? results[3].value : null;
 
         // console.log(await model.Tag.find().lean().exec());
 
@@ -438,19 +438,18 @@ describe('film', function () {
 
         console.log(await model.Tag.find().lean().exec());
 
-        const [
-          { value: hi },
-          { value: ho },
-          { value: hu },
-        ] = await Promise.allSettled([
+        const results = await Promise.allSettled([
           model.Tag.findOne({ name: 'hi' }).lean().exec(),
           model.Tag.findOne({ name: 'ho' }).lean().exec(),
           model.Tag.findOne({ name: 'hu' }).lean().exec(),
         ]);
+        const hi = results[0].status === 'fulfilled' ? results[0].value : null;
+        const ho = results[1].status === 'fulfilled' ? results[1].value : null;
+        const hu = results[2].status === 'fulfilled' ? results[2].value : null;
 
-        expect(hi.related_films.length).to.equal(0);
-        expect(ho.related_films.length).to.equal(0);
-        expect(hu.related_films.length).to.equal(0);
+        expect(hi?.related_films?.length).to.equal(0);
+        expect(ho?.related_films?.length).to.equal(0);
+        expect(hu?.related_films?.length).to.equal(0);
       });
     });
   });

@@ -1,9 +1,10 @@
 import { PassportContext } from 'graphql-passport';
-import mongoose, { Document, ObjectId } from 'mongoose';
+import { Document, LeanDocument, Model } from 'mongoose';
+// import { Express } from 'express';
+// import { Session } from 'express-session';
 import {
   enumSiteOptionType,
   enumProductType,
-  enumAuthmap,
   AuthType,
   OrderStatus,
   TokenPurpose,
@@ -11,14 +12,48 @@ import {
   ApplicationDocStatus,
   ApplicationMoneyStatus,
   ApplicationReceiptStatus,
-} from './db/schema/enum';
-import { db } from './loader';
-import { Express } from 'express';
-import { make as dbMaker } from './db/model';
-import { Session } from 'express-session';
+  FilmStatus,
+} from '@/db/schema/enum';
+
+import FilManagerImported from './manager/file';
 
 export * from '@/db/schema/enum';
-export type ModelWrapper = ReturnType<typeof dbMaker>;
+
+export interface ModelWrapper {
+  Page: Model<IPage>;
+  User: Model<IUser>;
+  Login: Model<ILogin>;
+  File: Model<IFile>;
+  Board: Model<IBoard>;
+  Film: Model<IFilm>;
+  Post: Model<IPost>;
+  Product: Model<IProduct>;
+  Cartitem: Model<ICartitem>;
+  Token: Model<IToken>;
+  SiteOption: Model<ISiteOption>;
+  Sopakit: Model<ISopakit>;
+  Order: Model<IOrder>;
+  Tag: Model<ITag>;
+  Application: Model<IApplication>;
+}
+// export type ModelWrapper = ReturnType<typeof dbMaker>;
+
+export type PromGetDBItems<T> = Promise<GetDBItems<T>>;
+export interface GetDBItems<T> {
+  total: number;
+  list: LeanDocument<T>[];
+}
+
+export type PromLD<T> = Promise<LeanDocument<T>>;
+export type PromLDList<T> = Promise<LeanDocument<T>[]>;
+
+export type Primitive = number | string | boolean;
+export type Braced = {[key: string]: AnyType};
+export type RecursiveArray = (Primitive | Braced | RecursiveArray)[];
+export type AnyType = RecursiveArray | Braced | Primitive;
+export function isBraced(value: AnyType): value is Braced {
+  return !Array.isArray(value) && typeof value === 'object' && value !== null;
+}
 
 export interface MailGate {
   senderName?: string;
@@ -27,10 +62,8 @@ export interface MailGate {
   recipientEmail?: string;
 }
 
-export interface CancelPaymentArgs {
-  price?: number;
-  name?: string;
-  reason?: string;
+interface IIdOption {
+  id?: number;
 }
 
 export interface PaymentData {
@@ -119,7 +152,7 @@ export interface VerifyPaymentResult {
 //  */
 
 // /**
-//  * @typedef {import("mongoose").Document<any, {}>} Applicationinfo
+//  * @typedef {import("mongoose").Document<any>} Applicationinfo
 //  * @property {string} host  주최
 //  * @property {Date} c_date  만든 일시
 //  * @property {Date} m_date  수정된 일시
@@ -186,7 +219,7 @@ interface ApplicationinfoBase {
   etc_req?: string; // 기타 요청
   memo?: string; // 메모
   memo_unremarked?: boolean; // 메모 강조 표시를 해제함.
-  meta?: object; //
+  meta?: AnyType; //
 }
 
 export interface IApplication extends ApplicationinfoBase, Document {}
@@ -196,16 +229,15 @@ export interface Applicationinfo extends ApplicationinfoBase, IIdOption {}
 export interface ApplicationInput extends ApplicationinfoBase {}
 
 export interface ApplicationSearch {
-  date_gte: Date;
-  date_lte: Date;
-  transport_status: ApplicationTransportStatus[];
-  doc_status: ApplicationDocStatus[];
-  money_status: ApplicationMoneyStatus[];
-  receipt_status: ApplicationReceiptStatus[];
-  method: string;
-  page: number;
+  date_gte?: Date;
+  date_lte?: Date;
+  transport_status?: ApplicationTransportStatus[];
+  doc_status?: ApplicationDocStatus[];
+  money_status?: ApplicationMoneyStatus[];
+  receipt_status?: ApplicationReceiptStatus[];
+  page?: number;
   perpage: number;
-  search: string;
+  search?: string;
 }
 
 // /**
@@ -246,8 +278,8 @@ interface ProductinfoBase {
   c_date?: Date; // : { type : Date, default : Date.now },
   related_film?: number; //  : [{ type : mongoose.Schema.Types.ObjectId, ref : 'Film' }], // 영화 정보는 기본적으로 여기서 전부 가지고 온다.
   related_cartitems?: number[]; // : 관련된 카트 아이템.
-  meta?: object; // : mongoose.Schema.Types.Mixed,
-  kit_id?: number; //: Number,
+  meta?: AnyType; // : mongoose.Schema.Types.Mixed,
+  kit_id?: number; // : Number,
   search?: string; // : String,
 }
 
@@ -261,7 +293,7 @@ export interface Productinfo extends Omit<ProductinfoBase, 'related_film'> {
 export interface SiteOptioninfo {
   name?: string;
   type?: typeof enumSiteOptionType[number];
-  value?: string | Array<any> | object; // 파일일 경우 그냥 filename 을 저장함. 나중에 getFileBySiteOption 등으로 할 때 처리됨.
+  value?: AnyType; // 파일일 경우 그냥 filename 을 저장함. 나중에 getFileBySiteOption 등으로 할 때 처리됨.
 }
 
 export interface ISiteOption extends SiteOptioninfo, Document {}
@@ -345,11 +377,12 @@ interface CartiteminfoBase {
   product_id?: number; //
   product?: CartitemProductinfo; // : CartitemProduct,
   options?: CartitemOptioninfo[];
-  meta?: object; // : mongoose.Schema.Types.Mixed,
+  meta?: AnyType; // : mongoose.Schema.Types.Mixed,
 }
 
 export interface ICartitem extends Document, CartiteminfoBase {}
 
+export interface Cartiteminfo extends CartiteminfoBase, IIdOption {}
 export interface FmtCartiteminfo extends Omit<Cartiteminfo, 'options'> {
   options?: FmtCartitemOptioninfo[];
   productRoute?: {
@@ -359,7 +392,6 @@ export interface FmtCartiteminfo extends Omit<Cartiteminfo, 'options'> {
     };
   };
 }
-export interface Cartiteminfo extends CartiteminfoBase, IIdOption {}
 
 export interface CartiteminfoSearch {
   usage: string;
@@ -390,7 +422,7 @@ interface OrderinfoBase {
   transport_fee?: number; //
   bootpay_id?: string; //
   payer?: string; //
-  meta?: object; //
+  meta?: AnyType; //
   dest?: Destinfo; //
 }
 
@@ -419,10 +451,10 @@ export interface OrderInput {
   cash_receipt?: string; //
   transport_number?: string; //
   transport_company?: string; //
-  transport_fee?: string; //
+  transport_fee?: number; //
   bootpay_id?: string; //
-  bootpay_payment_info?: object; //
-  meta?: object; //
+  bootpay_payment_info?: Paymentinfo; //
+  meta?: AnyType; //
   items?: number[]; //    카트아이템 id 목록
   dest?: Destinfo; //
 }
@@ -459,10 +491,6 @@ interface UserinfoBase {
   user_agreed?: UserAgreedinfo;
 }
 
-interface IIdOption {
-  id?: number;
-}
-
 export interface Userinfo extends UserinfoBase, IIdOption {}
 
 export interface IUser extends UserinfoBase, Document {}
@@ -481,7 +509,7 @@ interface PageinfoBase {
   m_date?: Date; // - 수정일
   role?: string; // - 페이지의 역할
   belongs_to?: string; // - cinesopa.kr, sopaseom.com 중 어느 곳에 속하는지
-  meta?: Object; // - 기타 정보
+  meta?: AnyType; // - 기타 정보
 }
 
 export interface Pageinfo extends PageinfoBase, IIdOption {}
@@ -500,8 +528,8 @@ export interface ILogin extends Document, Logininfo {}
  * 암호화된 비밀번호 객체
  */
 export interface Encrypted {
-  pwd: String;
-  salt: String;
+  pwd: string;
+  salt: string;
 }
 
 /**
@@ -604,7 +632,7 @@ interface FilminfoBase {
   badge_color?: string;
   status?: string;
   available_subtitles?: string[];
-  meta?: object;
+  meta?: AnyType;
   search?: string;
 }
 
@@ -612,14 +640,37 @@ export interface Filminfo extends FilminfoBase, IIdOption {}
 
 export interface IFilm extends FilminfoBase, Document {}
 
+export interface FilmInput extends Omit<FilminfoBase, 'tags'> {
+  tags?: string[];
+}
+
+export interface FilmSearch {
+  page?: number;
+  perpage?: number;
+  tags?: string[];
+  search?: string;
+  is_opened?: boolean;
+  status?: FilmStatus;
+}
+
+/** 영화 검색시 날짜 조건에 대한 타입 */
+export interface DateCondition {
+  prod_gte?: Date;
+  prod_lte?: Date;
+  open_gte?: Date;
+  open_lte?: Date;
+}
+export interface DateCond {
+  $lte?: Date;
+  $gte?: Date;
+}
+
 /**
  * unpack promise settled type
  */
 export type Fulfilled<T> = T extends PromiseFulfilledResult<infer U>
   ? PromiseFulfilledResult<U>
   : never;
-
-let o: Fulfilled<PromiseFulfilledResult<string> | PromiseRejectedResult>;
 
 interface TaginfoBase {
   name?: string;
@@ -630,11 +681,17 @@ export interface ITag extends TaginfoBase, Document {}
 
 export interface Taginfo extends TaginfoBase {}
 
+export interface TaginfoAggregated extends TaginfoBase {
+  size: number;
+}
+
+/** 태그 안에 들어가는 영화 정보 */
 export interface TagFilminfo {
   title?: string; //
   id?: number; //
 }
 
+/** 태그 검색시의 조건 */
 export interface TagSearch {
   limit?: number;
 }
@@ -659,7 +716,7 @@ interface BoardinfoBase {
   permalink?: string; //
   belongs_to?: string; //
   board_type?: string; //
-  meta?: object; //
+  meta?: AnyType; //
 }
 export interface CreateTokenOptions {
   email: string;
@@ -694,7 +751,7 @@ interface PostinfoBase {
   c_date?: Date; //
   m_date?: Date; //
   search?: string; //
-  meta?: object; //
+  meta?: AnyType; //
 }
 /**
  * 게시물 정보를 담는 객체
@@ -794,8 +851,6 @@ export { MailManager } from './manager/mail';
 
 export { BootpayManager } from './manager/bootpay';
 
-import FilManagerImported from './manager/file';
-
 export type FileManager = typeof FilManagerImported;
 
 export { TemplateArgsRefiner } from './mail-template/template-args-refiner';
@@ -804,23 +859,35 @@ export type MailRendererWrapperArg = {
   [key: string]: string;
 };
 export type MailRendererWrapper = (
-  args: MailRendererWrapperArg,
+  args?: MailRendererWrapperArg,
 ) => Promise<string>;
 
 export type TemplateMap = Map<string, MailRendererWrapper>;
 
+
 declare global {
+  // eslint-disable-next-line @typescript-eslint/no-namespace
   namespace Express {
     export interface User {
       role?: string;
       email?: string;
     }
   }
-  namespace session {
-    export interface SessionData {
-      redirectLink: string;
-    }
+}
+
+declare module 'express-session' {
+  export interface SessionData {
+    redirectLink: string;
   }
+}
+declare global {
+  // module Express {
+  // }
+  // namespace session {
+  //   export interface SessionData {
+  //     redirectLink: string;
+  //   }
+  // }
 }
 
 declare module 'express-session' {
