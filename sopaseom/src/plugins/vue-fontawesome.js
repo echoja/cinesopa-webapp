@@ -25,7 +25,8 @@ library.add(
   fas.faArrowUp,
   fas.faArrowDown,
   fas.faTimes,
-  fas.faPaperPlane
+  fas.faPaperPlane,
+  fas.faCheck,
 );
 
 Vue.component('font-awesome-icon', FontAwesomeIcon);

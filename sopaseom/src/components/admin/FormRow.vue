@@ -24,6 +24,7 @@
 import Info from '@/components/admin/Info.vue';
 
 export default {
+  name: 'FormRow',
   props: ['title', 'description'],
   components: {
     Info,
@@ -68,7 +69,7 @@ export default {
   }
   .form-header {
     display: block;
-    margin: 0 0  5px;
+    margin: 0 0 5px;
     padding: 0;
     border: 0;
   }

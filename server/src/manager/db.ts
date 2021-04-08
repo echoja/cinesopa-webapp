@@ -406,7 +406,7 @@ export class DBManager {
   async getToken(
     token: string,
     purpose: TokenPurpose,
-  ): Promise<{ isValidTTL: boolean; doc: Tokeninfo }> {
+  ): Promise<{ isValidTTL: boolean; doc: Tokeninfo, expireDate: Date }> {
     // console.log(`db-getEmailVefificationToken-token: ${token}`);
     const result = await model.Token.findOne({
       token,
@@ -414,12 +414,13 @@ export class DBManager {
     })
       .lean()
       .exec();
-    if (!result) return { isValidTTL: false, doc: null };
+    if (!result) return { isValidTTL: false, doc: null, expireDate: null };
 
     const isValidTTL =
       Date.now() - result.c_date.getTime() <= result.ttl * 1000;
+    const expireDate = new Date(result.c_date.getTime() + result.ttl * 1000);
     // if (!result) throw Error(`토큰 ${token}이 존재하지 않습니다.`);
-    return { isValidTTL, doc: result };
+    return { isValidTTL, doc: result, expireDate };
   }
 
   /** 일치하는 토큰 하나를 삭제합니다. */

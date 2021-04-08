@@ -12,6 +12,7 @@ import {
 import '@/typedef';
 import { allSettledFiltered } from '@/util';
 import crypto from 'crypto';
+import Hangul from 'hangul-js';
 
 export const Query = {
   applicationAdmin: makeResolver(async (obj, args, context, info) => {
@@ -21,6 +22,8 @@ export const Query = {
   applicationsAdmin: makeResolver(async (obj, args, context, info) => {
     const { condition } = args;
     // 간단한 설정
+    if (condition.search)
+      condition.search = Hangul.disassembleToString(condition.search);
     if (!condition.perpage) condition.perpage = 30;
     return db.getApplications(condition);
   }).only(ACCESS_ADMIN),
@@ -121,7 +124,13 @@ export const Mutation = {
       ttl: 60 * 60 * 24 * 10,
       appl_id: id,
     });
-    return { token, success: true };
+    const tokenRes = await db.getToken(token, 'taxinfo_request');
+    await db.updateApplication(id, {
+      reqdoc_expire_date: tokenRes.expireDate,
+      reqdoc_token: token,
+    });
+
+    return { token, success: true, expire_date: tokenRes.expireDate };
   }).only(ACCESS_ADMIN),
 
   /** 세금계산서 링크 삭제 */

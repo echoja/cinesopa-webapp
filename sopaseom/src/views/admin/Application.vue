@@ -5,10 +5,14 @@
     </header>
     <!-- 신청 추가 / 엑셀로 다운로드 -->
     <div class="quick-menu d-flex justify-content-end mb-3">
-      <b-button @click="addApplicationClicked" class="mr-2">
+      <loading-button
+        :loading="addApplicationLoading"
+        @click="addApplicationClicked"
+        class="mr-2"
+      >
         <font-awesome-icon :icon="['far', 'plus-square']"></font-awesome-icon>
         <span class="button-content ml-2"> 신청 추가 </span>
-      </b-button>
+      </loading-button>
       <b-button @click="extractExcelClicked">
         <font-awesome-icon :icon="['far', 'file-excel']"> </font-awesome-icon>
         <span class="button-content ml-2"> 엑셀로 다운로드 </span>
@@ -31,27 +35,41 @@
           </span>
         </template>
         <template v-slot="{ hide }">
-          <div class="d-flex position-relative">
-            <div class="d-flex flex-column">
-              <span class="text-center"> 시작일의 시작 범위 </span>
-              <b-calendar
-                v-model="filter.startDate"
-                value-as-date
-                :date-disabled-fn="startDateDFN"
-              ></b-calendar>
-            </div>
-            <div class="d-flex flex-column">
-              <span class="text-center"> 시작일의 끝 범위 </span>
-              <b-calendar
-                v-model="filter.endDate"
-                value-as-date
-                :date-disabled-fn="endDateDFN"
-              >
-              </b-calendar>
-            </div>
-            <!-- <div class="position-absolute" :style="{ top: 0, right: 0 }">
+          <div class="p-2">
+            <div class="d-flex position-relative mb-2">
+              <div class="d-flex flex-column">
+                <span class="text-center"> <b>~부터</b> </span>
+                <b-calendar
+                  v-model="filter.startDate"
+                  value-as-date
+                  :date-disabled-fn="startDateDFN"
+                  locale="ko"
+                ></b-calendar>
+              </div>
+              <div class="d-flex flex-column">
+                <span class="text-center"> <b>~ 까지</b> </span>
+                <b-calendar
+                  v-model="filter.endDate"
+                  value-as-date
+                  :date-disabled-fn="endDateDFN"
+                  locale="ko"
+                >
+                </b-calendar>
+              </div>
+              <!-- <div class="position-absolute" :style="{ top: 0, right: 0 }">
               <b-button-close @click="hide"> </b-button-close>
             </div> -->
+            </div>
+            <div class="d-flex justify-content-end">
+              <loading-button
+                :loading="loading"
+                variant="primary"
+                @click="submitDateFilter(hide)"
+              >
+                <font-awesome-icon :icon="['fas', 'check']" class="mr-2" />
+                <b>적용</b>
+              </loading-button>
+            </div>
           </div>
         </template>
       </b-dropdown>
@@ -105,7 +123,17 @@
                 ></b-form-checkbox-group>
               </div>
             </div>
-            <div class="d-flex position-relative"></div>
+            <hr />
+            <div class="d-flex justify-content-end">
+              <loading-button
+                :loading="loading"
+                variant="primary"
+                @click="submitStateFilter(hide)"
+              >
+                <font-awesome-icon :icon="['fas', 'check']" class="mr-2" />
+                <b>적용</b>
+              </loading-button>
+            </div>
           </b-dropdown-form>
         </template>
       </b-dropdown>
@@ -116,9 +144,14 @@
           :style="{ width: '300px' }"
           placeholder="검색 ..."
           v-model="filter.search"
+          @keydown.enter="searchButtonClicked"
         >
         </b-form-input>
-        <loading-button :loading="loading" class="border-0">
+        <loading-button
+          :loading="loading"
+          @click="searchButtonClicked"
+          class="border-0"
+        >
           <font-awesome-icon :icon="['fas', 'search']"> </font-awesome-icon>
         </loading-button>
       </div>
@@ -127,6 +160,7 @@
       class="table"
       :fields="tableFields"
       :items="tableItems"
+      primary-key="id"
       @row-clicked="rowClicked"
       @row-contextmenu="rowContextMenu"
     >
@@ -154,7 +188,7 @@
       </template>
       <template #head(start_date)="row">
         <span class="table-head-text">상영시작일</span>
-        <info>
+        <info v-once>
           상영 시작일은 정렬의 기준입니다. 각 신청마다 시작일 뿐만 아니라
           종료일도 설정할 수 있습니다. 정렬할 때에는 시작일만 고려합니다.
         </info>
@@ -164,32 +198,32 @@
       </template>
       <template #head(applicant_name)="row">
         <span class="table-head-text">신청자</span>
-        <info>신청자의 이름입니다.</info>
+        <info v-once>신청자의 이름입니다.</info>
       </template>
       <template #head(applicant_phone)="row">
         <span class="table-head-text">연락처</span>
-        <info>신청자의 연락처입니다.</info>
+        <info v-once>신청자의 연락처입니다.</info>
       </template>
       <template #cell(applicant_phone)="{ value }">
         <eye-box v-if="value" :text="value"></eye-box>
       </template>
       <template #head(applicant_email)="row">
         <span class="table-head-text">이메일</span>
-        <info>신청자의 이메일입니다.</info>
+        <info v-once>신청자의 이메일입니다.</info>
       </template>
       <template #cell(applicant_email)="{ value }">
         <eye-box v-if="value" :text="value"></eye-box>
       </template>
       <template #head(destination)="row">
         <span class="table-head-text">주소</span>
-        <info>상영본 배송지입니다.</info>
+        <info v-once>상영본 배송지입니다.</info>
       </template>
       <template #cell(destination)="{ value }">
         <eye-box v-if="value" :text="value"></eye-box>
       </template>
       <template #head(message)="row">
         <span class="table-head-text">메시지</span>
-        <info>
+        <info v-once>
           <div class="text-left">
             <p class="m-1">
               메시지는 특수한 상황을 알려주는 용도입니다. 특별한 메시지가 없다면
@@ -227,14 +261,21 @@
           <hr />
           <form-row title="주최">
             <template #info> 주최 단체명이나 회사를 기입합니다. </template>
-            <b-form-input v-model="editing.host"></b-form-input>
+            <b-form-input
+              @input="changed.add('host')"
+              v-model="editing.host"
+            ></b-form-input>
           </form-row>
           <form-row title="작품명">
-            <b-form-input v-model="editing.film_title"></b-form-input>
+            <b-form-input
+              @input="changed.add('film_title')"
+              v-model="editing.film_title"
+            ></b-form-input>
           </form-row>
           <form-row title="상영료">
             <div class="d-flex align-items-center">
               <b-form-input
+                @input="changed.add('number')"
                 v-model="editing.number"
                 class="mr-2"
               ></b-form-input>
@@ -243,59 +284,82 @@
           </form-row>
           <form-row title="상영 시작일">
             <b-form-datepicker
+              @input="changed.add('start_date')"
               v-model="editing.start_date"
               value-as-date
+              locale="ko"
             ></b-form-datepicker>
           </form-row>
           <form-row title="상영 종료일">
             <b-form-datepicker
+              @input="changed.add('end_date')"
               v-model="editing.end_date"
               value-as-date
+              locale="ko"
             ></b-form-datepicker>
           </form-row>
           <form-row title="상영 회차">
             <div class="d-flex align-items-center">
               <b-form-input
+                @input="changed.add('session_count')"
                 number
-                v-model="editing.number"
+                v-model="editing.session_count"
                 class="mr-2"
               ></b-form-input>
               <span>회</span>
             </div>
           </form-row>
           <form-row title="상영 포맷">
-            <b-form-input v-model="editing.format"></b-form-input>
+            <b-form-input
+              @input="changed.add('format')"
+              v-model="editing.format"
+            ></b-form-input>
           </form-row>
           <form-row title="담당자 이름">
-            <b-form-input v-model="editing.applicant_name"></b-form-input>
+            <b-form-input
+              @input="changed.add('applicant_name')"
+              v-model="editing.applicant_name"
+            ></b-form-input>
           </form-row>
           <form-row title="담당자 연락처">
-            <b-form-input v-model="editing.applicant_phone"></b-form-input>
+            <b-form-input
+              @input="changed.add('applicant_phone')"
+              v-model="editing.applicant_phone"
+            ></b-form-input>
           </form-row>
           <form-row title="담당자 이메일">
-            <b-form-input v-model="editing.applicant_email"></b-form-input>
+            <b-form-input
+              @input="changed.add('applicant_email')"
+              v-model="editing.applicant_email"
+            ></b-form-input>
           </form-row>
           <form-row title="상영본 받을 주소">
-            <b-form-input v-model="editing.destination"></b-form-input>
+            <b-form-input
+              @input="changed.add('destination')"
+              v-model="editing.destination"
+            ></b-form-input>
           </form-row>
           <form-row title="배송 상태">
             <b-form-select
+              @input="changed.add('transport_status')"
               :options="transportStatusOptions"
               v-model="editing.transport_status"
             ></b-form-select>
           </form-row>
           <form-row title="택배사">
             <b-form-select
+              @input="changed.add('transport_company')"
               :options="deliveryOptions"
               v-model="editing.transport_company"
             ></b-form-select>
           </form-row>
           <form-row title="송장번호">
             <b-form-input
+              @input="changed.add('transport_number')"
               v-model="editing.transport_number"
               class="mb-2"
             ></b-form-input>
-            <div class="d-flex align-items-center">
+            <!-- <div class="d-flex align-items-center">
               <p class="m-0 mr-2">
                 발송 정보 이메일
                 <info
@@ -318,7 +382,7 @@
                 variant="primary"
                 >발송하기</loading-button
               >
-            </div>
+            </div> -->
           </form-row>
           <h3 class="detail-header d-flex align-items-center">
             <span class="mr-2">서류 및 정산</span>
@@ -344,15 +408,20 @@
               <b-button size="sm" class="mr-2">링크 복사</b-button>
               <b-button size="sm" class="mr-2">링크 제거</b-button>
               <p class="m-0">
-                만료일: {{ formatTime(editing.reqdoc_expire_date) }}
+                만료일: {{ formatTime(new Date(editing.reqdoc_expire_date)) }}
               </p>
             </div>
-            <b-button @click="createReqTaxinfoButtonClicked" size="sm" v-else>
+            <loading-button
+              :loading="updateNewTaxReqLinkLoading"
+              @click="createReqTaxinfoButtonClicked(row)"
+              size="sm"
+              v-else
+            >
               <font-awesome-icon
                 :icon="['far', 'plus-square']"
               ></font-awesome-icon>
               <span class="button-content ml-2"> 링크 생성 </span>
-            </b-button>
+            </loading-button>
           </form-row>
           <form-row title="서류요청 이메일">
             <template #info
@@ -375,7 +444,7 @@
                     <b-form-checkbox value="bank"
                       >씨네소파 통장 사본
                     </b-form-checkbox>
-                    <info>
+                    <info v-once>
                       sopaseom.com 사이트 옵션에서 먼저 설정해야 합니다.
                     </info>
                     <div class="d-flex align-items-center">
@@ -394,7 +463,9 @@
                     <b-form-checkbox value="advertisement">
                       홍보물
                     </b-form-checkbox>
-                    <info> 먼저 해당 영화 설정에서 설정해야 합니다. </info>
+                    <info v-once>
+                      먼저 해당 영화 설정에서 설정해야 합니다.
+                    </info>
                   </b-form-checkbox-group>
                 </div>
                 <div class="col">
@@ -406,7 +477,7 @@
                     <b-form-checkbox value="receive">
                       세금계산서 관련 정보 <br />
                       (사업자등록증, 작성일자, 이메일)
-                      <info>
+                      <info v-once>
                         먼저 <b>세금계산서 관련 정보 링크를 생성</b>해야 합니다.
                         바로 한칸 위에서 링크를 생성해야 활성화됩니다.
                       </info>
@@ -440,6 +511,7 @@
               수정되지 않으므로 직접 설정해야 합니다.
             </template>
             <b-form-select
+              @input="changed.add('receipt_status')"
               :options="receiptStatusOptions"
               v-model="editing.receipt_status"
             ></b-form-select>
@@ -450,6 +522,7 @@
               수정되지 않으므로 직접 설정해야 합니다.
             </template>
             <b-form-select
+              @input="changed.add('doc_status')"
               :options="docStatusOptions"
               v-model="editing.doc_status"
             ></b-form-select>
@@ -458,7 +531,12 @@
             <template #info>
               신청 목록에서 입금과 관련한 메시지 안내를 줄 때 사용됩니다.
             </template>
-            <b-form-datepicker v-model="editing.deposit_date" value-as-date>
+            <b-form-datepicker
+              @input="changed.add('deposit_date')"
+              v-model="editing.deposit_date"
+              value-as-date
+              locale="ko"
+            >
             </b-form-datepicker>
           </form-row>
           <form-row title="정산 상태">
@@ -467,6 +545,7 @@
               수정되지 않으므로 직접 설정해야 합니다.
             </template>
             <b-form-select
+              @input="changed.add('money_status')"
               :options="moneyStatusOptions"
               v-model="editing.money_status"
             >
@@ -476,6 +555,7 @@
             <template #info>
               신청자가 링크를 통해 사업자등록증을 업로드했다면 자동으로
               반영됩니다. 관리자가 직접 파일을 지정하여 업로드할 수 있습니다.
+              등록한다면 변경사항을 저장하지 않아도 곧바로 적용됩니다.
             </template>
             <b-button
               size="sm"
@@ -484,7 +564,6 @@
               :disabled="compLicenseDownloadButtonDisabled"
             >
               <font-awesome-icon :icon="['fas', 'download']" class="mr-2" />
-
               <span>다운로드</span></b-button
             >
             <b-button
@@ -497,40 +576,55 @@
             >
           </form-row>
           <form-row title="세금계산서 작성 일자">
-            <b-form-datepicker v-model="editing.receipt_date" value-as-date>
+            <b-form-datepicker
+              @input="changed.add('receipt_date')"
+              v-model="editing.receipt_date"
+              value-as-date
+              locale="ko"
+            >
             </b-form-datepicker>
           </form-row>
           <form-row title="세금계산서 발행 이메일">
-            <b-form-input v-model="editing.receipt_email"></b-form-input>
+            <b-form-input
+              @input="changed.add('receipt_email')"
+              v-model="editing.receipt_email"
+            ></b-form-input>
           </form-row>
           <form-row title="세금계산서 기타 요청">
             <b-form-textarea
               size="sm"
+              @input="changed.add('receipt_etc_req')"
               v-model="editing.receipt_etc_req"
             ></b-form-textarea>
           </form-row>
           <h3 class="detail-header">기타</h3>
           <hr />
           <form-row title="기타 요청">
-            {{ editing.etc_req }}
+            {{ editing.etc_req || '-' }}
             <!-- <b-form-textarea
               size="sm"
+              @input="changed.add('etc_req')"
               v-model="editing.etc_req"
             ></b-form-textarea> -->
           </form-row>
           <form-row title="메모">
             <b-form-textarea
               size="sm"
+              @input="changed.add('memo')"
               v-model="editing.memo"
               class="mb-2"
             ></b-form-textarea>
-            <b-form-checkbox v-model="editing.memo_unremarked"
+            <b-form-checkbox
+              @input="changed.add('memo_unremarked')"
+              v-model="editing.memo_unremarked"
               >메모 강조 표시를 해제합니다.</b-form-checkbox
             >
           </form-row>
           <apply-button-set
-            @ok="detailSaveButtonClicked"
+            @ok="detailSaveButtonClicked(row)"
             @cancel="row.item._showDetails = false"
+            :disabled="changed.size === 0"
+            :loading="detailSaveButtonLoading"
           ></apply-button-set>
           <!-- <div class="d-flex position-sticky bottom-0 justify-content-end"> -->
           <!-- <b-button @click="row.item._showDetails = false" class="mr-2"
@@ -544,6 +638,15 @@
         </div>
       </template>
     </b-table>
+    <div class="pagination-wrapper">
+      <b-pagination-nav
+        :link-gen="linkGen"
+        :number-of-pages="totalPages"
+        align="center"
+        :value="page + 1"
+        use-router
+      ></b-pagination-nav>
+    </div>
     <!-- 우클릭-->
     <b-button v-contextmenu:hello="testNumber">TEST</b-button>
     {{ testNumber }}
@@ -558,6 +661,7 @@
       {{ payload }}
       </pre>
     </context-menu>
+    <pre>{{ changed }}</pre>
     <pre>{{ $cm._map }}</pre>
     <pre>
     {{ tableItems }}
@@ -578,6 +682,7 @@ import {
   BTable,
   BFormCheckbox,
   BFormTextarea,
+  BPaginationNav,
 } from 'bootstrap-vue';
 import { debounce } from 'throttle-debounce';
 import moment from 'moment';
@@ -596,12 +701,14 @@ import FormRow from '@/components/admin/FormRow.vue';
 import LoadingButton from '@/components/LoadingButton.vue';
 import ApplyButtonSet from '@/components/admin/button/ApplyButtonSet.vue';
 import { makeSimpleMutation, makeSimpleQuery } from '@/api/graphql-client';
+import { mapActions } from 'vuex';
 /** @param {object} map 맵 */
 const mapToOption = (map) =>
   Object.keys(map).map((value) => ({
     value,
     text: map[value],
   }));
+const updateApplicationReq = makeSimpleMutation('updateApplication');
 
 export default {
   components: {
@@ -623,12 +730,19 @@ export default {
     BFormDatepicker,
     BFormTextarea,
     ApplyButtonSet,
+    BPaginationNav,
   },
   data() {
     return {
+      changed: new Set(),
+      detailSaveButtonLoading: false,
+      addApplicationLoading: false,
+      updateNewTaxReqLinkLoading: false,
+      loading: false,
+      transportEmailSendloading: false,
       testNumber: 1,
       key: '',
-      loading: false,
+      total: 1,
       transportStatusOptions: mapToOption(applicationTransportStatusMap),
       receiptStatusOptions: mapToOption(applicationReceiptStatusMap),
       moneyStatusOptions: mapToOption(applicationMoneyStatusMap),
@@ -677,25 +791,9 @@ export default {
           key: 'memo',
         },
       ],
-      tableItems: [
-        {
-          _showDetails: true,
-          host: '하나은행',
-          start_date: new Date(),
-          reqdoc_token: '1234',
-        },
-        {
-          _showDetails: false,
-          applicant_name: 'hi',
-          applicant_phone: '123-456-789',
-          applicant_email: 'eszqsc112@naver.com',
-          destination: '부산시 구덕로 265번길 8',
-        },
-        { _showDetails: false },
-      ],
+      tableItems: [],
       allChecked: false,
       allCheckIndeterminate: false,
-      debouncedFetchDataFunction: null,
       contextItem: {},
       editing: {},
       deliveryOptions: [],
@@ -703,14 +801,34 @@ export default {
       docSend: [],
       docReceiveOptions: [],
       docReceive: [],
-      transportEmailSendloading: false,
-      method: String,
+      // debouncedFetchDataFunction: null,
     };
   },
-  watch: {
-    filter(newValue, oldValue) {},
-  },
+
   computed: {
+    // /** @returns {string[]} */
+    // async deliveryOptions() {
+    // },
+
+    /** @returns {number} */
+    perpage() {
+      return 20;
+    },
+    /** @returns {number} */
+    totalPages() {
+      const { perpage } = this;
+      const o = Math.ceil(this.total / perpage);
+      if (o === 0) return 1;
+      // console.log('# Orders totalPages o');
+      // console.log(o);
+      return o;
+    },
+
+    /** @returns {number} */
+    page() {
+      const { page } = this.$route.query;
+      return page ? parseInt(page, 10) - 1 : 0;
+    },
     /** @returns {string} */
     dateFilterText() {
       const string = '상영시작일 선택';
@@ -757,53 +875,84 @@ export default {
       } 상영`;
     },
   },
-  mounted() {
-    getDeliveryOptions()
-      .then((result) => {
-        this.deliveryOptions = result;
-      })
-      .catch((err) => {
-        console.log('# Application getDeliveryOptions Error!');
-        console.error(err);
-      });
+  async mounted() {
+    const result = await getDeliveryOptions();
+    this.deliveryOptions = result;
+
+    await this.fetchData();
   },
   methods: {
-    async createReqTaxinfoButtonClicked() {
-      const updateNewTaxReqLink = makeSimpleMutation('updateNewTaxReqLink');
-      await updateNewTaxReqLink(
-        {},
+    ...mapActions(['pushMessage']),
+    async createReqTaxinfoButtonClicked(row) {
+      this.updateNewTaxReqLinkLoading = true;
+      const updateNewTaxReqLinkReq = makeSimpleMutation('updateNewTaxReqLink');
+      const res = await updateNewTaxReqLinkReq(
+        { id: row.item.id },
         `{
-        success code token
+        success code token expire_date
         }`,
       );
-    },
-    async debouncedFetchData() {
-      if (!this.debouncedFetchDataFunction) {
-        this.debouncedFetchDataFunction = debounce(700, true, this.fetchData);
+      // 실패했을 시
+      if (!res.success) {
+        console.error(res.code);
+        this.pushMessage({
+          type: 'danger',
+          id: 'UpdateNewTaxReqLinkFailed',
+          msg: '요청 링크 생성이 실패했습니다.',
+        });
+        this.updateNewTaxReqLinkLoading = false;
+        return;
       }
-      this.debouncedFetchDataFunction();
+      this.editing.reqdoc_expire_date = res.expire_date;
+      this.editing.reqdoc_token = res.token;
+      this.pushMessage({
+        type: 'success',
+        id: 'UpdateNewTaxReqLinkSuccess',
+        msg: '성공적으로 요청 링크를 생성했습니다.',
+      });
+      this.updateNewTaxReqLinkLoading = false;
     },
+    // async debouncedFetchData() {
+    //   if (!this.debouncedFetchDataFunction) {
+    //     this.debouncedFetchDataFunction = debounce(700, true, this.fetchData);
+    //   }
+    //   this.debouncedFetchDataFunction();
+    // },
     async fetchData() {
       this.loading = true;
-      const get = makeSimpleQuery('applicationsAdmin');
-      const result = await get(
+      const applicationsAdminReq = makeSimpleQuery('applicationsAdmin');
+      const result = await applicationsAdminReq(
         {
-          date_gte: this.filter.startDate,
-          date_lte: this.filter.endDate,
-          transport_status: this.filter.transportStatus,
-          doc_status: this.filter.docStatus,
-          money_status: this.filter.moneyStatus,
-          receipt_status: this.filter.receiptStatus,
-          method: String,
-          page: this.page,
-          perpage: 20,
-          search: this.filter.search,
+          condition: {
+            date_gte: this.filter.startDate,
+            date_lte: this.filter.endDate,
+            transport_status: this.filter.transportStatus,
+            doc_status: this.filter.docStatus,
+            money_status: this.filter.moneyStatus,
+            receipt_status: this.filter.receiptStatus,
+            page: this.page,
+            perpage: this.perpage,
+            search: this.filter.search,
+          },
         },
         `{
-
+          total list {
+            id host c_date m_date film_title charge start_date
+            end_date session_count format applicant_name applicant_phone
+            applicant_email destination transport_company transport_number
+            transport_status doc_status money_status receipt_status
+            business_license_filename business_license_url deposit_date receipt_date
+            receipt_email receipt_etc_req reqdoc_token reqdoc_expire_date
+            search etc_req memo memo_unremarked meta
+          }
         }`,
       );
-      // await debounce;
+      const tableItems = result.list.map((item) => ({
+        ...item,
+        _showDetails: false,
+      }));
+      this.total = result.total;
+      this.tableItems = Object.freeze(tableItems);
       this.loading = false;
     },
     startDateDFN(ymd, date) {
@@ -821,11 +970,25 @@ export default {
       return '';
     },
     formatTime(date) {
+      console.log(date);
       if (date) return moment(date).format('yyyy.MM.DD HH:mm:ss');
       return '';
     },
-    addApplicationClicked() {
-      // todo
+    async addApplicationClicked() {
+      this.addApplicationLoading = true;
+      const createApplicationReq = makeSimpleMutation('createApplication');
+      await createApplicationReq(
+        { input: { host: '신규 등록됨' } },
+        '{success code application_id}',
+      );
+      this.pushMessage({
+        type: 'success',
+        id: 'createApplicationSuccess',
+        msg:
+          '성공적으로 새 신청서가 등록되었습니다. 세부 내용은 클릭하여 수정하시기 바랍니다.',
+      });
+      await this.fetchData();
+      this.addApplicationLoading = false;
     },
     extractExcelClicked() {
       // todo
@@ -866,6 +1029,9 @@ export default {
         }
       });
     },
+    blank() {
+      //
+    },
     rowClicked(item, index, event) {
       const sd = item._showDetails;
       if (sd) {
@@ -879,6 +1045,7 @@ export default {
 
       // editing 에 복사하기
       this.editing = { ...item };
+      this.changed = new Set();
     },
     rowContextMenu(item, index, event) {
       event.preventDefault();
@@ -897,11 +1064,72 @@ export default {
     TESTLinkClicked() {
       console.log('clicked!!!');
     },
-    detailSaveButtonClicked() {
+    async detailSaveButtonClicked(row) {
+      this.detailSaveButtonLoading = true;
+      const changed = [...this.changed.values()];
+      const values = {};
+      changed.forEach((key) => {
+        values[key] = this.editing[key];
+      });
+      const res = await updateApplicationReq(
+        {
+          id: row.item.id,
+          input: values,
+        },
+        '{success code}',
+      );
+      // 성공했을 시
+      if (res.success === true) {
+        this.pushMessage({
+          type: 'success',
+          id: 'updateApplicationSuccess',
+          msg: '신청서 수정이 완료되었습니다.',
+        });
+        row.item._showDetails = false;
+        this.editing = {};
+        await this.fetchData();
+      } else {
+        // 실패했을 시
+        console.error('신청서 수정이 실패했습니다.');
+        console.error(res.code);
+        this.pushMessage({
+          type: 'danger',
+          id: 'updateApplicationFailed',
+          msg: '신청서 수정이 실패했습니다.',
+        });
+      }
+      this.detailSaveButtonLoading = false;
+    },
+    async reqDocLinkSendClicked(row) {
       // todo
     },
-    async reqDocLinkSendClicked() {
+    async reqDocLinkSampleClicked(row) {
       // todo
+    },
+    submitToChange(key) {
+      this.changed.add(key);
+    },
+    linkGen(pageNum) {
+      return {
+        name: 'AdminApplication',
+        query: { ...this.$route.query, page: pageNum },
+      };
+    },
+    async searchButtonClicked(event) {
+      // 키보드 이벤트라면
+      if (event.key) {
+        event.target.blur();
+      }
+      console.log(event);
+      await this.fetchData();
+    },
+    async submitDateFilter(hideMethod) {
+      await this.fetchData();
+      hideMethod();
+    },
+    async submitStateFilter(hideMethod) {
+      await this.fetchData();
+      hideMethod();
     },
   },
   name: 'Application',

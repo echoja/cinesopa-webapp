@@ -99,10 +99,10 @@ export default [
     ...adminRoute('/admin/sopaseom/application', 'AdminApplication'),
     component: () => import('@/views/admin/Application.vue'),
   },
-  {
-    ...adminRoute('/admin/sopaseom/application/:id', 'AdminApplicationEdit'),
-    component: () => import('@/views/admin/ApplicationEdit.vue'),
-  },
+  // {
+  //   ...adminRoute('/admin/sopaseom/application/:id', 'AdminApplicationEdit'),
+  //   component: () => import('@/views/admin/ApplicationEdit.vue'),
+  // },
 
   /** sopakit */
 

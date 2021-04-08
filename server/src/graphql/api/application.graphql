@@ -15,6 +15,7 @@ input DestinfoInput {
 }
 
 type Application {
+  id: Int
   host: String #  주최
   c_date: DateTime #  만든 일시
   m_date: DateTime #  수정된 일시
@@ -97,14 +98,6 @@ input ApplicationSearch {
   search: String
 }
 
-input CreateApplicationFromCartInput {
-  items_id: [Int]!
-  method: String!
-  dest: DestinfoInput!
-  transport_fee: Int!
-  bootpay_id: String
-}
-
 type ApplicationsResult {
   total: Int
   list: [Application]
@@ -161,6 +154,7 @@ type UpdateNewTaxReqLinkResult {
   success: Boolean
   code: String
   token: String
+  expire_date: DateTime
 }
 
 type RemoveTaxReqLinkResult {
