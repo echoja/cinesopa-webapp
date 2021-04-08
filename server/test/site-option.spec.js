@@ -1,4 +1,5 @@
 const { expect } = require('chai');
+const addContext = require('mochawesome/addContext');
 // const {} = require('./graphql-request');
 const {
   createTestServer,
@@ -8,13 +9,16 @@ const {
   doGuestLogin,
   adminEmail,
   guestEmail,
+  makeSimpleQuery,
 } = require('./tool');
 const { graphql } = require('graphql');
 const { model, db } = require('@/loader');
 
 const siteOptionQuery = `
 query siteOptionQuery($name: String!) {
-  siteOption(name: $name)
+  siteOption(name: $name) {
+    name value success code
+  }
 }
 `;
 const siteOptionsQuery = `
@@ -34,8 +38,6 @@ query siteOptionDoubleQuery($names: [String!]) {
   siteOption(name:)
 }
 `;
-
-
 
 const setSiteOptionMutation = `
 mutation setSiteOptionMutation($name: String!, $value: JSON!) {
@@ -139,17 +141,24 @@ describe('cartitem', function () {
           type: 'string',
           value: 'superpower',
         });
-        const res = await graphqlSuper(agent, siteOptionQuery, {
-          name: 'hello',
-        });
-        const result = res.body.data.siteOption;
+        const getSiteOptionReq = makeSimpleQuery(agent, 'siteOption');
+        const result = await getSiteOptionReq(
+          { name: 'hello' },
+          `{
+          name value success code
+        }`,
+        );
+        // const res = await graphqlSuper(agent, siteOptionQuery, {
+        //   name: 'hello',
+        // });
+        // const result = res.body.data.siteOption;
         // console.log(result);
-        expect(result).to.equal('superpower');
+        addContext(this, { title: 'log', value: result });
+        expect(result.value).to.equal('superpower');
       });
       it('한꺼번에 많이 받아올 수 있어야 함.', async function () {
         this.skip();
         // siteOptions 으로 기능 이전.
-
 
         // await model.SiteOption.create({
         //   name: 'hello',

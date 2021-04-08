@@ -75,8 +75,8 @@ const checkAuth = makeResolver(async (obj, args, context, info) => {
   
   const { should_verified = false } = args;
   const contextUser = context.getUser();
-  console.log('# user-resolver checkAuth');
-  console.log(contextUser);
+  // console.log('# user-resolver checkAuth');
+  // console.log(contextUser);
   // const roleSymbol = enumAuthmap[role];
   const isOk = await validator.isOkContext(context, role);
   const result = {
@@ -239,9 +239,10 @@ const requestVerifyEmail = makeResolver(async (obj, args, context, info) => {
 const requestChangePassword = makeResolver(async (obj, args, context, info) => {
   const { email, debug } = args;
 
-  if (!IsEmail.validate(email)) {
+  if (!debug && !IsEmail.validate(email)) {
     return { success: false, code: 'invalid_email' };
   }
+
   // const contextUser = context.getUser();
   // if (!contextUser)
   //   throw Error(

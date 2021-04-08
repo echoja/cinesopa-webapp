@@ -1,44 +1,46 @@
-const fs = require('fs');
-const axios = require('axios').default;
-const path = require('path');
-const sanitizeFilename = require('sanitize-filename');
+import fs from 'fs';
+import path from 'path';
+import sanitizeFilename from 'sanitize-filename';
 // eslint-disable-next-line import/no-extraneous-dependencies
-const { MongoMemoryServer } = require('mongodb-memory-server');
-const express = require('express');
-const session = require('express-session');
-const mongoose = require('mongoose');
-const passport = require('passport');
-const uuidv4 = require('uuid').v4;
-const request = require('supertest');
-const random = require('random').default;
+import { MongoMemoryServer } from 'mongodb-memory-server';
+import express from 'express';
+import session from 'express-session';
+import mongoose from 'mongoose';
+import passport from 'passport';
+import { v4 as uuidv4 } from 'uuid';
+import request, { SuperAgentTest } from 'supertest';
+import random from 'random';
 
 // const auth = require('../service/auth');
-const authValidatorMaker = require('@/auth/validator');
-const {
+import { make as authValidatorMake } from '@/auth/validator';
+import fileManager from '@/manager/file';
+import fileServiceMaker from '@/service/file';
+
+// eslint-disable-next-line import/named
+import { graphQLServerMiddleware } from '@/graphql';
+import local from '@/auth/passport';
+import { make as makeAuthMiddleware } from '@/auth/auth-middleware';
+import { Braced } from '@/typedef';
+import {
   db,
   auth,
   validator,
   // file: { uploadMiddleware },
-} = require('@/loader');
-const fileManager = require('@/manager/file');
-const fileServiceMaker = require('@/service/file').default;
-const { graphQLServerMiddleware } = require('@/graphql').default;
-const local = require('@/auth/passport').default;
-const { enumAuthmap } = require('@/db/schema/enum');
-const { make: makeAuthMiddleware } = require('@/auth/auth-middleware');
-const { loginQuery } = require('./graphql-request');
+} from '@/loader';
+import { loginQuery } from './graphql-request';
 
-const uploadDest = 'test/uploads';
-const uploadField = 'bin';
-const fileService = fileServiceMaker.make(
+
+export const uploadDest = 'test/uploads';
+export const uploadField = 'bin';
+export const fileService = fileServiceMaker.make(
   db,
   fileManager,
   uploadDest,
   uploadField,
 );
-const { uploadMiddleware, getFileMiddleware } = fileService;
-const foldername = 'generated-html';
-const makeAgent = request.agent;
+export const { uploadMiddleware, getFileMiddleware } = fileService;
+export const foldername = 'generated-html';
+export const makeAgent = request.agent;
 
 /**
  * supertest 의 agent 기반으로 graphql 요청을 보냅니다.
@@ -47,7 +49,12 @@ const makeAgent = request.agent;
  * @param {string} query
  * @param {object} variables
  */
-const graphqlSuper = async (agent, query, variables) =>
+export const graphqlSuper = async (
+  agent: SuperAgentTest,
+  query: string,
+  // eslint-disable-next-line @typescript-eslint/ban-types
+  variables: object = {},
+): Promise<request.Response> =>
   new Promise((resolve, reject) => {
     agent
       .post('/graphql')
@@ -69,27 +76,27 @@ const graphqlSuper = async (agent, query, variables) =>
       });
   });
 
-const guestEmail = 'testGuest';
-const adminEmail = 'testAdmin';
+export const guestEmail = 'testGuest';
+export const adminEmail = 'testAdmin';
 
-const doLogin = async (agent, email, pwd) =>
+export const doLogin = async (agent, email, pwd) =>
   graphqlSuper(agent, loginQuery, {
     email,
     pwd,
   });
 
-const doLogout = async (agent) => {
+export const doLogout = async (agent) => {
   await agent.get('/logout');
 };
 
-const doAdminLogin = async (agent) => {
+export const doAdminLogin = async (agent) => {
   if (!agent) throw Error('agent 가 설정되지 않았습니다.');
   return graphqlSuper(agent, loginQuery, {
     email: adminEmail,
     pwd: 'abc',
   });
 };
-const doGuestLogin = async (agent) => {
+export const doGuestLogin = async (agent) => {
   if (!agent) throw Error('agent 가 설정되지 않았습니다.');
   return graphqlSuper(agent, loginQuery, {
     email: guestEmail,
@@ -98,17 +105,17 @@ const doGuestLogin = async (agent) => {
 };
 
 /**
- * 
- * @param {Mocha.Suite} hookFunctions 
+ *
+ * @param {Mocha.Suite} hookFunctions
  */
-const testDatabaseServer = (hookFunctions) => {
+export const testDatabaseServer = (hookFunctions) => {
   const mongod = new MongoMemoryServer({ binary: { version: 'latest' } });
 
   hookFunctions.timeout(1000000);
   hookFunctions.beforeAll('db 초기화', async function () {
     // console.log('testDatabaseServer - before!!');
     const uri = await mongod.getUri();
-    console.log(uri);
+    // console.log(uri);
     /** @type {mongoose.ConnectOptions} */
     const mongooseOpts = {
       useNewUrlParser: true,
@@ -116,9 +123,9 @@ const testDatabaseServer = (hookFunctions) => {
       useCreateIndex: true,
       useFindAndModify: false,
     };
-    console.log('과연 연결이 될까?');
+    // console.log('과연 연결이 될까?');
     await mongoose.connect(uri, mongooseOpts);
-    console.log('과연 연결이 되었다!');
+    // console.log('과연 연결이 되었다!');
   });
 
   hookFunctions.beforeEach('유저 세팅', async function () {
@@ -155,9 +162,9 @@ const testDatabaseServer = (hookFunctions) => {
 
 /**
  * this 를 넘겨wnaustj createTestServer 수행
- * @param {Mocha.Suite} hookFunctions 
+ * @param {Mocha.Suite} hookFunctions
  */
-const createTestServer = (hookFunctions) => {
+export const createTestServer = (hookFunctions) => {
   // const model = require("../db/model").make(mongoose);
 
   /** @type {import("express").Express} */
@@ -166,7 +173,7 @@ const createTestServer = (hookFunctions) => {
   const agent = makeAgent(webapp);
   /** DB 세팅 */
   // delete require.cache[require.resolve('passport')];
-  
+
   hookFunctions.beforeAll('웹서버 초기화', async function () {
     // const autoIncrement = AutoIncrementFactory(mongoose);
     // autoIncrement.initialize(mongoose.connection);
@@ -210,7 +217,7 @@ const createTestServer = (hookFunctions) => {
     webapp.get('/user', (req, res, next) => {
       res.send({ user: req.user, isAuthenticated: req.isAuthenticated() });
     });
-    const authValidator = authValidatorMaker.make(auth.authmapLevel);
+    const authValidator = authValidatorMake(auth.authmapLevel);
     // console.log("--auth.authmapLevel--");
     // console.dir(auth.authmapLevel);
 
@@ -260,8 +267,8 @@ const createTestServer = (hookFunctions) => {
  * @param {string} html
  * @returns {Promise<void>}
  */
-const makeHtmlReport = async (self, html) =>
-  new Promise((resolve, reject) => {
+export const makeHtmlReport = async (self, html) =>
+  new Promise<void>((resolve, reject) => {
     const filename = `${sanitizeFilename(self.test.fullTitle())}.html`;
     const fullpath = path.join(__dirname, foldername, filename);
     fs.writeFile(fullpath, html, function (err) {
@@ -276,7 +283,7 @@ const makeHtmlReport = async (self, html) =>
  * 제일 첫 글자를 대문자로 만듭니다.
  * @param {string} s
  */
-const capitalize = (s) => {
+export const capitalize = (s) => {
   if (typeof s !== 'string') return '';
   return s.charAt(0).toUpperCase() + s.slice(1);
 };
@@ -285,7 +292,7 @@ const capitalize = (s) => {
  * graphql argument 로 들어갈 수 있는 문자열을 생성합니다.
  * @param {Object} obj
  */
-const stringify = (obj) => {
+export const stringify = (obj) => {
   if (obj === null || obj instanceof Date || typeof obj !== 'object') {
     // not an object, stringify using native function
     return JSON.stringify(obj);
@@ -311,12 +318,12 @@ const stringify = (obj) => {
 /**
  * @param {GraphQLParamListItem[]} paramList
  */
-const makeOuterParamList = (paramList) =>
+export const makeOuterParamList = (paramList) =>
   paramList.map((param) => `$${param.varName}: ${param.typeName}`).join(', ');
 /**
  * @param {GraphQLParamListItem[]} paramList
  */
-const makeInnerParamlist = (paramList) =>
+export const makeInnerParamlist = (paramList) =>
   paramList.map((param) => `${param.varName}: $${param.varName}`).join(', ');
 /**
  * @typedef {Object} CreateQueryStringOption
@@ -330,7 +337,7 @@ const makeInnerParamlist = (paramList) =>
  * @param {string} reqName
  * @param {CreateQueryStringOption} param1
  */
-const makeReqString = (
+export const makeReqString = (
   reqName,
   { type = 'query', paramList, resultString },
 ) => {
@@ -347,7 +354,7 @@ const makeReqString = (
  * @param {string} reqName
  * @param {CreateQueryStringOption} defs
  */
-const makeRequest = (agent, reqName, defs) => async (args) => {
+export const makeRequest = (agent, reqName, defs) => async (args) => {
   const res = await graphqlSuper(agent, makeReqString(reqName, defs), args);
   const result = res.body.data[reqName];
   return result;
@@ -361,7 +368,7 @@ const makeRequest = (agent, reqName, defs) => async (args) => {
  * @param {Object.<string, any>} args
  * @param {string} resultString
  */
-const makeSimpleRequestString = (endpoint, args, resultString) => {
+export const makeSimpleRequestString = (endpoint, args, resultString) => {
   const entries = Object.entries(args);
   let argsString = '';
   if (entries.length > 0) {
@@ -379,7 +386,10 @@ const makeSimpleRequestString = (endpoint, args, resultString) => {
  * 간단한 Mutation 요청 함수를 만듭니다.
  * @param {string} endpoint
  */
-const makeSimpleMutation = (agent, endpoint) => async (args, resultString) => {
+export const makeSimpleMutation = (agent: SuperAgentTest, endpoint: string) => async (
+  args,
+  resultString,
+): Promise<any> => {
   const reqStr = `mutation ${endpoint}Mutation ${makeSimpleRequestString(
     endpoint,
     args,
@@ -395,7 +405,10 @@ const makeSimpleMutation = (agent, endpoint) => async (args, resultString) => {
  * 간단한 Query 요청 함수를 만듭니다.
  * @param {string} endpoint
  */
-const makeSimpleQuery = (agent, endpoint) => async (args, resultString) => {
+export const makeSimpleQuery = (agent, endpoint) => async (
+  args,
+  resultString,
+) => {
   const str = `query ${endpoint}Query ${makeSimpleRequestString(
     endpoint,
     args,
@@ -420,14 +433,14 @@ const makeSimpleQuery = (agent, endpoint) => async (args, resultString) => {
 //   });
 // };
 
-const randomDate = () =>
+export const randomDate = () =>
   new Date(random.int(1990, 2020), random.int(1, 12), random.int(1, 20));
 
 /**
  * 폴더 안의 파일들을 삭제합니다.
  * @param {string} directory 폴더의 경로
  */
-const clearDirectory = async (directory) => {
+export const clearDirectory = async (directory) => {
   const files = await fs.promises.readdir(directory);
   const removePromises = files.map((file) =>
     fs.promises.unlink(path.join(directory, file)),
@@ -442,7 +455,7 @@ const clearDirectory = async (directory) => {
 //  * @property {string} mimeType
 //  */
 
-module.exports = {
+export default {
   adminEmail,
   guestEmail,
   graphqlSuper,

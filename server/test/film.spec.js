@@ -1,6 +1,6 @@
 const { expect } = require('chai');
-const random = require('random');
-// const { upload, createFileFromMockFile } = require('./tool');
+const addContext = require("mochawesome/addContext");
+// const { upload, createFileFromMockFile } = require('./tool').default;
 const { fake } = require('sinon');
 const { model, db } = require('@/loader');
 const {
@@ -18,12 +18,12 @@ const {
   doLogout,
   makeSimpleQuery,
   randomDate,
-} = require('./tool');
+} = require('./tool').default;
 describe('film', function () {
   // eslint-disable-next-line mocha/no-setup-in-describe
   const { agent } = createTestServer(this);
 
-  describe('데이터베이스', function () {
+  describe('db', function () {
     beforeEach('덤프 Film 만들기', async function () {
       await model.Film.create({
         title: '헬로우 마스터의 수퍼 길',
@@ -453,7 +453,7 @@ describe('film', function () {
       });
     });
   });
-  describe('실제 api', function () {
+  describe('api', function () {
     describe('film', function () {
       it('제대로 동작해야 함', async function () {
         await model.Film.create({ title: '안녕' });
@@ -509,7 +509,7 @@ describe('film', function () {
             search: '녕2',
           },
         });
-        // console.log(result3.body.data.films);
+        addContext(this, {title: 'log', value: result3.body.data.films});
         expect(result3.body.data.films.list.length).to.equal(1);
       });
       it('페이지네이션이 제대로 동작해야 함.', async function () {

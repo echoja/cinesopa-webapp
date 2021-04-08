@@ -12,7 +12,7 @@ const {
   guestEmail,
   makeSimpleMutation,
   makeSimpleQuery,
-} = require('./tool');
+} = require('./tool').default;
 
 const cartitemsQuery = `
 query cartitemsQuery {

@@ -1,7 +1,7 @@
 import { VerifyPaymentResult, CancelPaymentArgs } from "@/typedef"
 
-const { RestClient } = require('@bootpay/server-rest-client');
-const { bootpayRestAppID, bootpayRestPvKey } = require('../../config/common');
+import { RestClient } from "@bootpay/server-rest-client";
+import { bootpayRestAppID, bootpayRestPvKey } from "@config/common";
 
 RestClient.setConfig(bootpayRestAppID, bootpayRestPvKey);
 
@@ -66,6 +66,7 @@ export class BootpayManager {
       return { success: false, code: e.message };
     }
   }
+
   /**
    * 실제 정보를 부트페이로브터 가져옵니다. 결제 검증 시 이용됨.
    * @param {string} receipt_id
@@ -112,7 +113,7 @@ export class BootpayManager {
     // cancel 에 전달할 인자 생성
     const reqArgs = {
       receiptId: receipt_id,
-      price: price,
+      price,
       name,
       reason,
     };
@@ -167,7 +168,5 @@ export class BootpayManager {
   }
 }
 
-export const make = () => {
-  return new BootpayManager();
-}
+export const make = () => new BootpayManager()
 

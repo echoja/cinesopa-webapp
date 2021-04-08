@@ -21,7 +21,7 @@ module.exports = {
       // console.log("--req.user--");
       // console.dir(req.user);
       authvalidator
-        .contains(enumAuthmap[req.user?.role], condition)
+        .contains(req.user?.role, condition)
         .then((value) => {
           if (value === true) {
             next();

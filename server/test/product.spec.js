@@ -10,7 +10,7 @@ const {
   doGuestLogin,
   adminEmail,
   guestEmail,
-} = require('./tool');
+} = require('./tool').default;
 
 const createProductMutation = `
 mutation createProductMutation($input: ProductInput!) {
@@ -141,6 +141,11 @@ describe('product', function () {
         });
         await model.Product.create({
           content_sub: 'cs',
+        });
+        await model.Product.create({
+          product_type: 'sopakit',
+          content_sub: 'on yeah',
+          content_main: 'I can feel it!',
         });
       });
       it('아무런 조건이 없을 때 잘 동작해야 함.', async function () {

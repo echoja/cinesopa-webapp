@@ -17,6 +17,7 @@ import path from 'path';
 import { graphqlHTTP } from 'express-graphql';
 import { buildContext } from 'graphql-passport';
 import { GraphQLSchema } from 'graphql';
+import { Handler } from 'express';
 
 import applicationResolver from './api/application-resolver';
 import boardResolver from './api/board-resolver';
@@ -31,9 +32,8 @@ import productResolver from './api/product-resolver';
 import siteOptionResolver from './api/site-option-resolver';
 import sopakitResolver from './api/sopakit-resolver';
 import tagResolver from './api/tag-resolver';
-import uncatagorizedResolver from './api/uncatagorized-resolver';
+import uncategorizedResolver from './api/uncategorized-resolver';
 import userResolver from './api/user-resolver';
-import { Handler } from 'express';
 
 const allResolvers = [
   applicationResolver,
@@ -49,7 +49,7 @@ const allResolvers = [
   siteOptionResolver,
   sopakitResolver,
   tagResolver,
-  uncatagorizedResolver,
+  uncategorizedResolver,
   userResolver,
 ];
 
@@ -60,9 +60,9 @@ const typesSchema = loadSchemaSync(graphqlPaths, {
 });
 
 
-const schema : GraphQLSchema = addResolversToSchema(typesSchema, mergeResolvers(allResolvers));
+export const schema : GraphQLSchema = addResolversToSchema(typesSchema, mergeResolvers(allResolvers));
 
-const graphQLServerMiddleware: Handler = (req, res, next) => {
+export const graphQLServerMiddleware: Handler = (req, res, next) => {
   const isDevelopment: boolean = process.env.NODE_ENV === 'development';
   graphqlHTTP({
     schema,

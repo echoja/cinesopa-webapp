@@ -1,11 +1,8 @@
-const Mongoose = require('mongoose');
 // const autoIdSetter = require('./auto-id-setter');
+import { Mongoose, Schema } from 'mongoose';
 import autoIdSetter from './auto-id-setter';
-/**
- *
- * @param {Mongoose} mongoose
- */
- export default function (mongoose) {
+
+export default function (mongoose: Mongoose): Schema {
   const schema = new mongoose.Schema({
     title: String,
     description: String,
@@ -16,4 +13,4 @@ import autoIdSetter from './auto-id-setter';
   });
   autoIdSetter(schema, mongoose, 'board', 'id');
   return schema;
-};
+}

@@ -869,7 +869,7 @@ declare global {
   // eslint-disable-next-line @typescript-eslint/no-namespace
   namespace Express {
     export interface User {
-      role?: string;
+      role?: AuthType;
       email?: string;
     }
   }

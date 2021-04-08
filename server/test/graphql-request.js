@@ -53,7 +53,9 @@ const filmResponse = `{
   }
   synopsis 
   note 
-  tags 
+  tags {
+    name
+  }
   meta 
 }
 `;
@@ -84,7 +86,6 @@ query checkAuth($redirectLink: String!, $role: Permission!) {
   checkAuth(redirectLink:$redirectLink, role: $role) {
     permissionStatus
     user {
-      name
       email
       c_date
       role

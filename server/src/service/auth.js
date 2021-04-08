@@ -1,8 +1,8 @@
 // require('@/typedef');
 
 // const connectMongo = require('connect-mongo'); 테스트에서 DANGLING 유발!!!
-const { enumAuthmap } = require('../db/schema/enum');
 const { CustomPassportContext, DBManager, Userinfo, AuthmapLevel } = require('@/typedef');
+const { enumAuthmap } = require('../db/schema/enum');
 
 // const sessionStore = require('./session-store'); 테스트에서 DANGLING 유발!!!
 
@@ -29,6 +29,7 @@ class AuthService {
   constructor(db) {
     this.#db = db;
   }
+
   /**
    * 현재 세션의 유저를 로그아웃시킨다.
    * @param {CustomPassportContext} context 콘텍스트
@@ -39,6 +40,7 @@ class AuthService {
     context.logout();
     return user;
   }
+
   /**
    * @typedef {Object} LoginOption
    * @property {boolean=} disableSession 기본: false

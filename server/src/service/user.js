@@ -1,5 +1,4 @@
 // require('@/typedef');
-const { enumTokenPurpose } = require('../db/schema/enum');
 
 const {
   DBManager,
@@ -12,6 +11,7 @@ const {
 
 // const { enumAuthmap, enumTokenPurpose } = require('../db/schema/enum');
 const crypto = require('crypto');
+const { enumTokenPurpose } = require('../db/schema/enum');
 // const { composeResolvers } = require('graphql-tools');
 
 // const mail = require("./mail");
@@ -97,8 +97,11 @@ class UserService {
       await this.#db.upsertOnlyLogin(email, pwd);
     }
   }
+
   /**
    * 계정에 대해 비밀번호 변경 링크를 만들어 계정에게 이메일을 보냄.
+   * @param {string} email 
+   * @param {boolean=} debug 
    */
   async requestChangePassword(email, debug = false) {
     // 이메일을 찾을 수 없는 경우 에러
@@ -115,7 +118,7 @@ class UserService {
     // }
 
     const token = crypto.randomBytes(20).toString('hex');
-    await this.#db.createToken({ email, token, purpose: 'change_password'});
+    await this.#db.createToken({ email, token, purpose: 'change_password' });
 
     const mailGate = {
       recipientEmail: email,
@@ -198,7 +201,7 @@ class UserService {
       'email_verification',
     );
 
-    const email = tokenDoc.email;
+    const { email } = tokenDoc;
     const user = await this.#db.getUserByEmail(email);
     // console.log('--verifyEmail - user--');
     // console.log(user);
@@ -227,6 +230,7 @@ class UserService {
     }
     return null;
   }
+
   // /**
   //  * 비밀번호 변경 토큰을 받아서 유효한 토큰인지 체크.
   //  * @param {string} token

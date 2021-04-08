@@ -5,26 +5,17 @@
 import { IApplication } from '@/typedef';
 import { Mongoose, Schema } from 'mongoose';
 
-
-
-const { makeSchemaHaveSearch } = require('./tool');
-const {
+import { makeSchemaHaveSearch } from './tool';
+import {
   enumApplicationTransportStatus,
   enumApplicationDocStatus,
   enumApplicationMoneyStatus,
   enumApplicationReceiptStatus,
-} = require('./enum');
+} from './enum';
 
-const autoIdSetter = require('./auto-id-setter');
+import autoIdSetter from './auto-id-setter';
 
-/**
- * @param {import("mongoose").Mongoose} mongoose
- */
-
-
-
- export default function (mongoose: Mongoose): Schema {
-
+export default function (mongoose: Mongoose): Schema {
   const schema = new mongoose.Schema({
     host: String, // 주최
     c_date: { type: Date, default: Date.now }, // 만든 일시
@@ -60,7 +51,7 @@ const autoIdSetter = require('./auto-id-setter');
     receipt_date: Date, // 세금계산서 발행 날짜
     receipt_email: String, // 세금계산서 발행 이메일
     receipt_etc_req: String, // 세금계산서 관련 기타 요청
-    
+
     reqdoc_token: String, // 서류 요청 토큰
     reqdoc_expire_date: Date, // 서류 요청 url 기한
 

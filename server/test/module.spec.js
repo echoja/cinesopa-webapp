@@ -7,16 +7,16 @@ const ExcelJs = require('exceljs');
 const express = require('express');
 const createAgent = require('supertest').agent;
 const { expect } = require('chai');
-const { clearDirectory } = require('./tool');
 const fs = require('fs');
+const { clearDirectory } = require('./tool').default;
 
 describe('modules', function () {
   // after('파일 제거', async function () {
-  //   await clearDirectory('test/imsi');
+  //   await clearDirectory('test/temp');
   // });
   describe('express + exceljs', function () {
     it('exceljs 생성 + 파일 다운로드 + 파일 삭제 제대로 동작해야 함', async function () {
-      const xlsxPath = 'test/imsi/test.xlsx';
+      const xlsxPath = 'test/temp/test.xlsx';
       const workbook = new ExcelJs.Workbook();
       workbook.creator = '영화배급협동조합 씨네소파';
       // workbook.lastModifiedBy = 'Her';
@@ -52,7 +52,7 @@ describe('modules', function () {
       const agent = createAgent(app);
       const result = await agent.get('/download');
       // console.dir(result);
-      const imsi = fs.readdirSync('test/imsi');
+      const imsi = fs.readdirSync('test/temp');
       // console.dir(imsi);
       expect(result.status).to.equal(200);
       expect(imsi).to.be.empty;
@@ -63,7 +63,7 @@ describe('modules', function () {
   describe('express', function () {
     it('download callback이 제대로 동작해야 함', async function () {
       const app = express();
-      const filepath = 'test/imsi/express-download-test.txt';
+      const filepath = 'test/temp/express-download-test.txt';
       await fs.promises.writeFile(filepath, 'hello-world!');
       app.get('/download', (req, res) => {
         res.download(filepath, (err) => {
@@ -82,7 +82,7 @@ describe('modules', function () {
       const agent = createAgent(app);
       const result = await agent.get('/download');
       // console.dir(result);
-      const imsi = fs.readdirSync('test/imsi');
+      const imsi = fs.readdirSync('test/temp');
       // console.dir(imsi);
       expect(result.status).to.equal(200);
       expect(imsi).to.be.empty;
@@ -91,7 +91,7 @@ describe('modules', function () {
     });
   });
   before('파일 제거', async function () {
-    await clearDirectory('test/imsi');
+    await clearDirectory('test/temp');
   });
   describe('exceljs', function () {
     it('기본 동작 실험. 새로 만들어서 파일 만들기', function () {
@@ -109,7 +109,7 @@ describe('modules', function () {
         { header: '이것은 날짜입니다.', key: 'date' },
       ];
       sheet.addRows([{ id: 1, name: 'ho', DOB: 'powerman', date: new Date() }]);
-      workbook.xlsx.writeFile('test/imsi/test.xlsx');
+      workbook.xlsx.writeFile('test/temp/test.xlsx');
     });
   });
   describe('hangul', function () {

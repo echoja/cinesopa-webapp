@@ -12,7 +12,7 @@ const {
   guestEmail,
   makeSimpleMutation,
   makeSimpleQuery,
-} = require('./tool');
+} = require('./tool').default;
 
 describe('order', function () {
   // eslint-disable-next-line mocha/no-setup-in-describe

@@ -1,12 +1,19 @@
 include base.pug
 
-//- variables: order, detailUrl, totalProductPrice, transportFee, totalPrice, paymentMethod
+//- ### VARIABLES ###
+- var transportFeeFormatted = transportFeeFormatted || '-'
+- var totalPriceFormatted = totalPriceFormatted || '-'
+- var paymentMethod = paymentMethod || '-'
+- var itemsFormatted = itemsFormatted || []
+- var detailsLink = detailsLink || '-'
+- var fullAddress = fullAddress || '#'
+- var totalProductPriceFormatted = totalProductPriceFormatted || '-'
+- var dest = dest || {phone: '', name: ''}
 //- td.header {width: 120px;}
 
 style.
   .main-phrase{font-size: 22px; font-weight: bold; text-align: center; padding-bottom: 10px;}
-  .subtitle {padding-top: 40px; padding-bottom: 10px; font-size: 18px; font-weight: bold; border-bottom: 1px solid #ddd;}
-  /*.content-table {padding-top: 20px;}*/
+  .subtitle {padding-top: 40px; padding-bottom: 10px; font-size: 18p[]
   td.header, td.content {padding-top: 10px; padding-bottom: 10px; border-bottom: 1px solid #ddd}
   .featured-image {
     width: 120px;

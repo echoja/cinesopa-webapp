@@ -98,8 +98,10 @@ module.exports = {
       const { email } = context.getUser();
       const { input, payer } = args;
 
-      /** @type {number[]} */
-      const items_id = args;
+      /** @type {{items_id: number[]}} */
+      const { items_id } = input;
+      console.log('# order-resolver.js mutation createOrderFromCart');
+      console.log(args);
       // 우선 cartitem id 가 전부 자신의 소유가 맞는지 검증
       const promises = items_id.map((id) => db.getCartitem(id));
       const results = await Promise.allSettled(promises);
@@ -107,11 +109,12 @@ module.exports = {
       // cartitem 중 만약 하나라도 status 가 rejected 이거나 일치하지 않는 user가 나오면 검증 실패이므로
       // 아무런 작업도 하지 않고 바로 리턴.
       if (
-        results.some((result) => (
+        results.some(
+          (result) =>
             result.status === 'rejected' ||
             !result.value ||
-            result.value.user !== email
-          ))
+            result.value.user !== email,
+        )
       ) {
         return { success: false, code: 'cartitem_not_owned_by_user' };
       }

@@ -10,7 +10,7 @@ const {
   doGuestLogin,
   adminEmail,
   guestEmail,
-} = require('./tool');
+} = require('./tool').default;
 
 describe('product-cartitem', function () {
   // eslint-disable-next-line mocha/no-setup-in-describe

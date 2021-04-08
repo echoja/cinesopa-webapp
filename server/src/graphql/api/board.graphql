@@ -19,7 +19,7 @@ input BoardInput {
 }
 
 input BoardSearch {
-  id: String
+  id: Int
   permalink: String
   belongs_to: String
 }

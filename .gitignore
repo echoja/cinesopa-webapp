@@ -1,12 +1,13 @@
 .DS_Store
 
-# 테스트용 html 생성 폴더
+# 테스트용
 /server/test/generated-html
-
-# mochawesome가 생성한 테스트용 html 폴더
-/server/mochawesome-report
+/server/test/output
+/server/test/temp
 /server/test/upload-middlewares
 /server/test/uploads
+/server/mochawesome-report
+
 # local env files
 .env.local
 .env.*.local
@@ -18,7 +19,7 @@ ts-build
 /proxy/config/*
 !/server/config/*-example.js
 !/server/config/*-example.json
-/server/test/output
+
 
 # Editor directories and files
 .idea

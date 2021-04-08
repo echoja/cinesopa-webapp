@@ -1,7 +1,8 @@
 import { expect } from 'chai';
 import random from 'random';
-// const { upload, createFileFromMockFile } = require('./tool');
+// const { upload, createFileFromMockFile } = require('./tool').default;
 import { fake } from 'sinon';
+import { db, model } from '@/loader';
 import {
   filmQuery,
   filmsQuery,
@@ -18,7 +19,6 @@ import {
   makeSimpleQuery,
   randomDate,
 } from './tool';
-import { db, model } from '@/loader';
 
 describe('application', function () {
   const { agent, fileService, mongod, uploadDest, webapp } = createTestServer(

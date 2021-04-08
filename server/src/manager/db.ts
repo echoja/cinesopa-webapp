@@ -439,7 +439,7 @@ export class DBManager {
    */
   async createPage(pageinfo: Pageinfo): Promise<void> {
     const { permalink, belongs_to } = pageinfo;
-    console.log(`db.createPage-${permalink}, ${belongs_to}`);
+    // console.log(`db.createPage-${permalink}, ${belongs_to}`);
     if (await model.Page.findOne({ permalink, belongs_to })) {
       throw Error(`${belongs_to}의 ${permalink} 페이지가 이미 존재합니다.`);
     }
@@ -650,82 +650,40 @@ export class DBManager {
     is_opened = null,
     status = null,
   ): PromGetDBItems<IFilm> {
-    let query = model.Film.find().sort({ open_date: -1 });
+    const query = model.Film.find().sort({ open_date: -1 });
 
     if (prod_lte || prod_gte) {
       // console.log('getFilms: prod!!');
       const prod_date: DateCond = {};
       if (prod_lte) prod_date.$lte = prod_lte;
       if (prod_gte) prod_date.$gte = prod_gte;
-      query = query.find({ prod_date });
+      query.find({ prod_date });
     }
     if (open_lte || open_gte) {
-      console.log('getFilms: open!!');
+      // console.log('getFilms: open!!');
       const open_date: DateCond = {};
       if (open_lte) open_date.$lte = open_lte;
       if (open_gte) open_date.$gte = open_gte;
-      query = query.find({ open_date });
-
-      if (prod_lte || prod_gte) {
-        // console.log('getFilms: prod!!');
-        const prod_date: DateCond = {};
-        if (prod_lte) prod_date.$lte = prod_lte;
-        if (prod_gte) prod_date.$gte = prod_gte;
-        query = query.find({ prod_date });
-      }
-      if (open_lte || open_gte) {
-        console.log('getFilms: open!!');
-        const open_date: DateCond = {};
-        if (open_lte) open_date.$lte = open_lte;
-        if (open_gte) open_date.$gte = open_gte;
-        query = query.find({ open_date });
-      }
-      if (search !== null && search.length > 0) {
-        console.log(`getFilms: search: ${search}`);
-        // query = query.find({ $text: { $search: search } }); // 단어 단위로 검색을 할 때 필요함. 검색 엔진 같은 느낌임.
-        query = query.find({ search: new RegExp(`${search}`) });
-      }
-      if (tags && tags.length > 0) {
-        console.log('getFilms: tags!!');
-        query = query.find({ 'tags.name': { $all: tags } });
-      }
-
-      if (is_opened !== null) {
-        query = query.find({ is_opened });
-      }
-
-      if (status) {
-        query = query.find({ status });
-      }
-
-      // 페이지 하기 전의 영화 총 개수 구하기
-      const total = (await query.exec()).length;
-
-      // 페이지 설정 및 open_date 로 정렬
-      if (page !== null && perpage) {
-        console.log('getFilms: page, perpage!!');
-        query = query
-          .limit(perpage)
-          .skip(perpage * page)
-          .sort({ open_date: -1 });
-      }
-
-      return {
-        total,
-        list: await query.lean().exec(),
-      };
+      query.find({ open_date });
     }
+
+    if (search !== null && search.length > 0) {
+      // console.log(`getFilms: search: ${search}`);
+      // query.find({ $text: { $search: search } }); // 단어 단위로 검색을 할 때 필요함. 검색 엔진 같은 느낌임.
+      query.find({ search: new RegExp(`${search}`) });
+    }
+
     if (tags && tags.length > 0) {
-      console.log('getFilms: tags!!');
-      query = query.find({ 'tags.name': { $all: tags } });
+      // console.log('getFilms: tags!!');
+       query.find({ 'tags.name': { $all: tags } });
     }
 
     if (is_opened !== null) {
-      query = query.find({ is_opened });
+       query.find({ is_opened });
     }
 
     if (status) {
-      query = query.find({ status });
+       query.find({ status });
     }
 
     // 페이지 하기 전의 영화 총 개수 구하기
@@ -733,8 +691,8 @@ export class DBManager {
 
     // 페이지 설정 및 open_date 로 정렬
     if (page !== null && perpage) {
-      console.log('getFilms: page, perpage!!');
-      query = query
+      // console.log('getFilms: page, perpage!!');
+       query
         .limit(perpage)
         .skip(perpage * page)
         .sort({ open_date: -1 });
@@ -882,7 +840,7 @@ export class DBManager {
     // console.log(tags);
 
     // 영화 정보를 태그에 넣기.
-    console.log(tags);
+    // console.log(tags);
 
     const films = new Set(
       tags.map((tag) => tag.related_films.map((film) => film.id)).flat(20),
@@ -897,8 +855,8 @@ export class DBManager {
       }))(),
     );
     const filmResults = await Promise.allSettled(filmPromises);
-    console.log('# db getTags');
-    console.log(filmResults);
+    // console.log('# db getTags');
+    // console.log(filmResults);
     const filmDocs = new Map(
       filmResults
         .filter(
@@ -908,7 +866,7 @@ export class DBManager {
         .map((result) => [result.value.filmId, result.value.doc]),
     );
 
-    console.log(filmDocs);
+    // console.log(filmDocs);
 
     tags.forEach((tag) => {
       tag.related_films = tag.related_films.map((film) =>
@@ -992,8 +950,8 @@ export class DBManager {
    * id에 따라서 게시판을 얻습니다. (id는 mongodb id 입니다.)
    * @param id
    */
-  async getBoardById(id: number): PromLD<IBoard> {
-    return model.Board.findOne({ _id: id }).lean().exec();
+  async getBoard(id: number): PromLD<IBoard> {
+    return model.Board.findOne({ id }).lean().exec();
   }
 
   /**
@@ -1218,7 +1176,11 @@ export class DBManager {
       // console.log(`getPosts: status: ${status}`);
       query = query.find({ status });
     }
-    return (await query.exec()).length;
+    
+    const result = await query.lean().exec();
+    // console.log('#db getPostsCount last');
+    // console.log(result);
+    return result.length;
   }
 
   /**
@@ -1455,8 +1417,8 @@ export class DBManager {
     // console.log(remainedCartitems);
     product.related_cartitems = remainedCartitems;
 
-    console.log('# db updateProduct input!!!!!');
-    console.log(input);
+    // console.log('# db updateProduct input!!!!!');
+    // console.log(input);
 
     product.set(input);
     await product.save();
@@ -1728,8 +1690,8 @@ export class DBManager {
       status,
       user,
     } = condition;
-    console.log('# db getOrders condition');
-    console.log(condition);
+    // console.log('# db getOrders condition');
+    // console.log(condition);
 
     const buildQuery = () => {
       // 우선 정렬
@@ -1965,7 +1927,7 @@ export class DBManager {
     }
 
     if (search && search.length > 0) {
-      console.log(`getApplications: search: ${search}`);
+      // console.log(`getApplications: search: ${search}`);
       // query.find({ $text: { $search: search } }); // 단어 단위로 검색을 할 때 필요함. 검색 엔진 같은 느낌임.
       query.find({ search: new RegExp(`${search}`) });
     }
@@ -1989,7 +1951,7 @@ export class DBManager {
 
     // 페이지 설정 및 start_date 로 정렬
     if (page !== null && perpage) {
-      console.log('getApplications: page, perpage!!');
+      // console.log('getApplications: page, perpage!!');
       query
         .limit(perpage)
         .skip(perpage * page)
@@ -2029,7 +1991,7 @@ export class DBManager {
  * @returns {DBManager}
  */
 export const make = (modelInput: ModelWrapper): DBManager => {
-  console.log(`DBManager make started: ${Object.keys(modelInput).join(', ')}`);
+  // console.log(`DBManager make started: ${Object.keys(modelInput).join(', ')}`);
   // if (modelInput.make) throw Error('dbManager: model not initialized!');
   // initialized = true;
   model = modelInput;

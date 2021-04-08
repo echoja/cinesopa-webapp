@@ -4,7 +4,7 @@ const {
   createTestServer,
   graphqlSuper,
   doLogin,
-} = require('./tool');
+} = require('./tool').default;
 const { db, model } = require('@/loader');
 const {
   postsCountQuery,
@@ -155,6 +155,7 @@ describe('Post', function () {
     });
     describe('getPostsCount', function () {
       beforeEach('초기세팅', async function () {
+        await model.Post.deleteMany({});
         const board1 = await model.Board.create({
           title: '',
           description: '',
@@ -180,7 +181,7 @@ describe('Post', function () {
 
       it('아무 조건이 없을 시 모두 찾아야 함', async function () {
         const i = await db.getPostsCount();
-        expect(i).to.equal(4);
+        expect(i).to.equal(3);
       });
 
       it('board 조건이 제대로 작동해야 함', async function () {
@@ -198,7 +199,7 @@ describe('Post', function () {
           boards: ['hi', 'hello', 'whatsupman', 'nice'],
           belongs_to: 'sopaseom',
         });
-        expect(i3).to.equal(3);
+        expect(i3).to.equal(2);
       });
 
       it('status 조건이 제대로 작동해야 함', async function () {

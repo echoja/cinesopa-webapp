@@ -2,10 +2,12 @@
 const sinon = require('sinon');
 const { expect } = require('chai');
 const userCreator = require('@/service/user');
+const addContext = require('mochawesome/addContext');
 
 const { model, db } = require('@/loader');
 const passport = require('@/auth/passport');
 const { resetBehavior } = require('sinon');
+const { DBManager } = require('@/typedef');
 const {
   createTestServer,
   graphqlSuper,
@@ -15,8 +17,8 @@ const {
   makeSimpleQuery,
   adminEmail,
   guestEmail,
-} = require('./tool');
-const { DBManager } = require('@/typedef');
+} = require('./tool').default;
+const { makeSimpleMutation } = require('./tool');
 
 const usersQuery = `
 query usersQuery($condition: UsersCondition) {
@@ -120,11 +122,11 @@ mutation createGuestMutation($email: String!, $pwd: String!, $user_agreed: UserA
 const verifyUserEmailMutation = `
 mutation verifyUserEmailMutation($token: String!) {
   verifyUserEmail(token: $token) {
-
+    success
+    code
+    user {
       email
-      role
-      verified
-    
+    }  
   }
 }
 `;
@@ -162,9 +164,7 @@ mutation agreementForKakaoUserMutation($user_agreed: UserAgreedInput!) {
 const updateMeMutation = `
 mutation updateMeMutation($userinfo: UpdateMeInput!) {
   updateMe(userinfo: $userinfo) {
-    email
-    role
-    verified
+    success code
   }
 }
 `;
@@ -469,7 +469,6 @@ describe('user', function () {
     //   beforeEach('매니저들 초기화', function () {
     //     db.userExists = sinon.fake.returns(true);
     //   });
-
     //   it('함수 호출이 잘 작동해야 함', async function () {
     //     const userserv = userCreator.make(dbFake, mail);
     //     await userserv.createGuest('test', 'abc');
@@ -480,11 +479,10 @@ describe('user', function () {
     //     expect(mail.sendMail.firstCall.args[0].recipientEmail).to.equal('test');
     //   });
     // });
-
     // describe('.verifyEmail', function () {
     //   /** @type {DBManager} */
     //   const dbFake = {
-    //     ...db, 
+    //     ...db,
     //     /** @type {sinon.SinonSpy<Parameters<typeof db.getToken>, ReturnType<typeof db.getToken>>} */
     //     getToken: sinon.fake(),
     //     getUserByEmail: sinon.fake(),
@@ -501,7 +499,6 @@ describe('user', function () {
     //     dbFake.updateUser = sinon.fake.returns({ email: 'test' });
     //     dbFake.removeToken = sinon.fake();
     //   });
-
     //   it('기본 실행 테스트', async function () {
     //     const userserv = userCreator.make(dbFake, mail);
     //     await userserv.verifyEmail('1324');
@@ -523,7 +520,6 @@ describe('user', function () {
     //         done();
     //       });
     //   });
-
     //   it('유효기간이 올바르면 제대로 실행되어야 함.', function (done) {
     //     const ddate = new Date();
     //     ddate.setMinutes(ddate.getMinutes() - 10);
@@ -544,7 +540,6 @@ describe('user', function () {
     //   });
     // });
     // describe('.initAdmin', function () {
-
     //   it('기본 실행', async function () {
     //     const userserv = userCreator.make(db, {});
     //     await userserv.initAdmin();
@@ -586,7 +581,8 @@ describe('user', function () {
             },
             `{total list {email role verified}}`,
           );
-          console.log({ total, list });
+          addContext(this, { title: 'log', value: { total, list } });
+          // console.log();
           expect(total).to.equal(1);
           expect(list[0].email).to.equal(adminEmail);
         });
@@ -619,7 +615,7 @@ describe('user', function () {
                 .then(() => {
                   graphqlSuper(agent, currentUserQuery)
                     .then((result) => {
-                      console.log(result);
+                      addContext(this, { title: 'log', value: result });
                       done(Error('에러가 발생하여야 합니다!'));
                     })
                     .catch(() => {
@@ -851,7 +847,8 @@ describe('user', function () {
     });
     describe('Mutation', function () {
       describe('login', function () {
-        const wrongPasswd = async () => graphqlSuper(agent, loginMutation, {
+        const wrongPasswd = async () =>
+          graphqlSuper(agent, loginMutation, {
             email: 'eszqsc112@naver.com',
             pwd: '13241325',
           });
@@ -941,7 +938,7 @@ describe('user', function () {
           await wrongPasswd();
           const res = await wrongPasswd();
           const result = res.body.data.login;
-          console.log(result);
+          addContext(this, { title: 'log', value: result });
           expect(result.wrong_pwd_count).to.equal(5);
           expect(result.wrong_reason).to.equal('too_much_attempt');
           expect(result.user).to.be.null;
@@ -1017,7 +1014,7 @@ describe('user', function () {
             .lean()
             .exec();
           // expect(user.email).to.equal('eszqsc112@naver.com');
-          console.log(user);
+          addContext(this, { title: 'log', value: user });
           expect(user.role).to.equal('GUEST');
           expect(user.verified).to.equal(false);
           expect(user.has_pwd).to.equal(true);
@@ -1050,7 +1047,7 @@ describe('user', function () {
             debug: true,
           });
           const result = res.body.data.createGuest;
-          console.log(result);
+          addContext(this, { title: 'log', value: result });
           const found = await model.User.findOne({
             email: 'eszqsc112@naver.com',
           })
@@ -1086,42 +1083,38 @@ describe('user', function () {
           const guest = await model.User.findOne({ email: 'testGuest' });
           expect(guest.verified).to.equal(true);
         });
-        it('유효기간이 넘을 경우 에러 발생해야 함', function (done) {
-          model.User.updateOne({ email: 'testGuest' }, { verified: false })
-            .then(() => {
-              model.Token.create({
-                token: 'abcde',
-                purpose: 'email_verification',
-                email: 'testGuest',
-                ttl: 1800,
-                c_date: new Date('2010-10-10'),
-              })
-                .then(() => {
-                  graphqlSuper(agent, verifyUserEmailMutation, {
-                    token: 'abcde',
-                  })
-                    .then((result) => {
-                      console.log(result.body.data);
-                      done(Error('에러가 발생해야 합니다!!!'));
-                    })
-                    .catch(() => {
-                      model.User.findOne({ email: 'testGuest' })
-                        .then((user) => {
-                          expect(user.verified).to.be.false;
-                          done();
-                        })
-                        .catch((err) => {
-                          done(err);
-                        });
-                    });
-                })
-                .catch((err) => {
-                  done(err);
-                });
-            })
-            .catch((err) => {
-              done(err);
-            });
+        it('유효기간이 넘을 경우 에러 발생해야 함', async function () {
+          await model.User.updateOne(
+            { email: 'testGuest' },
+            { verified: false },
+          );
+          await model.Token.create({
+            token: 'abcde',
+            purpose: 'email_verification',
+            email: 'testGuest',
+            ttl: 1800,
+            c_date: new Date('2010-10-10'),
+          });
+
+          const verifyUserEmailReq = makeSimpleMutation(
+            agent,
+            'verifyUserEmail',
+          );
+          const res = await verifyUserEmailReq(
+            { token: 'abcde' },
+            `{success
+            code
+            user {
+              email
+            }
+          }`,
+          );
+          // console.log("# user.spec.js 유효기간체크");
+          // console.log(res);
+          expect(res.success).to.equal(false);
+          const userFound = await model.User.findOne({ email: 'testGuest' });
+          // expect(errored).to.equal(true, '에러가 발생해야 합니다.');
+          expect(userFound.verified).to.be.false;
         });
         it('성공했을 시 로그인 상태여야 함 - 불가!!', async function () {
           this.skip();
@@ -1273,21 +1266,25 @@ describe('user', function () {
       describe('requestChangePassword', function () {
         it('제대로 동작해야 함', async function () {
           await doGuestLogin(agent);
-          await model.User.updateOne(
-            { email: 'testGuest' },
-            { verified: true },
-          );
-          const result = await graphqlSuper(
+          await model.User.updateOne({ email: guestEmail }, { verified: true });
+          const changePasswordReq = makeSimpleMutation(
             agent,
-            requestChangePasswordMutation,
+            'requestChangePassword',
+          );
+          const res = await changePasswordReq(
             {
+              email: guestEmail,
               debug: true,
             },
+            `{success, code}`,
           );
+          addContext(this, { title: 'log', value: res });
+
           const token = await model.Token.find({
-            email: 'testGuest',
-            purpose: 'change_password',
+            email: guestEmail,
           });
+          // console.log('# user.spec.js requestChangePassword');
+          addContext(this, { title: 'log', value: token });
           expect(token.length).to.not.equal(0);
         });
       });
@@ -1306,7 +1303,7 @@ describe('user', function () {
             pwd: 'helloMan',
           });
           const result = res.body.data.changePassword;
-          console.log(result);
+          addContext(this, { title: 'log', value: result });
           expect(result.success).to.be.true;
           const newLogin = await model.Login.find({ email: 'testGuest' })
             .lean()
@@ -1325,7 +1322,7 @@ describe('user', function () {
             pwd: 'helloMan',
           });
           const result = res.body.data.changePassword;
-          console.log(result);
+          addContext(this, { title: 'log', value: result });
           expect(result.success).to.equal(false);
         });
         it('성공했을 때 wrong_pwd_count 가 초기화되어야 함.', async function () {
@@ -1343,7 +1340,7 @@ describe('user', function () {
             pwd: 'helloMan',
           });
           const result = res.body.data.changePassword;
-          console.log(result);
+          addContext(this, { title: 'log', value: result });
           expect(result.success).to.equal(true);
           const user = await model.User.findOne({ email: guestEmail })
             .lean()

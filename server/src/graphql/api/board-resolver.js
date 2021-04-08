@@ -13,7 +13,7 @@ const boardResolver = makeResolver(async (obj, args, context, info) => {
   const { id, permalink, belongs_to } = condition;
 
   if (id) {
-    return db.getBoardById(id);
+    return db.getBoard(id);
   }
   if (permalink && belongs_to) {
     return db.getBoardByPermalink(belongs_to, permalink);

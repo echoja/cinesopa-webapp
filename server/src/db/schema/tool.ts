@@ -1,6 +1,6 @@
 import { getVariableValues } from 'graphql/execution/values';
-import { search } from 'hangul-js';
-import Hangul from 'hangul-js';
+import Hangul, { search } from 'hangul-js';
+
 import { Document, Query, Schema } from 'mongoose';
 import { stripHtml } from 'string-strip-html';
 
@@ -59,14 +59,8 @@ export const getSearchStr = (doc, fields) => {
  *
  * @param {Filminfo} FilmDoc
  */
-export const getFilmSearchStr = (FilmDoc) => {
-  return getSearchStr(FilmDoc, [
-    'title',
-    'title_en',
-    'people.name',
-    'people.name_en',
-  ]);
-};
+export const getFilmSearchStr = (FilmDoc) =>
+  getSearchStr(FilmDoc, ['title', 'title_en', 'people.name', 'people.name_en']);
 
 /**
  *

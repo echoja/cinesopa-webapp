@@ -11,7 +11,7 @@ const {
   guestEmail,
   makeSimpleQuery,
   makeSimpleMutation,
-} = require('./tool');
+} = require('./tool').default;
 const { graphql } = require('graphql');
 const { model, db } = require('@/loader');
 

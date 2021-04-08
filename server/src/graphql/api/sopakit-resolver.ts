@@ -32,19 +32,24 @@ export default {
         status: 'public',
       });
       const kitIdSet = new Set<number>(); // need check
-      const promises = [];
       // console.log('# sopakit-resolver sopakitsShown products');
       // console.log(products);
       // 우선 product 를 순회하면서 중복 없이 kit id 정보들을 빼옴.
       // 중복 없이 담기 위해 일단 Map을 사용하며, 값은 의미없는 값('')을 둠.
-      products.forEach((product) => {
-        const kitId = product.kit_id;
-        if (typeof kitId === 'number' && !kitIdSet.has(kitId)) {
-          const promise = db.getSopakit(kitId);
+      const promises = products // need check
+        .filter(
+          (product) =>
+            typeof product.kit_id === 'number' && !kitIdSet.has(product.kit_id),
+        )
+        .map((product) => {
+          const kitId = product.kit_id;
+          const promise = (async () => ({
+            kitId,
+            doc: await db.getSopakit(kitId),
+          }))();
           kitIdSet.add(kitId);
-          promises.push(promise);
-        }
-      });
+          return promise;
+        });
 
       // kit id 기반으로 sopakitMap 에 소파킷 정보를 가져옴.
       // 소파킷 키워드 정보를 불러올 때 공개 상태인 것만 가져오도록 함.
@@ -55,8 +60,8 @@ export default {
             (result): result is Fulfilled<typeof result> =>
               result.status === 'fulfilled',
           )
-          .filter(({ value }) => value.status === 'show')
-          .map(({ value }) => [value.id, value]),
+          .filter(({ value }) => value.doc.status === 'show')
+          .map(({ value }) => [value.kitId, value.doc]),
       ); // need check
       // console.log('# sopakit-resolver sopakitsShown promises');
       // console.log(promises);
@@ -68,7 +73,7 @@ export default {
 
       // 영화 정보 갖고오기
       const filmResults = await Promise.allSettled(
-        products.map((product) => db.getFilm(product.related_film.id)),
+        products.map((product) => db.getFilm(product?.related_film?.id)),
       );
       const filmMap = new Map(
         filmResults

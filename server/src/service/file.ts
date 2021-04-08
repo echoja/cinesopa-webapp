@@ -32,59 +32,60 @@ class FileService {
    * @param {FileManager} file
    * @returns {Handler}
    */
-  #initCreateFileMiddleware = (db: DBManager, file: FileManager): Handler => async (req, res, next) => {
-      console.log('# file service #initCreateFileMiddleware called!');
-      let fullpath = '';
-      try {
-        console.log('# file service #initCreateFileMiddleware');
-        const fileinfo: Fileinfo = {};
-        const { file: fileObj } = req;
-        ['filename', 'mimetype', 'path', 'encoding', 'size'].forEach((key) => {
-          fileinfo[key] = fileObj[key];
-        });
-        fullpath = fileObj.path;
-        fileinfo.origin = fileObj.originalname;
-        const fileRegex = /([^.\n]+)(\.([0-9a-zA-Z]+))?$/;
-        const [_1, label, _2, extension] = fileObj.originalname.match(
-          fileRegex,
-        );
-        fileinfo.extension = extension;
-        fileinfo.label = label;
-        fileinfo.alt = label;
-        console.log(fileinfo);
-        // 이메일
-        const email = req?.user?.email;
-        if (email) fileinfo.owner = email;
+  #initCreateFileMiddleware = (
+    db: DBManager,
+    file: FileManager,
+  ): Handler => async (req, res, next) => {
+    // console.log('# file service #initCreateFileMiddleware called!');
+    let fullpath = '';
+    try {
+      // console.log('# file service #initCreateFileMiddleware');
+      const fileinfo: Fileinfo = {};
+      const { file: fileObj } = req;
+      ['filename', 'mimetype', 'path', 'encoding', 'size'].forEach((key) => {
+        fileinfo[key] = fileObj[key];
+      });
+      fullpath = fileObj.path;
+      fileinfo.origin = fileObj.originalname;
+      const fileRegex = /(.*?)(\.([0-9a-zA-Z]*)?)?$/;
+      const [_1, label, _2, extension] = fileObj.originalname.match(fileRegex);
+      fileinfo.extension = extension;
+      fileinfo.label = label;
+      fileinfo.alt = label;
+      console.log(fileinfo);
+      // 이메일
+      const email = req?.user?.email;
+      if (email) fileinfo.owner = email;
 
-        // public은 기본적으로 true 여야 함.
-        fileinfo.public = true;
+      // public은 기본적으로 true 여야 함.
+      fileinfo.public = true;
 
-        // managed도 기본적으로 true 여야 함.
-        fileinfo.managed = true;
+      // managed도 기본적으로 true 여야 함.
+      fileinfo.managed = true;
 
-        fileinfo.fileurl = `/upload/${fileObj.filename}`;
+      fileinfo.fileurl = `/upload/${fileObj.filename}`;
 
-        // 만약 이미지일 경우 사이즈 지정
-        if (fileObj.mimetype.startsWith('image')) {
-          const dimensions = sizeOf(fileObj.path);
-          fileinfo.width = dimensions.width;
-          fileinfo.height = dimensions.height;
-        }
-
-        // db에 새롭게 저장
-        await db.createFile(fileinfo, email);
-
-        res.send({ message: 'success', file: fileinfo });
-        // next();
-      } catch (error) {
-        next(error);
-        await file.removeFile(fullpath);
-        console.log(
-          '파일 업로드 중 에러로 인해 중단하고 업로드했던 파일을 삭제했습니다.',
-        );
-        console.error(error);
+      // 만약 이미지일 경우 사이즈 지정
+      if (fileObj.mimetype.startsWith('image')) {
+        const dimensions = sizeOf(fileObj.path);
+        fileinfo.width = dimensions.width;
+        fileinfo.height = dimensions.height;
       }
-    };
+
+      // db에 새롭게 저장
+      await db.createFile(fileinfo, email);
+
+      res.send({ message: 'success', file: fileinfo });
+      // next();
+    } catch (error) {
+      next(error);
+      await file.removeFile(fullpath);
+      console.log(
+        '파일 업로드 중 에러로 인해 중단하고 업로드했던 파일을 삭제했습니다.',
+      );
+      console.error(error);
+    }
+  };
 
   /**
    *
@@ -92,7 +93,8 @@ class FileService {
    * @param {string} uploadField
    * @returns {Handler}
    */
-  #initMulterMiddleware = (dest: string, uploadField: string): Handler => multer({ dest }).single(uploadField);
+  #initMulterMiddleware = (dest: string, uploadField: string): Handler =>
+    multer({ dest }).single(uploadField);
 
   /**
    *
@@ -100,10 +102,8 @@ class FileService {
    * @param {string} uploadField
    * @returns {Handler}
    */
-  #initPublicMulterMiddleware = (
-    dest: string,
-    uploadField: string,
-  ): Handler => multer({ dest, limits: { fileSize: 10485760 } }).single(uploadField);
+  #initPublicMulterMiddleware = (dest: string, uploadField: string): Handler =>
+    multer({ dest, limits: { fileSize: 10485760 } }).single(uploadField);
 
   #initMulterErrorHandler = (): ErrorRequestHandler => {
     const handler = (err, req, res, next) => {
@@ -119,8 +119,9 @@ class FileService {
   /**
    * 업로드 토큰을 검사합니다.
    */
-  #initCheckUploadToken = (): Handler => aw(async (req, res, next) => {
-      const {token} = req.params;
+  #initCheckUploadToken = (): Handler =>
+    aw(async (req, res, next) => {
+      const { token } = req.params;
       // 토큰 파라미터가 설정되어 있지 않으면 오류
       if (typeof token !== 'string') {
         return res.status(401).send();
@@ -184,29 +185,33 @@ class FileService {
     // console.log(req.params.filename);
     // 파일 이름이 주어지지 않을 경우 404
     const { filename } = req.params;
+    console.log('# file.js getFileMiddleware query');
+    console.log(req.params);
     if (!filename) return res.status(404).send();
-
-    // console.log('# file.js getFileMiddleware query');
     // console.log(req.query);
 
     // 우선 파일 이름을 .으로 나누기.
-    const splitted = filename.split('.');
-    let fileNameNoExt = filename;
+    // const splitted = filename.split('.');
+    // let fileNameNoExt = filename;
 
-    // 만약 확장자가 들어왔다면?
-    if (splitted.length === 2) {
-      fileNameNoExt = splitted[0];
-    }
+    // // 만약 확장자가 들어왔다면?
+    // if (splitted.length >= 2) {
+    //   // eslint-disable-next-line prefer-destructuring
+    //   fileNameNoExt = splitted.slice(0, -1).join('.');
+    // }
 
     // 파일이름으로 찾기 시도. 찾을시 바로 보냄.
-    const foundByFilename = await this.#db.getFile(fileNameNoExt);
+    const foundByFilename = await this.#db.getFile(filename);
     // console.log(foundByFilename.path);
     // console.log(__dirname);
     const { size } = req.query; // need check! req.query.size 에서 바로 접근하던 걸  { size } = req.query 로 변경함.
-    if (foundByFilename && typeof size === 'string') {
-      const absPath = await this.resizeImage(foundByFilename, size);
+    if (foundByFilename) {
       res.set('Content-Type', foundByFilename.mimetype);
-      return res.sendFile(absPath);
+      if (typeof size === 'string') {
+        const absPath = await this.resizeImage(foundByFilename, size);
+        return res.sendFile(absPath);
+      }
+      return res.sendFile(absPath(foundByFilename.path)); // need check 파일이 제대로 나오는지 확인해야함. 실제 환경에서.
     }
 
     // 옵션으로 파일 찾기 시도.
@@ -311,8 +316,10 @@ class FileService {
    * 실제 파일은 존재하지만 db에서 추적되지 않는 파일을 얻습니다.
    * @returns {Promise<string[]>} filename 의 배열
    */
-  async getUntrackedFiles() {
+  async getUntrackedFiles(): Promise<string[]> {
     const dbFiles = await this.#db.getFiles();
+    console.log('# file.ts getUntractedFiles dbfiles');
+    console.log(dbFiles);
     const actualFilenames = await this.#file.getFiles(this.#dest);
     const untracked = actualFilenames.filter(
       (actualFilename) =>
@@ -361,7 +368,7 @@ class FileService {
 //   return;
 // };
 
-const absPath = (relative) => path.join(__dirname, '../', relative);
+export const absPath = (relative) => path.resolve(__dirname, '../../', relative);
 
 export default {
   make(dbManager, fileManager, deststr, uploadFieldstr) {
