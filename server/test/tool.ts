@@ -29,7 +29,6 @@ import {
 } from '@/loader';
 import { loginQuery } from './graphql-request';
 
-
 export const uploadDest = 'test/uploads';
 export const uploadField = 'bin';
 export const fileService = fileServiceMaker.make(
@@ -386,10 +385,10 @@ export const makeSimpleRequestString = (endpoint, args, resultString) => {
  * 간단한 Mutation 요청 함수를 만듭니다.
  * @param {string} endpoint
  */
-export const makeSimpleMutation = (agent: SuperAgentTest, endpoint: string) => async (
-  args,
-  resultString,
-): Promise<any> => {
+export const makeSimpleMutation = (
+  agent: SuperAgentTest,
+  endpoint: string,
+) => async (args, resultString): Promise<any> => {
   const reqStr = `mutation ${endpoint}Mutation ${makeSimpleRequestString(
     endpoint,
     args,
@@ -405,19 +404,21 @@ export const makeSimpleMutation = (agent: SuperAgentTest, endpoint: string) => a
  * 간단한 Query 요청 함수를 만듭니다.
  * @param {string} endpoint
  */
-export const makeSimpleQuery = (agent, endpoint) => async (
-  args,
-  resultString,
-) => {
-  const str = `query ${endpoint}Query ${makeSimpleRequestString(
-    endpoint,
-    args,
-    resultString,
-  )}`;
-  // console.log(str);
-  const res = await graphqlSuper(agent, str);
-  return res.body.data[endpoint];
-};
+export function makeSimpleQuery<Args = any, Result = any>(
+  agent: SuperAgentTest,
+  endpoint: string,
+) {
+  return async (args: Args, resultString: string): Promise<Result> => {
+    const str = `query ${endpoint}Query ${makeSimpleRequestString(
+      endpoint,
+      args,
+      resultString,
+    )}`;
+    // console.log(str);
+    const res = await graphqlSuper(agent, str);
+    return res.body.data[endpoint];
+  };
+}
 
 // /**
 //  *

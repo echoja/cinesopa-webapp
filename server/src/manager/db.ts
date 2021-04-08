@@ -63,6 +63,7 @@ import {
 // const crypto = require('crypto');
 import crypto from 'crypto';
 import { LeanDocument, UpdateWriteOpResult } from 'mongoose';
+import { allSettledFiltered } from '@/util';
 
 // require('@/typedef');
 // const {
@@ -413,6 +414,8 @@ export class DBManager {
     })
       .lean()
       .exec();
+    if (!result) return { isValidTTL: false, token: null };
+
     const isValidTTL =
       Date.now() - result.c_date.getTime() <= result.ttl * 1000;
     // if (!result) throw Error(`토큰 ${token}이 존재하지 않습니다.`);
@@ -675,15 +678,15 @@ export class DBManager {
 
     if (tags && tags.length > 0) {
       // console.log('getFilms: tags!!');
-       query.find({ 'tags.name': { $all: tags } });
+      query.find({ 'tags.name': { $all: tags } });
     }
 
     if (is_opened !== null) {
-       query.find({ is_opened });
+      query.find({ is_opened });
     }
 
     if (status) {
-       query.find({ status });
+      query.find({ status });
     }
 
     // 페이지 하기 전의 영화 총 개수 구하기
@@ -692,7 +695,7 @@ export class DBManager {
     // 페이지 설정 및 open_date 로 정렬
     if (page !== null && perpage) {
       // console.log('getFilms: page, perpage!!');
-       query
+      query
         .limit(perpage)
         .skip(perpage * page)
         .sort({ open_date: -1 });
@@ -1176,7 +1179,7 @@ export class DBManager {
       // console.log(`getPosts: status: ${status}`);
       query = query.find({ status });
     }
-    
+
     const result = await query.lean().exec();
     // console.log('#db getPostsCount last');
     // console.log(result);
@@ -1896,7 +1899,17 @@ export class DBManager {
 
   /** 상영 신청 하나를 id로 찾습니다. */
   async getApplication(id: number): PromLD<IApplication> {
-    return model.Application.findOne({ id });
+    const applDoc = await model.Application.findOne({ id }).lean().exec();
+    const tokenDoc = await model.Token.findOne({ appl_id: applDoc.id })
+      .lean()
+      .exec();
+    if (tokenDoc) {
+      applDoc.reqdoc_token = tokenDoc.token;
+      applDoc.reqdoc_expire_date = new Date(
+        tokenDoc.c_date.getTime() + tokenDoc.ttl * 1000,
+      );
+    }
+    return applDoc;
   }
 
   /** 조건에 따른 상영 신청들을 찾습니다. */
@@ -1957,10 +1970,29 @@ export class DBManager {
         .skip(perpage * page)
         .sort({ start_date: -1 });
     }
+    const docs = await query.lean().exec();
+
+    // Token 정보를 읽어와서 doc 에 기입함.
+    const proms = docs.map((applDoc) =>
+      (async () => {
+        const tokenDoc = await model.Token.findOne({ appl_id: applDoc.id });
+        const copied = { ...applDoc };
+
+        // tokenDoc 을 찾을 때만 값을 넣음.
+        if (tokenDoc) {
+          copied.reqdoc_token = tokenDoc.token;
+          copied.reqdoc_expire_date = new Date(
+            tokenDoc.c_date.getTime() + tokenDoc.ttl * 1000,
+          );
+        }
+        return copied;
+      })(),
+    );
+    const filtered = await allSettledFiltered(proms);
 
     return {
       total,
-      list: await query.lean().exec(),
+      list: filtered,
     };
   }
 
@@ -1969,13 +2001,20 @@ export class DBManager {
     return model.Application.create(input);
   }
 
-  /** 상영 신청을 삭제합니다. */
+  /**
+   * 상영 신청을 삭제합니다.
+   * @param id 신청서의 id
+   */
   async removeApplication(id: number): Promise<{ success: boolean }> {
     await model.Application.deleteOne({ id });
     return { success: true };
   }
 
-  /** 상영 신청을 업데이트합니다. */
+  /**
+   * 상영 신청을 업데이트합니다.
+   * @param id 신청서의 id
+   * @param input 신청서 수정할 내용
+   */
   async updateApplication(
     id: number,
     input: ApplicationInput,

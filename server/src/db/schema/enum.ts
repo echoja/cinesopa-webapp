@@ -108,7 +108,7 @@ export const enumApplicationReceiptStatus = [
 export type ApplicationReceiptStatus = typeof enumApplicationReceiptStatus[number];
 export const enumApplicationMoneyStatus = [
   'not_applicable', // 해당없음
-  'peinding_deposit', // 입금 대기중
+  'pending_deposit', // 입금 대기중
   'deposit_checked', // 입금 확인됨
   'document_done', // 정산시트기입 완료
   'invoice_done', // 정산 오완료

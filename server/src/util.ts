@@ -1,15 +1,13 @@
 // require('./typedef');
 
-import { Handler } from "express";
+import { Handler } from 'express';
 
 /** ******************* */
 /* express middleware */
 /** ******************* */
 
-
-
 /**
- * 
+ *
  * @param {import('express').Handler} asyncFunc
  */
 export const aw = (asyncFunc: Handler): Handler => async (req, res, next) => {
@@ -21,18 +19,49 @@ export const aw = (asyncFunc: Handler): Handler => async (req, res, next) => {
 };
 
 /**
- * 
- * @param {PromiseSettledResult<T>} promise 
+ *
+ * @param {PromiseSettledResult<T>} promise
  */
-export function unwrap<T>(result: PromiseSettledResult<T>, defaultValue: T = undefined) {
+export function unwrap<T, U>(
+  result: PromiseSettledResult<T>,
+  defaultValue: U = undefined,
+): T | U {
   if (result.status === 'fulfilled') return result.value;
   return defaultValue;
 }
 
-export function tryUnwrap<T>(result: PromiseSettledResult<T>, errMsg: string = 'Promise not fulfilled') {
+export function tryUnwrap<T>(
+  result: PromiseSettledResult<T>,
+  errMsg = 'Promise not fulfilled',
+) {
   if (result.status === 'fulfilled') return result.value;
   console.error(`# tryUnwrap ${errMsg}`);
   throw Error(errMsg);
+}
+
+/**
+ * rejected 된 Promise 를 제외시킵니다.
+ * @param results Promise.allSettled 로 얻은 결과
+ */
+export function filterRejected<T>(
+  results: PromiseSettledResult<T>[],
+): PromiseFulfilledResult<T>[] {
+  return results.filter(
+    (result): result is PromiseFulfilledResult<T> =>
+      result.status === 'fulfilled',
+  );
+}
+
+/**
+ * Promise 배열을 allSettled 하여 얻은 결과에서 fulfilled 된 것만 가져옵니다.
+ * @param promises Promise 배열
+ */
+export async function allSettledFiltered<T>(
+  promises: T[],
+) : Promise<(T extends PromiseLike<infer O> ? O : T)[]> {
+  const results = await Promise.allSettled(promises);
+  const values = filterRejected(results).map((result) => result.value);
+  return values;
 }
 
 // /**

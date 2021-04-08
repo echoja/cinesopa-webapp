@@ -146,26 +146,24 @@ type UpdateNewTaxReqLinkResult {
 }
 
 type RemoveTaxReqLinkResult {
-  name: String
+  success: Boolean
+  code: String
 }
 type SubmitTaxInformationResult {
-  name: String
+  success: Boolean
+  code: String
+}
+
+type ApplicationTaxReqResult {
+  success: Boolean
+  code: String
+  doc: Application
 }
 
 extend type Query {
+  applicationTaxReq(token: String!): ApplicationTaxReqResult
   applicationAdmin(id: Int!): Application
   applicationsAdmin(condition: ApplicationSearch!): ApplicationsResult
-
-  # # 마이페이지 - 주문내역에서 사용되는 쿼리
-  # myApplications(condition: ApplicationSearch!): MyApplicationsResult
-
-  # # 결제 완료시 기본적으로 보일 정보를 알려주는 곳
-  # myApplication(id: Int!): Application
-
-  # # 무통장 입금시 정보를 추가적으로 출력해야 하는 페이지에서 사용됨
-  # nobankApplicationinfo(id: Int!): NobankApplicationinfoResult
-
-  # applicationCountGroupedByStatus: [ApplicationCountGroupedByStatusResult]
 }
 
 extend type Mutation {

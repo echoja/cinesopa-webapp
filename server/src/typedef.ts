@@ -203,10 +203,10 @@ interface ApplicationinfoBase {
   destination?: string; //   상영본 받을 주소
   transport_company?: string; //   배송 업체
   transport_number?: string; //   송장 번호
-  transport_status?: string; //   배송 상태
-  doc_status?: string; //   서류 상태
-  money_status?: string; //   정산 및 입금 상태
-  receipt_status?: string; //   세금계산서 상태
+  transport_status?: ApplicationTransportStatus; //   배송 상태
+  doc_status?: ApplicationDocStatus; //   서류 상태
+  money_status?: ApplicationMoneyStatus; //   정산 및 입금 상태
+  receipt_status?: ApplicationReceiptStatus; //   세금계산서 상태
   business_license_filename?: string; //  사업자등록증 파일명
   business_license_url?: string; //   사업자등록증 url
   deposit_date?: Date; //   입금 예상일
@@ -220,6 +220,7 @@ interface ApplicationinfoBase {
   memo?: string; // 메모
   memo_unremarked?: boolean; // 메모 강조 표시를 해제함.
   meta?: AnyType; //
+   
 }
 
 export interface IApplication extends ApplicationinfoBase, Document {}

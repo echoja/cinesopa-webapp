@@ -10,5 +10,6 @@ export default function (mongoose) {
     appl_id: Number,
   });
   Token.index({ token: 1 });
+  Token.index({ appl_id: 1 });
   return Token;
 };
