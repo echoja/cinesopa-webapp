@@ -10,6 +10,7 @@ import {
   templateArgsRefiner,
 } from '@/loader';
 import '@/typedef';
+import { allSettledFiltered } from '@/util';
 import crypto from 'crypto';
 
 export const Query = {
@@ -25,7 +26,7 @@ export const Query = {
   }).only(ACCESS_ADMIN),
   applicationTaxReq: makeResolver(async (obj, args, context, info) => {
     const { token } = args;
-    const { isValidTTL, token: tokenDoc } = await db.getToken(
+    const { isValidTTL, doc: tokenDoc } = await db.getToken(
       token,
       'taxinfo_request',
     );
@@ -58,7 +59,7 @@ export const Mutation = {
   /** 세금계산서 관련 정보 제출 */
   submitTaxInformation: makeResolver(async (obj, args, context, info) => {
     const { token, input } = args;
-    const { isValidTTL, token: tokenDoc } = await db.getToken(
+    const { isValidTTL, doc: tokenDoc } = await db.getToken(
       token,
       'taxinfo_request',
     );
@@ -106,7 +107,7 @@ export const Mutation = {
   /** 새로운 세금계산서 링크 (기존에 링크는 삭제)  */
   updateNewTaxReqLink: makeResolver(async (obj, args, context, info) => {
     const { id } = args;
-    const { email } = context.user;
+    const { email } = context.getUser();
 
     // 기존 토큰 삭제
     await db.clearToken({ email, purpose: 'taxinfo_request', appl_id: id });
@@ -118,6 +119,7 @@ export const Mutation = {
       token,
       purpose: 'taxinfo_request',
       ttl: 60 * 60 * 24 * 10,
+      appl_id: id,
     });
     return { token, success: true };
   }).only(ACCESS_ADMIN),
@@ -125,11 +127,19 @@ export const Mutation = {
   /** 세금계산서 링크 삭제 */
   removeTaxReqLink: makeResolver(async (obj, args, context, info) => {
     const { id } = args;
-    // await db.removeTaxReqLink(id);
+    const appl = await db.getApplication(id);
+    const token = appl.reqdoc_token;
+    await allSettledFiltered([
+      db.updateApplication(id, {
+        reqdoc_expire_date: null,
+        reqdoc_token: null,
+      }),
+      db.removeToken(token),
+    ]);
     return { success: true };
   }).only(ACCESS_ADMIN),
 
-  /** 견적서 임시로 만들고 삭제하는 건 별도 router 에서 진행. */
+  /** 견적서 임시로 만드는 건 별도 router 에서 진행. */
   // createEstimate: makeResolver(async (obj, args, context, info) => {
 
   // }).only(ACCESS_ADMIN),

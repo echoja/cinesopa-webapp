@@ -167,7 +167,7 @@ class UserService {
     let isValidTTL;
     try {
       const result = await this.#db.getToken(token, 'change_password');
-      tokenDoc = result.token;
+      tokenDoc = result.doc;
       isValidTTL = result.isValidTTL;
     } catch (error) {
       return { success: false, code: 'no_such_token' };
@@ -196,7 +196,7 @@ class UserService {
    * @returns {Promise<Userinfo>}
    */
   async verifyEmail(token) {
-    const { isValidTTL, token: tokenDoc } = await this.#db.getToken(
+    const { isValidTTL, doc: tokenDoc } = await this.#db.getToken(
       token,
       'email_verification',
     );

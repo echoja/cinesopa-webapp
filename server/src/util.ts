@@ -54,6 +54,7 @@ export function filterRejected<T>(
 
 /**
  * Promise 배열을 allSettled 하여 얻은 결과에서 fulfilled 된 것만 가져옵니다.
+ * rejected 된 것은 무시됩니다.
  * @param promises Promise 배열
  */
 export async function allSettledFiltered<T>(

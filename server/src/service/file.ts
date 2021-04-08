@@ -126,7 +126,7 @@ class FileService {
       if (typeof token !== 'string') {
         return res.status(401).send();
       }
-      const { isValidTTL, token: tokenDoc } = await this.#db.getToken(
+      const { isValidTTL, doc: tokenDoc } = await this.#db.getToken(
         token,
         'taxinfo_request',
       );

@@ -388,7 +388,7 @@ export const makeSimpleRequestString = (endpoint, args, resultString) => {
 export const makeSimpleMutation = (
   agent: SuperAgentTest,
   endpoint: string,
-) => async (args, resultString): Promise<any> => {
+) => async (args: any, resultString: string): Promise<any> => {
   const reqStr = `mutation ${endpoint}Mutation ${makeSimpleRequestString(
     endpoint,
     args,

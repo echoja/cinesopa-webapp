@@ -50,22 +50,38 @@ type Application {
 }
 
 input ApplicationInput {
-  user: String # 유저 이메일
-  status: String
-  method: String
-  c_date: DateTime
-  expected_date: DateTime # 도착 예정일
-  cancelled_date: DateTime # 주문 취소일
-  return_req_date: DateTime # 반품 신청일
-  cash_receipt: String # 현금영수증 번호
-  transport_number: String # 송장 번호
-  transport_company: String # 택배 회사
-  transport_fee: Int
-  bootpay_id: String
-  bootpay_payment_info: JSON
+  host: String #  주최
+  c_date: DateTime #  만든 일시
+  m_date: DateTime #  수정된 일시
+  film_title: String #  작품명
+  charge: Int #  상영료 (부가세 포함)
+  start_date: DateTime #  상영 시작일시
+  end_date: DateTime #  상영 종료일시
+  session_count: Int #  상영회차
+  format: String #  상영 포맷
+  applicant_name: String #  신청자 이름
+  applicant_phone: String #  신청자 연락처
+  applicant_email: String #  신청자 이메일
+  destination: String #  상영본 받을 주소
+  transport_company: String #  배송 업체
+  transport_number: String #  송장 번호
+  transport_status: String #  배송 상태
+  doc_status: String #  서류 상태
+  money_status: String #  정산 및 입금 상태
+  receipt_status: String #  세금계산서 상태
+  business_license_filename: String # 사업자등록증 파일명
+  business_license_url: String #  사업자등록증 url
+  deposit_date: DateTime #  입금 예상일
+  receipt_date: DateTime #  세금계산서 발행 날짜
+  receipt_email: String #  세금계산서 발행 이메일
+  receipt_etc_req: String #  세금계산서 관련 기타 요청
+  reqdoc_token: String #  서류 요청 토큰
+  reqdoc_expire_date: DateTime #  서류 요청 url 기한
+  search: String #  검색 필드
+  etc_req: String #  기타 요청
+  memo: String #  메모
+  memo_unremarked: Boolean #  메모 강조 표시를 해제함.
   meta: JSON
-  dest: DestinfoInput
-  payer: String
 }
 
 input ApplicationSearch {
@@ -137,7 +153,9 @@ type SubmitApplicationResult {
   code: String
 }
 input TaxInfoInput {
-  name: String
+  receipt_date: DateTime #  세금계산서 발행 날짜
+  receipt_email: String #  세금계산서 발행 이메일
+  receipt_etc_req: String #  세금계산서 관련 기타 요청
 }
 type UpdateNewTaxReqLinkResult {
   success: Boolean

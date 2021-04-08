@@ -459,13 +459,13 @@ describe('application', function () {
             token: 'abcd',
             c_date: d,
             ttl: 100,
-            purpose: 'taxinfo_request'
+            purpose: 'taxinfo_request',
           });
           const res = await applicationTaxReqReq(
             { token: 'abcd' },
             `{success code doc { applicant_name reqdoc_token reqdoc_expire_date } }`,
           );
-          addContext(this, { title: 'res', value: res});
+          addContext(this, { title: 'res', value: res });
           expect(res.success).to.equal(true);
           expect(res.code).to.not.be.a('string');
           expect(res.doc.applicant_name).to.equal('ho');
@@ -484,7 +484,7 @@ describe('application', function () {
             { token: 'abcd' },
             `{success code doc { applicant_name reqdoc_token reqdoc_expire_date } }`,
           );
-          addContext(this, { title: 'res', value: res});
+          addContext(this, { title: 'res', value: res });
           expect(res.success).to.equal(false);
           expect(res.doc).to.equal(null);
         });
@@ -500,13 +500,13 @@ describe('application', function () {
             token: 'abcd',
             c_date: d,
             ttl: 0,
-            purpose: 'taxinfo_request'
+            purpose: 'taxinfo_request',
           });
           const res = await applicationTaxReqReq(
             { token: 'abcd' },
             `{success code doc { applicant_name reqdoc_token reqdoc_expire_date } }`,
           );
-          addContext(this, { title: 'res', value: res});
+          addContext(this, { title: 'res', value: res });
           expect(res.success).to.equal(false);
           expect(res.doc).to.equal(null);
         });
@@ -515,41 +515,186 @@ describe('application', function () {
     describe('Mutation', function () {
       describe('submitApplication', function () {
         it('제대로 동작해야 함', async function () {
-          const submitApplicationReq = makeSimpleMutation(agent, 'submitApplication');
+          const submitApplicationReq = makeSimpleMutation(
+            agent,
+            'submitApplication',
+          );
+          await submitApplicationReq(
+            {
+              input: {
+                applicant_name: 'hello',
+              },
+            },
+            `{success code}`,
+          );
+          const found = await model.Application.find().lean().exec();
+          addContext(this, { title: 'found', value: found });
+          expect(found.length).to.equal(1);
+          expect(found[0].applicant_name).to.equal('hello');
         });
       });
       describe('submitTaxInformation', function () {
         it('제대로 동작해야 함', async function () {
-          await doAdminLogin(agent);
+          const appl = await model.Application.create({ reqdoc_token: 'abc', });
+          const token = await model.Token.create({
+            appl_id: appl.id,
+            token: 'abc',
+            ttl: 500,
+            purpose: 'taxinfo_request',
+          });
+          const submitTaxInformationReq = makeSimpleMutation(
+            agent,
+            'submitTaxInformation',
+          );
+          const res = await submitTaxInformationReq(
+            {
+              token: 'abc',
+              input: {
+                receipt_email: 'hello',
+              },
+            },
+            `{success code}`,
+          );
+          const found = await model.Application.findOne({ id: appl.id });
+          addContext(this, { title: 'res', value: res});
+          addContext(this, { title: 'found', value: found });
+
+          expect(res.success).to.equal(true);
+          expect(found.receipt_email).to.equal('hello');
         });
       });
       describe('createApplication', function () {
         it('제대로 동작해야 함', async function () {
           await doAdminLogin(agent);
+          const createApplicationReq = makeSimpleMutation(
+            agent,
+            'createApplication',
+          );
+          const res = await createApplicationReq(
+            {
+              input: {
+                host: 'hello',
+              },
+            },
+            `{success code application_id}`,
+          );
+          const found = await model.Application.findOne().lean().exec();
+          addContext(this, { title: 'found', value: found });
+          addContext(this, { title: 'res', value: res });
+          expect(res.success).to.equal(true);
+          expect(found.host).to.equal('hello');
         });
       });
       describe('removeApplication', function () {
         it('제대로 동작해야 함', async function () {
           await doAdminLogin(agent);
+          const removeApplicationReq = makeSimpleMutation(
+            agent,
+            'removeApplication',
+          );
+          const created = await model.Application.create({});
+          const res = await removeApplicationReq(
+            {
+              id: created.id,
+            },
+            `{success code}`,
+          );
+          const found = await model.Application.find().lean().exec();
+          addContext(this, { title: 'found', value: found });
+          addContext(this, { title: 'res', value: res });
+          expect(res.success).to.equal(true);
+          expect(found.length).to.equal(0);
         });
       });
       describe('updateApplication', function () {
         it('제대로 동작해야 함', async function () {
           await doAdminLogin(agent);
+          const updateApplicationReq = makeSimpleMutation(
+            agent,
+            'updateApplication',
+          );
+          const created = await model.Application.create({
+            applicant_name: 'original',
+          });
+          // await db.updateApplication(created.id, { applicant_name: 'changed' });
+          const res = await updateApplicationReq(
+            {
+              id: created.id,
+              input: {
+                applicant_name: 'changed',
+              },
+            },
+            `{success code}`,
+          );
+          const found = await model.Application.findOne({ id: created.id })
+            .lean()
+            .exec();
+          addContext(this, { title: 'res', value: res });
+          addContext(this, { title: 'found', value: found });
+          expect(res.success).to.equal(true);
+          expect(found.applicant_name).to.equal('changed');
         });
       });
       describe('updateNewTaxReqLink', function () {
         it('제대로 동작해야 함', async function () {
           await doAdminLogin(agent);
+          const created = await model.Application.create({
+            applicant_name: 'original',
+          });
+          const updateNewTaxReqLinkReq = makeSimpleMutation(
+            agent,
+            'updateNewTaxReqLink',
+          );
+          const res = await updateNewTaxReqLinkReq(
+            {
+              id: created.id,
+            },
+            `{success code token}`,
+          );
+          const tokenFound = await model.Token.find({ appl_id: created.id })
+            .lean()
+            .exec();
+
+          addContext(this, { title: 'tokenFound', value: tokenFound });
+          addContext(this, { title: 'res', value: res });
+
+          expect(res.token).to.be.a('string');
+          expect(res.success).to.be.true;
+          expect(tokenFound.length).to.equal(1);
         });
       });
       describe('removeTaxReqLink', function () {
         it('제대로 동작해야 함', async function () {
           await doAdminLogin(agent);
+          const created = await model.Application.create({
+            applicant_name: 'original',
+            reqdoc_token: 'abc',
+            reqdoc_expire_date: new Date('2010-12-23'),
+          });
+          const token = await model.Token.create({
+            appl_id: created.id,
+            token: 'abc',
+            ttl: 500,
+            purpose: 'taxinfo_request',
+          });
+          const removeTaxReqLinkReq = makeSimpleMutation(agent, 'removeTaxReqLink');
+          const res = await removeTaxReqLinkReq({
+            id: created.id,
+          }, `{success code}`);
+          
+          const tokenFound = await model.Token.find().lean().exec();
+          const applicationFound = await model.Application.find().lean().exec();
+
+  
+          addContext(this, { title: 'res', value: res});
+          addContext(this, { title: 'tokenFound', value: tokenFound});
+          addContext(this, { title: 'applicationFound', value: applicationFound});
+
+          expect(res.success).to.equal(true);
+          expect(tokenFound.length).to.equal(0);
+          expect(applicationFound[0].reqdoc_expire_date).to.be.null;
+          expect(applicationFound[0].reqdoc_token).to.be.null;
         });
-      });
-      describe('msg', function () {
-        // todo
       });
     });
   });

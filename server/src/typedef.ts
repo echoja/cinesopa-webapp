@@ -727,6 +727,8 @@ export interface CreateTokenOptions {
   ttl?: number;
   /** 이메일과 목적에 따라 오직 하나밖에 존재할 수 없는지, 아니면 중복하여 가질 수 있는지. */
   unique?: boolean;
+  /** 신청서 세금계산서 정보 요청 시 사용되는 토큰에 기록할 신청서 id */
+  appl_id?: number;
 }
 /**
  * 게시판 정보를 담는 객체
