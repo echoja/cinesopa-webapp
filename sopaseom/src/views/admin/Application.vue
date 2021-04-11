@@ -275,8 +275,9 @@
           <form-row title="상영료">
             <div class="d-flex align-items-center">
               <b-form-input
-                @input="changed.add('number')"
-                v-model="editing.number"
+                @input="changed.add('charge')"
+                number
+                v-model="editing.charge"
                 class="mr-2"
               ></b-form-input>
               <span>원</span>
@@ -702,6 +703,9 @@ import LoadingButton from '@/components/LoadingButton.vue';
 import ApplyButtonSet from '@/components/admin/button/ApplyButtonSet.vue';
 import { makeSimpleMutation, makeSimpleQuery } from '@/api/graphql-client';
 import { mapActions } from 'vuex';
+import axios from 'axios';
+import fileDownload from 'js-file-download';
+
 /** @param {object} map 맵 */
 const mapToOption = (map) =>
   Object.keys(map).map((value) => ({
@@ -748,7 +752,9 @@ export default {
       moneyStatusOptions: mapToOption(applicationMoneyStatusMap),
       docStatusOptions: mapToOption(applicationDocStatusMap),
       filter: {
+        /** @type {Date} */
         startDate: null,
+        /** @type {Date} */
         endDate: null,
         transportStatus: [],
         receiptStatus: [],
@@ -990,8 +996,22 @@ export default {
       await this.fetchData();
       this.addApplicationLoading = false;
     },
-    extractExcelClicked() {
-      // todo
+    async extractExcelClicked() {
+      const response = await axios.get('/graphql/get-excel', {
+        withCredentials: true,
+        responseType: 'blob',
+        params: {
+          type: 'application',
+          // date_lte: this.filter.endDate.toISOString(),
+          // date_gte: this.filter.startDate.toISOString(),
+          // transport_status: this.filter.transportStatus.join(','),
+          // doc_status: this.filter.docStatus.join(','),
+          // money_status: this.filter.moneyStatus.join(','),
+          // receipt_status: this.filter.receiptStatus.join(','),
+          // search: this.filter.search,
+        },
+      });
+      fileDownload(response.data, `cinesopa_applications_${moment().format('yyyy-mm-dd')}.xlsx`);
     },
     calendarFilterShown() {
       if (!this.filter.startDate) {
@@ -1071,13 +1091,18 @@ export default {
       changed.forEach((key) => {
         values[key] = this.editing[key];
       });
-      const res = await updateApplicationReq(
-        {
-          id: row.item.id,
-          input: values,
-        },
-        '{success code}',
-      );
+      let res = {};
+      try {
+        res = await updateApplicationReq(
+          {
+            id: row.item.id,
+            input: values,
+          },
+          '{success code}',
+        );
+      } catch (e) {
+        console.error(e);
+      }
       // 성공했을 시
       if (res.success === true) {
         this.pushMessage({

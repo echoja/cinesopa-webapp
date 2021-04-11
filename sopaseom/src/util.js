@@ -52,7 +52,7 @@ export const applicationReceiptStatusMap = {
 /** 정산 관련 */
 export const applicationMoneyStatusMap = {
   not_applicable: '입금/정산 안함',
-  peinding_deposit: '입금 대기중',
+  pending_deposit: '입금 대기중',
   deposit_checked: '입금 확인됨',
   document_done: '정산시트기입 완료',
   invoice_done: '정산 완료',
@@ -71,6 +71,8 @@ let rawDeliveryData = null;
 export const getDeliveryRawData = async () => {
   if (rawDeliveryData) return rawDeliveryData;
   const res = await axios.get('https://apis.tracker.delivery/carriers');
+  // console.log("# util.js getDeliveryRawData");
+  // console.dir(res);
   rawDeliveryData = res.data;
   return rawDeliveryData;
 };

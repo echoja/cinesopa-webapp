@@ -3,7 +3,7 @@ import path from 'path';
 import sanitizeFilename from 'sanitize-filename';
 // eslint-disable-next-line import/no-extraneous-dependencies
 import { MongoMemoryServer } from 'mongodb-memory-server';
-import express from 'express';
+import express, { Router } from 'express';
 import session from 'express-session';
 import mongoose from 'mongoose';
 import passport from 'passport';
@@ -163,7 +163,7 @@ export const testDatabaseServer = (hookFunctions) => {
  * this 를 넘겨wnaustj createTestServer 수행
  * @param {Mocha.Suite} hookFunctions
  */
-export const createTestServer = (hookFunctions) => {
+export const createTestServer = (hookFunctions: Mocha.Suite, options: {additional_router?: Router} = {}) => {
   // const model = require("../db/model").make(mongoose);
 
   /** @type {import("express").Express} */
@@ -246,14 +246,18 @@ export const createTestServer = (hookFunctions) => {
     );
     // 파일 get용.
     webapp.get('/upload/:filename', getFileMiddleware);
+
+    // 추가적인 router
+    if (options.additional_router) {
+      webapp.use(options.additional_router);
+    }
   });
   hookFunctions.afterEach('세션 초기화', async function () {
     // console.log('webapp - afterEach!!!');
     await doLogout(agent);
   });
 
-  /** @type {MongoMemoryServer} */
-  const mongod = testDatabaseServer(hookFunctions);
+  const mongod: MongoMemoryServer = testDatabaseServer(hookFunctions);
 
   return { mongod, agent, webapp, uploadDest, fileService };
 };

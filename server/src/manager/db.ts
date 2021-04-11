@@ -1918,7 +1918,8 @@ export class DBManager {
     input: ApplicationSearch,
   ): PromGetDBItems<IApplication> {
     const {
-      perpage,
+      page = 0,
+      perpage = 20,
       date_gte,
       date_lte,
       doc_status,
@@ -1927,8 +1928,6 @@ export class DBManager {
       search,
       transport_status,
     } = input;
-    let { page } = input;
-    if (!page) page = 0;
 
     const query = model.Application.find();
 

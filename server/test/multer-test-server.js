@@ -3,7 +3,6 @@ const path = require("path");
 const fs = require("fs");
 const FormData = require("form-data");
 const { inspect } = require("util");
-const axios = require("axios");
 const express = require("express");
 const { title } = require("process");
 const e = require("express");

@@ -1,9 +1,10 @@
 import addContext from 'mochawesome/addContext';
 import { expect } from 'chai';
+import express from 'express';
 import random from 'random';
 // const { upload, createFileFromMockFile } = require('./tool').default;
 import { fake } from 'sinon';
-import { db, model } from '@/loader';
+import { db, model, file } from '@/loader';
 import { execute } from 'graphql';
 import { unwrap } from '@/util';
 import { IApplication } from '@/typedef';
@@ -27,8 +28,10 @@ import {
 } from './graphql-request';
 
 describe('application', function () {
+  const router = express.Router();
+  router.get('/excel', file.getExcelMiddleware);
   const { agent, fileService, mongod, uploadDest, webapp } = createTestServer(
-    this,
+    this, {additional_router: router}
   );
   describe('db', function () {
     describe('getApplication', function () {
@@ -699,3 +702,4 @@ describe('application', function () {
     });
   });
 });
+

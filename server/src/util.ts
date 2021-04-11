@@ -59,10 +59,25 @@ export function filterRejected<T>(
  */
 export async function allSettledFiltered<T>(
   promises: T[],
-) : Promise<(T extends PromiseLike<infer O> ? O : T)[]> {
+): Promise<(T extends PromiseLike<infer O> ? O : T)[]> {
   const results = await Promise.allSettled(promises);
   const values = filterRejected(results).map((result) => result.value);
   return values;
+}
+
+/**
+ * async 버전 map. 만약 중간에 문제가 생겼을 경우의 항목은 그냥 무시합니다.
+ * @param list 리스트
+ * @param callbackfn 콜백 함수
+ */
+export async function asyncMap<T, U>(
+  list: ReadonlyArray<T>,
+  callbackfn: (value: T, index: number, array: T[]) => Promise<U>,
+): Promise<U[]> {
+  const mapped = list.map(callbackfn);
+  const result = await allSettledFiltered(mapped);
+  console.log(result);
+  return result;
 }
 
 // /**

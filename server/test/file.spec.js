@@ -9,7 +9,7 @@ const Throttle = require('superagent-throttle');
 const { fake } = require('sinon');
 const { model } = require('@/loader');
 const fileServiceFactory = require('@/service/file').default;
-const fileManager = require('@/manager/file');
+const fileManager = require('@/manager/file').default;
 const rimraf = require('rimraf');
 const supertest = require('supertest');
 
@@ -578,6 +578,22 @@ describe('file', function () {
       it('존재하지 않는 파일은 404여야 함', async function () {
         const res2 = await agent.get('/upload/hello').expect(404);
         expect(res2.body).to.not.have.any.keys;
+      });
+    });
+
+    describe('getExcelMiddleware', function () { 
+      it('type 이 application 일 경우 제대로 동작해야 함 - 실제 파일을 확인해야 하므로 패스', async function () { 
+        this.skip();
+        const res = await agent.get('/excel').query({
+          type: 'application',
+          date_lte: '2020-10-10',
+          date_gte: '2021-10-10',
+          transport_status: '',
+          doc_status: '',
+          money_status: '',
+          receipt_status: '',
+          search: '',
+        });
       });
     });
 

@@ -4,12 +4,27 @@ import multer from 'multer';
 import { imageSize as sizeOf } from 'image-size';
 import sharp from 'sharp';
 import fs from 'fs';
+import util from 'util';
 import rateLimit from 'express-rate-limit';
 
 // require('@/typedef');
-import { DBManager, FileManager, Fileinfo } from '@/typedef';
+import {
+  DBManager,
+  FileManager,
+  Fileinfo,
+  ApplicationSearch,
+  parseRestrictedArray,
+} from '@/typedef';
 import { Handler, ErrorRequestHandler, IRouterHandler } from 'express';
 import { aw } from '../util';
+import { makeApplicationExcel } from '@/manager/excel';
+import {
+  ApplicationTransportStatus,
+  enumApplicationDocStatus,
+  enumApplicationMoneyStatus,
+  enumApplicationReceiptStatus,
+  enumApplicationTransportStatus,
+} from '@/db/schema/enum';
 // const sizeOf = promisify(sizeOfCallbackBased);
 
 class FileService {
@@ -24,6 +39,56 @@ class FileService {
   uploadMiddleware: (Handler | ErrorRequestHandler)[];
 
   uploadPublicMiddleware: (Handler | ErrorRequestHandler)[];
+
+  getExcelMiddleware: (Handler | ErrorRequestHandler)[];
+
+  constructor(
+    db: DBManager,
+    file: FileManager,
+    dest: string,
+    uploadField: string,
+  ) {
+    this.#db = db;
+    this.#file = file;
+    this.#dest = dest;
+    this.#uploadField = uploadField;
+    this.uploadMiddleware = [
+      this.#initMulterMiddleware(this.#dest, this.#uploadField),
+      this.#initMulterErrorHandler(),
+      this.#initCreateFileMiddleware(this.#db, this.#file),
+    ];
+
+    // public upload middleware 정의
+    this.uploadPublicMiddleware = [
+      rateLimit({
+        windowMs: 1000,
+        max: 1,
+        message:
+          '짧은 시간에 업로드가 너무 많이 요청되었습니다. 잠시 후 다시 시도해주세요.',
+      }),
+      rateLimit({
+        windowMs: 1000 * 60 * 60 * 24,
+        max: 50,
+        message:
+          '하루 업로드가 제한되었습니다. 문의사항으로 연락주시기 바랍니다.',
+      }),
+      this.#initCheckUploadToken(),
+      this.#initPublicMulterMiddleware(this.#dest, this.#uploadField),
+      this.#initMulterErrorHandler(),
+      this.#initCreateFileMiddleware(this.#db, this.#file),
+    ];
+
+    // get excel middleware 정의
+    this.getExcelMiddleware = [this.#initGetExcelMiddleware()];
+
+    // 만약 사이즈에 대한 폴더가 없으면 미리 만든다. need check
+    [...this.#file.resizeOptionMap.keys()].forEach((sizeName) => {
+      const folderPath = path.resolve(this.#dest, sizeName);
+      if (!fs.existsSync(folderPath)) {
+        fs.mkdirSync(folderPath);
+      }
+    });
+  }
 
   /**
    * 파일을 새롭게 생성하는 미들웨어 팩토리 함수
@@ -134,52 +199,8 @@ class FileService {
       if (!tokenDoc || !isValidTTL) {
         return res.status(401).send();
       }
-      next();
+      return next();
     });
-
-  constructor(
-    db: DBManager,
-    file: FileManager,
-    dest: string,
-    uploadField: string,
-  ) {
-    this.#db = db;
-    this.#file = file;
-    this.#dest = dest;
-    this.#uploadField = uploadField;
-    this.uploadMiddleware = [
-      this.#initMulterMiddleware(this.#dest, this.#uploadField),
-      this.#initMulterErrorHandler(),
-      this.#initCreateFileMiddleware(this.#db, this.#file),
-    ];
-
-    this.uploadPublicMiddleware = [
-      rateLimit({
-        windowMs: 1000 * 5,
-        max: 1,
-        message:
-          '짧은 시간에 업로드가 너무 많이 요청되었습니다. 잠시 후 다시 시도해주세요.',
-      }),
-      rateLimit({
-        windowMs: 1000 * 60 * 60 * 24,
-        max: 50,
-        message:
-          '하루 업로드가 제한되었습니다. 문의사항으로 연락주시기 바랍니다.',
-      }),
-      this.#initCheckUploadToken(),
-      this.#initPublicMulterMiddleware(this.#dest, this.#uploadField),
-      this.#initMulterErrorHandler(),
-      this.#initCreateFileMiddleware(this.#db, this.#file),
-    ];
-
-    // 만약 사이즈에 대한 폴더가 없으면 미리 만든다.
-    for (const sizeName of this.#file.resizeOptionMap.keys()) {
-      const folderPath = path.resolve(this.#dest, sizeName);
-      if (!fs.existsSync(folderPath)) {
-        fs.mkdirSync(folderPath);
-      }
-    }
-  }
 
   getFileMiddleware = aw(async (req, res, next) => {
     // console.log(req.params.filename);
@@ -228,6 +249,62 @@ class FileService {
     // 해당하는 옵션의 파일도 존재하지 않는다면, 404
     return res.status(404).send();
   });
+
+  #initGetExcelMiddleware = (): Handler =>
+    aw(async (req, res, next) => {
+      const {
+        type,
+        date_lte,
+        date_gte,
+        transport_status,
+        doc_status,
+        money_status,
+        receipt_status,
+        search,
+      }: { [P in keyof ApplicationSearch]: string } & {
+        type?: string;
+      } = req.query;
+      const date_lte_parsed = date_lte ? new Date(date_lte) : null;
+      const date_gte_parsed = date_gte ? new Date(date_gte) : null;
+      const transport_status_parsed = transport_status
+        ? parseRestrictedArray(transport_status, enumApplicationTransportStatus)
+        : null;
+      const doc_status_parsed = doc_status
+        ? parseRestrictedArray(doc_status, enumApplicationDocStatus)
+        : null;
+      const money_status_parsed = money_status
+        ? parseRestrictedArray(money_status, enumApplicationMoneyStatus)
+        : null;
+      const receipt_status_parsed = receipt_status
+        ? parseRestrictedArray(receipt_status, enumApplicationReceiptStatus)
+        : null;
+
+      if (type === 'application') {
+        try {
+          const docs = await this.#db.getApplications({
+            date_gte: date_gte_parsed,
+            date_lte: date_lte_parsed,
+            transport_status: transport_status_parsed,
+            doc_status: doc_status_parsed,
+            money_status: money_status_parsed,
+            receipt_status: receipt_status_parsed,
+            search,
+            page: 0,
+            perpage: 1000,
+          });
+          const excelPath = await makeApplicationExcel(
+            docs.list,
+            path.resolve(__dirname, '../../temp'),
+          );
+          const download = util.promisify(res.download);
+          await download.call(res, excelPath);
+          await fs.promises.unlink(excelPath);
+        } catch (error) {
+          console.error(error);
+          next(error);
+        }
+      }
+    });
 
   // /**
   //  * Option Name 으로 파일을 얻어다주는 Middleware.
@@ -368,7 +445,8 @@ class FileService {
 //   return;
 // };
 
-export const absPath = (relative) => path.resolve(__dirname, '../../', relative);
+export const absPath = (relative) =>
+  path.resolve(__dirname, '../../', relative);
 
 export default {
   make(dbManager, fileManager, deststr, uploadFieldstr) {

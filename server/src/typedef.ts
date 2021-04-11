@@ -16,6 +16,7 @@ import {
 } from '@/db/schema/enum';
 
 import FilManagerImported from './manager/file';
+import { resolveTypeReferenceDirective } from 'typescript';
 
 export * from '@/db/schema/enum';
 
@@ -48,7 +49,7 @@ export type PromLD<T> = Promise<LeanDocument<T>>;
 export type PromLDList<T> = Promise<LeanDocument<T>[]>;
 
 export type Primitive = number | string | boolean;
-export type Braced = {[key: string]: AnyType};
+export type Braced = { [key: string]: AnyType };
 export type RecursiveArray = (Primitive | Braced | RecursiveArray)[];
 export type AnyType = RecursiveArray | Braced | Primitive;
 export function isBraced(value: AnyType): value is Braced {
@@ -220,7 +221,6 @@ interface ApplicationinfoBase {
   memo?: string; // 메모
   memo_unremarked?: boolean; // 메모 강조 표시를 해제함.
   meta?: AnyType; //
-   
 }
 
 export interface IApplication extends ApplicationinfoBase, Document {}
@@ -237,9 +237,72 @@ export interface ApplicationSearch {
   money_status?: ApplicationMoneyStatus[];
   receipt_status?: ApplicationReceiptStatus[];
   page?: number;
-  perpage: number;
+  perpage?: number;
   search?: string;
 }
+
+// export function isValue<
+//   T extends { includes: (searchElement: string, fromIndex?: number) => boolean }
+// >(key: string, list: T): key is T[keyof T] {
+//   if (key in list) return true;
+//   return false;
+// }
+
+export function contains<T extends string>(
+  list: ReadonlyArray<T>,
+  value: string,
+): value is T {
+  return list.some((item) => item === value);
+}
+
+export function parseRestrictedArray<T extends string>(
+  value: string,
+  list: ReadonlyArray<T>,
+): T[] {
+  const arr = value.split(',');
+  const result: T[] = [];
+  arr.forEach((item) => {
+    if (contains(list, item)) {
+      result.push(item);
+    }
+  });
+  return result;
+}
+
+// export function parseRestrictedArray<T>(value: string, list: T): T[keyof T][] {
+//   const arr = value.split(',');
+//   const result: T[keyof T][] = [];
+//   arr.forEach((item) => {
+//     if (isValue(item, list)) {
+//       result.push(item);
+//     }
+//   });
+//   return result;
+// }
+
+// export function parseRestrictedArray<T extends string>(value: string, list: T[]): T[] {
+//   const arr = value.split(',') as T[];
+//   const result: T[] = [];
+//   arr.forEach((item) => {
+//     if (item in list) {
+//       result.push(item);
+//     }
+//   });
+//   return result;
+// }
+
+// type ApplicationParseQueryReturn<T extends keyof ApplicationSearch> = ApplicationSearch[T]
+
+// export function applicationParseQuery<T extends keyof ApplicationSearch, U extends ApplicationSearch[T]>(key: T, value: string): U {
+
+//   if (key === 'date_gte' || key === 'date_lte')
+//     return new Date(value);
+
+//   // const array = value.split(',');
+//   // array.every(())
+// }
+
+// applicationParseQuery('date_gte', '123');
 
 // /**
 //  * @typedef {Object} Optioninfo
@@ -866,7 +929,6 @@ export type MailRendererWrapper = (
 ) => Promise<string>;
 
 export type TemplateMap = Map<string, MailRendererWrapper>;
-
 
 declare global {
   // eslint-disable-next-line @typescript-eslint/no-namespace

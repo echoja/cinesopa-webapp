@@ -27,6 +27,10 @@ export const graphql = async (query, variables) => {
         // },
       },
     );
+    if (received.data.errors) {
+      console.error('graphql error', received.data.errors);
+      throw new Error('GraphQL Error');
+    }
 
     const { data } = received;
     store.commit('setErrorMsg', { message: '' });

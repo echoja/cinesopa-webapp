@@ -19,10 +19,8 @@ describe('modules', function () {
       const xlsxPath = 'test/temp/test.xlsx';
       const workbook = new ExcelJs.Workbook();
       workbook.creator = '영화배급협동조합 씨네소파';
-      // workbook.lastModifiedBy = 'Her';
       workbook.created = new Date(1985, 8, 30);
       workbook.modified = new Date();
-      // workbook.lastPrinted = new Date(2016, 9, 27);
       const sheet = workbook.addWorksheet('시트 1번');
       sheet.columns = [
         { header: 'Id', key: 'id' },
