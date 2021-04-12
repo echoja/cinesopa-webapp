@@ -123,9 +123,12 @@ describe('file', function () {
           .attach('bin', path.join(__dirname, './res/TestForUpload'))
           .expect(200)
           .end((err, res) => {
+            
             if (err) return done(err);
+            addContext(this, { title: 'res', value: res});
             // 응답이 성공인지 체크
             expect(res.body.message).to.equal('success');
+            addContext(this, { title: 'res.body', value: res.body});
             // 응답에서 file이 있는지 체크
             expect(res.body.file).to.be.a('object');
             const filepath = res.body.file.path;

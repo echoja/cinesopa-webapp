@@ -82,7 +82,16 @@ export const Mutation = {
       return { success: false, code: 'token_has_no_application_id' };
     }
 
-    return db.updateApplication(tokenDoc.appl_id, input);
+    // 정보 업데이트, 토큰 삭제
+    await Promise.allSettled([
+      db.updateApplication(tokenDoc.appl_id, {
+        ...input,
+        reqdoc_expire_date: null,
+        reqdoc_token: null,
+      }),
+      db.removeToken(token),
+    ]);
+    return { success: true };
   }).only(ACCESS_ALL),
 
   /** 관리자가 새로운 신청서를 만들고자 할 때 */

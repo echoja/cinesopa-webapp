@@ -149,6 +149,8 @@ input TaxInfoInput {
   receipt_date: DateTime #  세금계산서 발행 날짜
   receipt_email: String #  세금계산서 발행 이메일
   receipt_etc_req: String #  세금계산서 관련 기타 요청
+  business_license_filename: String # 사업자등록증 파일명
+  business_license_url: String #  사업자등록증 url
 }
 type UpdateNewTaxReqLinkResult {
   success: Boolean

@@ -5,7 +5,7 @@
 const Hangul = require('hangul-js');
 const ExcelJs = require('exceljs');
 const express = require('express');
-const path = 
+const path = require('path');
 const createAgent = require('supertest').agent;
 const { expect } = require('chai');
 const fs = require('fs');

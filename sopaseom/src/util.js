@@ -11,6 +11,21 @@ export const numberWithCommas = (x) => {
 
 export const toPrice = (x) => `￦ ${numberWithCommas(x)}`;
 
+/**
+ * @param {any} item
+ * @param {string[]} keys
+ * @returns {{[key: string]: Date}[]}
+ */
+export const getSeoulDates = (item, keys) => {
+  const obj = {};
+  keys.forEach((key) => {
+    if (item[key]) {
+      obj[key] = new Date(item[key]);
+    }
+  });
+  return obj;
+};
+
 export const statusMap = {
   order_received: '주문접수',
   payment_confirming: '결제확인중',

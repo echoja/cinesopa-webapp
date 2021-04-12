@@ -406,8 +406,12 @@
               확인할 수 있고 신청자에게 직접 전달할 수 있습니다.</template
             >
             <div class="d-flex align-items-center" v-if="editing.reqdoc_token">
-              <b-button size="sm" class="mr-2">링크 복사</b-button>
-              <b-button size="sm" class="mr-2">링크 제거</b-button>
+              <b-button size="sm" class="mr-2" @click="taxReqLinkCopyClicked"
+                >링크 복사</b-button
+              >
+              <b-button size="sm" class="mr-2" @click="taxReqLinkRemoveClicked"
+                >링크 제거</b-button
+              >
               <p class="m-0">
                 만료일: {{ formatTime(new Date(editing.reqdoc_expire_date)) }}
               </p>
@@ -555,10 +559,13 @@
           <form-row title="업체 사업자등록증">
             <template #info>
               신청자가 링크를 통해 사업자등록증을 업로드했다면 자동으로
-              반영됩니다. 관리자가 직접 파일을 지정하여 업로드할 수 있습니다.
-              등록한다면 변경사항을 저장하지 않아도 곧바로 적용됩니다.
+              반영됩니다. 관리자가 직접 파일을 지정할 수 있습니다.
             </template>
-            <b-button
+            <single-file-field
+              v-model="editingBusinessLicense"
+              @input="editingBusinessLicenseChanged"
+            ></single-file-field>
+            <!-- <b-button
               size="sm"
               @click="compLicenseDownloadClicked"
               class="mr-2"
@@ -574,7 +581,7 @@
             >
               <font-awesome-icon :icon="['fas', 'upload']" class="mr-2" />
               <span>직접 등록</span></b-button
-            >
+            > -->
           </form-row>
           <form-row title="세금계산서 작성 일자">
             <b-form-datepicker
@@ -693,6 +700,7 @@ import {
   applicationMoneyStatusMap,
   applicationDocStatusMap,
   getDeliveryOptions,
+  getSeoulDates,
 } from '@/util';
 import Info from '@/components/admin/Info.vue';
 import EyeBox from '@/components/admin/EyeBox.vue';
@@ -705,6 +713,8 @@ import { makeSimpleMutation, makeSimpleQuery } from '@/api/graphql-client';
 import { mapActions } from 'vuex';
 import axios from 'axios';
 import fileDownload from 'js-file-download';
+import SingleFileField from '@/components/admin/SingleFileField.vue';
+import copy from 'copy-to-clipboard';
 
 /** @param {object} map 맵 */
 const mapToOption = (map) =>
@@ -713,6 +723,8 @@ const mapToOption = (map) =>
     text: map[value],
   }));
 const updateApplicationReq = makeSimpleMutation('updateApplication');
+const fileReq = makeSimpleQuery('file');
+const removeTaxReqLinkReq = makeSimpleMutation('removeTaxReqLink');
 
 export default {
   components: {
@@ -735,6 +747,7 @@ export default {
     BFormTextarea,
     ApplyButtonSet,
     BPaginationNav,
+    SingleFileField,
   },
   data() {
     return {
@@ -802,6 +815,7 @@ export default {
       allCheckIndeterminate: false,
       contextItem: {},
       editing: {},
+      editingBusinessLicense: {},
       deliveryOptions: [],
       docSendOptions: [],
       docSend: [],
@@ -953,8 +967,18 @@ export default {
           }
         }`,
       );
+      // item 복사 및 날짜 보정
       const tableItems = result.list.map((item) => ({
         ...item,
+        ...getSeoulDates(item, [
+          'end_date',
+          'start_date',
+          'reqdoc_expire_date',
+          'c_date',
+          'm_date',
+          'deposit_date',
+          'receipt_date',
+        ]),
         _showDetails: false,
       }));
       this.total = result.total;
@@ -1002,16 +1026,19 @@ export default {
         responseType: 'blob',
         params: {
           type: 'application',
-          // date_lte: this.filter.endDate.toISOString(),
-          // date_gte: this.filter.startDate.toISOString(),
-          // transport_status: this.filter.transportStatus.join(','),
-          // doc_status: this.filter.docStatus.join(','),
-          // money_status: this.filter.moneyStatus.join(','),
-          // receipt_status: this.filter.receiptStatus.join(','),
-          // search: this.filter.search,
+          date_lte: this.filter.endDate.toISOString(),
+          date_gte: this.filter.startDate.toISOString(),
+          transport_status: this.filter.transportStatus.join(','),
+          doc_status: this.filter.docStatus.join(','),
+          money_status: this.filter.moneyStatus.join(','),
+          receipt_status: this.filter.receiptStatus.join(','),
+          search: this.filter.search,
         },
       });
-      fileDownload(response.data, `cinesopa_applications_${moment().format('yyyy-mm-dd')}.xlsx`);
+      fileDownload(
+        response.data,
+        `cinesopa_applications_${moment().format('yyyy-MM-DD')}.xlsx`,
+      );
     },
     calendarFilterShown() {
       if (!this.filter.startDate) {
@@ -1052,11 +1079,15 @@ export default {
     blank() {
       //
     },
-    rowClicked(item, index, event) {
+
+    async rowClicked(item, index, event) {
       const sd = item._showDetails;
+      // 현재 클릭한 것이 이미 열려있다면 닫기.
       if (sd) {
         item._showDetails = false;
-      } else {
+      }
+      // 현재 클릭한 것만 detail 열고 나머지 다 닫기.
+      else {
         this.tableItems.forEach((tableItem) => {
           tableItem._showDetails = false;
         });
@@ -1065,6 +1096,17 @@ export default {
 
       // editing 에 복사하기
       this.editing = { ...item };
+
+      // editingBusinessLicense 초기화하기
+      if (item.business_license_filename) {
+        const fileReceived = await fileReq(
+          { filename: item.business_license_filename },
+          '{fileurl label filename mimetype alt origin}',
+        );
+        this.editingBusinessLicense = fileReceived;
+      }
+
+      // changed 초기화
       this.changed = new Set();
     },
     rowContextMenu(item, index, event) {
@@ -1155,6 +1197,46 @@ export default {
     async submitStateFilter(hideMethod) {
       await this.fetchData();
       hideMethod();
+    },
+
+    async editingBusinessLicenseChanged(fileObject) {
+      console.log('# Application.vue editingBusinessLicenseChanged');
+      console.log(fileObject);
+      this.editing.business_license_filename = fileObject.filename;
+      this.editing.business_license_url = fileObject.fileurl;
+      this.changed.add('business_license_filename');
+      this.changed.add('business_license_url');
+    },
+
+    async taxReqLinkCopyClicked() {
+      copy(
+        `https://sopaseom.com/request-tax-info-gate?token=${this.editing.reqdoc_token}`,
+      );
+      this.pushMessage({
+        type: 'success',
+        id: 'copyTaxReqLinkSuccess',
+        msg: '링크가 성공적으로 복사되었습니다.',
+      });
+    },
+    async taxReqLinkRemoveClicked() {
+      const res = await removeTaxReqLinkReq(
+        { id: this.editing.id },
+        '{success code}',
+      );
+      if (res.success) {
+        this.pushMessage({
+          type: 'success',
+          id: 'removeTaxReqLinkSuccess',
+          msg: '링크가 성공적으로 삭제되었습니다.',
+        });
+        this.editing.reqdoc_token = null;
+      } else {
+        this.pushMessage({
+          type: 'danger',
+          id: 'removeTaxReqLinkFailed',
+          msg: '링크 삭제가 실패하였습니다.',
+        });
+      }
     },
   },
   name: 'Application',

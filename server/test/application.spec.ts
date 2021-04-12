@@ -565,6 +565,98 @@ describe('application', function () {
           expect(res.success).to.equal(true);
           expect(found.receipt_email).to.equal('hello');
         });
+        it('값으로 null 이 들어와도 제대로 처리되어야 함.', async function () { 
+          const appl = await model.Application.create({ reqdoc_token: 'abc', });
+          const token = await model.Token.create({
+            appl_id: appl.id,
+            token: 'abc',
+            ttl: 500,
+            purpose: 'taxinfo_request',
+          });
+          const submitTaxInformationReq = makeSimpleMutation(
+            agent,
+            'submitTaxInformation',
+          );
+          const res = await submitTaxInformationReq(
+            {
+              token: 'abc',
+              input: {
+                receipt_email: null,
+                receipt_date: null,
+                receipt_etc_req: null,
+              },
+            },
+            `{success code}`,
+          );
+          const found = await model.Application.findOne({ id: appl.id });
+          addContext(this, { title: 'res', value: res});
+          addContext(this, { title: 'found', value: found });
+
+          expect(res.success).to.equal(true);
+          expect(found.receipt_email).to.equal(null);
+          expect(found.receipt_date).to.equal(null);
+          expect(found.receipt_etc_req).to.equal(null);
+        });
+        it('성공적으로 처리된 후 reqdoc_token 값과 reqdoc_expire_date 값이 없어져야 함', async function () { 
+          const appl = await model.Application.create({ reqdoc_token: 'abc', });
+          const token = await model.Token.create({
+            appl_id: appl.id,
+            token: 'abc',
+            ttl: 500,
+            purpose: 'taxinfo_request',
+          });
+          const submitTaxInformationReq = makeSimpleMutation(
+            agent,
+            'submitTaxInformation',
+          );
+          const res = await submitTaxInformationReq(
+            {
+              token: 'abc',
+              input: {
+                receipt_email: null,
+                receipt_date: null,
+                receipt_etc_req: null,
+              },
+            },
+            `{success code}`,
+          );
+          const found = await model.Application.findOne({ id: appl.id });
+          addContext(this, { title: 'res', value: res});
+          addContext(this, { title: 'found', value: found });
+
+          expect(res.success).to.equal(true);
+          expect(found.reqdoc_expire_date).to.oneOf([null, undefined]);
+          expect(found.reqdoc_token).to.oneOf([null, undefined]);
+        });
+        it('성공적으로 처리된 후 토큰이 없어져야 함', async function () { 
+          const appl = await model.Application.create({ reqdoc_token: 'abc', });
+          const token = await model.Token.create({
+            appl_id: appl.id,
+            token: 'abc',
+            ttl: 500,
+            purpose: 'taxinfo_request',
+          });
+          const submitTaxInformationReq = makeSimpleMutation(
+            agent,
+            'submitTaxInformation',
+          );
+          const res = await submitTaxInformationReq(
+            {
+              token: 'abc',
+              input: {
+                receipt_email: null,
+                receipt_date: null,
+                receipt_etc_req: null,
+              },
+            },
+            `{success code}`,
+          );
+          const found = await model.Token.findOne().lean().exec();
+          addContext(this, { title: 'res', value: res});
+          addContext(this, { title: 'found', value: found });
+          expect(res.success).to.equal(true);
+          expect(found).to.be.a('null');
+        });
       });
       describe('createApplication', function () {
         it('제대로 동작해야 함', async function () {

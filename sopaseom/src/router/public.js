@@ -335,8 +335,16 @@ export default [
   },
   {
     path: '/request-tax-info',
-    name: 'ReuqestTaxInfo',
+    name: 'RequestTaxInfo',
     component: () => import('@/views/client/RequestTaxInfo.vue'),
+    meta: {
+      layout: () => import('@/views/layout/LayoutPlain.vue'),
+    },
+  },
+  {
+    path: '/request-tax-info-gate',
+    name: 'RequestTaxInfoGate',
+    component: () => import('@/views/client/RequestTaxInfoGate.vue'),
     meta: {
       layout: () => import('@/views/layout/LayoutPlain.vue'),
     },
