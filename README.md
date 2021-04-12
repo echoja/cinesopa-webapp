@@ -93,10 +93,12 @@ sudo vim /etc/fstab
 sudo docker run -it --rm --name certbot \
 -v '/etc/letsencrypt:/etc/letsencrypt' \
 -v '/var/lib/letsencrypt:/var/lib/letsencrypt' \
-certbot/certbot certonly -d '*.cinesopa.kr' --manual --preferred-challenges dns --server https://acme-v02.api.letsencrypt.org/directory
+certbot/certbot certonly \
+-d cinesopa.kr -d graphql.sopaseom.com -d sopaseom.com -d www.cinesopa.kr -d www.sopaseom.com \
+--manual --preferred-challenges dns --server https://acme-v02.api.letsencrypt.org/directory
 ```
 
-##### Let's Encrypt 인증서 리뉴얼
+##### ~~Let's Encrypt 인증서 리뉴얼~~
 
 ```bash
 sudo docker run -it --rm --name certbot \
