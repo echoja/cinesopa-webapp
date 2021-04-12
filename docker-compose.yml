@@ -26,6 +26,7 @@ services:
     volumes:
       - /etc/letsencrypt:/app/server/config/letsencrypt:ro
       - ./server/config/common:/app/server/config/common:ro
+      - ./server/config/mailer-credentials.json:/app/server/config/mailer-credentials.json:ro
       - ./server/uploads:/app/server/uploads
     environment:
       - COMPOSE_DOCKER_CLI_BUILD=1
