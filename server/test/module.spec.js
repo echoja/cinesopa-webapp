@@ -5,6 +5,7 @@
 const Hangul = require('hangul-js');
 const ExcelJs = require('exceljs');
 const express = require('express');
+const path = 
 const createAgent = require('supertest').agent;
 const { expect } = require('chai');
 const fs = require('fs');
@@ -14,6 +15,24 @@ describe('modules', function () {
   // after('파일 제거', async function () {
   //   await clearDirectory('test/temp');
   // });
+  describe('path and fs', function () {
+    // eslint-disable-next-line mocha/no-setup-in-describe
+    const pathed = path.resolve('test/temp');
+    it('mkdir works', function (done) {
+      this.skip();
+      if (!fs.existsSync(pathed)) {
+        fs.mkdir(pathed, function (err) {
+          if (err) return done(err);
+          return done();
+        });
+      } else {
+        done(new Error(`${pathed}가 이미 존재해요.`));
+      }
+    });
+
+    // console.log(path.join("test/upload-middlewares"));
+    // console.log(fs.mkdir(path))
+  });
   describe('express + exceljs', function () {
     it('exceljs 생성 + 파일 다운로드 + 파일 삭제 제대로 동작해야 함', async function () {
       const xlsxPath = 'test/temp/test.xlsx';

@@ -58,6 +58,7 @@ import {
   IApplication,
   AnyType,
   Orderinfo,
+  isBraced,
 } from '@/typedef';
 
 // const crypto = require('crypto');
@@ -574,8 +575,11 @@ export class DBManager {
    */
   async getFilebyOptionName(name: string): Promise<LeanDocument<IFile>> {
     const option = await model.SiteOption.findOne({ name }).lean().exec();
-    if (!option || typeof option.value !== 'string') return null;
-    return model.File.findOne({ filename: option.value }).lean().exec();
+    // console.log('# getFilebyOptionName');
+    // console.log(name);
+    // console.log(option);
+    if (!option || !isBraced(option.value) || typeof option.value.filename !== 'string') return null;
+    return model.File.findOne({ filename: option.value.filename }).lean().exec();
   }
 
   /**

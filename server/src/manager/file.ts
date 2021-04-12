@@ -4,7 +4,7 @@ const fs = require('fs');
  *
  * @param {string} fullpath
  */
-const removeFile = async (fullpath: string): Promise<void> =>
+export const removeFile = async (fullpath: string): Promise<void> =>
   new Promise<void>((resolve, reject) => {
     fs.unlink(fullpath, (err) => {
       if (err) return reject(err);

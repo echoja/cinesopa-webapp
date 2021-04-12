@@ -7,11 +7,13 @@ const makeAgent = require('supertest').agent;
 const Throttle = require('superagent-throttle');
 // const { upload, createFileFromMockFile } = require('./tool').default;
 const { fake } = require('sinon');
-const { model } = require('@/loader');
+const { model, db, file: fileService } = require('@/loader');
 const fileServiceFactory = require('@/service/file').default;
 const fileManager = require('@/manager/file').default;
 const rimraf = require('rimraf');
 const supertest = require('supertest');
+const addContext = require('mochawesome/addContext');
+const expressRequestMock = require('express-request-mock');
 
 const { promisify } = require('util');
 const { totalmem } = require('os');
@@ -31,6 +33,7 @@ const {
 } = require('./graphql-request');
 const { makeSimpleQuery, doAdminLogin } = require('./tool').default;
 const { absPath } = require('@/service/file');
+const { default: axios } = require('axios');
 
 const app = express();
 
@@ -61,24 +64,7 @@ const removeFilesInDir = (destString, done) => {
   });
 };
 describe('file', function () {
-  describe('path and fs', function () {
-    // eslint-disable-next-line mocha/no-setup-in-describe
-    const pathed = path.resolve('test/temp');
-    it('mkdir works', function (done) {
-      this.skip();
-      if (!fs.existsSync(pathed)) {
-        fs.mkdir(pathed, function (err) {
-          if (err) return done(err);
-          return done();
-        });
-      } else {
-        done(new Error(`${pathed}가 이미 존재해요.`));
-      }
-    });
-
-    // console.log(path.join("test/upload-middlewares"));
-    // console.log(fs.mkdir(path))
-  });
+  // eslint-disable-next-line mocha/no-setup-in-describe
   describe('file Service', function () {
     describe('uploadMiddleware', function () {
       /** @type {import("supertest").SuperAgentTest} */
@@ -342,7 +328,7 @@ describe('file', function () {
     });
   });
 
-  describe('api', function () {
+  describe('Middleware', function () {
     // eslint-disable-next-line mocha/no-setup-in-describe
     const {
       agent,
@@ -531,6 +517,10 @@ describe('file', function () {
         expect(res.status).to.equal(200);
       });
     });
+
+    describe('uploadPublicMiddleware', function () {
+      it('제대로 동작해야 함', async function () {});
+    });
     describe('getFileMiddleware', function () {
       it('업로드된 파일은 제대로 가져올 수 있어야 함', async function () {
         // 일단 파일 업로드
@@ -554,25 +544,49 @@ describe('file', function () {
         const { filename } = res.body.file;
 
         // 옵션이 존재한다고 가정
-        await model.SiteOption.create({
+        const o = await model.SiteOption.create({
           name: 'power_name',
-          value: filename,
+          value: {
+            filename,
+          },
           type: 'file',
         });
+        addContext(this, { title: 'o', value: o });
 
         const res2 = await agent.get(`/upload/power_name`).expect(200);
         console.log(res2.body);
         expect(res2.body).to.not.be.null;
-
-        // this.skip();
       });
-      // todo
       it('옵션으로 갖고 오는데, 파일이 아니면 404여야 함', async function () {
-        this.skip();
+        await model.SiteOption.create({ name: 'abc', value: 'abc' });
+        // await doLogin(agent, 'testAdmin', 'abc');
+        const webapp = express();
+        // webapp.post('/upload', fileService.uploadMiddleware);
+        webapp.get('/upload/:filename', fileService.getFileMiddleware);
+        const testAgent = makeAgent(webapp);
+        // const fileUploadedResult = await testAgent
+        //   .post('/upload')
+        //   .attach('bin', path.join(__dirname, './res/smallfile'))
+        //   .expect(200);
+        // addContext(this, {
+        //   title: 'fileUploadedResult',
+        //   value: fileUploadedResult,
+        // });
+        const getFileResult = await testAgent.get('/upload/abc');
+        
+        addContext(this, { title: 'getFileResult', value: getFileResult});
+        expect(getFileResult.status).to.equal(404);
       });
-      // todo
+
+
       it('옵션으로 갖고 오는데, 파일이 존재하지 않으면 404여야 함', async function () {
-        this.skip();
+        await model.SiteOption.create({ name: 'abc', value: { filename: 'hi'} });
+        const webapp = express();
+        webapp.get('/upload/:filename', fileService.getFileMiddleware);
+        const testAgent = makeAgent(webapp);
+        const getFileResult = await testAgent.get('/upload/abc');
+        addContext(this, { title: 'getFileResult', value: getFileResult});
+        expect(getFileResult.status).to.equal(404);
       });
 
       it('존재하지 않는 파일은 404여야 함', async function () {
@@ -581,8 +595,8 @@ describe('file', function () {
       });
     });
 
-    describe('getExcelMiddleware', function () { 
-      it('type 이 application 일 경우 제대로 동작해야 함 - 실제 파일을 확인해야 하므로 패스', async function () { 
+    describe('getExcelMiddleware', function () {
+      it('type 이 application 일 경우 제대로 동작해야 함 - 실제 파일을 확인해야 하므로 패스', async function () {
         this.skip();
         const res = await agent.get('/excel').query({
           type: 'application',
@@ -597,7 +611,68 @@ describe('file', function () {
       });
     });
 
-    describe('graphql api', function () {
+    describe('initCheckUploadToken', function () {
+      it('제대로 동작해야 함', async function () {
+        await model.Token.create({
+          token: '1234',
+          purpose: 'taxinfo_request',
+          ttl: 10000,
+        });
+        const { res, req } = await expressRequestMock(
+          fileService.initCheckUploadToken(),
+          {
+            query: { token: '1234' },
+          },
+        );
+        addContext(this, { title: 'res', value: { ...res } });
+        expect(res.statusCode).to.equal(200);
+      });
+      it('query 가 설정되어 있지 않을 시 401 되어야 함.', async function () {
+        await model.Token.create({
+          token: '1234',
+          purpose: 'taxinfo_request',
+          ttl: 10000,
+        });
+        const { res, req } = await expressRequestMock(
+          fileService.initCheckUploadToken(),
+        );
+        addContext(this, { title: 'res', value: { ...res } });
+        expect(res.statusCode).to.equal(401);
+      });
+      it('토큰을 찾을 수 없을 시 401이 되어야 함.', async function () {
+        await model.Token.create({
+          token: '1234',
+          purpose: 'taxinfo_request',
+          ttl: 10000,
+        });
+        const { res, req } = await expressRequestMock(
+          fileService.initCheckUploadToken(),
+          {
+            query: { token: '12345' },
+          },
+        );
+        addContext(this, { title: 'res', value: { ...res } });
+        expect(res.statusCode).to.equal(401);
+      });
+      it('토큰이 만료되었을 때 401이 되어야 함.', async function () {
+        await model.Token.create({
+          token: '1234',
+          purpose: 'taxinfo_request',
+          ttl: 0,
+        });
+        await new Promise((resolve) => setTimeout(resolve, 100));
+        const { res, req } = await expressRequestMock(
+          fileService.initCheckUploadToken(),
+          {
+            query: { token: '1234' },
+          },
+        );
+        addContext(this, { title: 'res', value: { ...res } });
+        expect(res.statusCode).to.equal(401);
+      });
+    });
+
+    describe('api', function () {
       /** @type {import('supertest').Response} */
       let res1;
       /** @type {import('supertest').Response} */
@@ -630,14 +705,6 @@ describe('file', function () {
             filename,
           });
           expect(res3.body.data.file.origin).to.equal('TestForUpload');
-        });
-        // todo
-        it('id를 넣었을 때 제대로 동작해야 함', function () {
-          this.skip();
-        });
-        // todo
-        it('id와 filename을 둘다 넣었을 때 filename 만 제대로 동작해야 함', function () {
-          this.skip();
         });
       });
       describe('files', function () {
@@ -704,7 +771,7 @@ describe('file', function () {
       });
     });
 
-    describe('File Service', function () {
+    describe('File Service Helper Functions', function () {
       describe('getFile', function () {
         it('있는 파일을 잘 가져와야 함', async function () {
           await doLogin(agent, 'testAdmin', 'abc');
@@ -773,7 +840,7 @@ describe('file', function () {
             await fileTestService.removeFile('not-exist-name');
           } catch (error) {
             errored = true;
-            console.log(error);
+            addContext(this, { title: 'error', value: error});
           }
           expect(errored).to.equal(true);
 

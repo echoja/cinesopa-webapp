@@ -14,9 +14,9 @@ import {
   Fileinfo,
   ApplicationSearch,
   parseRestrictedArray,
+  IFile,
 } from '@/typedef';
 import { Handler, ErrorRequestHandler, IRouterHandler } from 'express';
-import { aw } from '../util';
 import { makeApplicationExcel } from '@/manager/excel';
 import {
   ApplicationTransportStatus,
@@ -25,6 +25,8 @@ import {
   enumApplicationReceiptStatus,
   enumApplicationTransportStatus,
 } from '@/db/schema/enum';
+import { LeanDocument } from 'mongoose';
+import { aw } from '../util';
 // const sizeOf = promisify(sizeOfCallbackBased);
 
 class FileService {
@@ -52,10 +54,12 @@ class FileService {
     this.#file = file;
     this.#dest = dest;
     this.#uploadField = uploadField;
+    
+    // uploadMiddleware 초기화
     this.uploadMiddleware = [
-      this.#initMulterMiddleware(this.#dest, this.#uploadField),
-      this.#initMulterErrorHandler(),
-      this.#initCreateFileMiddleware(this.#db, this.#file),
+      this.initMulterMiddleware(this.#dest, this.#uploadField),
+      this.initMulterErrorHandler(),
+      this.initCreateFileMiddleware(this.#db, this.#file),
     ];
 
     // public upload middleware 정의
@@ -72,14 +76,14 @@ class FileService {
         message:
           '하루 업로드가 제한되었습니다. 문의사항으로 연락주시기 바랍니다.',
       }),
-      this.#initCheckUploadToken(),
-      this.#initPublicMulterMiddleware(this.#dest, this.#uploadField),
-      this.#initMulterErrorHandler(),
-      this.#initCreateFileMiddleware(this.#db, this.#file),
+      this.initCheckUploadToken(),
+      this.initPublicMulterMiddleware(this.#dest, this.#uploadField),
+      this.initMulterErrorHandler(),
+      this.initCreateFileMiddleware(this.#db, this.#file),
     ];
 
     // get excel middleware 정의
-    this.getExcelMiddleware = [this.#initGetExcelMiddleware()];
+    this.getExcelMiddleware = [this.initGetExcelMiddleware()];
 
     // 만약 사이즈에 대한 폴더가 없으면 미리 만든다. need check
     [...this.#file.resizeOptionMap.keys()].forEach((sizeName) => {
@@ -97,14 +101,14 @@ class FileService {
    * @param {FileManager} file
    * @returns {Handler}
    */
-  #initCreateFileMiddleware = (
+  initCreateFileMiddleware = (
     db: DBManager,
     file: FileManager,
   ): Handler => async (req, res, next) => {
-    // console.log('# file service #initCreateFileMiddleware called!');
+    // console.log('# file service initCreateFileMiddleware called!');
     let fullpath = '';
     try {
-      // console.log('# file service #initCreateFileMiddleware');
+      // console.log('# file service initCreateFileMiddleware');
       const fileinfo: Fileinfo = {};
       const { file: fileObj } = req;
       ['filename', 'mimetype', 'path', 'encoding', 'size'].forEach((key) => {
@@ -117,7 +121,7 @@ class FileService {
       fileinfo.extension = extension;
       fileinfo.label = label;
       fileinfo.alt = label;
-      console.log(fileinfo);
+      // console.log(fileinfo);
       // 이메일
       const email = req?.user?.email;
       if (email) fileinfo.owner = email;
@@ -158,7 +162,7 @@ class FileService {
    * @param {string} uploadField
    * @returns {Handler}
    */
-  #initMulterMiddleware = (dest: string, uploadField: string): Handler =>
+  initMulterMiddleware = (dest: string, uploadField: string): Handler =>
     multer({ dest }).single(uploadField);
 
   /**
@@ -167,10 +171,10 @@ class FileService {
    * @param {string} uploadField
    * @returns {Handler}
    */
-  #initPublicMulterMiddleware = (dest: string, uploadField: string): Handler =>
+  initPublicMulterMiddleware = (dest: string, uploadField: string): Handler =>
     multer({ dest, limits: { fileSize: 10485760 } }).single(uploadField);
 
-  #initMulterErrorHandler = (): ErrorRequestHandler => {
+  initMulterErrorHandler = (): ErrorRequestHandler => {
     const handler = (err, req, res, next) => {
       if (err) {
         console.log('# file service initMulterErrorHandler called');
@@ -184,12 +188,12 @@ class FileService {
   /**
    * 업로드 토큰을 검사합니다.
    */
-  #initCheckUploadToken = (): Handler =>
+  initCheckUploadToken = (): Handler =>
     aw(async (req, res, next) => {
-      const { token } = req.params;
+      const { token } = req.query;
       // 토큰 파라미터가 설정되어 있지 않으면 오류
       if (typeof token !== 'string') {
-        return res.status(401).send();
+        return res.status(401).send('파라미터가 설정되어 있지 않습니다.');
       }
       const { isValidTTL, doc: tokenDoc } = await this.#db.getToken(
         token,
@@ -197,7 +201,7 @@ class FileService {
       );
       // 토큰이 존재하지 않거나 시간이 문제가 있다면
       if (!tokenDoc || !isValidTTL) {
-        return res.status(401).send();
+        return res.status(401).send('토큰이 존재하지 않거나 시간이 문제가 있습니다.');
       }
       return next();
     });
@@ -206,8 +210,8 @@ class FileService {
     // console.log(req.params.filename);
     // 파일 이름이 주어지지 않을 경우 404
     const { filename } = req.params;
-    console.log('# file.js getFileMiddleware query');
-    console.log(req.params);
+    // console.log('# file.js getFileMiddleware query');
+    // console.log(req.params);
     if (!filename) return res.status(404).send();
     // console.log(req.query);
 
@@ -221,18 +225,35 @@ class FileService {
     //   fileNameNoExt = splitted.slice(0, -1).join('.');
     // }
 
-    // 파일이름으로 찾기 시도. 찾을시 바로 보냄.
-    const foundByFilename = await this.#db.getFile(filename);
+    
     // console.log(foundByFilename.path);
     // console.log(__dirname);
-    const { size } = req.query; // need check! req.query.size 에서 바로 접근하던 걸  { size } = req.query 로 변경함.
-    if (foundByFilename) {
-      res.set('Content-Type', foundByFilename.mimetype);
-      if (typeof size === 'string') {
-        const absPath = await this.resizeImage(foundByFilename, size);
-        return res.sendFile(absPath);
+    const { size, action } = req.query; // need check! req.query.size 에서 바로 접근하던 걸  { size } = req.query 로 변경함.
+
+    // 보내는 로직을 미리 정의해놓음.
+    const sendFile = async (file: LeanDocument<IFile>) => {
+      res.set('Content-Type', foundByFilename?.mimetype);
+      // 사이즈가 있을 시 사이즈 기반으로 파일 경로 구함
+      const abspath = typeof size === 'string' ? await this.resizeImage(file, size) : absPath(file?.path);
+      
+      // download 일 경우 다운로드 수행
+      if (action === 'download') {
+        res.download(abspath, file?.origin ?? file?.label ?? 'file');
+      } else {
+        res.sendFile(abspath);
       }
-      return res.sendFile(absPath(foundByFilename.path)); // need check 파일이 제대로 나오는지 확인해야함. 실제 환경에서.
+    }
+    // 파일이름으로 찾기 시도. 찾을시 바로 보냄.
+    const foundByFilename = await this.#db.getFile(filename);
+    if (foundByFilename) {
+      
+      return sendFile(foundByFilename);
+      // res.set('Content-Type', foundByFilename.mimetype); // IE 에서 필요함.
+      // if (typeof size === 'string') {
+      //   const absPath = await this.resizeImage(foundByFilename, size);
+      //   return res.sendFile(absPath);
+      // }
+      // return res.sendFile(absPath(foundByFilename.path)); // need check 파일이 제대로 나오는지 확인해야함. 실제 환경에서.
     }
 
     // 옵션으로 파일 찾기 시도.
@@ -243,14 +264,17 @@ class FileService {
     // // 옵션이 주어진다면, 해당하는 파일 보내기.
     // const fileByOption = await this.#db.getFile(foundOption.value);
     if (fileByOption) {
-      res.set('Content-Type', fileByOption.mimetype);
-      return res.sendFile(absPath(fileByOption.path));
+      console.log('# file.ts getFileMiddleware fileByOption');
+      console.log(fileByOption);
+      return sendFile(fileByOption);
+      // res.set('Content-Type', fileByOption.mimetype);
+      // return res.sendFile(absPath(fileByOption.path));
     }
     // 해당하는 옵션의 파일도 존재하지 않는다면, 404
     return res.status(404).send();
   });
 
-  #initGetExcelMiddleware = (): Handler =>
+  initGetExcelMiddleware = (): Handler =>
     aw(async (req, res, next) => {
       const {
         type,
@@ -327,6 +351,7 @@ class FileService {
 
   /**
    * 이미지를 리사이즈하고 절대 경로를 반환합니다.
+   * 파일이 이미지 파일이 아닐 경우 리사이즈를 진행하지 않고 원래 파일 경로를 보냅니다.
    * @param {Fileinfo} fileinfo
    * @param {string} size
    */
@@ -348,9 +373,9 @@ class FileService {
       return defaultPath;
     }
 
-    const splitted = defaultPath.split(path.sep);
-    splitted.splice(splitted.length - 1, 0, size);
-    const toPath = splitted.join(path.sep);
+    const splittedPath = defaultPath.split(path.sep);
+    splittedPath.splice(splittedPath.length - 1, 0, size);
+    const toPath = splittedPath.join(path.sep);
 
     // 이미 파일이 있다면, 파일 이름만 리턴.
     if (fs.existsSync(toPath)) {
@@ -359,8 +384,8 @@ class FileService {
 
     // 파일이 없다면 리사이즈 후 파일 이름 리턴.
     await sharp(defaultPath).resize(resizeOption).toFile(toPath);
-    console.log('# file.js resizeImage toPath');
-    console.log(toPath);
+    // console.log('# file.js resizeImage toPath');
+    // console.log(toPath);
     return toPath;
   }
 
@@ -395,8 +420,8 @@ class FileService {
    */
   async getUntrackedFiles(): Promise<string[]> {
     const dbFiles = await this.#db.getFiles();
-    console.log('# file.ts getUntractedFiles dbfiles');
-    console.log(dbFiles);
+    // console.log('# file.ts getUntractedFiles dbfiles');
+    // console.log(dbFiles);
     const actualFilenames = await this.#file.getFiles(this.#dest);
     const untracked = actualFilenames.filter(
       (actualFilename) =>

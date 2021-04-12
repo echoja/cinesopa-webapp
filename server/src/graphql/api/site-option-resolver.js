@@ -28,8 +28,8 @@ module.exports = {
 
     // 악의성 유저가 공격할 우려가 있음...
     siteOptions: makeResolver(async (obj, args, context, info) => {
-      /** @type {string[]} */
-      const names = args.names;
+      /** @type {{names: string[]}} */
+      const { names } = args;
       // names 가 존재하지 않는다면 바로 종료.
       if (!names) return [];
       // console.log(names);
@@ -39,13 +39,15 @@ module.exports = {
       // console.log(results);
       const refined = results.map((result, index) => {
         // 옵션 찾기 성공시
-        if (result.status === 'fulfilled') {
+        if (result.status === 'fulfilled' && result.value) {
           const option = result.value;
-          return {
-            name: option.name,
-            value: option.value,
-            success: true,
-          };
+          if (option) {
+            return {
+              name: option.name,
+              value: option.value,
+              success: true,
+            };
+          }
         }
         // 옵션 찾기 실패시
         return {
@@ -66,8 +68,8 @@ module.exports = {
       return db.setSiteOption(name, value, 'string');
     }).only(ACCESS_ADMIN),
     setSiteOptions: makeResolver(async (obj, args, context, info) => {
-      /** @type {any[]} */
-      const inputs = args.inputs;
+      /** @type {{inputs: any[]}} */
+      const { inputs } = args;
       const promises = inputs.map((input) => {
         const { name, value } = input;
         return db.setSiteOption(name, value, 'string');

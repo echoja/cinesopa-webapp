@@ -22,7 +22,9 @@ router.post(
 );
 
 // 일반 유저가 업로드하는 endpoint
-
+router.post('/graphql/public-upload', 
+  uploadPublicMiddleware,
+)
 
 // 이미 업로드된 파일을 가져오는 endpoint
 router.get('/upload/:filename', getFileMiddleware);
