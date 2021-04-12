@@ -1,7 +1,9 @@
 const { expect } = require('chai');
 // const {} = require('./graphql-request');
+const { graphql } = require('graphql');
+const { model, db } = require('@/loader');
 const {
-  initTestServer,
+  createTestServer,
   graphqlSuper,
   doLogout,
   doAdminLogin,
@@ -10,14 +12,11 @@ const {
   guestEmail,
   makeSimpleMutation,
   makeSimpleQuery,
-} = require('./tool');
-const { graphql } = require('graphql');
-const { model, db } = require('../loader');
-const destinfo = require('../db/schema/destinfo');
+} = require('./tool').default;
 
 describe('order', function () {
   // eslint-disable-next-line mocha/no-setup-in-describe
-  const { agent } = initTestServer({ before, beforeEach, after, afterEach });
+  const { agent } = createTestServer(this);
   describe('db', function () {
     describe('getOrder', function () {
       it('제대로 동작해야 함', async function () {
@@ -145,7 +144,7 @@ describe('order', function () {
       });
     });
     describe('getOrderCountGroupedByStatus', function () {
-      it.only('제대로 동작해야 함', async function () {
+      it('제대로 동작해야 함', async function () {
         const results = await Promise.allSettled([
           model.Order.create({
             user: guestEmail,

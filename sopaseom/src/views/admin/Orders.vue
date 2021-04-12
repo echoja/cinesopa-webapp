@@ -714,9 +714,9 @@ export default {
         { condition: this.receivedCondition },
         `{
           total
-          list { 
+          list {
             id user status method c_date expected_date cancelled_date return_req_date payer
-            cash_receipt transport_number transport_company transport_fee bootpay_id meta 
+            cash_receipt transport_number transport_company transport_fee bootpay_id meta
             bootpay_payment_info
             items {
               id user added modified product_id usage

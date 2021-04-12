@@ -53,7 +53,6 @@ const boardWrapperMap = {
 
 export default {
   name: 'Post',
-  title: (vm) => vm.post.title,
   props: ['id'],
   data() {
     return {

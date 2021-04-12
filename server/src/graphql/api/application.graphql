@@ -1,0 +1,194 @@
+type Destinfo {
+  name: String
+  address: String
+  address_detail: String
+  phone: String
+  request: String
+}
+
+input DestinfoInput {
+  name: String
+  address: String
+  address_detail: String
+  phone: String
+  request: String
+}
+
+type Application {
+  id: Int
+  host: String #  주최
+  c_date: DateTime #  만든 일시
+  m_date: DateTime #  수정된 일시
+  film_title: String #  작품명
+  charge: Int #  상영료 (부가세 포함)
+  start_date: DateTime #  상영 시작일시
+  end_date: DateTime #  상영 종료일시
+  session_count: Int #  상영회차
+  format: String #  상영 포맷
+  applicant_name: String #  신청자 이름
+  applicant_phone: String #  신청자 연락처
+  applicant_email: String #  신청자 이메일
+  destination: String #  상영본 받을 주소
+  transport_company: String #  배송 업체
+  transport_number: String #  송장 번호
+  transport_status: String #  배송 상태
+  doc_status: String #  서류 상태
+  money_status: String #  정산 및 입금 상태
+  receipt_status: String #  세금계산서 상태
+  business_license_filename: String # 사업자등록증 파일명
+  business_license_url: String #  사업자등록증 url
+  deposit_date: DateTime #  입금 예상일
+  receipt_date: DateTime #  세금계산서 발행 날짜
+  receipt_email: String #  세금계산서 발행 이메일
+  receipt_etc_req: String #  세금계산서 관련 기타 요청
+  reqdoc_token: String #  서류 요청 토큰
+  reqdoc_expire_date: DateTime #  서류 요청 url 기한
+  search: String #  검색 필드
+  etc_req: String #  기타 요청
+  memo: String #  메모
+  memo_unremarked: Boolean #  메모 강조 표시를 해제함.
+  meta: JSON
+}
+
+input ApplicationInput {
+  host: String #  주최
+  c_date: DateTime #  만든 일시
+  m_date: DateTime #  수정된 일시
+  film_title: String #  작품명
+  charge: Int #  상영료 (부가세 포함)
+  start_date: DateTime #  상영 시작일시
+  end_date: DateTime #  상영 종료일시
+  session_count: Int #  상영회차
+  format: String #  상영 포맷
+  applicant_name: String #  신청자 이름
+  applicant_phone: String #  신청자 연락처
+  applicant_email: String #  신청자 이메일
+  destination: String #  상영본 받을 주소
+  transport_company: String #  배송 업체
+  transport_number: String #  송장 번호
+  transport_status: String #  배송 상태
+  doc_status: String #  서류 상태
+  money_status: String #  정산 및 입금 상태
+  receipt_status: String #  세금계산서 상태
+  business_license_filename: String # 사업자등록증 파일명
+  business_license_url: String #  사업자등록증 url
+  deposit_date: DateTime #  입금 예상일
+  receipt_date: DateTime #  세금계산서 발행 날짜
+  receipt_email: String #  세금계산서 발행 이메일
+  receipt_etc_req: String #  세금계산서 관련 기타 요청
+  reqdoc_token: String #  서류 요청 토큰
+  reqdoc_expire_date: DateTime #  서류 요청 url 기한
+  search: String #  검색 필드
+  etc_req: String #  기타 요청
+  memo: String #  메모
+  memo_unremarked: Boolean #  메모 강조 표시를 해제함.
+  meta: JSON
+}
+
+input ApplicationSearch {
+  date_gte: DateTime
+  date_lte: DateTime
+  transport_status: [String]
+  doc_status: [String]
+  money_status: [String]
+  receipt_status: [String]
+  method: String
+  page: Int
+  perpage: Int
+  search: String
+}
+
+type ApplicationsResult {
+  total: Int
+  list: [Application]
+}
+
+type CreateApplicationResult {
+  success: Boolean
+  code: String
+  application_id: Int
+}
+
+type RemoveApplicationResult {
+  success: Boolean
+  code: String
+}
+
+type UpdateApplicationResult {
+  success: Boolean
+  code: String
+}
+
+type ReqCancelApplicationResult {
+  success: Boolean
+  code: String
+}
+
+type NobankApplicationinfoResult {
+  success: Boolean
+  code: String
+  application: Application
+}
+
+type FinishPaymentResult {
+  success: Boolean
+  code: String
+  application: Application
+}
+
+type ApplicationCountGroupedByStatusResult {
+  status: String
+  count: Int
+}
+
+type SubmitApplicationResult {
+  success: Boolean
+  code: String
+}
+input TaxInfoInput {
+  receipt_date: DateTime #  세금계산서 발행 날짜
+  receipt_email: String #  세금계산서 발행 이메일
+  receipt_etc_req: String #  세금계산서 관련 기타 요청
+  business_license_filename: String # 사업자등록증 파일명
+  business_license_url: String #  사업자등록증 url
+}
+type UpdateNewTaxReqLinkResult {
+  success: Boolean
+  code: String
+  token: String
+  expire_date: DateTime
+}
+
+type RemoveTaxReqLinkResult {
+  success: Boolean
+  code: String
+}
+type SubmitTaxInformationResult {
+  success: Boolean
+  code: String
+}
+
+type ApplicationTaxReqResult {
+  success: Boolean
+  code: String
+  doc: Application
+}
+
+extend type Query {
+  applicationTaxReq(token: String!): ApplicationTaxReqResult
+  applicationAdmin(id: Int!): Application
+  applicationsAdmin(condition: ApplicationSearch!): ApplicationsResult
+}
+
+extend type Mutation {
+  submitApplication(input: ApplicationInput!): SubmitApplicationResult
+  submitTaxInformation(
+    token: String!
+    input: TaxInfoInput
+  ): SubmitTaxInformationResult
+  createApplication(input: ApplicationInput!): CreateApplicationResult
+  removeApplication(id: Int!): RemoveApplicationResult
+  updateApplication(id: Int!, input: ApplicationInput!): UpdateApplicationResult
+  updateNewTaxReqLink(id: Int!): UpdateNewTaxReqLinkResult
+  removeTaxReqLink(id: Int!): RemoveTaxReqLinkResult
+}

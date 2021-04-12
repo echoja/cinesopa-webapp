@@ -1,0 +1,87 @@
+include base.pug
+
+//- ### VARIABLES ###
+- var transportFeeFormatted = transportFeeFormatted || '-'
+- var totalPriceFormatted = totalPriceFormatted || '-'
+- var paymentMethod = paymentMethod || '-'
+- var itemsFormatted = itemsFormatted || []
+- var detailsLink = detailsLink || '-'
+- var fullAddress = fullAddress || '#'
+- var totalProductPriceFormatted = totalProductPriceFormatted || '-'
+- var dest = dest || {phone: '', name: ''}
+//- td.header {width: 120px;}
+
+style.
+  .main-phrase{font-size: 22px; font-weight: bold; text-align: center; padding-bottom: 10px;}
+  .subtitle {padding-top: 40px; padding-bottom: 10px; font-size: 18p[]
+  td.header, td.content {padding-top: 10px; padding-bottom: 10px; border-bottom: 1px solid #ddd}
+  .featured-image {
+    width: 120px;
+  }
+  .order-cell {
+    padding-top: 20px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid #ddd;
+  }
+
+
++mailWrapper
+  +mtable
+    tr
+      td.main-phrase 주문하신 상품이 정상 결제되었습니다.
+    tr
+      td.subtitle 결제 정보
+    tr
+      td.content-table 
+        +mtable
+          tr
+            td.header 총 상품 가격
+            td.content= totalProductPriceFormatted
+          tr
+            td.header 배송비
+            td.content= transportFeeFormatted
+          tr
+            td.header 총 결제 금액
+            td.content= totalPriceFormatted
+          tr
+            td.header 결제 방법
+            td.content= paymentMethod
+    tr
+      td.subtitle 주문 상품
+    tr
+      td.content-table 
+        +mtable
+          each item in itemsFormatted
+            tr
+              td.featured-image.order-cell
+                img(src=`https://sopaseom.com${item.product.featured_image_url}` width="120")
+              td.options.order-cell(style="padding-left:15px")
+                span= item.product.name
+                +mtable
+                  each option in item.options
+                    tr
+                      td= `${option.content} ${option.count}개` 
+
+    tr
+      td.subtitle 배송 정보
+    tr
+      td.content-table(style="padding-bottom: 20px;")
+        +mtable
+          tr
+            td.header 받는 사람
+            td.content= dest.name
+          tr
+            td.header 연락처
+            td.content= dest.phone
+          tr
+            td.header 받는 주소
+            td.content= fullAddress
+    tr
+      td(style="padding-bottom: 20px;" align="center")
+        a(style={color: '#fff', 
+          display:'inline-block', 
+          'background-color': '#000', 
+          padding: '10px 15px 10px 15px',
+          'text-decoration': 'none',
+          'font-weight': 'bold',
+        }, href=detailsLink) 자세히 보기 

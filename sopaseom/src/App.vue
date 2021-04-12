@@ -24,6 +24,7 @@ import 'bootstrap-vue';
 // BFormInput, BButton, BFormSelect, BFormCheckboxGroup, BFormCheckbox, BCard,
 import LayoutClient from '@/views/layout/LayoutClient.vue';
 import LayoutAdmin from '@/views/layout/LayoutAdmin.vue';
+import LayoutPlain from '@/views/layout/LayoutPlain.vue';
 import NavMenu from './components/NavMenu.vue';
 
 export default {

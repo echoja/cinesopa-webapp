@@ -15,127 +15,90 @@
  * 3. local.js 에서 정의한 GraphQLLocalStrategy 객체
  * 4. local.make(...)에서 에서 만든 getUserByAuth 함수
  */
-const a = 10;
-const request = require('supertest');
 
-const session = require('express-session');
-const axios = require('axios');
+const axios = require('axios').default;
 const { expect } = require('chai');
+const addContext = require('mochawesome/addContext');
 
-const { graphqlSuper, initTestServer } = require('./tool');
-const { db } = require('../loader');
+const { db } = require('@/loader');
+const {
+  graphqlSuper,
+  createTestServer,
+  makeSimpleQuery,
+  makeSimpleMutation,
+} = require('./tool').default;
 
 const headers = {
   'Content-Type': 'application/json',
   Accept: 'application/json',
 };
 
-const loginQuery = `
-mutation Login ($email: String!, $pwd: String!) {
-  login(provider: {email:$email, pwd: $pwd}) {
-    user {
-      name
-      email
-      role
-    }
-    redirectLink
+const loginResultString = `{
+  user {
+    email
+    role
   }
-}
-`;
+  redirectLink
+  success
+  wrong_reason
+  wrong_pwd_count
+  emailVerificationRequired
+  }`
 
-const checkAuthQuery = `
-query checkAuth($redirectLink: String!, $role: Permission!) {
-  checkAuth(redirectLink:$redirectLink, role: $role) {
-    permissionStatus
-    user {
-      name
-      email
-      c_date
-      role
-    }
-  }
-}
-`;
-const graphqlRequest = async (url, query, variables) =>
-  new Promise((resolve, reject) => {
-    axios
-      .post(
-        url,
-        JSON.stringify({
-          query,
-          variables,
-        }),
-        {
-          headers,
-          withCredentials: true,
-        },
-      )
-      .then((value) => {
-        const { data } = value;
-        if (data) return resolve(data);
-        return resolve(data);
-      })
-      .catch((error) => reject(error));
-  });
-
-describe('로그인 및 로그아웃 (권한)', function () {
+describe('login & logout', function () {
   this.timeout(10000);
 
-  /** @type {import("supertest").SuperAgentTest} */
-  // eslint-disable-next-line mocha/no-setup-in-describe
-  const { agent } = initTestServer({
-    before,
-    beforeEach,
-    after,
-    afterEach,
-  });
+  const { agent } = createTestServer(this);
   describe('login', function () {
     beforeEach('기본 유저 생성', async function () {
       await db.createUser('eszqsc112@naver.com', '13241324');
     });
     it('로그인이 성공해야함 (createUser 사용)', async function () {
-      const result = await graphqlSuper(agent, loginQuery, {
-        email: 'eszqsc112@naver.com',
-        pwd: '13241324',
-      });
-      console.log(result.body.data);
-      expect(result?.body?.data?.login?.user?.email).to.equal(
+      const loginReq = makeSimpleMutation(agent, 'login');
+      const result = await loginReq(
+        { provider: { email: 'eszqsc112@naver.com', pwd: '13241324' } },
+        loginResultString,
+      );
+      // console.log(result.body.data);
+      expect(result?.user?.email).to.equal(
         'eszqsc112@naver.com',
       );
     });
-    it('로그인 실패 테스트', function (done) {
-      graphqlSuper(agent, loginQuery, {
-        email: 'eszqsc112@naver.como',
-        pwd: '13241324',
-      })
-        .then((result) => {
-          done(`에러가 발생해야 합니다. ==> ${result}`);
-        })
-        .catch(() => {
-          done();
-        });
-      // console.dir(result);
-      // expect(result?.body?.data.login).to.equal(null);
+    it('이메일 비밀번호가 일치하지 않다면 실패해야 함.', async function () {
+      const loginReq = makeSimpleMutation(agent, 'login');
+      const result = await loginReq(
+        { provider: { email: 'eszqsc112@naver.como', pwd: '13241324' } },
+        loginResultString,
+      );
+      addContext(this, { title: 'log', value: result});
+      expect(result.success).to.equal(false);
     });
 
-    it('로그인이 되어있는지 체크할 수 있어야함 (성공 케이스)', async function () {
-      const result = await graphqlSuper(agent, loginQuery, {
-        email: 'eszqsc112@naver.com',
-        pwd: '13241324',
-      });
+    it('로그인이 되어있다면 쿠키-세션에서 확인할 수 있어야 함', async function () {
+
+      const loginReq = makeSimpleMutation(agent, 'login');
+      const result = await loginReq(
+        { provider: { email: 'eszqsc112@naver.com', pwd: '13241324' } },
+        loginResultString,
+      );
+      addContext(this, { title: 'log', value: result});
       const loginResult = await agent.get('/logintest');
+      addContext(this, { title: 'log', value: loginResult.body});
       expect(loginResult.body.result).to.equal('authenticated!');
     });
-    it('로그인이 되어있는지 체크할 수 있어야함 (실패 케이스)', async function () {
+    it('로그인이 안되어 있는 상태를 쿠키-세션에서 체크되어야 함.', async function () {
       const loginResult = await agent.get('/logintest');
+      addContext(this, { title: 'log', value: loginResult.body});
       expect(loginResult.body.result).to.equal('unauthenticated!');
     });
-    it('supertest 로그인 후 세션 유지 테스트', async function () {
-      await graphqlSuper(agent, loginQuery, {
-        email: 'eszqsc112@naver.com',
-        pwd: '13241324',
-      });
+    it('supertest 로그인 후 세션 유지가 되어야 함', async function () {
+      const loginReq = makeSimpleMutation(agent, 'login');
+      const loginResult = await loginReq(
+        { provider: { email: 'eszqsc112@naver.com', pwd: '13241324' } },
+        loginResultString,
+      );
       const result = await agent.get('/session');
+      addContext(this, { title: 'log', value: result.body});
       expect(result.body.session.passport.user).to.equal('eszqsc112@naver.com');
     });
   });

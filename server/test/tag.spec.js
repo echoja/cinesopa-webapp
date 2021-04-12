@@ -1,20 +1,20 @@
 const { expect } = require('chai');
 const random = require('random');
-// const { upload, createFileFromMockFile } = require('./tool');
+// const { upload, createFileFromMockFile } = require('./tool').default;
 const { fake } = require('sinon');
-const { model, db } = require('../loader');
+const { model, db } = require('@/loader');
 const {
-  initTestServer,
+  createTestServer,
   graphqlSuper,
   doLogin,
   doLogout,
   makeSimpleQuery,
   randomDate,
   doGuestLogin,
-} = require('./tool');
+} = require('./tool').default;
 describe('tag', function () {
   // eslint-disable-next-line mocha/no-setup-in-describe
-  const { agent } = initTestServer({ before, beforeEach, after, afterEach });
+  const { agent } = createTestServer(this);
   describe('api', function () {
     describe('getTags', function () {
       it('잘 동작해야 함', async function () {

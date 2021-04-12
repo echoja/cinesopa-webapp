@@ -1,8 +1,8 @@
 const { expect } = require('chai');
-const random = require('random');
-// const { upload, createFileFromMockFile } = require('./tool');
+const addContext = require("mochawesome/addContext");
+// const { upload, createFileFromMockFile } = require('./tool').default;
 const { fake } = require('sinon');
-const { model, db } = require('../loader');
+const { model, db } = require('@/loader');
 const {
   filmQuery,
   filmsQuery,
@@ -12,18 +12,18 @@ const {
   filmsFeaturedQuery,
 } = require('./graphql-request');
 const {
-  initTestServer,
+  createTestServer,
   graphqlSuper,
   doLogin,
   doLogout,
   makeSimpleQuery,
   randomDate,
-} = require('./tool');
+} = require('./tool').default;
 describe('film', function () {
   // eslint-disable-next-line mocha/no-setup-in-describe
-  const { agent } = initTestServer({ before, beforeEach, after, afterEach });
+  const { agent } = createTestServer(this);
 
-  describe('데이터베이스', function () {
+  describe('db', function () {
     beforeEach('덤프 Film 만들기', async function () {
       await model.Film.create({
         title: '헬로우 마스터의 수퍼 길',
@@ -371,17 +371,17 @@ describe('film', function () {
 
         await db.updateFilm(1, { tags: ['ho', 'hu', 'hun'] });
 
-        const [
-          { value: hi },
-          { value: ho },
-          { value: hu },
-          { value: hun },
-        ] = await Promise.allSettled([
+        const results = await Promise.allSettled([
           model.Tag.findOne({ name: 'hi' }).lean().exec(),
           model.Tag.findOne({ name: 'ho' }).lean().exec(),
           model.Tag.findOne({ name: 'hu' }).lean().exec(),
           model.Tag.findOne({ name: 'hun' }).lean().exec(),
         ]);
+
+        const hi = results[0].status === 'fulfilled' ? results[0].value : null;
+        const ho = results[1].status === 'fulfilled' ? results[1].value : null;
+        const hu = results[2].status === 'fulfilled' ? results[2].value : null;
+        const hun = results[3].status === 'fulfilled' ? results[3].value : null;
 
         // console.log(await model.Tag.find().lean().exec());
 
@@ -438,23 +438,22 @@ describe('film', function () {
 
         console.log(await model.Tag.find().lean().exec());
 
-        const [
-          { value: hi },
-          { value: ho },
-          { value: hu },
-        ] = await Promise.allSettled([
+        const results = await Promise.allSettled([
           model.Tag.findOne({ name: 'hi' }).lean().exec(),
           model.Tag.findOne({ name: 'ho' }).lean().exec(),
           model.Tag.findOne({ name: 'hu' }).lean().exec(),
         ]);
+        const hi = results[0].status === 'fulfilled' ? results[0].value : null;
+        const ho = results[1].status === 'fulfilled' ? results[1].value : null;
+        const hu = results[2].status === 'fulfilled' ? results[2].value : null;
 
-        expect(hi.related_films.length).to.equal(0);
-        expect(ho.related_films.length).to.equal(0);
-        expect(hu.related_films.length).to.equal(0);
+        expect(hi?.related_films?.length).to.equal(0);
+        expect(ho?.related_films?.length).to.equal(0);
+        expect(hu?.related_films?.length).to.equal(0);
       });
     });
   });
-  describe('실제 api', function () {
+  describe('api', function () {
     describe('film', function () {
       it('제대로 동작해야 함', async function () {
         await model.Film.create({ title: '안녕' });
@@ -510,7 +509,7 @@ describe('film', function () {
             search: '녕2',
           },
         });
-        // console.log(result3.body.data.films);
+        addContext(this, {title: 'log', value: result3.body.data.films});
         expect(result3.body.data.films.list.length).to.equal(1);
       });
       it('페이지네이션이 제대로 동작해야 함.', async function () {

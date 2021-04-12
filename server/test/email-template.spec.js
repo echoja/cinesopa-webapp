@@ -5,11 +5,11 @@ const util = require('util');
 
 const { expect } = require('chai');
 const inlineCss = require('inline-css');
-const { makeTemplateMap } = require('../mail-template/template-map');
+const { makeTemplateMap } = require('@/mail-template/template-map');
 const readFile = util.promisify(fs.readFile);
-const { model, templateArgsRefiner } = require('../loader');
-const { initTestServer, guestEmail } = require('./tool');
-
+const { model, templateArgsRefiner } = require('@/loader');
+const { createTestServer, guestEmail } = require('./tool').default;
+const path = require('path');
 
 // describe('email-template', function () {
 //   describe('compile, render', function () {
@@ -22,16 +22,16 @@ const createHTMLByTemplate = async (args, filename) => {
   const splitted = filename.split('/');
   // console.log(inlined);
   console.log(`test/output/${splitted[splitted.length - 1]}`);
-  fs.writeFileSync(`test/output/${splitted[splitted.length - 1]}.html`, inlined);
+  fs.writeFileSync(
+    `test/output/${splitted[splitted.length - 1]}.html`,
+    inlined,
+  );
   fs.writeFileSync('test/123.html', '123');
 };
 
 describe('email-template', function () {
-
   // eslint-disable-next-line mocha/no-setup-in-describe
-  const { agent } = initTestServer({
-    before, after, beforeEach, afterEach
-  });
+  const { agent } = createTestServer(this);
 
   describe('라이브러리 (pug 등)', function () {
     it('기본 동작 테스트 (test/output/email-template.test.html 파일 출력내용 참조)', async function () {
@@ -64,11 +64,13 @@ describe('email-template', function () {
       fs.writeFileSync('test/output/email-template.test.html', inlined);
     });
   });
-  describe("templates", function () {
-
+  describe('templates', function () {
     describe('payment-success', function () {
       it('제대로 동작해야 함', async function () {
-        const filename = 'mail-template/payment-success.pug';
+        const filename = path.resolve(
+          __dirname,
+          '../src/mail-template/payment-success.pug',
+        );
         const template = await readFile(filename);
         const render = pug.compile(template.toString(), {
           filename,
@@ -114,6 +116,10 @@ describe('email-template', function () {
         ];
         const string = render({
           detailUrl: 'http://naver.com',
+          dest: {
+            name: '변경한 이름',
+            addrss: '변경한 주소',
+          },
           order: {
             items,
             dest: {
@@ -122,8 +128,8 @@ describe('email-template', function () {
               name: '김*훈',
             },
             fullAddress: '',
-            itemFormatted: items,
           },
+          itemsFormatted: items,
           year: new Date().getFullYear(),
         });
         expect(string).to.be.a('string');
@@ -134,13 +140,15 @@ describe('email-template', function () {
         fs.writeFileSync('test/output/email-template.test.html', inlined);
       });
     });
-    describe("change-password", function () {
-      it.only("제대로 동작해야 함", async function () {
-        
+    describe('change-password', function () {
+      it('제대로 동작해야 함', async function () {
         const args = {
-          tokenUrl: 'https://naver.com/'
-        }
-        await createHTMLByTemplate(args, 'mail-template/change-password.pug');
+          tokenUrl: 'https://naver.com/',
+        };
+        await createHTMLByTemplate(
+          args,
+          path.resolve(__dirname, '../src/mail-template/change-password.pug'),
+        );
       });
     });
   });
@@ -206,9 +214,9 @@ describe('email-template', function () {
       });
     });
   });
-  describe("refiner and template-map", function () {
-    describe("payment-success", function () {
-      it("제대로 잘 되어야 함.", async function () {
+  describe('refiner and template-map', function () {
+    describe('payment-success', function () {
+      it('제대로 잘 되어야 함.', async function () {
         const order = await model.Order.create({
           user: guestEmail,
           status: 'payment_confirming',
@@ -226,7 +234,8 @@ describe('email-template', function () {
               id: 1,
               product: {
                 name: '비행기맨',
-                featured_image_url: 'https://homepages.cae.wisc.edu/~ece533/images/airplane.png',
+                featured_image_url:
+                  'https://homepages.cae.wisc.edu/~ece533/images/airplane.png',
                 featured_image_alt: '뱅뱅기',
               },
               options: [
@@ -242,7 +251,8 @@ describe('email-template', function () {
               id: 2,
               product: {
                 name: '배맨',
-                featured_image_url: 'https://homepages.cae.wisc.edu/~ece533/images/boat.png',
+                featured_image_url:
+                  'https://homepages.cae.wisc.edu/~ece533/images/boat.png',
                 featured_image_alt: '통통배',
               },
               options: [
@@ -256,9 +266,14 @@ describe('email-template', function () {
             },
           ],
         });
-        const args = templateArgsRefiner.createPaymentSuccessArgs(order.toObject());
+        const args = templateArgsRefiner.createPaymentSuccessArgs(
+          order.toObject(),
+        );
         // console.dir(args, { depth: 5 });
-        await createHTMLByTemplate(args, 'mail-template/payment-success.pug');
+        await createHTMLByTemplate(
+          args,
+          path.resolve(__dirname, '../src/mail-template/payment-success.pug'),
+        );
       });
     });
   });

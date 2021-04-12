@@ -1,7 +1,7 @@
 const filmResponse = `{
   title
   title_en 
-  kobis_code 
+  kobis_code
   genres 
   show_time
   type_name 
@@ -53,7 +53,9 @@ const filmResponse = `{
   }
   synopsis 
   note 
-  tags 
+  tags {
+    name
+  }
   meta 
 }
 `;
@@ -84,7 +86,6 @@ query checkAuth($redirectLink: String!, $role: Permission!) {
   checkAuth(redirectLink:$redirectLink, role: $role) {
     permissionStatus
     user {
-      name
       email
       c_date
       role
@@ -246,7 +247,7 @@ const postsQuery = `
 query getPosts($condition: PostSearch!) {
   posts(condition: $condition) {
     total
-    posts ${postResponse}
+    list ${postResponse}
   }
 }`;
 const postAdminQuery = `
@@ -259,7 +260,7 @@ const postsAdminQuery = `
 query getPostsAdmin($condition: PostSearch!) {
   postsAdmin(condition: $condition) {
     total
-    posts ${postResponse}
+    list ${postResponse}
   }
 }`;
 const postsCountQuery = `

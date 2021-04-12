@@ -36,6 +36,8 @@ const s = new Vuex.Store({
     additionalFooterPaddingBottom: 0,
     routeWhereLoginSuccess: null,
     routeWhereAgreeSuccess: null,
+    /** @type {string} */
+    taxReqLinkToken: null,
   },
   /**
    * 게터.
@@ -103,6 +105,9 @@ const s = new Vuex.Store({
     },
     setRouteWhereAgreeSuccess(state, route) {
       state.routeWhereAgreeSuccess = route;
+    },
+    setTaxLinkToken(state, token) {
+      state.taxReqLinkToken = token;
     },
   },
   /**

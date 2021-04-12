@@ -4,22 +4,36 @@ const fs = require('fs');
 const express = require('express');
 const { expect } = require('chai');
 const makeAgent = require('supertest').agent;
-// const { upload, createFileFromMockFile } = require('./tool');
+const Throttle = require('superagent-throttle');
+// const { upload, createFileFromMockFile } = require('./tool').default;
 const { fake } = require('sinon');
-const { model } = require('../loader');
-const fileServiceFactory = require('../service/file');
-const fileManager = require('../manager/file');
+const { model, db, file: fileService } = require('@/loader');
+const fileServiceFactory = require('@/service/file').default;
+const fileManager = require('@/manager/file').default;
 const rimraf = require('rimraf');
-const { makeSimpleQuery } = require('./tool');
+const supertest = require('supertest');
+const addContext = require('mochawesome/addContext');
+const expressRequestMock = require('express-request-mock');
 
+const { promisify } = require('util');
+const { totalmem } = require('os');
+const { nodeModuleNameResolver } = require('typescript');
+const { graphql } = require('graphql');
+const {
+  createTestServer,
+  graphqlSuper,
+  doLogin,
+  doLogout,
+} = require('./tool').default;
 const {
   fileQuery,
   filesQuery,
   updateFileMutation,
   removeFileMutation,
 } = require('./graphql-request');
-const { initTestServer, graphqlSuper, doLogin, doLogout } = require('./tool');
-const { promisify } = require('util');
+const { makeSimpleQuery, doAdminLogin } = require('./tool').default;
+const { absPath } = require('@/service/file');
+const { default: axios } = require('axios');
 
 const app = express();
 
@@ -50,24 +64,7 @@ const removeFilesInDir = (destString, done) => {
   });
 };
 describe('file', function () {
-  describe('path and fs', function () {
-    // eslint-disable-next-line mocha/no-setup-in-describe
-    const pathed = path.resolve('test/imsi');
-    it('mkdir works', function (done) {
-      this.skip();
-      if (!fs.existsSync(pathed)) {
-        fs.mkdir(pathed, function (err) {
-          if (err) return done(err);
-          return done();
-        });
-      } else {
-        done(new Error(`${pathed}가 이미 존재해요.`));
-      }
-    });
-
-    // console.log(path.join("test/upload-middlewares"));
-    // console.log(fs.mkdir(path))
-  });
+  // eslint-disable-next-line mocha/no-setup-in-describe
   describe('file Service', function () {
     describe('uploadMiddleware', function () {
       /** @type {import("supertest").SuperAgentTest} */
@@ -123,12 +120,15 @@ describe('file', function () {
       it('업로드 성공 테스트', function (done) {
         agent
           .post('/upload')
-          .attach('bin', path.join(__dirname, 'tool.js'))
+          .attach('bin', path.join(__dirname, './res/TestForUpload'))
           .expect(200)
           .end((err, res) => {
+            
             if (err) return done(err);
+            addContext(this, { title: 'res', value: res});
             // 응답이 성공인지 체크
             expect(res.body.message).to.equal('success');
+            addContext(this, { title: 'res.body', value: res.body});
             // 응답에서 file이 있는지 체크
             expect(res.body.file).to.be.a('object');
             const filepath = res.body.file.path;
@@ -147,7 +147,7 @@ describe('file', function () {
       });
     });
 
-    describe('.removeFile', function () {
+    describe('removeFile', function () {
       it('파일이 있을 시 올바르게 삭제', function (done) {
         const fullpath = path.join(dest, 'abcde');
         fs.writeFileSync(fullpath, 'hiho');
@@ -172,7 +172,7 @@ describe('file', function () {
           });
       });
     });
-    describe('.replaceFile', function () {
+    describe('replaceFile', function () {
       const filename = 'abcde';
       // eslint-disable-next-line mocha/no-setup-in-describe
       const fullpath = path.join(dest, filename);
@@ -223,14 +223,13 @@ describe('file', function () {
           .catch((err) => done(err));
       });
     });
-    describe('.getUntrackedFiles', function () {
+    describe('getUntrackedFiles', function () {
       it('올바르게 동작', function (done) {
         const dbTest = {
-          getFiles: sinon.fake.returns([
-            { filename: 'a' },
-            { filename: 'b' },
-            { filename: 'c' },
-          ]),
+          getFiles: sinon.fake.returns({
+            total: 3,
+            list: [{ filename: 'a' }, { filename: 'b' }, { filename: 'c' }],
+          }),
         };
         const fm = {
           getFiles: sinon.fake.returns(['c', 'd', 'e']),
@@ -250,9 +249,14 @@ describe('file', function () {
           });
       });
     });
-    describe('.getDangledFiles', function () {
+    describe('getDangledFiles', function () {
       it('올바르게 동작', function () {
         // todo!
+      });
+    });
+    describe('absPath', function () {
+      it('제대로 동작해야 함', async function () {
+        expect(absPath('test')).equal(path.resolve(__dirname, '../test'));
       });
     });
   });
@@ -286,7 +290,7 @@ describe('file', function () {
         fileManager
           .removeFile(fullpath)
           .then((result) => {
-            done('에러가 일어나야 합니다.');
+            done(new Error('에러가 일어나야 합니다.'));
           })
           .catch((err) => {
             done();
@@ -296,13 +300,13 @@ describe('file', function () {
 
     describe('safeRemoveFile', function () {
       it('파일이 있을 경우 제대로 동작해야 함.', async function () {
-        const p = 'test/imsi/abcde.txt';
+        const p = 'test/temp/abcde.txt';
         fs.writeFileSync(p, 'testyo');
         const result = await fileManager.safeRemoveFile(p);
         expect(result.success).to.be.true;
       });
       it('파일이 없을 경우 그냥 success 만 false 여야 함. 에러가 발생해서는 안 됨.', async function () {
-        const p = 'test/imsi/abcde.txt';
+        const p = 'test/temp/abcde.txt';
         // fs.writeFileSync(p, 'testyo');
         const result = await fileManager.safeRemoveFile(p);
         expect(result.success).to.be.false;
@@ -327,14 +331,13 @@ describe('file', function () {
     });
   });
 
-  describe('실제 api 테스트', function () {
+  describe('Middleware', function () {
     // eslint-disable-next-line mocha/no-setup-in-describe
-    const { agent, uploadDest, fileService: fileTestService } = initTestServer({
-      before,
-      beforeEach,
-      afterEach,
-      after,
-    });
+    const {
+      agent,
+      uploadDest,
+      fileService: fileTestService,
+    } = createTestServer(this);
     // console.log(fileTestService);
     const adminLogin = async () => {
       await doLogin(agent, 'testAdmin', 'abc');
@@ -351,28 +354,45 @@ describe('file', function () {
     });
 
     describe('upload Middleware', function () {
-      it('업로드시 성공해야 함', async function () {
+      it('일반 파일 업로드시 성공해야 함', async function () {
         await doLogin(agent, 'testAdmin', 'abc');
         const res = await agent
           .post('/upload')
-          .attach('bin', path.join(__dirname, 'tool.js'))
+          .attach('bin', path.join(__dirname, './res/hello.txt'))
           .expect(200);
         const { filename } = res.body.file;
-        console.log(await model.File.find().lean().exec());
+        // console.log(await model.File.find().lean().exec());
         const found = await model.File.find({ filename }).lean().exec();
-        console.log(found);
-        console.log(fs.readdirSync(uploadDest));
+        // console.log(found);
+        // console.log(fs.readdirSync(uploadDest));
         expect(found.length).to.equal(1);
-        expect(found[0].extension).to.equal('js');
-        expect(found[0].origin).to.equal('tool.js');
-        expect(found[0].label).to.equal('tool');
-        expect(found[0].alt).to.equal('tool');
+        expect(found[0].extension).to.equal('txt');
+        expect(found[0].origin).to.equal('hello.txt');
+        expect(found[0].label).to.equal('hello');
+        expect(found[0].alt).to.equal('hello');
+      });
+      it('점이 많은 파일을 업로드시 성공해야 함', async function () {
+        await doLogin(agent, 'testAdmin', 'abc');
+        const res = await agent
+          .post('/upload')
+          .attach('bin', path.join(__dirname, './res/a.lot.of.dots.txt'))
+          .expect(200);
+        const { filename } = res.body.file;
+        // console.log(await model.File.find().lean().exec());
+        const found = await model.File.find({ filename }).lean().exec();
+        // console.log(found);
+        // console.log(fs.readdirSync(uploadDest));
+        expect(found.length).to.equal(1);
+        expect(found[0].extension).to.equal('txt');
+        expect(found[0].origin).to.equal('a.lot.of.dots.txt');
+        expect(found[0].label).to.equal('a.lot.of.dots');
+        expect(found[0].alt).to.equal('a.lot.of.dots');
       });
       it('업로드 시 public이 기본적으로 true 여야 함', async function () {
         await doLogin(agent, 'testAdmin', 'abc');
         const res = await agent
           .post('/upload')
-          .attach('bin', path.join(__dirname, 'tool.js'))
+          .attach('bin', path.join(__dirname, './res/TestForUpload'))
           .expect(200);
         const { filename } = res.body.file;
         const found = await model.File.findOne({ filename }).lean().exec();
@@ -382,30 +402,29 @@ describe('file', function () {
         await doLogout(agent);
         const res = await agent
           .post('/upload')
-          .attach('bin', path.join(__dirname, 'TestForUpload'))
+          .attach('bin', path.join(__dirname, './res/TestForUpload'))
           .expect(401);
         // await doLogout(agent);
         // await doLogin(agent, 'testGuest', 'abc');
         await doLogin(agent, 'testGuest', 'abc');
-        console.log(1);
+        // console.log(1);
         const res2 = await agent
           .post('/upload')
-          .attach('bin', path.join(__dirname, 'tool.js'))
+          .attach('bin', path.join(__dirname, './res/TestForUpload'))
           .expect(401);
-        console.log(2);
+        // console.log(2);
       });
       it('여러개의 파일은 모두 제대로 저장되어야 함.', async function () {
         await doLogin(agent, 'testAdmin', 'abc');
         const res1 = await agent
           .post('/upload')
-          .attach('bin', path.join(__dirname, 'tool.js'));
+          .attach('bin', path.join(__dirname, './res/TestForUpload'));
         const res2 = await agent
           .post('/upload')
-          .attach('bin', path.join(__dirname, 'tool.js'));
+          .attach('bin', path.join(__dirname, './res/TestForUpload'));
         const res3 = await agent
           .post('/upload')
-          .attach('bin', path.join(__dirname, 'tool.js'));
-
+          .attach('bin', path.join(__dirname, './res/TestForUpload'));
         const found = await model.File.find().lean().exec();
         // console.log(found);
         expect(found.length).to.equal(3);
@@ -419,14 +438,99 @@ describe('file', function () {
         expect(fs.existsSync(found[1].path)).to.be.true;
         expect(fs.existsSync(found[2].path)).to.be.true;
       });
+      it('업로드 중간에 취소되었을 시 관련된 파일과 데이터베이스가 깔끔해야 함.', async function () {
+        // 기술적으로 불가능함. 다음 번 업로드나 주기적으로 빈 파일을 청소하면 됨.
+        // multer 업로드 도중에 종료되면 그냥 파일만 남고 데이터베이스에는 정보가 하나도 남지 않음.
+        this.skip();
+        await doAdminLogin(agent);
+        const throttle = new Throttle({
+          active: true, // set false to pause queue
+          rate: 5, // how many requests can be sent every `ratePer`
+          ratePer: 10000, // number of ms in which `rate` requests may be sent
+          concurrent: 2, // how many requests can be sent concurrently
+        });
+        throttle
+          .on('sent', (request) => {
+            console.log('# file.spec.js upload throttle onSent');
+            // console.dir(request, { depth: 1 });
+          })
+          .on('received', (request) => {
+            console.log('# file.spec.js upload throttle onReceived');
+            // console.dir(request, { depth: 1 });
+          })
+          .on('drained', () => {
+            console.log('# file.spec.js upload throttle onDrained');
+          });
+        const stream = fs.createWriteStream(
+          path.join(__dirname, 'uploads', 'test'),
+        );
+        try {
+          const server = app.listen(9000, () => {
+            setTimeout(() => {
+              server.close((err) => {
+                console.log('close error');
+                console.log(err);
+              });
+            }, 1000);
+          });
+          const res = await agent
+            .post('/upload')
+            .use(throttle.plugin())
+            .attach('bin', path.join(__dirname, 'res', 'bigfile'))
+            .on('progress', (e) => {
+              // console.log('# throttle progress');
+              // console.log(e);
+              // if (typeof e.total === 'number') {
+              //   const percent = e.loaded / e.total;
+              //   if (percent >= 0.5) {
+              //     console.dir(throttle);
+              //     throw Error('stop!!');
+              //   }
+              // }
+            });
+          // .pipe(stream).on('error', (error) => {
+          //   console.log('# pipe error');
+          //   console.log(error);
+          // })
+          // .on('error', (err) => {
+          //   console.log('# on error error');
+          //   console.log(err);
+          // })
+          // .end((err, res) => {
+          //   console.log('# end err');
+          //   console.log(err);
+          // });
+          console.log(res.body);
+        } catch (e) {
+          console.log('# agent try catch error');
+          console.log(e);
+        }
+        // // expect(res.status).to.equal(200);
+        // await (async () => new Promise((resolve, reject) => {
+        //   if (!setTimeout(resolve, 10000))
+        //     reject();
+        // }))();
+        console.log('# throttle upload end');
+      });
+      it('확장자가 없는 파일이라도 제대로 업로드 되어야 함.', async function () {
+        await doAdminLogin(agent);
+        const res = await agent
+          .post('/upload')
+          .attach('bin', path.join(__dirname, 'res', 'smallfile'));
+        expect(res.status).to.equal(200);
+      });
     });
-    describe('get Middleware', function () {
+
+    describe('uploadPublicMiddleware', function () {
+      it('제대로 동작해야 함', async function () {});
+    });
+    describe('getFileMiddleware', function () {
       it('업로드된 파일은 제대로 가져올 수 있어야 함', async function () {
         // 일단 파일 업로드
         await doLogin(agent, 'testAdmin', 'abc');
         const res = await agent
           .post('/upload')
-          .attach('bin', path.join(__dirname, 'tool.js'))
+          .attach('bin', path.join(__dirname, './res/smallfile'))
           .expect(200);
         const { filename } = res.body.file;
         const res2 = await agent.get(`/upload/${filename}`).expect(200);
@@ -438,30 +542,54 @@ describe('file', function () {
         await doLogin(agent, 'testAdmin', 'abc');
         const res = await agent
           .post('/upload')
-          .attach('bin', path.join(__dirname, 'tool.js'))
+          .attach('bin', path.join(__dirname, './res/smallfile'))
           .expect(200);
         const { filename } = res.body.file;
 
         // 옵션이 존재한다고 가정
-        await model.SiteOption.create({
+        const o = await model.SiteOption.create({
           name: 'power_name',
-          value: filename,
+          value: {
+            filename,
+          },
           type: 'file',
         });
+        addContext(this, { title: 'o', value: o });
 
         const res2 = await agent.get(`/upload/power_name`).expect(200);
         console.log(res2.body);
         expect(res2.body).to.not.be.null;
-
-        // this.skip();
       });
-      // todo
       it('옵션으로 갖고 오는데, 파일이 아니면 404여야 함', async function () {
-        this.skip();
+        await model.SiteOption.create({ name: 'abc', value: 'abc' });
+        // await doLogin(agent, 'testAdmin', 'abc');
+        const webapp = express();
+        // webapp.post('/upload', fileService.uploadMiddleware);
+        webapp.get('/upload/:filename', fileService.getFileMiddleware);
+        const testAgent = makeAgent(webapp);
+        // const fileUploadedResult = await testAgent
+        //   .post('/upload')
+        //   .attach('bin', path.join(__dirname, './res/smallfile'))
+        //   .expect(200);
+        // addContext(this, {
+        //   title: 'fileUploadedResult',
+        //   value: fileUploadedResult,
+        // });
+        const getFileResult = await testAgent.get('/upload/abc');
+        
+        addContext(this, { title: 'getFileResult', value: getFileResult});
+        expect(getFileResult.status).to.equal(404);
       });
-      // todo
+
+
       it('옵션으로 갖고 오는데, 파일이 존재하지 않으면 404여야 함', async function () {
-        this.skip();
+        await model.SiteOption.create({ name: 'abc', value: { filename: 'hi'} });
+        const webapp = express();
+        webapp.get('/upload/:filename', fileService.getFileMiddleware);
+        const testAgent = makeAgent(webapp);
+        const getFileResult = await testAgent.get('/upload/abc');
+        addContext(this, { title: 'getFileResult', value: getFileResult});
+        expect(getFileResult.status).to.equal(404);
       });
 
       it('존재하지 않는 파일은 404여야 함', async function () {
@@ -470,7 +598,84 @@ describe('file', function () {
       });
     });
 
-    describe('graphql api', function () {
+    describe('getExcelMiddleware', function () {
+      it('type 이 application 일 경우 제대로 동작해야 함 - 실제 파일을 확인해야 하므로 패스', async function () {
+        this.skip();
+        const res = await agent.get('/excel').query({
+          type: 'application',
+          date_lte: '2020-10-10',
+          date_gte: '2021-10-10',
+          transport_status: '',
+          doc_status: '',
+          money_status: '',
+          receipt_status: '',
+          search: '',
+        });
+      });
+    });
+
+    describe('initCheckUploadToken', function () {
+      it('제대로 동작해야 함', async function () {
+        await model.Token.create({
+          token: '1234',
+          purpose: 'taxinfo_request',
+          ttl: 10000,
+        });
+        const { res, req } = await expressRequestMock(
+          fileService.initCheckUploadToken(),
+          {
+            query: { token: '1234' },
+          },
+        );
+        addContext(this, { title: 'res', value: { ...res } });
+        expect(res.statusCode).to.equal(200);
+      });
+      it('query 가 설정되어 있지 않을 시 401 되어야 함.', async function () {
+        await model.Token.create({
+          token: '1234',
+          purpose: 'taxinfo_request',
+          ttl: 10000,
+        });
+        const { res, req } = await expressRequestMock(
+          fileService.initCheckUploadToken(),
+        );
+        addContext(this, { title: 'res', value: { ...res } });
+        expect(res.statusCode).to.equal(401);
+      });
+      it('토큰을 찾을 수 없을 시 401이 되어야 함.', async function () {
+        await model.Token.create({
+          token: '1234',
+          purpose: 'taxinfo_request',
+          ttl: 10000,
+        });
+        const { res, req } = await expressRequestMock(
+          fileService.initCheckUploadToken(),
+          {
+            query: { token: '12345' },
+          },
+        );
+        addContext(this, { title: 'res', value: { ...res } });
+        expect(res.statusCode).to.equal(401);
+      });
+      it('토큰이 만료되었을 때 401이 되어야 함.', async function () {
+        await model.Token.create({
+          token: '1234',
+          purpose: 'taxinfo_request',
+          ttl: 0,
+        });
+        await new Promise((resolve) => setTimeout(resolve, 100));
+        const { res, req } = await expressRequestMock(
+          fileService.initCheckUploadToken(),
+          {
+            query: { token: '1234' },
+          },
+        );
+        addContext(this, { title: 'res', value: { ...res } });
+        expect(res.statusCode).to.equal(401);
+      });
+    });
+
+    describe('api', function () {
       /** @type {import('supertest').Response} */
       let res1;
       /** @type {import('supertest').Response} */
@@ -480,10 +685,10 @@ describe('file', function () {
         await adminLogin();
         res1 = await agent
           .post('/upload')
-          .attach('bin', path.join(__dirname, 'tool.js'));
+          .attach('bin', path.join(__dirname, './res/smallfile'));
         res2 = await agent
           .post('/upload')
-          .attach('bin', path.join(__dirname, '../util.js'));
+          .attach('bin', path.join(__dirname, './res/TestForUpload'));
       });
 
       // beforeEach('파일 하나 업로드 해놓기', async function () {
@@ -495,29 +700,21 @@ describe('file', function () {
           // await adminLogin();
           const res = await agent
             .post('/upload')
-            .attach('bin', path.join(__dirname, 'tool.js'))
+            .attach('bin', path.join(__dirname, './res/TestForUpload'))
             .expect(200);
           const { filename } = res.body.file;
           // 요청하여 갖고 오기
           const res3 = await graphqlSuper(agent, fileQuery, {
             filename,
           });
-          expect(res3.body.data.file.origin).to.equal('tool.js');
-        });
-        // todo
-        it('id를 넣었을 때 제대로 동작해야 함', function () {
-          this.skip();
-        });
-        // todo
-        it('id와 filename을 둘다 넣었을 때 filename 만 제대로 동작해야 함', function () {
-          this.skip();
+          expect(res3.body.data.file.origin).to.equal('TestForUpload');
         });
       });
       describe('files', function () {
         // eslint-disable-next-line mocha/no-setup-in-describe
         const filesReq = makeSimpleQuery(agent, 'files');
 
-        it.only('제대로 동작해야 함', async function () {
+        it('제대로 동작해야 함', async function () {
           const result = await filesReq(
             {},
             `
@@ -530,7 +727,7 @@ describe('file', function () {
           );
           expect(result.total).to.equal(2);
         });
-        it.only('기본 값으로 관리되는 것만 불러와져야 함', async function () {
+        it('기본 값으로 관리되는 것만 불러와져야 함', async function () {
           await model.File.updateOne({ managed: false });
           const result = await filesReq(
             {},
@@ -577,13 +774,13 @@ describe('file', function () {
       });
     });
 
-    describe('File Service', function () {
+    describe('File Service Helper Functions', function () {
       describe('getFile', function () {
         it('있는 파일을 잘 가져와야 함', async function () {
           await doLogin(agent, 'testAdmin', 'abc');
           const res3 = await agent
             .post('/upload')
-            .attach('bin', path.join(__dirname, 'tool.js'));
+            .attach('bin', path.join(__dirname, './res/TestForUpload'));
           const { filename } = res3.body.file;
           const file = await fileTestService.getFile(filename);
 
@@ -610,10 +807,10 @@ describe('file', function () {
           await doLogin(agent, 'testAdmin', 'abc');
           const res3 = await agent
             .post('/upload')
-            .attach('bin', path.join(__dirname, 'tool.js'));
+            .attach('bin', path.join(__dirname, './res/TestForUpload'));
           const res4 = await agent
             .post('/upload')
-            .attach('bin', path.join(__dirname, 'tool.js'));
+            .attach('bin', path.join(__dirname, './res/TestForUpload'));
           const result = await fileTestService.getFiles();
           expect(result.total).to.be.equal(2);
         });
@@ -624,7 +821,7 @@ describe('file', function () {
           await doLogin(agent, 'testAdmin', 'abc');
           const res3 = await agent
             .post('/upload')
-            .attach('bin', path.join(__dirname, 'tool.js'));
+            .attach('bin', path.join(__dirname, './res/TestForUpload'));
           const { file } = res3.body;
           const { filename } = file;
           const result = await fileTestService.removeFile(filename);
@@ -640,13 +837,13 @@ describe('file', function () {
           await doLogin(agent, 'testAdmin', 'abc');
           const res3 = await agent
             .post('/upload')
-            .attach('bin', path.join(__dirname, 'tool.js'));
+            .attach('bin', path.join(__dirname, './res/TestForUpload'));
           let errored = false;
           try {
             await fileTestService.removeFile('not-exist-name');
           } catch (error) {
             errored = true;
-            console.log(error);
+            addContext(this, { title: 'error', value: error});
           }
           expect(errored).to.equal(true);
 
@@ -661,11 +858,15 @@ describe('file', function () {
       });
 
       // todo
-      describe('replaceFile', function () {});
-      // todo
-      describe('getUntrackedFiles', function () {});
-      // todo
-      describe('getDangledFiles', function () {});
+      describe('replaceFile', function () {
+        // todo
+      });
+      describe('getUntrackedFiles', function () {
+        // todo
+      });
+      describe('getDangledFiles', function () {
+        // todo
+      });
     });
 
     // it('그냥 성공해야 함', async function () {

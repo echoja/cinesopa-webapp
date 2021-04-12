@@ -1,5 +1,5 @@
 <template>
-  <div class="file-manager">
+  <div class="file-manager" :class="{ 'file-manager-modal': modalId }">
     <!-- <b-button @click="$bvModal.hide(modalId)">닫아줘!</b-button> -->
     <!-- <h2>파일매니저</h2>
     <hr /> -->
@@ -84,23 +84,22 @@
               :class="{ detailed: file.detailed }"
               class="d-block w-100 h-100"
             > -->
-            <div
-              class="preview-wrapper d-flex w-100 h-100 align-items-center justify-content-center"
-              @click="setDetail(index)"
-            >
-              <b-img
-                class="preview"
-                v-if="file.mimetype.startsWith('image')"
-                :src="`/upload/${file.filename}?size=file_preview`"
-              ></b-img>
-              <div v-else>
-                {{ file.origin }}
+            <div class="preview-wrapper" @click="setDetail(index)">
+              <div class="preview">
+                <b-img
+                  v-if="file.mimetype.startsWith('image')"
+                  :src="`/upload/${file.filename}?size=file_preview`"
+                ></b-img>
+                <span class="preview-text" v-else>
+                  {{ file.origin }}
+                </span>
               </div>
             </div>
             <div class="item-checkbox">
               <b-form-checkbox
                 size="lg"
                 v-model="file.selected"
+                @change="fileSelectedChanged(index, $event)"
               ></b-form-checkbox>
               <!-- v-bind:checked="file.selected"
                 @change="itemChecked(index, $event)" -->
@@ -119,15 +118,17 @@
             <info class="ml-2">
               <ul class="text-left pl-4">
                 <li>
-                  파일/이미지를 그냥 클릭한 후 상세 정보를 수정할 수 있습니다.
+                  파일/이미지를 그냥 클릭한 후, 굵은 검정색 테두리로 설정된
+                  파일의 상세 정보를 수정합니다.
                 </li>
                 <li>
-                  삽입하거나 다른 파일의 세부사항을 수정하기 전에 아래
+                  이 창을 벗어나거나 다른 파일을 선택하기 전에 아래
                   <b>파일 세부정보 변경사항 적용</b> 버튼을 눌러야 합니다.
                 </li>
                 <li>
-                  대체 텍스트를 수정해도 이미 본문에 삽입한 이미지는 수정되지
-                  않습니다. 이미 삽입된 내용은 에디터에서 직접 수정해야 합니다.
+                  <code>대체 텍스트</code>를 수정해도 이미 본문에 삽입한
+                  이미지는 수정되지 않습니다. 이미 삽입된 내용은 에디터에서 직접
+                  수정해야 합니다.
                 </li>
               </ul>
             </info>
@@ -215,7 +216,7 @@
           <!--------------- b-form-broup start ----------------->
           <b-form-group
             class="main-detail-row"
-            label="대체텍스트"
+            label="대체 텍스트"
             label-cols-sm="3"
             label-align-sm="left"
             label-size="md"
@@ -378,6 +379,7 @@ export default {
       detailForm: detailFormInitValue(),
       perpage: 24,
       page: 1,
+      lastChecked: -1,
     };
   },
   computed: {
@@ -514,10 +516,10 @@ export default {
             perpage: this.perpage,
           },
         },
-        `{ 
-          total 
-          list { 
-            id _id c_date encoding mimetype filename fileurl 
+        `{
+          total
+          list {
+            id _id c_date encoding mimetype filename fileurl
             origin description label alt path size owner public managed width height
           }
         }`,
@@ -586,8 +588,8 @@ export default {
     },
     async pageChanged(page) {
       this.page = page;
-      console.log('# FileManager pageChanged page');
-      console.log(page);
+      // console.log('# FileManager pageChanged page');
+      // console.log(page);
       await this.fetchFiles();
     },
 
@@ -598,33 +600,49 @@ export default {
     onCancel() {
       this.$bvModal.hide(this.modalId);
     },
-    itemChecked(index, value) {
+    // itemChecked(index, value) {
+    //   if (this.selectOnlyOne) {
+    //     // console.log(`ho index:${index}`);
+    //     this.files = this.files.map((file, mapIndex) => {
+    //       const newFile = { ...file };
+    //       newFile.selected = false;
+    //       if (mapIndex === index) {
+    //         newFile.selected = true;
+    //       } else {
+    //         newFile.selected = false;
+    //       }
+    //       return newFile;
+    //     });
+
+    //     // this.files.forEach((file, forIndex) => {
+    //     //   if (forIndex === index) {
+    //     //     // eslint-disable-next-line no-param-reassign
+    //     //     file.selected = true;
+    //     //   } else {
+    //     //     // eslint-disable-next-line no-param-reassign
+    //     //     file.selected = false;
+    //     //   }
+    //     // });
+    //   } else {
+    //     // console.log(value);
+    //     const newFiles = [...this.files];
+    //     newFiles[index].selected = value;
+    //     this.files = newFiles;
+    //   }
+    // },
+    fileSelectedChanged(index, value) {
+      // 중복체크 되지 않도록 하기
       if (this.selectOnlyOne) {
-        console.log(`ho index:${index}`);
-        this.files = this.files.map((file, mapIndex) => {
-          const newFile = { ...file };
-          newFile.selected = false;
-          if (mapIndex === index) {
-            newFile.selected = true;
+        this.$nextTick(() => {
+          if (value === false) {
+            this.lastChecked = -1;
+          } else if (this.lastChecked === -1) {
+            this.lastChecked = index;
           } else {
-            newFile.selected = false;
+            this.files[this.lastChecked].selected = false;
+            this.lastChecked = index;
           }
         });
-
-        // this.files.forEach((file, forIndex) => {
-        //   if (forIndex === index) {
-        //     // eslint-disable-next-line no-param-reassign
-        //     file.selected = true;
-        //   } else {
-        //     // eslint-disable-next-line no-param-reassign
-        //     file.selected = false;
-        //   }
-        // });
-      } else {
-        // console.log(value);
-        const newFiles = [...this.files];
-        newFiles[index].selected = value;
-        this.files = newFiles;
       }
     },
   },
@@ -639,6 +657,11 @@ h2 {
 .file-manager {
   border: 1px solid #ddd;
   padding: 15px;
+}
+
+.file-manager-modal {
+  border: 0;
+  padding: 0;
 }
 
 .file-manager hr {
@@ -672,6 +695,9 @@ h2 {
 .preview-wrapper {
   cursor: pointer;
   overflow: hidden;
+  height: 0;
+  padding-bottom: 100%;
+  position: relative;
 }
 
 .preview-wrapper:hover {
@@ -680,6 +706,17 @@ h2 {
 
 .preview {
   width: 100%;
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  img {
+    width: 100%;
+  }
 }
 
 .item-checkbox {

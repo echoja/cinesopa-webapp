@@ -19,5 +19,6 @@ module.exports = {
     'no-param-reassign': 'off',
     'no-underscore-dangle': 'off',
     'global-require': 'off',
+    'function-paren-newline': 'off',
   },
 };

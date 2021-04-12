@@ -148,15 +148,24 @@
 
       <!-- 만약 현재 요소가 file 이라면 파일 매니저 불러오기. -->
       <div v-else-if="type === 'file'">
-        <div>
-          <p>
-            현재 파일 :
-            {{ currentFile }}
-          </p>
+        <single-file-field :value="value" @input="$emit('input', $event)">
+        </single-file-field>
+
+        <!-- <div>
+          <template v-if="value && value.label && value.filename">
+            <span>현재 파일: </span>
+            <a :href="`/upload/${value.filename}?action=download`"
+              ><u>{{ value.label }}</u></a
+            >
+          </template>
         </div>
         <div>
-          <b-button @click="$bvModal.show(singleFileModalId)" :id="inputId">
-            설정 및 교체하기
+          <b-button
+            size="sm"
+            @click="$bvModal.show(singleFileModalId)"
+            :id="inputId"
+          >
+            설정 및 교체
           </b-button>
           <b-modal size="xl" hide-header hide-footer :id="singleFileModalId">
             <file-manager
@@ -164,7 +173,7 @@
               @file-manager-selected="handleSingleFile($event)"
             ></file-manager>
           </b-modal>
-        </div>
+        </div> -->
       </div>
 
       <!-- 만약 현재 요소가 boolean 이라면 체크박스 불러오기. -->
@@ -210,9 +219,13 @@ import {
   BButton,
   BFormDatepicker,
 } from 'bootstrap-vue';
+import axios from 'axios';
+import fileDownload from 'js-file-download';
+import moment from 'moment';
 import CommonEditor from '@/components/admin/CommonEditor.vue';
 import Info from './Info.vue';
 import FileManager from '../FileManager.vue';
+import SingleFileField from './SingleFileField.vue';
 
 let uuid = 0;
 
@@ -231,6 +244,7 @@ export default {
     Info,
     CommonEditor,
     BFormDatepicker,
+    SingleFileField,
   },
   props: {
     type: {
@@ -314,12 +328,15 @@ export default {
     },
     async handleSingleFile(files) {
       const file = files[0];
+      // console.log('# SiteOptionRow.vue handleSingleFile');
+      // console.log(file);
       const obj = {};
       obj.fileurl = file.fileurl;
       obj.label = file.label;
       obj.filename = file.filename;
       obj.mimetype = file.mimetype;
       obj.alt = file.alt;
+      obj.origin = file.origin;
       this.$emit('input', obj);
     },
     handleTableFile(files, tableRow, fieldName) {
@@ -384,6 +401,16 @@ export default {
           }
         });
       });
+    },
+    async fileDownloadClicked() {
+      const res = await axios.get(`/upload/${this.value.filename}`, {
+        withCredentials: true,
+        responseType: 'blob',
+      });
+      fileDownload(
+        res.data,
+        this.value?.origin ?? moment().format('yyyy-MM-DD hh:mm:ss'),
+      );
     },
   },
 };

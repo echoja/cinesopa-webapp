@@ -1,6 +1,6 @@
 const Hangul = require('hangul-js');
 const { expect } = require('chai');
-const { getFilmSearchStr, getValueOfField } = require('../db/schema/tool');
+const { getFilmSearchStr, getValueOfField } = require('@/db/schema/tool');
 
 describe('hangul', function () {
   describe('getFilmSearchStr', function () {

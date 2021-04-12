@@ -1,7 +1,8 @@
 {
   "files.exclude": {
     "**/.git": true,
-    "**/node_modules": true
+    // "**/node_modules": true,
+    "**/mochawesome-report": true,
   },
   "prettier.endOfLine": "lf",
   "files.eol": "\n",
@@ -11,10 +12,11 @@
   "prettier.trailingComma": "all",
   "prettier.arrowParens": "always",
   "search.exclude": {
-    "**/node_modules": true,
+    // "**/node_modules": true,
     "**/dist": true,
     "**/package-lock.json": true,
     "**/bower_components": true,
+    "**/ts-build": true,
     "**/*.code-search": true,
     "package-lock.json": true,
     "package-lock.json.bak": true,
