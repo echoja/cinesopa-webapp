@@ -28,6 +28,7 @@ services:
       - ./server/config/common:/app/server/config/common:ro
       - ./server/config/mailer-credentials.json:/app/server/config/mailer-credentials.json:ro
       - ./server/uploads:/app/server/uploads
+      - ./server/pdf-output:/app/server/pdf-output
     environment:
       - COMPOSE_DOCKER_CLI_BUILD=1
       - DOCKER_BUILDKIT=1
