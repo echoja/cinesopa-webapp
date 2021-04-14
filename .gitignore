@@ -7,6 +7,8 @@
 /server/test/upload-middlewares
 /server/test/uploads
 /server/mochawesome-report
+/server/pdf-output/**/*
+!/server/pdf-output/dojang.png
 
 # local env files
 .env.local

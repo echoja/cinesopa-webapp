@@ -5,24 +5,6 @@
     </header>
     <site-option-table>
       <site-option-row
-        v-model="form.contact_email.value"
-        label="문의 이메일"
-        description="사이트를 방문하는 사람들 입장에서 볼 수 있는 사이트 문의 이메일입니다. 하단 푸터 영역에 표시됩니다."
-        type="string"
-      ></site-option-row>
-      <site-option-row
-        v-model="form.address.value"
-        label="주소"
-        description="사이트를 방문하는 사람들 입장에서 볼 수 있는 사무실 주소입니다. 하단 푸터 영역에 표시됩니다."
-        type="string"
-      ></site-option-row>
-      <site-option-row
-        v-model="form.phone.value"
-        label="문의 전화번호"
-        description="사이트를 방문하는 사람들 입장에서 볼 수 있는 전화번호입니다. 하단 푸터 영역에 표시됩니다."
-        type="string"
-      ></site-option-row>
-      <site-option-row
         v-model="form.is_site_public.value"
         label="사이트 공개 여부"
         description="사이트를 공개한다면 사이트에 정상적으로 접근할 수 있습니다."
@@ -142,30 +124,6 @@ export default {
         },
       },
       form: {
-        contact_email: {
-          value: null,
-          type: 'string',
-        },
-        address: {
-          label: '주소',
-          value: null,
-          type: 'string',
-        },
-        phone: {
-          label: '전화번호',
-          value: null,
-          type: 'string',
-        },
-        // logo: {
-        //   label: '로고',
-        //   value: null,
-        //   type: 'file',
-        //   file: {
-        //     label: '',
-        //     mimetype: '',
-        //     fileurl: '',
-        //   },
-        // },
         person: {
           label: '사람들',
           type: 'table',

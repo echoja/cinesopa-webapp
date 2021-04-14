@@ -6,6 +6,7 @@ import sharp from 'sharp';
 import fs from 'fs';
 import util from 'util';
 import rateLimit from 'express-rate-limit';
+import { numToKorean } from 'num-to-korean';
 
 // require('@/typedef');
 import {
@@ -15,6 +16,9 @@ import {
   ApplicationSearch,
   parseRestrictedArray,
   IFile,
+  IApplication,
+  PrintEstimateArgs,
+  isJsonObject,
 } from '@/typedef';
 import { Handler, ErrorRequestHandler, IRouterHandler } from 'express';
 import { makeApplicationExcel } from '@/manager/excel';
@@ -26,7 +30,8 @@ import {
   enumApplicationTransportStatus,
 } from '@/db/schema/enum';
 import { LeanDocument } from 'mongoose';
-import { aw } from '../util';
+import { allSettledFiltered, aw, numberWithCommas } from '../util';
+import moment from 'moment';
 // const sizeOf = promisify(sizeOfCallbackBased);
 
 class FileService {
@@ -44,6 +49,8 @@ class FileService {
 
   getExcelMiddleware: (Handler | ErrorRequestHandler)[];
 
+  getEstimateMiddleware: (Handler | ErrorRequestHandler)[];
+
   constructor(
     db: DBManager,
     file: FileManager,
@@ -54,7 +61,7 @@ class FileService {
     this.#file = file;
     this.#dest = dest;
     this.#uploadField = uploadField;
-    
+
     // uploadMiddleware 초기화
     this.uploadMiddleware = [
       this.initMulterMiddleware(this.#dest, this.#uploadField),
@@ -81,6 +88,8 @@ class FileService {
       this.initMulterErrorHandler(),
       this.initCreateFileMiddleware(this.#db, this.#file),
     ];
+
+    this.getEstimateMiddleware = [this.initGetEstimateMiddleware()];
 
     // get excel middleware 정의
     this.getExcelMiddleware = [this.initGetExcelMiddleware()];
@@ -193,7 +202,8 @@ class FileService {
       const { token } = req.query;
       // 토큰 파라미터가 설정되어 있지 않으면 오류
       if (typeof token !== 'string') {
-        return res.status(401).send('파라미터가 설정되어 있지 않습니다.');
+        res.status(400).send('파라미터가 설정되어 있지 않습니다.');
+        return;
       }
       const { isValidTTL, doc: tokenDoc } = await this.#db.getToken(
         token,
@@ -201,9 +211,90 @@ class FileService {
       );
       // 토큰이 존재하지 않거나 시간이 문제가 있다면
       if (!tokenDoc || !isValidTTL) {
-        return res.status(401).send('토큰이 존재하지 않거나 시간이 문제가 있습니다.');
+        res.status(404).send('토큰이 존재하지 않거나 유효시간에 도달했습니다.');
+        return;
       }
-      return next();
+      next();
+    });
+
+  createPrintEstimateArgs(
+    doc: LeanDocument<IApplication>,
+    address: string,
+    phone: string,
+  ): PrintEstimateArgs {
+    const dateString = moment().tz('Asia/Seoul').format('yyyy-MM-DD');
+    const tax = Math.round(doc.charge / 11);
+    const supply = doc.charge - tax;
+    const result: PrintEstimateArgs = {
+      chiefName: '성송이',
+      companyPlace: address,
+      chiefPhone: phone,
+      dateString,
+      recipientCompanyName: doc.host,
+      estimateContent: {
+        1: {
+          type: '영화',
+          name: doc.film_title,
+          standard: doc.format,
+          count: '1EA',
+          unitCostCommaed: numberWithCommas(supply),
+          suppliedCostCommaed: numberWithCommas(supply),
+        },
+      },
+      suppliedCostSumCommaed: numberWithCommas(supply),
+      totalPriceCommaed: numberWithCommas(doc.charge),
+      totalPriceHangul: `${numToKorean(doc.charge)}원정`,
+    };
+    return result;
+  }
+
+  initGetEstimateMiddleware = () =>
+    aw(async (req, res, next) => {
+      const { templateName, id } = req.params;
+
+      // params 검사
+      if (typeof id !== 'string') {
+        res.status(400).send('파라미터가 설정되어 있지 않습니다.');
+        return;
+      }
+
+      // 신청서 검사
+      const appl = await this.#db.getApplication(parseInt(id, 10));
+      if (!appl) {
+        res.status(404).send('해당 신청서를 찾을 수 없습니다.');
+        return;
+      }
+      if (!this.#file.isPdfTemplateName(templateName)) {
+        res.status(404).send('잘못된 tempalte 이름입니다.');
+        return;
+      }
+
+      // 옵션 가져오기 및 검사
+      const options = await allSettledFiltered([
+        this.#db.getSiteOption('address'),
+        this.#db.getSiteOption('phone'),
+      ]);
+      if (options.length !== 2) {
+        res.status(500).send('옵션을 가져오는 도중 에러가 발생했습니다.');
+        return;
+      }
+      if (typeof options[0].value !== 'string') {
+        res.status(404).send('잘못된 주소입니다.');
+        return;
+      }
+      if (typeof options[1].value !== 'string') {
+        res.status(404).send('잘못된 전화번호입니다.');
+        return;
+      }
+
+      // pdf 생성
+      const pdfPath = await this.#file.createPdf(
+        templateName,
+        this.createPrintEstimateArgs(appl, options[0].value, options[1].value),
+      );
+      const dateString = moment().tz('Asia/Seoul').format('yyyy-MM-DD');
+      // res.download(pdfPath, `${appl.host}_견적서_${dateString}.pdf`);
+      res.sendFile(pdfPath);
     });
 
   getFileMiddleware = aw(async (req, res, next) => {
@@ -212,8 +303,10 @@ class FileService {
     const { filename } = req.params;
     // console.log('# file.js getFileMiddleware query');
     // console.log(req.params);
-    if (!filename) return res.status(404).send();
-    // console.log(req.query);
+    if (!filename) {
+      res.status(404).send();
+      return;
+    } // console.log(req.query);
 
     // 우선 파일 이름을 .으로 나누기.
     // const splitted = filename.split('.');
@@ -225,7 +318,6 @@ class FileService {
     //   fileNameNoExt = splitted.slice(0, -1).join('.');
     // }
 
-    
     // console.log(foundByFilename.path);
     // console.log(__dirname);
     const { size, action } = req.query; // need check! req.query.size 에서 바로 접근하던 걸  { size } = req.query 로 변경함.
@@ -234,20 +326,23 @@ class FileService {
     const sendFile = async (file: LeanDocument<IFile>) => {
       res.set('Content-Type', foundByFilename?.mimetype);
       // 사이즈가 있을 시 사이즈 기반으로 파일 경로 구함
-      const abspath = typeof size === 'string' ? await this.resizeImage(file, size) : absPath(file?.path);
-      
+      const abspath =
+        typeof size === 'string'
+          ? await this.resizeImage(file, size)
+          : absPath(file?.path);
+
       // download 일 경우 다운로드 수행
       if (action === 'download') {
         res.download(abspath, file?.origin ?? file?.label ?? 'file');
       } else {
         res.sendFile(abspath);
       }
-    }
+    };
     // 파일이름으로 찾기 시도. 찾을시 바로 보냄.
     const foundByFilename = await this.#db.getFile(filename);
     if (foundByFilename) {
-      
-      return sendFile(foundByFilename);
+      sendFile(foundByFilename);
+      return;
       // res.set('Content-Type', foundByFilename.mimetype); // IE 에서 필요함.
       // if (typeof size === 'string') {
       //   const absPath = await this.resizeImage(foundByFilename, size);
@@ -266,12 +361,13 @@ class FileService {
     if (fileByOption) {
       console.log('# file.ts getFileMiddleware fileByOption');
       console.log(fileByOption);
-      return sendFile(fileByOption);
+      sendFile(fileByOption);
+      return;
       // res.set('Content-Type', fileByOption.mimetype);
       // return res.sendFile(absPath(fileByOption.path));
     }
     // 해당하는 옵션의 파일도 존재하지 않는다면, 404
-    return res.status(404).send();
+    res.status(404).send();
   });
 
   initGetExcelMiddleware = (): Handler =>

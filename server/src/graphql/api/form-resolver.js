@@ -10,8 +10,8 @@ const {
 } = require('@/loader');
 
 const moment = require('moment');
-const { isBraced } = require('@/typedef');
 const { enumFilmAvailableSubtitle } = require('../../db/schema/enum');
+const { isJsonObject } = require('@/typedef');
 
 const requestShowingLabelMap = {
   companyName: '기관 이름',
@@ -133,12 +133,13 @@ module.exports = {
         //   (await db.getSiteOption('show_application_email'))?.value ?? [];
         const promises = emails.map((emailObject) => {
           // need check
-
-          if (!isBraced(emailObject))
+          if (
+            !isJsonObject(emailObject) ||
+            typeof emailObject.email !== 'string'
+          )
             return async () => {
               /* empty */
             };
-
           const gate = {
             recipientEmail: emailObject.email ?? '',
           };
@@ -197,7 +198,7 @@ module.exports = {
 
       const promises = opt.map((emailObject) => {
         // need check
-        if (!isBraced(emailObject))
+        if (!isJsonObject(emailObject))
           return async () => {
             /* empty */
           };

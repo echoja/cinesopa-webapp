@@ -6,7 +6,13 @@ const passport = require('passport');
 // const upload = require("multer")({ dest: "uploads/" }).single("bin");
 const { graphQLServerMiddleware } = require('./graphql');
 const {
-  file: { uploadMiddleware, getFileMiddleware, uploadPublicMiddleware, getExcelMiddleware },
+  file: {
+    uploadMiddleware,
+    getFileMiddleware,
+    uploadPublicMiddleware,
+    getExcelMiddleware,
+    getEstimateMiddleware,
+  },
   makeAuthMiddleware,
   validator,
   user,
@@ -17,17 +23,21 @@ const router = express.Router();
 // 업로드 하는 endpoint
 router.post(
   '/upload',
-  makeAuthMiddleware(validator, ['ADMIN']), 
+  makeAuthMiddleware(validator, ['ADMIN']),
   uploadMiddleware,
 );
 
 // 일반 유저가 업로드하는 endpoint
-router.post('/graphql/public-upload', 
-  uploadPublicMiddleware,
-)
+router.post('/graphql/public-upload', uploadPublicMiddleware);
 
 // 이미 업로드된 파일을 가져오는 endpoint
 router.get('/upload/:filename', getFileMiddleware);
+
+router.get(
+  '/graphql/pdf/:templateName/:id',
+  makeAuthMiddleware(validator, ['ADMIN']),
+  getEstimateMiddleware,
+);
 
 // 카카오에서 로그인한 후 리디랙션하는 경로
 router.get('/graphql/kakao/login/oauth', (req, res, next) => {
@@ -56,7 +66,11 @@ router.get('/graphql/kakao/login', passport.authenticate('kakao'));
 // router.get('/graphql/bootpay', (req, res, next) => {
 //   // todo: bootpay 에서 정보를 이리로 넘겨줌.
 // });
-router.get('/graphql/get-excel', makeAuthMiddleware(validator, ['ADMIN']), getExcelMiddleware)
+router.get(
+  '/graphql/get-excel',
+  makeAuthMiddleware(validator, ['ADMIN']),
+  getExcelMiddleware,
+);
 
 // graphiql
 router.post('/graphql', graphQLServerMiddleware);

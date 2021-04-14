@@ -6,18 +6,6 @@
 
     <site-option-table>
       <site-option-row
-        v-model="form.cinesopa_license.value"
-        :label="form.cinesopa_license.label"
-        description="씨네소파의 사업자등록증을 설정합니다. 상영신청서 관련 절차에 필요합니다."
-        :type="form.cinesopa_license.type"
-      ></site-option-row>
-      <site-option-row
-        v-model="form.cinesopa_bank_account.value"
-        :label="form.cinesopa_bank_account.label"
-        description="씨네소파의 통장 사본을 설정합니다. 상영신청서 관련 절차에 필요합니다."
-        :type="form.cinesopa_bank_account.type"
-      ></site-option-row>
-      <site-option-row
         v-model="form.transportation_fee.value"
         :label="form.transportation_fee.label"
         description="모든 상품의 배송비를 일괄 설정합니다. 현재 상품별로 배송비를 설정할 수는
@@ -33,7 +21,7 @@
       <site-option-row
         v-model="form.option_privacy.value"
         :label="form.option_privacy.label"
-        description="개인정보보호방침과 관련된 내용입니다."
+        description="소파섬 개인정보보호방침과 관련된 내용입니다."
         :type="form.option_privacy.type"
       ></site-option-row>
       <site-option-row
@@ -55,7 +43,6 @@ import { BButton, VBToggle } from 'bootstrap-vue';
 import {
   siteOptionsQuery,
   graphql,
-  getFileInfoQuery,
   setSiteOptionsMutation,
 } from '@/api/graphql-client';
 
@@ -77,16 +64,7 @@ export default {
   data() {
     return {
       form: {
-        cinesopa_license: {
-          label: '씨네소파 사업자등록증',
-          value: null,
-          type: 'file',
-        },
-        cinesopa_bank_account: {
-          label: '씨네소파 통장',
-          value: null,
-          type: 'file',
-        },
+
         transportation_fee: {
           label: '기본 배송비',
           value: null,

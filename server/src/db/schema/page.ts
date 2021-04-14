@@ -1,6 +1,6 @@
-import { Mongoose } from "mongoose";
-import { enumPageRole, enumPageBelongsTo } from "./enum";
-import autoIdSetter from "./auto-id-setter";
+import { Mongoose } from 'mongoose';
+import { enumPageRole, enumPageBelongsTo } from './enum';
+import autoIdSetter from './auto-id-setter';
 
 /**
  *
@@ -49,4 +49,4 @@ export default function (mongoose) {
   //   // this.dumb = `${this.title} dumbValidate`;
   // });
   return schema;
-};
+}

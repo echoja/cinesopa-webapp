@@ -1,6 +1,3 @@
-import path from 'path';
-import fs from 'fs';
-
 import {
   SiteOptionType,
   Userinfo,
@@ -56,17 +53,16 @@ import {
   OrderInput,
   ISiteOption,
   IApplication,
-  AnyType,
   Orderinfo,
-  isBraced,
+  isJsonObject,
 } from '@/typedef';
 
 // const crypto = require('crypto');
 import crypto from 'crypto';
 import { LeanDocument, UpdateWriteOpResult } from 'mongoose';
 import { allSettledFiltered } from '@/util';
+import { JsonValue } from 'type-fest';
 
-// require('@/typedef');
 // const {
 //   MongooseDocument,
 //   DocumentQuery,
@@ -407,7 +403,7 @@ export class DBManager {
   async getToken(
     token: string,
     purpose: TokenPurpose,
-  ): Promise<{ isValidTTL: boolean; doc: Tokeninfo, expireDate: Date }> {
+  ): Promise<{ isValidTTL: boolean; doc: Tokeninfo; expireDate: Date }> {
     // console.log(`db-getEmailVefificationToken-token: ${token}`);
     const result = await model.Token.findOne({
       token,
@@ -578,8 +574,15 @@ export class DBManager {
     // console.log('# getFilebyOptionName');
     // console.log(name);
     // console.log(option);
-    if (!option || !isBraced(option.value) || typeof option.value.filename !== 'string') return null;
-    return model.File.findOne({ filename: option.value.filename }).lean().exec();
+    if (
+      !option ||
+      !isJsonObject(option.value) ||
+      typeof option.value.filename !== 'string'
+    )
+      return null;
+    return model.File.findOne({ filename: option.value.filename })
+      .lean()
+      .exec();
   }
 
   /**
@@ -1850,7 +1853,7 @@ export class DBManager {
    */
   async setSiteOption(
     name: string,
-    value: AnyType,
+    value: JsonValue,
     type: SiteOptionType,
   ): Promise<{ name?: string; success?: boolean; code?: string }> {
     const found = await model.SiteOption.findOne({ name }).exec();

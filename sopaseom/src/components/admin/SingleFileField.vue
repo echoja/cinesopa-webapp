@@ -1,7 +1,9 @@
 <template>
   <span>
-    <span v-if="!value || !value.filename">현재 파일이 등록되어있지 않습니다.</span>
-    <a class="mr-2" :href="`/upload/${value.filename}?action=download`" v-else>
+    <span v-if="!value || !value.filename"
+      >현재 파일이 등록되어있지 않습니다.</span
+    >
+    <a class="mr-2" :href="downloadLink(value.filename)" v-else>
       <u>
         {{ value.origin }}
       </u>
@@ -28,6 +30,7 @@
 
 <script>
 import { BModal, BButton } from 'bootstrap-vue';
+import { downloadLink } from '@/util';
 
 let uuid = 0;
 export default {
@@ -61,6 +64,7 @@ export default {
     uuid += 1;
   },
   methods: {
+    downloadLink,
     uploadClicked() {},
     handleSingleFile(files) {
       const file = files[0];

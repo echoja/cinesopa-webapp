@@ -1,4 +1,4 @@
-import { MailGate , TemplateMap } from '@/typedef';
+import type { MailGate , TemplateMap } from '@/typedef';
 import { gmail_v1 , google, Auth } from 'googleapis';
 
 import nodemailer, { Transporter } from 'nodemailer';

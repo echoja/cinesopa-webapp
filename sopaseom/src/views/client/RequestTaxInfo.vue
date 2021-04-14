@@ -17,7 +17,11 @@
       세금계산서 정보가 성공적으로 제출되었습니다. <br />
       <b-link :to="{ name: 'Home' }"><u>홈으로 이동</u></b-link>
     </p>
-    <template v-else-if="status === 'loaded'">
+    <template
+      v-else-if="
+        status === 'loaded' || status === 'uploading' || status === 'submitting'
+      "
+    >
       <p class="mb-4">
         본 페이지는 공동체상영 진행을 위해 필요한 서류 업로드 및 정보 기입을
         하는 페이지이며, 이메일로 전송된 링크로만 접속하실 수 있습니다. 하단의
@@ -114,8 +118,22 @@
       hide-header
       hide-footer
     >
-      <div class="d-flex justify-center align-items-center">
-        <small-spinner class="mr-2"></small-spinner> 제출중입니다.
+    <!-- 업로드 단계에서 보이는 것 -->
+    <div v-if="status === 'uploading'">
+
+      <b-progress
+        :value="uploadProgressLoaded"
+        :max="uploadProgressTotal"
+        show-progress
+        animated
+        class="mb-2"
+      ></b-progress>
+      <p class="m-0 text-center">업로드 중입니다.</p>
+    </div>
+
+    <!-- submit 단계에서 보이는 것 -->
+      <div v-if="status === 'submitting'" class="d-flex justify-center align-items-center">
+        <small-spinner class="mr-2"></small-spinner> 제출 중입니다.
       </div>
     </b-modal>
   </div>
@@ -131,6 +149,7 @@ import {
   BFormFile,
   BButton,
   BLink,
+  BProgress
 } from 'bootstrap-vue';
 import moment from 'moment';
 import { makeSimpleMutation, makeSimpleQuery } from '@/api/graphql-client';
@@ -151,6 +170,7 @@ export default {
     BFormFile,
     BButton,
     BLink,
+    BProgress,
     SmallSpinner: () => import('@/components/SmallSpinner.vue'),
   },
   data() {
@@ -178,6 +198,8 @@ export default {
       },
       no_receipt_date: false,
       emails_are_same: false,
+      uploadProgressTotal: 0,
+      uploadProgressLoaded: 0,
     };
   },
   computed: {
@@ -249,6 +271,7 @@ export default {
     // 최종적으로 Submit 하는 단계
     async submitClicked() {
       this.$bvModal.show('sending-modal');
+      this.status = 'uploading';
 
       // 일단 파일을 업로드함
       if (this.businessLicenseFileObj) {
@@ -257,10 +280,14 @@ export default {
           this.businessLicenseFileObj.name,
           {
             onUploadProgress: (e) => {
-              console.log('# RequestTaxInfo.vue onUploadProgress');
-              console.log(e);
-              console.log(e.loaded);
-              console.log(e.total);
+              if (!this.uploadProgressTotal) {
+                this.uploadProgressTotal = e.total ?? 1;
+              }
+              this.uploadProgressLoaded = e.loaded ?? 0;
+              // console.log('# RequestTaxInfo.vue onUploadProgress');
+              // console.log(e);
+              // console.log(e.loaded);
+              // console.log(e.total);
             },
           },
         );
@@ -270,19 +297,24 @@ export default {
         this.application.business_license_filename = file.filename;
         this.application.business_license_url = file.fileurl;
       }
+      this.status = 'submitting';
 
       // 그 다음 정보 갱신
       const token = this.$store.state.taxReqLinkToken;
-      const res = await submitTaxInformationReq({
-        token,
-        input: {
-          business_license_filename: this.application.business_license_filename,
-          business_license_url: this.application.business_license_url,
-          receipt_date: this.application.receipt_date,
-          receipt_email: this.application.receipt_email,
-          receipt_etc_req: this.application.receipt_etc_req,
+      const res = await submitTaxInformationReq(
+        {
+          token,
+          input: {
+            business_license_filename: this.application
+              .business_license_filename,
+            business_license_url: this.application.business_license_url,
+            receipt_date: this.application.receipt_date,
+            receipt_email: this.application.receipt_email,
+            receipt_etc_req: this.application.receipt_etc_req,
+          },
         },
-      }, '{success code}');
+        '{success code}',
+      );
       console.log('# RequestTaxInfo.vue submitTaxInformationReq res');
       console.log(res);
 
@@ -308,6 +340,7 @@ export default {
       this.$bvModal.hide('sending-modal');
     },
     async fetchData() {
+      // 스토어에 저장되어 있는 토큰으로 서버에서 데이터 가져오기
       const token = this.$store.state.taxReqLinkToken;
       if (typeof token !== 'string') {
         this.errCode = 'no_token';
@@ -320,6 +353,8 @@ export default {
         host film_title start_date end_date applicant_email charge reqdoc_expire_date
       }}`,
       );
+
+      // 가져온 값으로 초기화
       if (res.success) {
         this.status = 'loaded';
         console.log('# RequestTaxInfo request res');
@@ -334,7 +369,9 @@ export default {
           business_license_filename: null,
           business_license_url: null,
         };
-      } else {
+      }
+      // 실패시 에러
+      else {
         this.status = 'failed';
         this.errCode = res.code;
       }

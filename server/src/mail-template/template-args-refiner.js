@@ -1,15 +1,7 @@
 // require('@/typedef');
 
 const { Orderinfo, Cartiteminfo, FmtCartiteminfo } = require('@/typedef');
-
-const numberWithCommas = (x) => {
-  if (typeof x === 'number') {
-    return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
-  }
-  return '-';
-};
-
-const toPrice = (x) => `￦ ${numberWithCommas(x)}`;
+const { toPrice } = require('@/util');
 
 const statusMap = {
   order_received: '주문접수',
@@ -47,7 +39,6 @@ class TemplateArgsRefiner {
    */
   createPaymentSuccessArgs(order) {
     const itemsFormatted = order.items.map((cartitem) => {
-
       /** @type {FmtCartiteminfo} */
       const result = { ...cartitem, options: null };
       result.options = cartitem.options.map((option) => ({
@@ -74,7 +65,7 @@ class TemplateArgsRefiner {
     const totalPriceFormatted = toPrice(totalPrice);
     const totalCount = options.reduce((acc, now) => acc + now.price, 0);
     const paymentMethod = paymentMethodMap[order.method];
-    const dest = order.dest;
+    const { dest } = order;
     const detailsLink =
       process.env.NODE_ENV === 'production'
         ? `https://sopaseom.com/my/ordered?showDetails=${order.id}`

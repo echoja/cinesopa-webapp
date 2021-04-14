@@ -1,6 +1,7 @@
 // require('./typedef');
 
 import { Handler } from 'express';
+import { Asyncify, SetReturnType } from 'type-fest';
 
 /** ******************* */
 /* express middleware */
@@ -10,11 +11,15 @@ import { Handler } from 'express';
  *
  * @param {import('express').Handler} asyncFunc
  */
-export const aw = (asyncFunc: Handler): Handler => async (req, res, next) => {
+export const aw = (asyncFunc: Asyncify<Handler>): Asyncify<Handler> => async (
+  req,
+  res,
+  next,
+): Promise<void> => {
   try {
-    return await asyncFunc(req, res, next);
+    await asyncFunc(req, res, next);
   } catch (error) {
-    return next(error);
+    next(error);
   }
 };
 
@@ -64,6 +69,15 @@ export async function allSettledFiltered<T>(
   const values = filterRejected(results).map((result) => result.value);
   return values;
 }
+
+export const numberWithCommas = (x: number): string => {
+  if (typeof x === 'number') {
+    return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+  }
+  return '-';
+};
+
+export const toPrice = (x: number): string => `￦ ${numberWithCommas(x)}`;
 
 /**
  * async 버전 map. 만약 중간에 문제가 생겼을 경우의 항목은 그냥 무시합니다.

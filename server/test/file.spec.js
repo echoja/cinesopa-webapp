@@ -7,7 +7,7 @@ const makeAgent = require('supertest').agent;
 const Throttle = require('superagent-throttle');
 // const { upload, createFileFromMockFile } = require('./tool').default;
 const { fake } = require('sinon');
-const { model, db, file: fileService } = require('@/loader');
+const { model, file: fileService } = require('@/loader');
 const fileServiceFactory = require('@/service/file').default;
 const fileManager = require('@/manager/file').default;
 const rimraf = require('rimraf');
@@ -17,8 +17,9 @@ const expressRequestMock = require('express-request-mock');
 
 const { promisify } = require('util');
 const { totalmem } = require('os');
-const { nodeModuleNameResolver } = require('typescript');
 const { graphql } = require('graphql');
+const { absPath } = require('@/service/file');
+const { default: axios } = require('axios');
 const {
   createTestServer,
   graphqlSuper,
@@ -32,11 +33,9 @@ const {
   removeFileMutation,
 } = require('./graphql-request');
 const { makeSimpleQuery, doAdminLogin } = require('./tool').default;
-const { absPath } = require('@/service/file');
-const { default: axios } = require('axios');
+const { aw } = require('@/util');
 
 const app = express();
-
 const dest = 'test/uploads';
 const field = 'bin';
 const rimrafAsync = promisify(rimraf);
@@ -65,7 +64,7 @@ const removeFilesInDir = (destString, done) => {
 };
 describe('file', function () {
   // eslint-disable-next-line mocha/no-setup-in-describe
-  describe('file Service', function () {
+  describe('Service', function () {
     describe('uploadMiddleware', function () {
       /** @type {import("supertest").SuperAgentTest} */
       let agent;
@@ -123,12 +122,11 @@ describe('file', function () {
           .attach('bin', path.join(__dirname, './res/TestForUpload'))
           .expect(200)
           .end((err, res) => {
-            
             if (err) return done(err);
-            addContext(this, { title: 'res', value: res});
+            addContext(this, { title: 'res', value: res });
             // 응답이 성공인지 체크
             expect(res.body.message).to.equal('success');
-            addContext(this, { title: 'res.body', value: res.body});
+            addContext(this, { title: 'res.body', value: res.body });
             // 응답에서 file이 있는지 체크
             expect(res.body.file).to.be.a('object');
             const filepath = res.body.file.path;
@@ -261,7 +259,7 @@ describe('file', function () {
     });
   });
 
-  describe('file Manager', function () {
+  describe('Manager', function () {
     // afterEach('폴더에 있는 파일들 초기화(삭제)', function (done) {
     //   removeFilesInDir(dest, done);
     // });
@@ -327,6 +325,32 @@ describe('file', function () {
           .catch((err) => {
             done(err);
           });
+      });
+    });
+
+    describe('createPdf', function () {
+      describe('createPdf("estimate")', function () {
+        it('올바르게 동작해야 함.', async function () {
+          this.timeout(20000);
+          const outputPath = path.resolve(__dirname, 'output');
+          const htmlPath = path.resolve(outputPath, 'test.html');
+          const pdfPath = path.resolve(outputPath, 'test.pdf');
+          await fileManager.createPdf(
+            'estimate',
+            {},
+            {
+              htmlPath,
+              pdfPath,
+            },
+          );
+          expect(fs.existsSync(htmlPath)).to.equal(true);
+          expect(fs.existsSync(pdfPath)).to.equal(true);
+        });
+      });
+    });
+    describe('removePdf', function () {
+      it('올바르게 동작해야 함. - 준비중', async function () {
+        this.skip();
       });
     });
   });
@@ -576,19 +600,21 @@ describe('file', function () {
         //   value: fileUploadedResult,
         // });
         const getFileResult = await testAgent.get('/upload/abc');
-        
-        addContext(this, { title: 'getFileResult', value: getFileResult});
+
+        addContext(this, { title: 'getFileResult', value: getFileResult });
         expect(getFileResult.status).to.equal(404);
       });
 
-
       it('옵션으로 갖고 오는데, 파일이 존재하지 않으면 404여야 함', async function () {
-        await model.SiteOption.create({ name: 'abc', value: { filename: 'hi'} });
+        await model.SiteOption.create({
+          name: 'abc',
+          value: { filename: 'hi' },
+        });
         const webapp = express();
         webapp.get('/upload/:filename', fileService.getFileMiddleware);
         const testAgent = makeAgent(webapp);
         const getFileResult = await testAgent.get('/upload/abc');
-        addContext(this, { title: 'getFileResult', value: getFileResult});
+        addContext(this, { title: 'getFileResult', value: getFileResult });
         expect(getFileResult.status).to.equal(404);
       });
 
@@ -630,7 +656,7 @@ describe('file', function () {
         addContext(this, { title: 'res', value: { ...res } });
         expect(res.statusCode).to.equal(200);
       });
-      it('query 가 설정되어 있지 않을 시 401 되어야 함.', async function () {
+      it('query 가 설정되어 있지 않을 시 400 되어야 함.', async function () {
         await model.Token.create({
           token: '1234',
           purpose: 'taxinfo_request',
@@ -640,9 +666,9 @@ describe('file', function () {
           fileService.initCheckUploadToken(),
         );
         addContext(this, { title: 'res', value: { ...res } });
-        expect(res.statusCode).to.equal(401);
+        expect(res.statusCode).to.equal(400);
       });
-      it('토큰을 찾을 수 없을 시 401이 되어야 함.', async function () {
+      it('토큰을 찾을 수 없을 시 404이 되어야 함.', async function () {
         await model.Token.create({
           token: '1234',
           purpose: 'taxinfo_request',
@@ -655,9 +681,9 @@ describe('file', function () {
           },
         );
         addContext(this, { title: 'res', value: { ...res } });
-        expect(res.statusCode).to.equal(401);
+        expect(res.statusCode).to.equal(404);
       });
-      it('토큰이 만료되었을 때 401이 되어야 함.', async function () {
+      it('토큰이 만료되었을 때 404이 되어야 함.', async function () {
         await model.Token.create({
           token: '1234',
           purpose: 'taxinfo_request',
@@ -671,7 +697,50 @@ describe('file', function () {
           },
         );
         addContext(this, { title: 'res', value: { ...res } });
-        expect(res.statusCode).to.equal(401);
+        expect(res.statusCode).to.equal(404);
+      });
+    });
+
+    describe('initGetEstimateMiddleware', function () {
+      it('제대로 동작해야 함', async function () {
+        await model.SiteOption.create({
+          name: 'address',
+          value: '씨네소파 주소',
+        });
+        await model.SiteOption.create({
+          name: 'phone',
+          value: '씨네소파 전화번호',
+        });
+        const appl = await model.Application.create({
+          host: '주최사',
+          charge: 440000,
+          format: 'DCP',
+          film_title: '넌 이미 죽어있다',
+        });
+        let pathCalled = null;
+        let filenameCalled = null;
+        const { res } = await expressRequestMock(
+          aw(async (req, resInner, next) => {
+            resInner.download = (path, filename) => {
+              pathCalled = path;
+              filenameCalled = filename;
+            };
+            await fileService.initGetEstimateMiddleware()(req, resInner, next);
+            resInner.status(200).send();
+          }),
+          {
+            params: {
+              templateName: 'estimate',
+              id: `${appl.id}`,
+            },
+          },
+        );
+        addContext(this, { title: 'res', value: res });
+        addContext(this, { title: 'pathCalled', value: pathCalled });
+        addContext(this, { title: 'filenameCalled', value: filenameCalled });
+        expect(res.statusCode).to.equal(200);
+        // expect(pathCalled).to.be.a('string');
+        // expect(filenameCalled).to.be.a('string');
       });
     });
 
@@ -843,7 +912,7 @@ describe('file', function () {
             await fileTestService.removeFile('not-exist-name');
           } catch (error) {
             errored = true;
-            addContext(this, { title: 'error', value: error});
+            addContext(this, { title: 'error', value: error });
           }
           expect(errored).to.equal(true);
 

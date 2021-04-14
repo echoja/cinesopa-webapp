@@ -12,6 +12,23 @@ export const numberWithCommas = (x) => {
 export const toPrice = (x) => `￦ ${numberWithCommas(x)}`;
 
 /**
+ * 다운로드 가능한 링크로 변환하는
+ *  @param {string} filename
+ */
+export const downloadLink = (filename, options = {}) => {
+  const { includeProdHost = false, size = null } = options;
+  let s = '';
+  if (includeProdHost) {
+    s += 'https://sopaseom.com';
+  }
+  s += `/upload/${filename}?action=download`;
+  if (size) {
+    s += `&size=${size}`;
+  }
+  return s;
+};
+
+/**
  * @param {any} item
  * @param {string[]} keys
  * @returns {{[key: string]: Date}[]}
@@ -57,12 +74,21 @@ export const applicationTransportStatusMap = {
   return_complete: '상영본 회수 완료',
 };
 
+export const applicationTransportStatusOrder = [
+  'online',
+  'yet_to_delivery',
+  'delivery_complete',
+  'return_complete',
+];
+
 /** 세금계산서 관련 */
 export const applicationReceiptStatusMap = {
   not_applicable: '세금계산서 발행 안함',
   pending: '세금계산서 발행 대기중',
   done: '세금계산서 발행 완료',
 };
+
+export const applicationReceiptStatusOrder = ['not_applicable', 'pending', 'done'];
 
 /** 정산 관련 */
 export const applicationMoneyStatusMap = {
@@ -73,6 +99,14 @@ export const applicationMoneyStatusMap = {
   invoice_done: '정산 완료',
 };
 
+export const applicationMoneyStatusOrder = [
+  'not_applicable',
+  'pending_deposit',
+  'deposit_checked',
+  'document_done',
+  'invoice_done',
+];
+
 /** 서류 상태 */
 export const applicationDocStatusMap = {
   not_applicable: '서류 해당 없음',
@@ -80,6 +114,8 @@ export const applicationDocStatusMap = {
   request_sended: '서류 요청 보냄',
   request_not_sended: '서류 요청 보내지 않음',
 };
+
+export const applicationDocStatusOrder = ['not_applicable', 'pending', 'request_sended'];
 
 let rawDeliveryData = null;
 

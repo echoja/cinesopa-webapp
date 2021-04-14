@@ -388,6 +388,7 @@ export default {
      */
     parseInitialTableDate() {
       if (this.type !== 'table') return;
+      if (!this.value) return;
 
       this.value.forEach((row, rowIndex) => {
         Object.keys(row).forEach((field) => {

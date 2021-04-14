@@ -1,4 +1,4 @@
-import { VerifyPaymentResult, CancelPaymentArgs } from "@/typedef"
+import type { VerifyPaymentResult, CancelPaymentArgs } from "@/typedef"
 
 import { RestClient } from "@bootpay/server-rest-client";
 import { bootpayRestAppID, bootpayRestPvKey } from "@config/common";
@@ -48,7 +48,6 @@ RestClient.setConfig(bootpayRestAppID, bootpayRestPvKey);
 
 
 export class BootpayManager {
-  constructor() {}
 
   /**
    * @return {Promise<GetTokenResult>}

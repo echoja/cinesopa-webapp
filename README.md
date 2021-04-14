@@ -118,6 +118,21 @@ certbot/certbot renew --manual --preferred-challenges dns --server https://acme-
 - 1열 : crontab의 내용을 crontab_bak.txt 에 저장하기. (백업)
 - 2열 : 3일마다 새벽 5시 45분에 갱신 실시. 관련 로그는 `$HOME/crontab_log/letsencrpyt.log` 에 계속 추가하며 저장.
 
+#### puppeteer 실행 환경 만들기
+
+아래는 실제 실행환경(도커)에서의 Dockerfile 중 puppeteer 실행 환경을 설치하는 부분입니다.
+
+```dockerfile
+RUN apt-get update \
+    && apt-get install -y wget gnupg \
+    && wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add - \
+    && sh -c 'echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google.list' \
+    && apt-get update \
+    && apt-get install -y google-chrome-stable fonts-ipafont-gothic fonts-wqy-zenhei fonts-thai-tlwg fonts-kacst fonts-freefont-ttf libxss1 \
+      --no-install-recommends \
+    && rm -rf /var/lib/apt/lists/*
+```
+
 ## 배포
 
 ### 로컬에서 이미지 빌드 후 Docker Hub에 배포하기

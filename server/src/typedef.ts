@@ -1,5 +1,7 @@
 import { PassportContext } from 'graphql-passport';
 import { Document, LeanDocument, Model } from 'mongoose';
+import pug from "pug";
+import path from "path";
 // import { Express } from 'express';
 // import { Session } from 'express-session';
 import {
@@ -14,9 +16,15 @@ import {
   ApplicationReceiptStatus,
   FilmStatus,
 } from '@/db/schema/enum';
+import { JsonObject, JsonValue } from 'type-fest'
 
-import FilManagerImported from './manager/file';
-import { resolveTypeReferenceDirective } from 'typescript';
+import type FileImported from './manager/file';
+
+// import {MailManager as MailManagerClass} from './manager/mail';
+
+// export type MailManager = typeof MailManagerClass;
+
+
 
 export * from '@/db/schema/enum';
 
@@ -48,14 +56,18 @@ export interface GetDBItems<T> {
 export type PromLD<T> = Promise<LeanDocument<T>>;
 export type PromLDList<T> = Promise<LeanDocument<T>[]>;
 
-export type Primitive = number | string | boolean;
-export type Braced = { [key: string]: AnyType };
-export type RecursiveArray = (Primitive | Braced | RecursiveArray)[];
-export type AnyType = RecursiveArray | Braced | Primitive;
-export function isBraced(value: AnyType): value is Braced {
-  return !Array.isArray(value) && typeof value === 'object' && value !== null;
-}
+// export type Primitive = number | string | boolean;
+// export type Braced = { [key: string]: JsonValue };
+// export function isBraced(value: JsonValue): value is Braced {
+//   return !Array.isArray(value) && typeof value === 'object' && value !== null;
+// }
 
+export function isJsonObject(value: JsonValue): value is JsonObject {
+  const type = typeof value;
+  if (type === 'boolean' || type === 'number' || type === 'string') return false;
+  if (Array.isArray(value)) return false;
+  return true;
+}
 export interface MailGate {
   senderName?: string;
   senderEmail?: string;
@@ -220,7 +232,7 @@ interface ApplicationinfoBase {
   etc_req?: string; // 기타 요청
   memo?: string; // 메모
   memo_unremarked?: boolean; // 메모 강조 표시를 해제함.
-  meta?: AnyType; //
+  meta?: JsonValue; //
 }
 
 export interface IApplication extends ApplicationinfoBase, Document {}
@@ -342,7 +354,7 @@ interface ProductinfoBase {
   c_date?: Date; // : { type : Date, default : Date.now },
   related_film?: number; //  : [{ type : mongoose.Schema.Types.ObjectId, ref : 'Film' }], // 영화 정보는 기본적으로 여기서 전부 가지고 온다.
   related_cartitems?: number[]; // : 관련된 카트 아이템.
-  meta?: AnyType; // : mongoose.Schema.Types.Mixed,
+  meta?: JsonValue; // : mongoose.Schema.Types.Mixed,
   kit_id?: number; // : Number,
   search?: string; // : String,
 }
@@ -357,7 +369,7 @@ export interface Productinfo extends Omit<ProductinfoBase, 'related_film'> {
 export interface SiteOptioninfo {
   name?: string;
   type?: typeof enumSiteOptionType[number];
-  value?: AnyType; // 파일일 경우 그냥 filename 을 저장함. 나중에 getFileBySiteOption 등으로 할 때 처리됨.
+  value?: JsonValue; // 파일일 경우 그냥 filename 을 저장함. 나중에 getFileBySiteOption 등으로 할 때 처리됨.
 }
 
 export interface ISiteOption extends SiteOptioninfo, Document {}
@@ -441,7 +453,7 @@ interface CartiteminfoBase {
   product_id?: number; //
   product?: CartitemProductinfo; // : CartitemProduct,
   options?: CartitemOptioninfo[];
-  meta?: AnyType; // : mongoose.Schema.Types.Mixed,
+  meta?: JsonValue; // : mongoose.Schema.Types.Mixed,
 }
 
 export interface ICartitem extends Document, CartiteminfoBase {}
@@ -486,7 +498,7 @@ interface OrderinfoBase {
   transport_fee?: number; //
   bootpay_id?: string; //
   payer?: string; //
-  meta?: AnyType; //
+  meta?: JsonValue; //
   dest?: Destinfo; //
 }
 
@@ -518,7 +530,7 @@ export interface OrderInput {
   transport_fee?: number; //
   bootpay_id?: string; //
   bootpay_payment_info?: Paymentinfo; //
-  meta?: AnyType; //
+  meta?: JsonValue; //
   items?: number[]; //    카트아이템 id 목록
   dest?: Destinfo; //
 }
@@ -573,7 +585,7 @@ interface PageinfoBase {
   m_date?: Date; // - 수정일
   role?: string; // - 페이지의 역할
   belongs_to?: string; // - cinesopa.kr, sopaseom.com 중 어느 곳에 속하는지
-  meta?: AnyType; // - 기타 정보
+  meta?: JsonValue; // - 기타 정보
 }
 
 export interface Pageinfo extends PageinfoBase, IIdOption {}
@@ -696,7 +708,7 @@ interface FilminfoBase {
   badge_color?: string;
   status?: string;
   available_subtitles?: string[];
-  meta?: AnyType;
+  meta?: JsonValue;
   search?: string;
 }
 
@@ -780,7 +792,7 @@ interface BoardinfoBase {
   permalink?: string; //
   belongs_to?: string; //
   board_type?: string; //
-  meta?: AnyType; //
+  meta?: JsonValue; //
 }
 export interface CreateTokenOptions {
   email: string;
@@ -817,7 +829,7 @@ interface PostinfoBase {
   c_date?: Date; //
   m_date?: Date; //
   search?: string; //
-  meta?: AnyType; //
+  meta?: JsonValue; //
 }
 /**
  * 게시물 정보를 담는 객체
@@ -902,22 +914,19 @@ export type UserCreator = (userinfo: Userinfo) => Promise<void>;
 //  * @typedef {UserGetterByAuth} UserGetterByAuth
 //  */
 
-export { AuthValidator } from './auth/validator';
+export type { AuthValidator } from './auth/validator';
 
 export type AuthmapLevel = {
   [key in AuthType]: number;
 };
 
-export { DBManager } from './manager/db';
+export type { DBManager } from './manager/db';
 
-export { MailManager } from './manager/mail';
-// import {MailManager as MailManagerClass} from './manager/mail';
+export type { MailManager } from './manager/mail';
 
-// export type MailManager = typeof MailManagerClass;
+export type { BootpayManager } from './manager/bootpay';
 
-export { BootpayManager } from './manager/bootpay';
-
-export type FileManager = typeof FilManagerImported;
+export type FileManager = typeof FileImported;
 
 export { TemplateArgsRefiner } from './mail-template/template-args-refiner';
 
@@ -930,6 +939,64 @@ export type MailRendererWrapper = (
 
 export type TemplateMap = Map<string, MailRendererWrapper>;
 
+export const pdfTemplateNames = ['estimate'] as const;
+
+export type PdfTemplateName = typeof pdfTemplateNames[number];
+
+export type PdfTemplateArgs<T extends PdfTemplateName> = T extends 'estimate'
+  ? PrintEstimateArgs
+  : never;
+
+export const pdfTemplatePath = path.resolve(__dirname, './pdf-template');
+export const pdfPugCompiledMap = new Map<PdfTemplateName, pug.compileTemplate>(
+  pdfTemplateNames.map((name) => [
+    name,
+    pug.compileFile(path.resolve(pdfTemplatePath, `${name}.pug`)),
+  ]),
+);
+
+export const pdfOutputPath = path.resolve(__dirname, '../pdf-output');
+
+export interface CreatePdfOptions {
+  htmlPath?: string,
+  pdfPath?: string,
+} 
+
+export interface EstimateContentRow {
+  type?: string;
+  name?: string;
+  standard?: string;
+  count?: string;
+  unitCostCommaed?: string;
+  suppliedCostCommaed?: string;
+  etc?: string;
+}
+
+export interface EstimateContent {
+  1?: EstimateContentRow;
+  2?: EstimateContentRow;
+  3?: EstimateContentRow;
+  4?: EstimateContentRow;
+  5?: EstimateContentRow;
+  6?: EstimateContentRow;
+  7?: EstimateContentRow;
+  8?: EstimateContentRow;
+  9?: EstimateContentRow;
+  10?: EstimateContentRow;
+  11?: EstimateContentRow;
+}
+
+export interface PrintEstimateArgs {
+  dateString?: string;
+  recipientCompanyName?: string;
+  companyPlace?: string;
+  chiefName?: string;
+  chiefPhone?: string;
+  totalPriceHangul?: string;
+  totalPriceCommaed?: string;
+  estimateContent?: EstimateContent;
+  suppliedCostSumCommaed?: string;
+}
 declare global {
   // eslint-disable-next-line @typescript-eslint/no-namespace
   namespace Express {
@@ -938,21 +1005,6 @@ declare global {
       email?: string;
     }
   }
-}
-
-declare module 'express-session' {
-  export interface SessionData {
-    redirectLink: string;
-  }
-}
-declare global {
-  // module Express {
-  // }
-  // namespace session {
-  //   export interface SessionData {
-  //     redirectLink: string;
-  //   }
-  // }
 }
 
 declare module 'express-session' {

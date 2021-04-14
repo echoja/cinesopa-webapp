@@ -164,7 +164,7 @@
       @row-clicked="rowClicked"
       @row-contextmenu="rowContextMenu"
     >
-      <template #head(checked)="row">
+      <template #head(checked)="">
         <b-form-checkbox
           :checked="allChecked"
           @change="allCheckChanged"
@@ -177,16 +177,16 @@
           v-model="row.item.checked"
         ></b-form-checkbox>
       </template>
-      <template #head(host)="row">
+      <template #head(host)="">
         <span class="table-head-text">주최</span>
       </template>
-      <template #head(film_title)="row">
+      <template #head(film_title)="">
         <span class="table-head-text">작품명</span>
       </template>
-      <template #head(charge)="row">
+      <template #head(charge)="">
         <span class="table-head-text">상영료</span>
       </template>
-      <template #head(start_date)="row">
+      <template #head(start_date)="">
         <span class="table-head-text">상영시작일</span>
         <info v-once>
           상영 시작일은 정렬의 기준입니다. 각 신청마다 시작일 뿐만 아니라
@@ -196,32 +196,32 @@
       <template #cell(start_date)="row">
         {{ formatDate(row.value) }}
       </template>
-      <template #head(applicant_name)="row">
+      <template #head(applicant_name)="">
         <span class="table-head-text">신청자</span>
         <info v-once>신청자의 이름입니다.</info>
       </template>
-      <template #head(applicant_phone)="row">
+      <template #head(applicant_phone)="">
         <span class="table-head-text">연락처</span>
         <info v-once>신청자의 연락처입니다.</info>
       </template>
       <template #cell(applicant_phone)="{ value }">
         <eye-box v-if="value" :text="value"></eye-box>
       </template>
-      <template #head(applicant_email)="row">
+      <template #head(applicant_email)="">
         <span class="table-head-text">이메일</span>
         <info v-once>신청자의 이메일입니다.</info>
       </template>
       <template #cell(applicant_email)="{ value }">
         <eye-box v-if="value" :text="value"></eye-box>
       </template>
-      <template #head(destination)="row">
+      <template #head(destination)="">
         <span class="table-head-text">주소</span>
         <info v-once>상영본 배송지입니다.</info>
       </template>
       <template #cell(destination)="{ value }">
         <eye-box v-if="value" :text="value"></eye-box>
       </template>
-      <template #head(message)="row">
+      <template #head(message)="">
         <span class="table-head-text">메시지</span>
         <info v-once>
           <div class="text-left">
@@ -245,7 +245,7 @@
           </div>
         </info>
       </template>
-      <template #head(memo)="row">
+      <template #head(memo)="">
         <span class="table-head-text">메모</span>
         <info
           >관리자는 각 신청마다 메모를 설정할 수 있습니다. 메모가 있을 경우
@@ -387,7 +387,10 @@
           </form-row>
           <h3 class="detail-header d-flex align-items-center">
             <span class="mr-2">서류 및 정산</span>
-            <b-button size="sm" class="mr-2" @click="receiptCopyClicked(row)"
+            <b-button
+              size="sm"
+              class="mr-2"
+              @click="editingReceiptCopyClicked(row)"
               >세금계산서 발행 정보 복사</b-button
             >
             <info
@@ -428,7 +431,18 @@
               <span class="button-content ml-2"> 링크 생성 </span>
             </loading-button>
           </form-row>
-          <form-row title="서류요청 이메일">
+          <form-row title="견적서">
+            <loading-button
+              class="border-0"
+              size="sm"
+              @click="downloadEstimateClicked(row)"
+              :loading="downloadingEstimate"
+            >
+              <font-awesome-icon :icon="['fas', 'download']">
+              </font-awesome-icon>
+            </loading-button>
+          </form-row>
+          <!-- <form-row title="서류요청 이메일">
             <template #info
               >신청자에게 서류 관련 전달/요청 메일을 보낼 수 있습니다.</template
             >
@@ -509,11 +523,38 @@
                 </div>
               </div>
             </div>
+          </form-row> -->
+          <form-row title="세금계산서 정보">
+            <template #info>
+              위에서 입력된 상영료를 바탕으로 공급가액과 세액을 계산합니다.
+            </template>
+            <table>
+              <tr>
+                <td>상영료 (부가세 포함)</td>
+                <td>{{ editing.charge }} 원</td>
+              </tr>
+              <tr>
+                <td>공급가액</td>
+                <td>
+                  {{ editing.charge - Math.round(editing.charge / 11) }} 원
+                </td>
+              </tr>
+              <tr>
+                <td>세액</td>
+                <td>{{ Math.round(editing.charge / 11) }} 원</td>
+              </tr>
+            </table>
+            <!-- <p class="m-0"></p>
+            <p class="m-0">
+              :
+
+            </p>
+            <p class="m-0"></p> -->
           </form-row>
           <form-row title="세금계산서 상태">
             <template #info>
-              필터링 하는 데 사용되는 것 외에 특별한 용도는 없습니다.<br />자동으로
-              수정되지 않으므로 직접 설정해야 합니다.
+              필터링할 때에만 사용됩니다.<br />자동으로 수정되지 않으므로 직접
+              설정해야 합니다.
             </template>
             <b-form-select
               @input="changed.add('receipt_status')"
@@ -523,8 +564,8 @@
           </form-row>
           <form-row title="서류 요청 상태">
             <template #info>
-              필터링 하는 데 사용되는 것 외에 특별한 용도는 없습니다.<br />자동으로
-              수정되지 않으므로 직접 설정해야 합니다.
+              필터링할 때에만 사용됩니다.<br />자동으로 수정되지 않으므로 직접
+              설정해야 합니다.
             </template>
             <b-form-select
               @input="changed.add('doc_status')"
@@ -658,16 +699,72 @@
     <!-- 우클릭-->
     <b-button v-contextmenu:hello="testNumber">TEST</b-button>
     {{ testNumber }}
-    <context-menu #default="payload" id="hello">
+    <context-menu
+      #default="// eslint-disable-next-line vue/no-unused-vars
+      payload"
+      id="application-context"
+    >
       <h3 class="context-menu-header">
         {{ contextMenuHeaderText }}
       </h3>
-      <context-menu-button @click="TESTLinkClicked">
-        테스트 링크
+      <context-menu-button @click="contextEditClicked">
+        편집
       </context-menu-button>
-      <pre>
+      <context-menu-button
+        v-if="hasNextMoneyStatus"
+        @click="nextMoneyStatusClicked"
+      >
+        정산 상태 : {{ beforeMoneyStatus }}에서 <b>{{ afterMoneyStatus }}</b
+        >(으)로 변경
+      </context-menu-button>
+      <context-menu-button
+        v-if="hasNextTransportStatus"
+        @click="nextTransportStatusClicked"
+      >
+        배송 상태 : {{ beforeTransportStatus }}에서
+        <b>{{ afterTransportStatus }}</b
+        >(으)로 변경
+      </context-menu-button>
+      <context-menu-button
+        v-if="hasNextReceiptStatus"
+        @click="nextReceiptStatusClicked"
+      >
+        세금계산서 : {{ beforeReceiptStatus }}에서
+        <b>{{ afterReceiptStatus }}</b
+        >(으)로 변경
+      </context-menu-button>
+      <!-- <context-menu-button @click="contextEstimateDownloadClicked">
+        상영료 입금 예정월 한달 미루기
+      </context-menu-button> -->
+      <hr class="my-2" />
+      <context-menu-button @click="contextEstimateDownloadClicked">
+        견적서 다운로드
+      </context-menu-button>
+      <context-menu-button
+        v-if="contextItem.business_license_filename"
+        @click="contextDownloadLicenseClicked"
+      >
+        사업자등록증 다운로드
+      </context-menu-button>
+      <context-menu-button
+        v-if="!contextItem.reqdoc_token"
+        @click="contextCreateTaxLinkClicked"
+      >
+        서류 요청 링크 생성 및 복사
+      </context-menu-button>
+      <context-menu-button v-else @click="contextCopyTaxLinkClicked">
+        서류 요청 링크 복사
+      </context-menu-button>
+      <context-menu-button @click="contextReceiptCopyClicked">
+        세금계산서 발행 정보 복사
+      </context-menu-button>
+      <hr class="my-2" />
+      <context-menu-button class="text-red" @click="contextEditClicked">
+        삭제
+      </context-menu-button>
+      <!-- <pre>
       {{ payload }}
-      </pre>
+      </pre> -->
     </context-menu>
     <pre>{{ changed }}</pre>
     <pre>{{ $cm._map }}</pre>
@@ -692,15 +789,18 @@ import {
   BFormTextarea,
   BPaginationNav,
 } from 'bootstrap-vue';
-import { debounce } from 'throttle-debounce';
 import moment from 'moment';
 import {
   applicationTransportStatusMap,
+  applicationTransportStatusOrder,
   applicationReceiptStatusMap,
+  applicationReceiptStatusOrder,
   applicationMoneyStatusMap,
+  applicationMoneyStatusOrder,
   applicationDocStatusMap,
   getDeliveryOptions,
   getSeoulDates,
+  downloadLink,
 } from '@/util';
 import Info from '@/components/admin/Info.vue';
 import EyeBox from '@/components/admin/EyeBox.vue';
@@ -725,6 +825,7 @@ const mapToOption = (map) =>
 const updateApplicationReq = makeSimpleMutation('updateApplication');
 const fileReq = makeSimpleQuery('file');
 const removeTaxReqLinkReq = makeSimpleMutation('removeTaxReqLink');
+const updateNewTaxReqLinkReq = makeSimpleMutation('updateNewTaxReqLink');
 
 export default {
   components: {
@@ -752,11 +853,13 @@ export default {
   data() {
     return {
       changed: new Set(),
+      currentContextItemIndex: null,
       detailSaveButtonLoading: false,
       addApplicationLoading: false,
       updateNewTaxReqLinkLoading: false,
       loading: false,
       transportEmailSendloading: false,
+      downloadingEstimate: false,
       testNumber: 1,
       key: '',
       total: 1,
@@ -894,6 +997,99 @@ export default {
           : '(시작일없음)'
       } 상영`;
     },
+
+    /** @returns {string} */
+    beforeMoneyStatus() {
+      return applicationMoneyStatusMap[this.contextItem?.money_status];
+    },
+    /** @returns {string} */
+    beforeTransportStatus() {
+      return applicationTransportStatusMap[this.contextItem?.transport_status];
+    },
+    /** @returns {string} */
+    beforeReceiptStatus() {
+      return applicationReceiptStatusMap[this.contextItem?.receipt_status];
+    },
+    /** @returns {string} */
+    afterMoneyStatusRaw() {
+      const found = applicationMoneyStatusOrder.findIndex(
+        (value) => value === this.contextItem.money_status,
+      );
+      if (found > 0 && found < applicationMoneyStatusOrder.length - 1) {
+        return applicationMoneyStatusOrder[found + 1];
+      }
+      return null;
+    },
+
+    /** @returns {string} */
+    afterMoneyStatus() {
+      const raw = this.afterMoneyStatusRaw;
+      if (raw) {
+        return applicationMoneyStatusMap[raw];
+      }
+      return null;
+    },
+
+    /** @returns {string} */
+    afterTransportStatusRaw() {
+      const found = applicationTransportStatusOrder.findIndex(
+        (value) => value === this.contextItem.transport_status,
+      );
+      if (found > 0 || found < applicationTransportStatusOrder.length - 1) {
+        return applicationTransportStatusOrder[found + 1];
+      }
+      return null;
+    },
+
+    /** @returns {string} */
+    afterTransportStatus() {
+      const raw = this.afterTransportStatusRaw;
+      if (raw) {
+        return applicationTransportStatusMap[raw];
+      }
+      return null;
+    },
+
+    /** @returns {string} */
+    afterReceiptStatusRaw() {
+      const found = applicationReceiptStatusOrder.findIndex(
+        (value) => value === this.contextItem.receipt_status,
+      );
+      if (found > 0 || found < applicationReceiptStatusOrder.length - 1) {
+        return applicationReceiptStatusOrder[found + 1];
+      }
+      return null;
+    },
+
+    /** @returns {string} */
+    afterReceiptStatus() {
+      const raw = this.afterReceiptStatusRaw;
+      if (raw) {
+        return applicationReceiptStatusMap[raw];
+      }
+      return null;
+    },
+    /** @returns {boolean} */
+    hasNextMoneyStatus() {
+      if (typeof this.afterMoneyStatus === 'string') {
+        return true;
+      }
+      return false;
+    },
+    /** @returns {boolean} */
+    hasNextTransportStatus() {
+      if (typeof this.afterTransportStatus === 'string') {
+        return true;
+      }
+      return false;
+    },
+    /** @returns {boolean} */
+    hasNextReceiptStatus() {
+      if (typeof this.afterReceiptStatus === 'string') {
+        return true;
+      }
+      return false;
+    },
   },
   async mounted() {
     const result = await getDeliveryOptions();
@@ -905,7 +1101,6 @@ export default {
     ...mapActions(['pushMessage']),
     async createReqTaxinfoButtonClicked(row) {
       this.updateNewTaxReqLinkLoading = true;
-      const updateNewTaxReqLinkReq = makeSimpleMutation('updateNewTaxReqLink');
       const res = await updateNewTaxReqLinkReq(
         { id: row.item.id },
         `{
@@ -1051,6 +1246,9 @@ export default {
     allCheckChanged(value) {
       this.allChecked = value;
       this.allCheckIndeterminate = false;
+      this.tableItems.forEach((item) => {
+        item.checked = value;
+      });
     },
     itemCheckChanged() {
       this.$nextTick(() => {
@@ -1076,11 +1274,8 @@ export default {
         }
       });
     },
-    blank() {
-      //
-    },
 
-    async rowClicked(item, index, event) {
+    async rowClicked(item) {
       const sd = item._showDetails;
       // 현재 클릭한 것이 이미 열려있다면 닫기.
       if (sd) {
@@ -1112,19 +1307,25 @@ export default {
     rowContextMenu(item, index, event) {
       event.preventDefault();
       this.contextItem = { ...item };
-      this.$cm.show('hello', event);
+      this.currentContextItemIndex = index;
+      this.$cm.show('application-context', event);
     },
-    downloadEstimateClicked() {
-      // todo
+    async downloadEstimate(id, host) {
+      const res = await axios.get(`/graphql/pdf/estimate/${id}`, {
+        responseType: 'blob',
+      });
+      fileDownload(
+        res.data,
+        `견적서_${host}_${moment().format('yyyy-MM-DD')}.pdf`,
+      );
     },
-    compLicenseDownloadClicked() {
-      // todo
+    async downloadEstimateClicked(row) {
+      this.downloadingEstimate = true;
+      await this.downloadEstimate(row.item.id, row.item.host);
+      this.downloadingEstimate = false;
     },
-    compLicenseUploadClicked() {
-      // todo
-    },
-    TESTLinkClicked() {
-      console.log('clicked!!!');
+    async contextEstimateDownloadClicked() {
+      await this.downloadEstimate(this.contextItem.id, this.contextItem.host);
     },
     async detailSaveButtonClicked(row) {
       this.detailSaveButtonLoading = true;
@@ -1167,12 +1368,12 @@ export default {
       }
       this.detailSaveButtonLoading = false;
     },
-    async reqDocLinkSendClicked(row) {
-      // todo
-    },
-    async reqDocLinkSampleClicked(row) {
-      // todo
-    },
+    // async reqDocLinkSendClicked(row) {
+    //   // todo
+    // },
+    // async reqDocLinkSampleClicked(row) {
+    //   // todo
+    // },
     submitToChange(key) {
       this.changed.add(key);
     },
@@ -1207,16 +1408,19 @@ export default {
       this.changed.add('business_license_filename');
       this.changed.add('business_license_url');
     },
-
-    async taxReqLinkCopyClicked() {
-      copy(
-        `https://sopaseom.com/request-tax-info-gate?token=${this.editing.reqdoc_token}`,
-      );
+    async copyTaxReqLink(token) {
+      copy(`https://sopaseom.com/request-tax-info-gate?token=${token}`);
       this.pushMessage({
         type: 'success',
         id: 'copyTaxReqLinkSuccess',
         msg: '링크가 성공적으로 복사되었습니다.',
       });
+    },
+    async taxReqLinkCopyClicked() {
+      await this.copyTaxReqLink(this.editing.reqdoc_token);
+    },
+    async contextCopyTaxLinkClicked() {
+      await this.copyTaxReqLink(this.contextItem.reqdoc_token);
     },
     async taxReqLinkRemoveClicked() {
       const res = await removeTaxReqLinkReq(
@@ -1238,12 +1442,151 @@ export default {
         });
       }
     },
+    async contextEditClicked() {
+      this.$cm.hide('application-context');
+      this.rowClicked(this.tableItems[this.currentContextItemIndex]);
+      this.currentContextItemIndex = null;
+    },
+    async nextMoneyStatusClicked() {
+      const res = await updateApplicationReq(
+        {
+          id: this.contextItem.id,
+          input: {
+            money_status: this.afterMoneyStatusRaw,
+          },
+        },
+        '{success code}',
+      );
+      if (res.success) {
+        this.pushMessage({
+          type: 'success',
+          id: 'nextMoneyStatusSuccess',
+          msg: '성공적으로 적용되었습니다.',
+        });
+        this.fetchData();
+      } else {
+        this.pushMessage({
+          type: 'danger',
+          id: 'nextMoneyStatusFailed',
+          msg: '업데이트 도중 오류가 발생했습니다.',
+        });
+      }
+    },
+    async nextTransportStatusClicked() {
+      const res = await updateApplicationReq(
+        {
+          id: this.contextItem.id,
+          input: {
+            transport_status: this.afterTransportStatusRaw,
+          },
+        },
+        '{success code}',
+      );
+      if (res.success) {
+        this.pushMessage({
+          type: 'success',
+          id: 'nextTransportStatusSuccess',
+          msg: '성공적으로 적용되었습니다.',
+        });
+        this.fetchData();
+      } else {
+        this.pushMessage({
+          type: 'danger',
+          id: 'nextTransportStatusFailed',
+          msg: '업데이트 도중 오류가 발생했습니다.',
+        });
+      }
+    },
+    async nextReceiptStatusClicked() {
+      const res = await updateApplicationReq(
+        {
+          id: this.contextItem.id,
+          input: {
+            receipt_status: this.afterReceiptStatusRaw,
+          },
+        },
+        '{success code}',
+      );
+      if (res.success) {
+        this.pushMessage({
+          type: 'success',
+          id: 'nextReceiptStatusSuccess',
+          msg: '성공적으로 적용되었습니다.',
+        });
+        this.fetchData();
+      } else {
+        this.pushMessage({
+          type: 'danger',
+          id: 'nextReceiptStatusFailed',
+          msg: '업데이트 도중 오류가 발생했습니다.',
+        });
+      }
+    },
+    async contextDownloadLicenseClicked() {
+      const filename = this.contextItem.business_license_filename;
+      const { origin } = await fileReq({ filename }, '{origin}');
+      const url = downloadLink(filename);
+      // console.log(url);
+      const res = await axios.get(url, {
+        responseType: 'blob',
+      });
+      fileDownload(res.data, origin);
+    },
+    async contextCreateTaxLinkClicked() {
+      const res = await updateNewTaxReqLinkReq(
+        { id: this.contextItem.id },
+        `{
+        success code token expire_date
+        }`,
+      );
+      if (!res.success) {
+        console.error(res.code);
+        this.pushMessage({
+          type: 'danger',
+          id: 'UpdateNewTaxReqLinkFailed',
+          msg: '요청 링크 생성이 실패했습니다.',
+        });
+        this.updateNewTaxReqLinkLoading = false;
+        return;
+      }
+      await this.fetchData();
+      this.pushMessage({
+        type: 'success',
+        id: 'UpdateNewTaxReqLinkSuccess',
+        msg: '성공적으로 요청 링크를 생성했습니다.',
+      });
+      this.copyTaxReqLink(res.token);
+    },
+    async copyReceipt(item) {
+      const lines = [];
+      lines.push(`상영료(부가세포함): ${item.charge} 원`);
+      lines.push(`공급가액: ${item.charge - Math.round(item.charge / 11)} 원`);
+      lines.push(`세액: ${Math.round(item.charge / 11)} 원`);
+      lines.push(`이메일: ${item.receipt_email}`);
+      lines.push(`작성일자: ${moment(item.receipt_date).format('yyyy-MM-DD')}`);
+      copy(lines.join('\n'));
+      this.pushMessage({
+        type: 'success',
+        id: 'copyReceiptSuccess',
+        msg: '세금계산서 발행 정보을 성공적으로 복사했습니다.',
+      });
+    },
+    async editingReceiptCopyClicked(row) {
+      this.copyReceipt(row.item);
+    },
+    async contextReceiptCopyClicked() {
+      this.copyReceipt(this.contextItem);
+      // this.copyTaxReqLink(this.contextItem.reqdoc_token);
+    },
   },
   name: 'Application',
 };
 </script>
 
 <style lang="scss" scoped>
+.application {
+  width: 1040px;
+}
 .status-filter .b-dropdown-form {
   font-size: 14px;
   h2 {

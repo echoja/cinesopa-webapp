@@ -20,7 +20,6 @@ import fileServiceMaker from '@/service/file';
 import { graphQLServerMiddleware } from '@/graphql';
 import local from '@/auth/passport';
 import { make as makeAuthMiddleware } from '@/auth/auth-middleware';
-import { Braced } from '@/typedef';
 import {
   db,
   auth,

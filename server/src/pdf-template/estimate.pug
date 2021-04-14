@@ -30,7 +30,7 @@ include base-print.pug
   /**
     * @typedef {Object} PrintEstimateArgs
     * @property {string} dateString 날짜 
-    * @property {string} repicientCompanyName 날짜 
+    * @property {string} recipientCompanyName 수신 회사 이름 
     * @property {string} companyPlace 사업장 소재지
     * @property {string} chiefName 대표자 성명
     * @property {string} chiefPhone 대표자 전화번호
@@ -48,7 +48,7 @@ include base-print.pug
     },
     {
       title: '수신',
-      content: companyPlace
+      content: recipientCompanyName
     },
     {
       title: '참조',
@@ -132,15 +132,16 @@ include base-print.pug
         .flex.border-b.border-gray-800.p-2
           .flex-0.w-14.flex.items-center #{val.title}
           .flex-0.w-40.text-right #{val.content}
-    .flex-0
+    .flex-0.relative
       each val, index in sr
         .flex
           .flex-0.w-32.-m-1px.border.border-gray-800.font-bold.px-2.py-1.flex.items-center #{val.title}
           .flex-0.w-60.-m-1px.border.border-gray-800.px-2.py-1 #{val.content}
+      img.absolute(style={width: '64px', height: '64px', right:'40px', bottom: '10px'} src='dojang.png')
   p.mb-10 아래와 같이 견적합니다.
   .table.ml-1
     .col-span-2.row-span-2.bg-gray-100.font-bold.text-center(class=[...centerClass]) 합계금액<br>(공급가액 + 세액)
-    .col-span-6.row-span-2.text-xl.font-bold(class=[...centerClass]) #{totalPriceHangul || '오십오만원정'} (₩ #{totalPriceCommaed || '550,000'})
+    .col-span-6.row-span-2.text-xl.font-bold(class=[...centerClass]) #{totalPriceHangul || '몇만원정'} (₩ #{totalPriceCommaed || '12,345'})
     .bg-gray-100.font-bold(class=[...centerClass]) No.
     .bg-gray-100.font-bold(class=[...centerClass]) 구분
     .bg-gray-100.font-bold(class=[...centerClass]) 품 명

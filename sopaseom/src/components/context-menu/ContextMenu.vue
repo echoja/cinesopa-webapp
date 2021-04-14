@@ -235,6 +235,7 @@ export default {
 .popper {
   position: fixed;
   left: -10000px;
+  z-index: 100;
 }
 .context-menu {
   padding: 15px;

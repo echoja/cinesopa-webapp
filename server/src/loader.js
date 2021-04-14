@@ -24,6 +24,7 @@ const mailTemplateFileInfo = {
   advertisement: path.resolve(__dirname, 'mail-template/advertisement.pug'),
 };
 const { makeTemplateMap } = require('./mail-template/template-map');
+
 const mailDefaultArgsGetter = async () => ({
   // todo
 });

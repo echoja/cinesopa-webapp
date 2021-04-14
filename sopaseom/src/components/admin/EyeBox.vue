@@ -8,7 +8,7 @@
     <font-awesome-icon :icon="['far', 'eye']"> </font-awesome-icon>
     <b-tooltip v-if="text" :target="`eye-${id}`" triggers="hover">
       {{ text }}<br />
-      <small>눈을 클릭하여 복사하세요.</small>
+      <small>클릭하여 복사하세요.</small>
     </b-tooltip>
   </b-button>
 </template>
