@@ -524,7 +524,7 @@ export default {
           }
         }`,
       );
-      console.log(result);
+      // console.log(result);
       this.files = result.list;
       this.total = result.total;
     },

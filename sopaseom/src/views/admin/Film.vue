@@ -1,8 +1,8 @@
 <template>
   <div>
-    <header class="p-3">
+    <header>
       <h2>
-        영화 관리<b-button class="new" :to="{ name: 'FilmNew' }"
+        영화 관리<b-button size="sm" class="new" :to="{ name: 'FilmNew' }"
           >새 영화</b-button
         >
       </h2>

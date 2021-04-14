@@ -49,7 +49,7 @@
         <p class="m-0">
           {{ row.item.title }}
           <!-- <b-link :to="{ name: 'PostEdit', params: { id: row.item.id } }">
-            
+
           </b-link> -->
         </p>
       </template>
@@ -88,6 +88,9 @@ import { BButton, BFormCheckbox, BLink, BTable } from 'bootstrap-vue';
 import moment from 'moment';
 import { queryString, graphql } from '@/loader';
 import Info from '@/components/admin/Info.vue';
+import { makeSimpleQuery } from '@/api/graphql-client';
+
+const postsAdminReq = makeSimpleQuery('postsAdmin');
 
 moment.locale('ko');
 
@@ -158,9 +161,10 @@ export default {
     hasData() {
       return this.items.length !== 0;
     },
-    /** @returns {string} */
+    /** @returns {number} */
     page() {
-      return this.$route.params.page;
+      const { page } = this.$route.params;
+      return page ? parseInt(page, 10) - 1 : 0;
     },
     /** @returns {boolean} */
     checkedAtleastOne() {
@@ -169,7 +173,7 @@ export default {
   },
   async mounted() {
     await this.boardData();
-    this.setDataFromServer();
+    this.fetchData();
 
     // console.log('# post mounted');
     // console.log(`${this.belongs_to}, ${this.page}`);
@@ -188,24 +192,29 @@ export default {
         this.boards[value._id] = value.title;
       });
     },
-    async setDataFromServer() {
+    async fetchData() {
       this.state.processing.get = true;
       this.items = [];
-      const res = await graphql(queryString.post.postsAdminQuery, {
-        condition: {
-          page: this.page,
-          perpage: 10,
+
+      // 서버로부터 데이터를 가져옵니다.
+      const res = await postsAdminReq(
+        {
+          condition: {
+            page: this.page,
+            perpage: 10,
+          },
         },
-      });
+        `{total list {
+          id title content excerpt permalink status board c_date
+          m_date meta featured_image featured_image_link
+        }}`,
+      );
 
-      const {
-        postsAdmin: { total, posts },
-      } = res.data;
-
+      const { total, list } = res;
       this.total = total;
 
       const items = [];
-      for (const post of posts) {
+      for (const post of list) {
         items.push({
           ...post,
           checked: false,
@@ -254,7 +263,7 @@ export default {
           id: 'failRemovePost',
         });
       }
-      this.setDataFromServer();
+      this.fetchData();
     },
     rowClicked(item, index, event) {
       this.$router.push({ name: 'PostEdit', params: { id: item.id } });

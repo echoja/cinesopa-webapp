@@ -10,26 +10,30 @@ const url =
 
 export const graphql = async (query, variables) => {
   // try {}
-  const received = await axios.post(
-    url,
-    JSON.stringify({
-      query,
-      variables,
-    }),
-    {
-      headers,
-      credentials: true,
-    },
-  );
-  console.log('# graphql-client graphql received');
-  console.log(received);
-  // received 구죠
-  // received.data.errors 가 존재한다면 에러임.
-  if (received?.data?.errors) {
-    console.error(received?.data?.errors);
-    throw new Error('Server Error');
+  try {
+    const received = await axios.post(
+      url,
+      JSON.stringify({
+        query,
+        variables,
+      }),
+      {
+        headers,
+      },
+    );
+    // console.log('# graphql-client graphql received');
+    // console.log(received);
+    // received 구죠
+    // received.data.errors 가 존재한다면 에러임.
+    const { errors } = received.data;
+    if (errors) {
+      throw new Error(errors);
+    }
+    return received.data;
+  } catch (e) {
+    console.error('graphql axios error', e);
+    return null;
   }
-  return received.data;
 };
 
 export const dataGraphql = async (...args) => {
@@ -126,7 +130,7 @@ export const postsQuery = `
 query getPosts($condition: PostSearch!) {
   posts(condition: $condition) {
     total
-    posts ${postResponse}
+    list ${postResponse}
   }
 }`;
 
@@ -134,7 +138,7 @@ export const postsInBoardQuery = `
 query getPosts($condition: PostSearch!) {
   posts(condition: $condition) {
     total
-    posts {
+    list {
       id
       title
       permalink
@@ -170,16 +174,6 @@ query getBoard($condition: BoardSearch!) {
 `;
 export const boardsQuery = `
 query getBoards($belongs_to: String) {
-  boards(belongs_to: $belongs_to) ${boardResponse}
-}
-`;
-
-export const initPostsOperation = `
-query initPosts($condition: PostSearch!, $belongs_to: String) {
-  posts(condition: $condition) {
-    total
-    posts ${postResponse}
-  }
   boards(belongs_to: $belongs_to) ${boardResponse}
 }
 `;

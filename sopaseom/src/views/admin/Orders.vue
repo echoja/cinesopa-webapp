@@ -236,7 +236,7 @@
               <th>단가</th>
               <th>계</th>
             </tr>
-            <template v-for="(item, itemIndex) in editing.items">
+            <template v-for="item in editing.items">
               <tr
                 v-for="(option, optionIndex) in item.options"
                 :key="`$line${item.id}-${optionIndex}`"
@@ -341,14 +341,10 @@ import {
   BTable,
   BFormInput,
   BFormDatepicker,
-  BFormTextarea,
-  BFormRadioGroup,
-  BFormRadio,
   BFormSelect,
 } from 'bootstrap-vue';
 import moment from 'moment';
 import { makeSimpleMutation, makeSimpleQuery } from '@/api/graphql-client';
-import SingleFileSelector from '@/components/admin/SingleFileSelector.vue';
 import FormRow from '@/components/admin/FormRow.vue';
 import LoadingButton from '@/components/LoadingButton.vue';
 import { mapActions } from 'vuex';
@@ -369,14 +365,11 @@ export default {
     BFormCheckbox,
     BFormInput,
     BFormDatepicker,
-    BFormTextarea,
-    SingleFileSelector,
     FormRow,
     LoadingButton,
-    BFormRadioGroup,
-    BFormRadio,
     BFormSelect,
-    DeliveryTrackerButton: () => import('@/components/DeliveryTrackerButton.vue'),
+    DeliveryTrackerButton: () =>
+      import('@/components/DeliveryTrackerButton.vue'),
   },
   data() {
     const now = new Date();
@@ -485,7 +478,8 @@ export default {
   computed: {
     /** @returns {number} */
     page() {
-      return parseInt(this.$route.query.page, 10) ?? 1;
+      const { page } = this.$route.query;
+      return page ? parseInt(page, 10) : 1;
     },
     /** @returns {object[]} */
     deliveryOptions() {
@@ -891,7 +885,7 @@ export default {
       await this.fetchData();
       item.processingRequest = false;
     },
-    async updateOrderCancelClicked(index) {
+    async updateOrderCancelClicked() {
       await this.fetchData();
     },
     checkBootpayReceiptClicked() {},
@@ -955,7 +949,4 @@ export default {
   background-color: inherit;
   color: currentColor;
 }
-</style>
-
-<style>
 </style>

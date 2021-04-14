@@ -1,7 +1,7 @@
 <template>
   <span>
-    <span v-if="!value || !value.filename"
-      >현재 파일이 등록되어있지 않습니다.</span
+    <span class="mr-2" v-if="!value || !value.filename"
+      >현재 파일이 등록되어 있지 않습니다.</span
     >
     <a class="mr-2" :href="downloadLink(value.filename)" v-else>
       <u>

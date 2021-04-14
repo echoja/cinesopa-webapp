@@ -20,8 +20,8 @@ export default {
       vnode = vnode.$parent;
     }
     if (vnode) {
-      console.log('# ContextMenuButton parent found!');
-      console.log(vnode);
+      // console.log('# ContextMenuButton parent found!');
+      // console.log(vnode);
       this.cm = vnode;
     }
   },

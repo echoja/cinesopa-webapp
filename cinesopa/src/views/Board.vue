@@ -2,10 +2,7 @@
   <div class="container-fluid">
     <h1>{{ title }}</h1>
     <div class="board-nav d-flex row">
-      <div
-        class="board-select"
-        aria-label="게시판 종류 선택"
-      >
+      <div class="board-select" aria-label="게시판 종류 선택">
         <template v-for="(board, index) in boards">
           <b-link
             href="#"
@@ -185,6 +182,7 @@
 </template>
 
 <script>
+/* eslint-disable no-underscore-dangle */
 // 이 함수의 호출된 결과를 computed 에 ... 로 destucture 해서 쓸 수 있음.
 // function titleof(permalinkList) {
 //   const result = {};
@@ -206,7 +204,7 @@ function sleep(ms) {
 
 export default {
   name: 'Board',
-  title: (context) => context.titleComputed,
+  // title: (context) => context.titleComputed,
   components: {
     // VueAria,
   },
@@ -311,32 +309,40 @@ export default {
     };
   },
   computed: {
+    /** @returns {{label: string, busy: boolean}}} */
     postListAria() {
       return {
         label: this.listARIALabel,
         busy: this.loading,
       };
     },
+
+    /** @returns {string} */
     listARIALabel() {
       const selected = this.boards.find((board) => board.selected);
       if (selected) return `${selected.title} 글 목록`;
       return '글 목록';
     },
+
+    /** @returns {{selected: boolean, permalink: string, title: string}[]} */
     boardMenu() {
-      const result = [];
-      result.push({
-        selected: true,
-        premalink: '_all',
-        title: '전체',
-      });
+      const result = [
+        {
+          selected: true,
+          permalink: '_all',
+          title: '전체',
+        },
+      ];
       result.push(...this.boards);
       return result;
     },
 
+    /** @returns {string} */
     selectedBoardName() {
       return this.boards.find((board) => board.selected === true)?.title ?? '';
     },
 
+    /** @returns {string} */
     titleComputed() {
       return `${this.selectedBoardName} - ${this.title}`;
     },
@@ -353,16 +359,22 @@ export default {
     //     });
     //   };
     // },
+    /** @returns {string} */
     permalink() {
       return this.$route.params.permalink;
     },
+
+    /** @returns {string} */
     key() {
       return this.$route.params.permalink;
     },
+
+    /** @returns {number} */
     numberOfPages() {
       if (this.postTotal === 0) return 1;
       return Math.ceil(this.postTotal / this.perpage);
     },
+    /** @returns {string} */
     calculatedBoardPermalinks() {
       return this.boards.find((board) => board.selected)?.permalinks;
     },
@@ -414,7 +426,7 @@ export default {
         title: found?.title,
         selected: false,
       });
-      this.boardTitleMap[found?._id] = found.title;
+      this.boardTitleMap[found?._id] = found?.title;
     });
 
     // 보드를 맞추기
@@ -502,7 +514,8 @@ export default {
       // console.log(res.data);
       // 게시글들 설정
       const { posts } = res.data;
-      this.posts = posts.posts.map((post) => ({
+      const { list, total } = posts;
+      this.posts = list.map((post) => ({
         id: post.id,
         board: this.boardTitleMap[post.board],
         title: post.title,
@@ -510,7 +523,7 @@ export default {
         featured_image_link: post.featured_image_link,
         featured_image_alt: post.featured_image_alt,
       }));
-      this.postTotal = posts.total;
+      this.postTotal = total;
 
       await minimum;
     },

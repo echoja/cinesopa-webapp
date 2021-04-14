@@ -912,7 +912,8 @@ export default {
     makeSimpleQuery('availableSubtitle')().then((result) => {
       this.available_subtitles_list = result;
     });
-    if (this.mode !== 'new') {
+    if (typeof this.id === 'number') {
+    // if (this.mode !== 'new') {
       await this.initExist(this.id);
     }
   },
@@ -1164,7 +1165,8 @@ export default {
     async confirm() {
       await this.refineInputValues();
       try {
-        if (this.mode === 'new') {
+        if (typeof this.id !== 'number') {
+        // if (this.mode === 'new') {
           return this.confirmNew();
         }
         return this.confirmUpdate();
@@ -1187,7 +1189,7 @@ export default {
       // console.log(result);
       const { id } = result.data.createFilm;
       this.$router.push({ name: 'FilmEdit', params: { id } });
-      this.mode = null;
+      // this.mode = null;
     },
     async confirmUpdate() {
       const input = await this.buildInput();

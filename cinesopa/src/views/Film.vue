@@ -674,12 +674,14 @@ export default {
       // 어차피 100% 이므로 width 속성과 height 속성 삭제
       this.film.videos.forEach((video) => {
         const wrapper = document.getElementById(video.wrapperId);
-        const iframe = wrapper.querySelector('iframe');
-        iframe.setAttribute('title', video.title);
-        iframe.style.width = '100%';
-        iframe.style.height = `${video.ratio * 100}%`;
-        iframe.removeAttribute('width');
-        iframe.removeAttribute('height');
+        if (wrapper) {
+          const iframe = wrapper.querySelector('iframe');
+          iframe.setAttribute('title', video.title);
+          iframe.style.width = '100%';
+          iframe.style.height = `${video.ratio * 100}%`;
+          iframe.removeAttribute('width');
+          iframe.removeAttribute('height');
+        }
       });
     });
 
@@ -702,9 +704,10 @@ export default {
       // /** @type {Element} */
       // let a;
 
-      console.log('# Film.vue onScrollactiveItemChanged');
-      console.log(currentItem);
-      console.log(event);
+      // console.log('# Film.vue onScrollactiveItemChanged');
+      // console.log(currentItem);
+      // console.log(event);
+
       // 클릭으로 넘어간 경우는 그냥 event 가 null 이더라.
       // 클릭이 아닌 경우는, scroll 등이 있다.
       if (event === null) {

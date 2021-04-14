@@ -4,13 +4,16 @@
     <div class="d-flex bd-highlight mb-3">
       <div class="p-2 sidebar bd-highlight">
         <b-list-group>
-          <b-list-group-item to="/admin"> 대시보드 </b-list-group-item>
-          <b-list-group-item to="/admin/statistics"> 통계 </b-list-group-item>
+          <!-- <b-list-group-item to="/admin"> 대시보드 </b-list-group-item> -->
+          <!-- <b-list-group-item to="/admin/statistics"> 통계 </b-list-group-item> -->
+          <b-list-group-item class="py-1 bg-light">
+            <span>공통</span>
+          </b-list-group-item>
           <b-list-group-item to="/admin/file">
             <span>파일</span>
             <info>
               파일 관리자를 엽니다. 파일을 업로드하여 추후에 에디터에서 이미지를
-              삽입하거나 첨부파일을 만들 수 있습니다. 
+              삽입하거나 첨부파일을 만들 수 있습니다.
             </info>
           </b-list-group-item>
           <b-list-group-item to="/admin/options">
@@ -51,7 +54,7 @@
 
             <info> 게시판의 글을 작성/수정/삭제합니다. </info>
           </b-list-group-item>
-          
+
           <!-- <b-list-group-item to="/admin/cinesopa/menu">
             메뉴
           </b-list-group-item>
@@ -124,7 +127,7 @@
       <div class="p-2 flex-grow-1 bd-highlight">
         <!-- <header class="p-2">
         </header> -->
-        <b-navbar>
+        <b-navbar class="p-0 border-bottom mb-3">
           <b-navbar-brand to="/">영화배급협동조합 씨네소파</b-navbar-brand>
           <b-navbar-nav>
             <b-nav-item-dropdown text="새로 추가" right>

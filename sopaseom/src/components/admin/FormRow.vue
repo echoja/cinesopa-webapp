@@ -3,7 +3,7 @@
     <div class="form-row">
       <div class="form-header">
         <span class="form-header-text">{{ title }}</span>
-        <info v-if="$slots.info" class="ml-2">
+        <info v-once v-if="$slots.info" class="ml-2">
           <slot name="info"> </slot>
         </info>
       </div>
