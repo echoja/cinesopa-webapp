@@ -105,7 +105,7 @@ export class MailManager {
 
     /** @type {Auth.GoogleAuth} */
     this.auth = new google.auth.GoogleAuth({
-      keyFile: path.resolve(__dirname, '../config/mailer-credentials.json'),
+      keyFile: path.resolve(__dirname, '../../config/mailer-credentials.json'),
       scopes: SCOPES,
       clientOptions: {
         subject: ACCOUNT,

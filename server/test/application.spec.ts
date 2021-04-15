@@ -244,14 +244,14 @@ describe('application', function () {
       });
       it('transrpot_status 가 제대로 동작해야 함', async function () {
         await Promise.allSettled([
-          model.Application.create({ transport_status: 'online' }),
+          model.Application.create({ transport_status: 'online_or_direct' }),
           model.Application.create({ transport_status: 'yet_to_delivery' }),
           model.Application.create({ transport_status: 'yet_to_delivery' }),
           model.Application.create({ transport_status: 'return_complete' }),
         ]);
         const found1 = await db.getApplications({
           perpage: 30,
-          transport_status: ['online'],
+          transport_status: ['online_or_direct'],
         });
         const found2 = await db.getApplications({
           perpage: 30,
@@ -325,15 +325,15 @@ describe('application', function () {
       it('복합적으로 잘 동작해야 함 (transport_status, search', async function () {
         await Promise.allSettled([
           model.Application.create({
-            transport_status: 'online',
+            transport_status: 'online_or_direct',
             applicant_name: 'aa',
           }),
           model.Application.create({
-            transport_status: 'online',
+            transport_status: 'online_or_direct',
             applicant_name: 'aa',
           }),
           model.Application.create({
-            transport_status: 'online',
+            transport_status: 'online_or_direct',
             applicant_name: 'aa',
           }),
           model.Application.create({
@@ -360,7 +360,7 @@ describe('application', function () {
         const found = await db.getApplications({
           perpage: 30,
           search: 'aa',
-          transport_status: ['online', 'return_complete'],
+          transport_status: ['online_or_direct', 'return_complete'],
         });
         addContext(this, { title: 'found', value: found });
         expect(found.list.length).to.equal(5);

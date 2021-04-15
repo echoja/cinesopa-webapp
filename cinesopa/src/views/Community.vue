@@ -950,6 +950,7 @@ import Privacy from '@/components/Privacy.vue';
 import CopyrightConsent from '@/components/CopyrightConsent.vue';
 import { makeSimpleMutation } from '@/graphql-client';
 import LoadingButton from '@/components/LoadingButton.vue';
+import { mapActions } from 'vuex';
 
 extend('shouldCheck', (value) => value === true);
 
@@ -1007,6 +1008,7 @@ export default {
           label: '단편',
         },
       ],
+      // required: false,
       required: true,
       checkPrivacy: false,
       checkCopyright: false,
@@ -1160,10 +1162,21 @@ export default {
             },
             '{success code recipient}',
           );
+          if (result.success) {
+            this.$router.push({ name: 'SuccessRequest' });
+          } else {
+            alert(
+              '신청서 제출 중 오류가 발생했습니다. 관리자에게 문의해주세요.',
+            );
+            // this.pushMessage({
+            //   type: 'danger',
+            //   id: 'communityFailed',
+            //   msg: '신청서 제출 중 오류가 발생했습니다. 관리자에게 문의해주세요.',
+            // });
+          }
           // console.log('# Community submit result');
           // console.log(result);
           // todo 메일을 실제로 보내기 전까지 로딩 기간을 뭔가 로딩 바가 도는 등의 애니메이션 등장이 필요함.
-          this.$router.push({ name: 'SuccessRequest' });
         } else {
           // todo 만약 유효하지 않을 때만 따로 처리할 피룡가 있슴.
         }

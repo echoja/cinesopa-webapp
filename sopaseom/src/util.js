@@ -68,14 +68,14 @@ export const paymentMethodMap = {
 
 /** 배송 관련 */
 export const applicationTransportStatusMap = {
-  online: '온라인 전송',
+  online_or_direct: '온라인 또는 직접 방문',
   yet_to_delivery: '상영본 발송 대기중',
   delivery_complete: '상영본 발송 완료',
   return_complete: '상영본 회수 완료',
 };
 
 export const applicationTransportStatusOrder = [
-  'online',
+  'online_or_direct',
   'yet_to_delivery',
   'delivery_complete',
   'return_complete',

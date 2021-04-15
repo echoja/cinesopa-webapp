@@ -93,7 +93,7 @@ export const enumTransportCompany = [
 export type TransportCompany = typeof enumTransportCompany[number];
 
 export const enumApplicationTransportStatus = [
-  'online', // 해당없음 (온라인 전송 as const
+  'online_or_direct', // 해당없음 (온라인 전송 as const
   'yet_to_delivery', // 발송 대기중
   'delivery_complete', // 발송 완료
   'return_complete', // 회수 완료

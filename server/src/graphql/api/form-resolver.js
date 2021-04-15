@@ -137,15 +137,15 @@ const convertInput = (input) => {
   /** @type {Map<string, ApplicationTransportStatus>} */
   const tsmap = new Map([
     ['택배', 'yet_to_delivery'],
-    ['온라인', 'online'],
+    ['온라인', 'online_or_direct'],
   ]);
   tsmap.set('택배', 'yet_to_delivery');
-  tsmap.set('온라인', 'online');
+  tsmap.set('온라인', 'online_or_direct');
 
   const formatDate = (date) => moment(date).format('yyyy-MM-DD');
 
   /** @type {ApplicationTransportStatus} */
-  const transport_status = tsmap.get(howToReceive) ?? null;
+  const transport_status = tsmap.get(howToReceive) ?? 'online_or_direct';
   if (howToReceive === '직접') {
     memos.push(`[${formatDate(visitDate)}에 직접 수령]`);
   } else if (receiveDate) {
@@ -266,8 +266,9 @@ module.exports = {
         });
 
         const results = await Promise.allSettled(promises);
+        results.filter((result) => result.status === 'rejected').forEach((result) => console.log(result.reason))
         if (results.some((result) => result.status === 'rejected')) {
-          return { success: false };
+          return { success: false, code: 'error_while_mail' };
         }
       }
       return { success: true };
