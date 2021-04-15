@@ -101,5 +101,15 @@ describe('login & logout', function () {
       addContext(this, { title: 'log', value: result.body});
       expect(result.body.session.passport.user).to.equal('eszqsc112@naver.com');
     });
+    it('disable session true 해도 일단 로그인 후 세션 유지가 되어야 함', async function () {
+      const loginReq = makeSimpleMutation(agent, 'login');
+      const loginResult = await loginReq(
+        { provider: { email: 'eszqsc112@naver.com', pwd: '13241324', disableSession: true } },
+        loginResultString,
+      );
+      const result = await agent.get('/session');
+      addContext(this, { title: 'log', value: result.body});
+      expect(result.body.session.passport.user).to.equal('eszqsc112@naver.com');
+    });
   });
 });

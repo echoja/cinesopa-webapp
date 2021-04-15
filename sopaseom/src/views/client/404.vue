@@ -1,5 +1,8 @@
 <template>
-  <div></div>
+  <div class="not-found text-center">
+    <h2>페이지를 찾을 수 없습니다!</h2>
+    <router-link :to="{name: 'Home'}"><u>홈으로 이동</u></router-link>
+  </div>
 </template>
 
 <script>
@@ -9,4 +12,16 @@ export default {
 };
 </script>
 
-<style></style>
+<style lang="scss" scoped>
+
+@import '@/common';
+
+.not-found {
+  padding-top: 50px;
+}
+/* @include max-with(md) {
+  .not-found {
+    padding-top: 0;
+  }
+} */
+</style>

@@ -119,7 +119,7 @@ class AuthService {
     // 브라우저 종료시 쿠키가 날라가도록 하여 브라우저를 끄면 자동으로
     // 로그아웃되도록 설정.
     if (disableSession) {
-      context.req.session.cookie.expires = new Date(); // need test
+      context.req.session.cookie.expires = null;
     }
 
     // console.log(context.req.sessionID);

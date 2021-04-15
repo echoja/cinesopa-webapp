@@ -11,7 +11,7 @@ const {
 
 const moment = require('moment');
 const { enumFilmAvailableSubtitle } = require('../../db/schema/enum');
-const { isJsonObject } = require('@/typedef');
+const { isJsonObject, ApplicationTransportStatus } = require('@/typedef');
 
 const requestShowingLabelMap = {
   companyName: '기관 이름',
@@ -94,14 +94,134 @@ const formatDiscributionContent = (key, value) => {
   return JSON.stringify(value);
 };
 
+/**
+ *
+ * @param {*} input
+ * @returns {import('@/typedef').ApplicationInput}
+ */
+const convertInput = (input) => {
+  const {
+    companyName,
+    festivalName,
+    playdateStart,
+    playdateEnd,
+    playtimes,
+    playplace,
+    username,
+    userphone,
+    useremail,
+    films,
+    addressNew,
+    addressOld,
+    addressDetailed,
+    howToReceive,
+    visitDate,
+    receiveDate,
+    expectedPopulation,
+    selfShowingFee,
+    depositdate,
+    isTaxSame,
+    taxCompany,
+    taxPerson,
+    taxPhone,
+    taxOthers,
+    additionalPapers,
+    others,
+  } = input;
+
+  /** @type {string[]} */
+  const memos = [];
+  /** @type {string[]} */
+  const otherMemos = [];
+
+  /** @type {Map<string, ApplicationTransportStatus>} */
+  const tsmap = new Map([
+    ['택배', 'yet_to_delivery'],
+    ['온라인', 'online'],
+  ]);
+  tsmap.set('택배', 'yet_to_delivery');
+  tsmap.set('온라인', 'online');
+
+  const formatDate = (date) => moment(date).format('yyyy-MM-DD');
+
+  /** @type {ApplicationTransportStatus} */
+  const transport_status = tsmap.get(howToReceive) ?? null;
+  if (howToReceive === '직접') {
+    memos.push(`[${formatDate(visitDate)}에 직접 수령]`);
+  } else if (receiveDate) {
+    memos.push(`[상영본 도착 희망일: ${formatDate(receiveDate)}]`);
+  }
+
+  if (playplace) {
+    memos.push(`[상영 공간: ${playplace}]`);
+  }
+
+  if (expectedPopulation) {
+    memos.push(`[예상 관객: ${expectedPopulation}]`);
+  }
+
+  if (isTaxSame) {
+    memos.push('[신청자와 정산 기관이 같습니다.]');
+  } else {
+    memos.push(
+      `[정산 정보: ${taxCompany}, ${taxPerson}, ${taxPhone}, ${taxOthers}`,
+    );
+  }
+
+  if (additionalPapers) {
+    otherMemos.push(`[서류 요청: ${additionalPapers.join(', ')}]`);
+  }
+
+  if (others) {
+    otherMemos.push(`[기타: ${others}]`);
+  }
+
+  const formatInfos = films.map((film) =>
+    [film.title, film.format, film.selected_subtitles ?? []].flat(20),
+  );
+
+  // Application Input 만들기
+  /** @type {import('@/typedef').ApplicationInput} */
+  const applInput = {
+    applicant_email: useremail,
+    applicant_name: username,
+    applicant_phone: userphone,
+    charge: parseInt(selfShowingFee, 10),
+    deposit_date: depositdate,
+    destination: `${addressNew} ${addressDetailed} (${addressOld} ${addressDetailed})`,
+    host: companyName,
+    festival: festivalName,
+    transport_status,
+    start_date: playdateStart,
+    end_date: playdateEnd,
+    session_count: playtimes,
+    etc_req: otherMemos.join('\n'),
+    memo: memos.join('\n'),
+    film_title: films.map((film) => film.title).join(', '),
+    format: formatInfos
+      .map((formatInfo) => `(${formatInfo.join(', ')})`)
+      .join(', '),
+    money_status: 'pending_deposit',
+  };
+  return applInput;
+};
+
 module.exports = {
   Query: {},
   Mutation: {
     // todo 언젠가 고쳐야 함. 지금은 간단하게 임시로 메일을 보내는 정도임.
+    /** 상영신청 받았을 때 실행되는 resolver */
     requestShowing: makeResolver(async (obj, args, context, info) => {
       const { input } = args;
-      console.log('# form-resolver requestShowing');
-      console.log(input);
+      // console.log('# form-resolver requestShowing');
+      // console.log(input);
+
+      const applInput = convertInput(input);
+      await db.createApplication(applInput);
+
+      const { films, debug } = input;
+
+      // 메일을 보내는 준비를 합니다.
       const trs = Object.entries(input).map(
         ([inputKey, inputValue]) => `<tr><td style="min-width: 150px;">
         ${requestShowingLabelMap[inputKey]}</td><td>${formatShowingContent(
@@ -109,15 +229,12 @@ module.exports = {
           inputValue,
         )}</td></tr>`,
       );
-      const { debug } = input;
 
       const html = `<table>${trs.join('')}</table>`;
       console.log('# form-resolver requestShowing html');
       console.log(html);
 
-      const subject = `${input.films
-        .map((film) => film.title)
-        .join(', ')} 상영 신청`;
+      const subject = `${films.map((film) => film.title).join(', ')} 상영 신청`;
       console.log(subject);
 
       // 디버그 모드일 때에는 메일을 보내지 않습니다.
@@ -131,6 +248,8 @@ module.exports = {
         // const emails =
         //   // @ts-ignore
         //   (await db.getSiteOption('show_application_email'))?.value ?? [];
+
+        // 각각 찾은 이메일 Obj
         const promises = emails.map((emailObject) => {
           // need check
           if (

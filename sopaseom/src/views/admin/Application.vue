@@ -328,6 +328,13 @@
                 v-model="editing.host"
               ></b-form-input>
             </form-row>
+            <form-row title="행사명">
+              <template #info> 행사 이름을 기입합니다. </template>
+              <b-form-input
+                @input="changed.add('festival')"
+                v-model="editing.festival"
+              ></b-form-input>
+            </form-row>
             <form-row title="작품명">
               <b-form-input
                 @input="changed.add('film_title')"
@@ -1255,7 +1262,7 @@ export default {
         },
         `{
           total list {
-            id host c_date m_date film_title charge start_date
+            id host festival c_date m_date film_title charge start_date
             end_date session_count format applicant_name applicant_phone
             applicant_email destination transport_company transport_number
             transport_status doc_status money_status receipt_status

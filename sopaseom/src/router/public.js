@@ -367,6 +367,11 @@ export default [
   //   },
   // },
   {
+    path: '/404',
+    name: '404',
+    component: () => import('@/views/client/404.vue'),
+  },
+  {
     path: '/:permalink',
     name: 'Page',
     component: () => import('@/views/client/Page.vue'),

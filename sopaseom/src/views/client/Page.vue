@@ -21,7 +21,6 @@ export default {
   components: {
     PageHeader,
   },
-  props: ['permalink'],
   data() {
     return {
       page: {
@@ -31,24 +30,35 @@ export default {
       vuePageTitle: '',
     };
   },
-
+  computed: {
+    permalink() {
+      const { permalink } = this.$route.params;
+      if (typeof permalink === 'string') return permalink;
+      return '';
+    },
+  },
   async mounted() {
     this.fetchData();
   },
+
   methods: {
     async fetchData() {
       const page = await getPageReq(
         { permalink: this.permalink, belongs_to: 'sopaseom' },
         `
-      { 
+      {
         id title content permalink c_date m_date role belongs_to meta_json
       }
       `,
       );
       // console.log('# fetchData page');
       // console.log(page);
-      this.page = page;
-      this.vuePageTitle = page.title;
+      if (page) {
+        this.page = page;
+        this.vuePageTitle = page.title;
+      } else {
+        this.$router.push({ name: '404' });
+      }
     },
   },
 };

@@ -32,6 +32,7 @@
       <hr class="mb-4" />
       <div class="mb-4">
         <form-row title="주최">{{ application.host }}</form-row>
+        <form-row title="행사명">{{ application.festival }}</form-row>
         <form-row title="작품명">{{ application.film_title }}</form-row>
         <form-row title="상영일">{{ dateRange }}</form-row>
         <form-row title="담당자 이메일 주소">{{
@@ -350,7 +351,7 @@ export default {
       const res = await applicationTaxReqReq(
         { token },
         `{success code doc {
-        host film_title start_date end_date applicant_email charge reqdoc_expire_date
+        host festival film_title start_date end_date applicant_email charge reqdoc_expire_date
       }}`,
       );
 

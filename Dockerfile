@@ -50,7 +50,10 @@ COPY package*.json ./
 RUN cd server && npm install --production
 
 # copy source code and client dists
-COPY server ./server
+COPY server/config ./server/config
+COPY server/pdf-output ./server/pdf-output
+COPY server/src ./server/src
+RUN mkdir server/uploads && mkdir server/temp
 COPY --from=sopaseom-build /sopaseom/dist ./server/dist/sopaseom
 COPY --from=cinesopa-build /cinesopa/dist ./server/dist/cinesopa
 

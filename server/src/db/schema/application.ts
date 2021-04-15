@@ -18,6 +18,7 @@ import autoIdSetter from './auto-id-setter';
 export default function (mongoose: Mongoose): Schema {
   const schema = new mongoose.Schema({
     host: String, // 주최
+    festival: String, // 행사 이름
     c_date: { type: Date, default: Date.now }, // 만든 일시
     m_date: { type: Date, default: Date.now }, // 수정된 일시
     film_title: String, // 작품명
@@ -65,6 +66,7 @@ export default function (mongoose: Mongoose): Schema {
 
   makeSchemaHaveSearch(schema, 'search', [
     'host',
+    'festival',
     'film_title',
     'applicant_name',
     'applicant_phone',

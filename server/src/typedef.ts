@@ -1,7 +1,7 @@
 import { PassportContext } from 'graphql-passport';
 import { Document, LeanDocument, Model } from 'mongoose';
-import pug from "pug";
-import path from "path";
+import pug from 'pug';
+import path from 'path';
 // import { Express } from 'express';
 // import { Session } from 'express-session';
 import {
@@ -16,15 +16,13 @@ import {
   ApplicationReceiptStatus,
   FilmStatus,
 } from '@/db/schema/enum';
-import { JsonObject, JsonValue } from 'type-fest'
+import { JsonObject, JsonValue } from 'type-fest';
 
 import type FileImported from './manager/file';
 
 // import {MailManager as MailManagerClass} from './manager/mail';
 
 // export type MailManager = typeof MailManagerClass;
-
-
 
 export * from '@/db/schema/enum';
 
@@ -64,7 +62,8 @@ export type PromLDList<T> = Promise<LeanDocument<T>[]>;
 
 export function isJsonObject(value: JsonValue): value is JsonObject {
   const type = typeof value;
-  if (type === 'boolean' || type === 'number' || type === 'string') return false;
+  if (type === 'boolean' || type === 'number' || type === 'string')
+    return false;
   if (Array.isArray(value)) return false;
   return true;
 }
@@ -202,6 +201,7 @@ export interface VerifyPaymentResult {
 
 interface ApplicationinfoBase {
   host?: string; //   주최
+  festival?: string;
   c_date?: Date; //   만든 일시
   m_date?: Date; //   수정된 일시
   film_title?: string; //   작품명
@@ -958,9 +958,9 @@ export const pdfPugCompiledMap = new Map<PdfTemplateName, pug.compileTemplate>(
 export const pdfOutputPath = path.resolve(__dirname, '../pdf-output');
 
 export interface CreatePdfOptions {
-  htmlPath?: string,
-  pdfPath?: string,
-} 
+  htmlPath?: string;
+  pdfPath?: string;
+}
 
 export interface EstimateContentRow {
   type?: string;

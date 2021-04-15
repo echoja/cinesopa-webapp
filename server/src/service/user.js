@@ -51,7 +51,7 @@ class UserService {
   async startEmailVerifying(email, debug = false) {
     // 이메일을 찾을 수 없을 경우 에러
     if (!this.#db.userExists(email))
-      throw `startEmailVerifying: ${email} 을 찾을 수 없습니다.`;
+      throw new Error(`startEmailVerifying: ${email} 을 찾을 수 없습니다.`);
 
     // 토큰 생성
     const token = crypto.randomBytes(20).toString('hex');

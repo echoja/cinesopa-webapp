@@ -27,6 +27,7 @@ type ApplicationHeader = Omit<
 const applicationHeader: ApplicationHeader = {
   id: { label: 'id', priority: 0 },
   host: { label: '주최', priority: 1 },
+  festival: { label: '행사이름', priority: 1.5 },
   c_date: { label: '생성일', priority: 2 },
   m_date: { label: '수정일', priority: 3 },
   film_title: { label: '작품명', priority: 4 },
@@ -94,7 +95,6 @@ export const applicationDocStatusMap = {
 
 let deliveryCodeToString: Map<string, string> = null;
 let deliveryCodeDate = new Date();
-
 
 // 버그성 행동이 이상해서 새로 만듬.
 const customAxios = axios.create({});

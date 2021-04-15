@@ -343,29 +343,18 @@ class FileService {
     if (foundByFilename) {
       sendFile(foundByFilename);
       return;
-      // res.set('Content-Type', foundByFilename.mimetype); // IE 에서 필요함.
-      // if (typeof size === 'string') {
-      //   const absPath = await this.resizeImage(foundByFilename, size);
-      //   return res.sendFile(absPath);
-      // }
-      // return res.sendFile(absPath(foundByFilename.path)); // need check 파일이 제대로 나오는지 확인해야함. 실제 환경에서.
     }
 
     // 옵션으로 파일 찾기 시도.
     const optionName = filename;
     const fileByOption = await this.#db.getFilebyOptionName(optionName);
-    // if (!fileByOption) return res.status(404).send();
 
-    // // 옵션이 주어진다면, 해당하는 파일 보내기.
-    // const fileByOption = await this.#db.getFile(foundOption.value);
+    // 옵션이 주어진다면, 해당하는 파일 보내기.
     if (fileByOption) {
-      console.log('# file.ts getFileMiddleware fileByOption');
-      console.log(fileByOption);
       sendFile(fileByOption);
       return;
-      // res.set('Content-Type', fileByOption.mimetype);
-      // return res.sendFile(absPath(fileByOption.path));
     }
+
     // 해당하는 옵션의 파일도 존재하지 않는다면, 404
     res.status(404).send();
   });
