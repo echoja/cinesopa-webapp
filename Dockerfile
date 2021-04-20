@@ -53,6 +53,8 @@ RUN cd server && npm install --production
 COPY server/pdf-output ./server/pdf-output
 # COPY server/config ./server/config
 COPY server/src ./server/src
+COPY server/tsconfig.json ./server/tsconfig.json
+COPY server/ecosystem.config.js ./server/ecosystem.config.js
 RUN mkdir server/uploads && mkdir server/temp
 COPY --from=sopaseom-build /sopaseom/dist ./server/dist/sopaseom
 COPY --from=cinesopa-build /cinesopa/dist ./server/dist/cinesopa
