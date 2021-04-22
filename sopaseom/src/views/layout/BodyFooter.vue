@@ -16,20 +16,21 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import '@/common';
+@use '../../style/common';
+@use '../../style/breakpoint';
 
 .main-wrapper {
-  // margin-top: $desktop-header-height;
+  // margin-top: common.$desktop-header-height;
   min-height: calc(
-    100vh - #{$desktop-footer-height + $desktop-footer-height}
+    100vh - #{common.$desktop-footer-height + common.$desktop-footer-height}
   );
-  padding: 0 $desktop-min-x-margin 30px;
+  padding: 0 common.$desktop-min-x-margin 30px;
 }
 
-@include max-with(sm) {
+@include breakpoint.max-with(sm) {
   .main-wrapper {
-    // margin-top: $mobile-header-height;
-    padding: 0 $mobile-min-x-margin 30px;
+    // margin-top: common.$mobile-header-height;
+    padding: 0 common.$mobile-min-x-margin 30px;
   }
 }
 </style>

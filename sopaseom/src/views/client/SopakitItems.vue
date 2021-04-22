@@ -437,18 +437,18 @@ export default {
       const res = await sopakitsShownGetter(
         {},
         `{
-          sopakitsShownItems { 
-            sopakit { id title num description year image_url } 
-            products { 
+          sopakitsShownItems {
+            sopakit { id title num description year image_url }
+            products {
               id name featured_image_url related_film {
                 title
               }
             }
-          } 
-          noKeywordProducts { 
+          }
+          noKeywordProducts {
             id name featured_image_url side_phrase related_film {
               title
-            } 
+            }
           }
         }`,
       );
@@ -504,23 +504,24 @@ export default {
 //   margin: 0;
 // }
 
-@import '@/common';
+@use '../../style/common';
+@use '../../style/breakpoint';
 
 .content-wrapper {
   // margin-top: 50px;
-  margin-top: $dt-sopakit-content-wrapper-mt;
+  margin-top: common.$dt-sopakit-content-wrapper-mt;
   flex: 1;
   display: flex;
   flex-direction: column;
 }
 
-@include max-with(lg) {
+@include breakpoint.max-with(lg) {
   .content-wrapper {
     margin-top: 20px;
   }
 }
 
-@include max-with(md) {
+@include breakpoint.max-with(md) {
   .content-wrapper {
     height: auto;
   }
@@ -532,13 +533,13 @@ export default {
   flex: 1;
 }
 
-@include max-with(lg) {
+@include breakpoint.max-with(lg) {
   .content {
     flex-direction: column;
   }
 }
 
-@include max-with(md) {
+@include breakpoint.max-with(md) {
   .content {
     height: auto;
   }
@@ -550,7 +551,7 @@ export default {
   flex: 1;
 }
 
-@include max-with(md) {
+@include breakpoint.max-with(md) {
   .sopakit-items {
     height: auto;
   }
@@ -567,11 +568,11 @@ export default {
   }
 }
 
-@include max-with(lg) {
+@include breakpoint.max-with(lg) {
   .summary {
     width: 100%;
     border: 0;
-    padding: 0 $mobile-sopakit-slide-padding;
+    padding: 0 common.$mobile-sopakit-slide-padding;
     margin-bottom: 50px;
     p {
       font-size: 18px;
@@ -594,7 +595,7 @@ export default {
   }
 }
 
-@include max-with(sm) {
+@include breakpoint.max-with(sm) {
   .summary p {
     font-size: 14px;
   }
@@ -637,24 +638,24 @@ export default {
   height: 100%;
 }
 
-@include max-with(md) {
+@include breakpoint.max-with(md) {
   .desktop {
     display: none;
   }
 }
-@include min-with(md) {
+@include breakpoint.min-with(md) {
   .mobile {
     display: none;
   }
 }
 
-@include max-with(md) {
+@include breakpoint.max-with(md) {
   .page-header-inner-wrapper.desktop {
     display: none;
   }
 }
 
-@include min-with(md) {
+@include breakpoint.min-with(md) {
   .page-header-inner-wrapper.mobile {
     display: none;
   }
@@ -672,7 +673,7 @@ export default {
   }
 }
 
-@include max-with(md) {
+@include breakpoint.max-with(md) {
   .header-link {
     font-size: 16px;
   }
@@ -702,7 +703,7 @@ export default {
   }
 }
 
-@include max-with(lg) {
+@include breakpoint.max-with(lg) {
   .items {
     margin-left: 0;
     width: 100%;
@@ -732,9 +733,9 @@ export default {
   box-sizing: border-box;
 }
 
-@include max-with(xl) {
+@include breakpoint.max-with(xl) {
   .swiper-slide {
-    padding: 0 $mobile-sopakit-slide-padding;
+    padding: 0 common.$mobile-sopakit-slide-padding;
   }
 
   .swiper-button-prev,
@@ -759,7 +760,7 @@ export default {
   box-sizing: border-box;
 }
 
-@include max-with(md) {
+@include breakpoint.max-with(md) {
   .title-section {
     height: 35px;
     margin-bottom: 0;
@@ -774,7 +775,7 @@ export default {
   font-weight: 500;
 }
 
-@include max-with(md) {
+@include breakpoint.max-with(md) {
   .title-number,
   .title-text {
     font-size: 22px;
@@ -788,7 +789,7 @@ export default {
   height: 90%;
   margin: 0 14px;
 }
-@include max-with(md) {
+@include breakpoint.max-with(md) {
   .title-seperator {
     width: 2px;
   }
@@ -808,7 +809,7 @@ export default {
   margin-bottom: 15px;
 }
 
-@include max-with(md) {
+@include breakpoint.max-with(md) {
   .title-products,
   .title-year {
     display: none;
@@ -833,7 +834,7 @@ export default {
   align-items: center;
 }
 
-@include max-with(xl) {
+@include breakpoint.max-with(xl) {
   .content-section {
     display: block;
   }
@@ -854,7 +855,7 @@ export default {
   z-index: -1;
 }
 
-@include max-with(md) {
+@include breakpoint.max-with(md) {
   .main-mock {
     display: none;
   }
@@ -888,7 +889,7 @@ export default {
   }
 }
 
-@include max-with(md) {
+@include breakpoint.max-with(md) {
   .mobile-main-mock {
     display: block;
     // display: none;
@@ -905,7 +906,7 @@ export default {
   margin-right: 30px;
 }
 
-@include max-with(md) {
+@include breakpoint.max-with(md) {
   .main-text {
     font-size: 14px;
     margin: 0;
@@ -920,7 +921,7 @@ export default {
   max-width: 350px;
 }
 
-@include max-with(xl) {
+@include breakpoint.max-with(xl) {
   .content-product {
     margin-top: 30px;
     border: none;
@@ -928,7 +929,7 @@ export default {
   }
 }
 
-@include max-with(lg) {
+@include breakpoint.max-with(lg) {
   .product-item {
     display: inline-block;
   }
@@ -976,7 +977,7 @@ export default {
   align-items: stretch;
 }
 
-@include max-with(md) {
+@include breakpoint.max-with(md) {
   .last-page {
     display: block;
     width: 100%;
@@ -993,7 +994,7 @@ export default {
   flex: 1;
 }
 
-@include max-with(md) {
+@include breakpoint.max-with(md) {
   .no-keyword-products-wrapper {
     padding-right: 0;
     border-right: 0;
@@ -1050,7 +1051,7 @@ export default {
   display: flex;
   width: 300px;
 }
-@include max-with(md) {
+@include breakpoint.max-with(md) {
   .footer-box {
     margin-left: 0;
   }
@@ -1063,18 +1064,18 @@ export default {
 // fixed wave container
 .fixed-wave-container {
   position: fixed;
-  bottom: $simple-footer-height - 2;
-  // padding: 0 $desktop-min-x-margin;
+  bottom: common.$simple-footer-height - 2;
+  // padding: 0 common.$desktop-min-x-margin;
   z-index: 100;
   img:not(.swiper-touching) {
     transition: 0.5s;
   }
 }
-@include when-page-translating('.fixed-wave-container img') {
+@include common.when-page-translating('.fixed-wave-container img') {
   opacity: 0;
 }
 
-@include max-with(sm) {
+@include breakpoint.max-with(sm) {
   .fixed-wave-container {
     position: absolute;
   }

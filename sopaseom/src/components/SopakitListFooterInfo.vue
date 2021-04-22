@@ -53,14 +53,15 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import '@/common';
+@use '../style/common';
+@use '../style/breakpoint';
 
 .sopakit-list-footer-info {
   font-size: 14px;
   color: #585858;
   text-align: right;
 }
-@include max-with(md) {
+@include breakpoint.max-with(md) {
   .sopakit-list-footer-info {
     text-align: left;
   }
@@ -85,7 +86,7 @@ export default {
   margin-bottom: 15px;
 }
 
-// @include max-with(md) {
+// @include breakpoint.max-with(md) {
 //   .links br {
 //     display: none;
 //   }
@@ -95,7 +96,7 @@ export default {
   padding: 0 7px;
 }
 
-// @include min-with(md) {
+// @include breakpoint.min-with(md) {
 //   .links-seperator {
 //     display: none;
 //   }
@@ -110,7 +111,7 @@ export default {
     padding-right: 0;
   }
 }
-@include max-with(md) {
+@include breakpoint.max-with(md) {
   .footer-line {
     justify-content: flex-start;
     > div {

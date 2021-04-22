@@ -20,7 +20,8 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import '@/common';
+@use '../../style/common';
+@use '../../style/breakpoint';
 
 .body {
   width: 100%;
@@ -28,17 +29,17 @@ export default {
 }
 
 .main-wrapper {
-  padding: 0 $desktop-min-x-margin $main-wrapper-padding-bottom;
+  padding: 0 common.$desktop-min-x-margin common.$main-wrapper-padding-bottom;
   min-height: calc(
-    100vh - #{$desktop-header-height + $desktop-simple-footer-height + 2px}
+    100vh - #{common.$desktop-header-height + common.$desktop-simple-footer-height + 2px}
   );
   display: flex;
   flex-direction: column;
 }
 
-@include max-with(sm) {
+@include breakpoint.max-with(sm) {
   .main-wrapper {
-    padding: 0 $mobile-min-x-margin $main-wrapper-padding-bottom;
+    padding: 0 common.$mobile-min-x-margin common.$main-wrapper-padding-bottom;
     margin-bottom: auto;
     min-height: auto;
   }
@@ -48,11 +49,11 @@ export default {
   position: sticky;
   bottom: 0;
   width: 100%;
-  max-width: $desktop-max-width;
+  max-width: common.$desktop-max-width;
   z-index: 20;
 }
 
-@include max-with(sm) {
+@include breakpoint.max-with(sm) {
   .fixed-footer {
     position: relative;
   }
@@ -61,11 +62,11 @@ export default {
 .fixed-footer-placeholder {
   display: block;
   width: 100%;
-  height: $desktop-simple-footer-height;
+  height: common.$desktop-simple-footer-height;
 }
-@include max-with(sm) {
+@include breakpoint.max-with(sm) {
   .fixed-footer-placeholder {
-    height: $mobile-simple-footer-height;
+    height: common.$mobile-simple-footer-height;
   }
 }
 </style>

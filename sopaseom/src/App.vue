@@ -88,7 +88,7 @@ export default {
 </script>
 <style lang="scss" scoped>
 #app {
-  /* font-family: var(--font-family-sans-serif); */
+  font-family: var(--font-family-sans-serif);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   /* text-align: center; */

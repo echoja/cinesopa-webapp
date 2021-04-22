@@ -246,12 +246,12 @@ export default {
       const res = await req(
         {},
         `{id user added modified product_id usage
-        product { 
+        product {
           product_type name featured_image_url featured_image_alt
         }
         options {
           id content price count
-        }      
+        }
       }`,
       );
       this.cartitems = res;
@@ -334,7 +334,8 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import '@/common';
+@use '../../style/common';
+@use '../../style/breakpoint';
 
 .cartitem-wrapper {
   padding-bottom: 30px;
@@ -368,7 +369,7 @@ export default {
   margin-top: 20px;
 }
 
-@include max-with(md) {
+@include breakpoint.max-with(md) {
   .options.mobile {
     display: flex;
   }

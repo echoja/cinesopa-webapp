@@ -33,7 +33,8 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import '@/common';
+@use '../../style/common';
+@use '../../style/breakpoint';
 
 .form-row {
   display: flex;
@@ -62,7 +63,7 @@ export default {
   flex: 0 0 200px;
 }
 
-@include max-with(md) {
+@include breakpoint.max-with(md) {
   .form-row {
     display: block;
     margin: 0 1vw;

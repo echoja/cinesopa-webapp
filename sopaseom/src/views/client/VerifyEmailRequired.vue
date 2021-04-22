@@ -7,9 +7,14 @@
     </page-header>
     <div class="content">
       <h2>이메일 인증이 필요한 페이지입니다.</h2>
-      <p class="sub">
-        아래 버튼을 클릭하면 가입하신 이메일로 인증 링크를 보내드립니다.
-      </p>
+      <div class="mb-3">
+        <p class="m-0">
+          현재 접속된 계정의 이메일은 <code>{{ currentUser.email }}</code> 입니다.
+        </p>
+        <p class="m-0">
+          아래 버튼을 클릭하면 가입하신 이메일로 인증 링크를 보내드립니다.
+        </p>
+      </div>
       <div class="button-wrapper">
         <loading-button
           :loading="loading"
@@ -27,7 +32,6 @@ import { makeSimpleMutation } from '@/api/graphql-client';
 
 const requestVerifyEmailReq = makeSimpleMutation('requestVerifyEmail');
 export default {
-  title: '이메일 인증 필요',
   components: {
     LoadingButton: () => import('@/components/LoadingButton'),
     PageHeader: () => import('@/components/PageHeader'),
@@ -37,7 +41,13 @@ export default {
       loading: false,
       buttonDisabled: false,
       buttonText: '인증 링크 보내기',
+      vuePageTitle: '',
+      currentUser: {},
     };
+  },
+  async mounted() {
+    this.vuePageTitle = '이메일 인증 필요';
+    this.currentUser = await this.$store.dispatch('getCurrentUser');
   },
   methods: {
     async sendTokenButtonClicked() {

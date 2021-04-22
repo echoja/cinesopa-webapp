@@ -669,7 +669,8 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import '@/common';
+@use '../../style/common';
+@use '../../style/breakpoint';
 
 $content-margin-top: 30px;
 
@@ -692,13 +693,13 @@ $content-margin-top: 30px;
   }
 }
 
-@include max-with(lg) {
+@include breakpoint.max-with(lg) {
   .content {
     padding: 0 20px 0 0;
   }
 }
 
-@include max-with(md) {
+@include breakpoint.max-with(md) {
   .content {
     padding: 0;
   }
@@ -725,7 +726,7 @@ $content-margin-top: 30px;
   }
 }
 
-@include max-with(xl) {
+@include breakpoint.max-with(xl) {
   .film-description {
     display: block;
   }
@@ -808,7 +809,7 @@ $content-margin-top: 30px;
   // z-index: 1045;
 }
 
-@include max-with(md) {
+@include breakpoint.max-with(md) {
   .desktop-order-wrapper {
     display: none;
   }
@@ -820,11 +821,11 @@ $content-margin-top: 30px;
 .desktop-order {
   position: sticky;
   flex: 1;
-  top: $content-margin-top + 2px + $desktop-header-height +
-    $desktop-subheader-height;
+  top: $content-margin-top + 2px + common.$desktop-header-height +
+    common.$desktop-subheader-height;
 }
 
-@include prevent-break-top0('.desktop-order');
+@include common.prevent-break-top0('.desktop-order');
 
 .desktop-order,
 .mobile-order {
@@ -902,7 +903,7 @@ $content-margin-top: 30px;
   margin-bottom: 20px;
 }
 
-@include max-with(md) {
+@include breakpoint.max-with(md) {
   .order-info {
     margin-bottom: 70px;
   }
@@ -938,7 +939,7 @@ $content-margin-top: 30px;
   top: 0;
 }
 
-@include max-with(lg) {
+@include breakpoint.max-with(lg) {
   .phrase-wrapper {
     display: none;
   }
@@ -963,7 +964,7 @@ $content-margin-top: 30px;
   left: 17px;
 }
 
-@include max-with(md) {
+@include breakpoint.max-with(md) {
   .phrase-wrapper {
     display: none;
   }

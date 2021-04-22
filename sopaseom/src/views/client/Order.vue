@@ -45,7 +45,8 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import '@/common';
+@use '../../style/common';
+@use '../../style/breakpoint';
 
 .process {
   text-align: center;
@@ -65,7 +66,7 @@ export default {
   }
 }
 
-@include max-with(sm) {
+@include breakpoint.max-with(sm) {
   .process span.seperator {
     padding: 0 8px;
   }
@@ -87,7 +88,7 @@ export default {
   // height: 410px;
 }
 
-@include max-with(sm) {
+@include breakpoint.max-with(sm) {
   .order-content {
     padding-top: 5px;
   }

@@ -14,12 +14,13 @@ export default {
 
 <style lang="scss" scoped>
 
-@import '@/common';
+@use '../../style/common';
+@use '../../style/breakpoint';
 
 .not-found {
   padding-top: 50px;
 }
-/* @include max-with(md) {
+/* @include breakpoint.max-with(md) {
   .not-found {
     padding-top: 0;
   }

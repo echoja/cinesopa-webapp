@@ -78,7 +78,8 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import '@/common';
+@use '../../style/common';
+@use '../../style/breakpoint';
 
 $content-margin-top: 30px;
 
@@ -95,7 +96,7 @@ $content-margin-top: 30px;
   align-items: stretch;
 }
 
-@include max-with(md) {
+@include breakpoint.max-with(md) {
   .wrapper {
     margin-top: 0;
     display: block;
@@ -109,7 +110,7 @@ $content-margin-top: 30px;
   margin-right: 50px;
 }
 
-@include max-with(md) {
+@include breakpoint.max-with(md) {
   .sidebar-wrapper {
     margin: 0;
     padding: 0;
@@ -122,8 +123,8 @@ $content-margin-top: 30px;
 
 .sidebar {
   position: sticky;
-  top: $content-margin-top + 2px + $desktop-header-height +
-    $desktop-subheader-height;
+  top: $content-margin-top + 2px + common.$desktop-header-height +
+    common.$desktop-subheader-height;
   ul {
     padding: 0;
     list-style-type: none;
@@ -137,9 +138,9 @@ $content-margin-top: 30px;
   }
 }
 
-@include prevent-break-top0('.sidebar');
+@include common.prevent-break-top0('.sidebar');
 
-@include max-with(md) {
+@include breakpoint.max-with(md) {
   .sidebar {
     position: relative;
     top: 0;
@@ -155,7 +156,7 @@ $content-margin-top: 30px;
       font-size: 16px;
     }
   }
-  
+
 }
 .content-wrapper {
   flex: 1;

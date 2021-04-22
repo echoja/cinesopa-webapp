@@ -38,7 +38,8 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import '@/common';
+@use '../../style/common';
+@use '../../style/breakpoint';
 
 h2,
 p {
@@ -51,7 +52,7 @@ h2 {
   margin-top: 30px;
 }
 
-@include max-with(sm) {
+@include breakpoint.max-with(sm) {
   h2 {
     font-size: 36px;
   }
@@ -70,7 +71,7 @@ h2 {
   font-size: 18px;
 }
 
-@include max-with(sm) {
+@include breakpoint.max-with(sm) {
   .s1 {
     font-size: 22px;
   }
@@ -91,7 +92,7 @@ h2 {
   justify-content: center;
 }
 
-@include max-with(sm) {
+@include breakpoint.max-with(sm) {
   .next-button {
     font-size: 16px;
   }

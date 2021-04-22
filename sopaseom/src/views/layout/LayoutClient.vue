@@ -122,11 +122,12 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import '@/common';
+@use '../../style/common';
+@use '../../style/breakpoint';
 
 .layout {
   position: relative;
-  max-width: $desktop-max-width;
+  max-width: common.$desktop-max-width;
   margin: 0 auto;
   display: flex;
   flex-direction: column;
@@ -149,7 +150,7 @@ export default {
   justify-content: center;
 }
 
-// @include max-with(sm) {
+// @include breakpoint.max-with(sm) {
 //   .message-wrapper {
 //     width: 100%;
 //   }

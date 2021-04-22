@@ -1,108 +1,7 @@
-<!--
-Name        Type        Description
-errors        string[]        The list of error messages.
-failedRules        [x: string]: string        A map object of failed
-rules with (rule, message) as a (key, value)
-valid        boolean | null        The current validation state.
-flags        { [x: string]: boolean }        The flags map object state.
-aria        { [x: string]: string }        Map object of aria attributes for accessibility.
-classes        { [x: string]: boolean }        Map object of the classes
-configured based on the validation state.
-validate        (e: any) => Promise        A function that is used as an event handler to trigger v
-alidation. Useful for fields that do not use v-model.
-reset        () => void        A function that resets the validation state on the provider.
-*/
-
-// const exampleQuery = `
-// {
-//   users {
-//     id
-//     email
-//   }
-// }
-// `;
-
-// /**
-//  * 비동기 함수를 받아서, 해당 함수가 다 완료되었는지 아닌지를 체크하는 데이터와 함수를 추가하는 mixin 생성기
-//  * mixin에 얘를 호출한 결과를 넣으면 됨.
-//  * @param {string} processingCheckVarName func가 진행중이라면 true, 그렇지 않으면
-//  * false 를 나타내는 체크 변수 이름 (data에 추가됨)
-//  * @param {string} methodName 생성할 method이름.
-//  * @param {Promise<function>} func 비동기 함수 본체
-//  */
-// const makeProcessingMixin = (processingCheckVarName, methodName, func) => ({
-//   data() {
-//     return {
-//       [processingCheckVarName]: false,
-//     };
-//   },
-//   methods: {
-//     async [methodName](...args) {
-//       this[processingCheckVarName] = true;
-//       await func(...args);
-//       this[processingCheckVarName] = false;
-//     },
-//   },
-// });
-
--->
-
-<!-- old version -->
-<!--<template>
-  <div>
-    <validation-observer ref="observer" v-slot="{ handleSubmit }">
-
-      <b-form @submit.stop.prevent="handleSubmit(login)" v-if="show">
-        <validation-provider
-          name="Email"
-          :rules="{ required: true, email: true }"
-          v-slot="validationContext"
-        >
-          <b-form-group id="input-email-group" label="이메일 주소" label-for="input-email">
-            <b-form-input
-              ref="email"
-              id="input-email"
-              name="input-email"
-              :state="getValidationState(validationContext)"
-              trim
-              type="email"
-              v-model="email"
-              placeholder="이메일"
-              :disabled="state.loginProcessing"
-              @keyup.enter="handleSubmit(login)"
-            ></b-form-input>
-            <b-form-invalid-feedback id="input-email-live-feedback">
-              {{ validationContext.errors[0] }}
-            </b-form-invalid-feedback>
-          </b-form-group>
-        </validation-provider>
-        <validation-provider name="Password" :rules="{ required: true }" v-slot="validationContext">
-          <b-form-group id="input-pwd-group" label="비밀번호" label-for="input-pwd">
-            <b-form-input
-              type="password"
-              v-model="pwd"
-              placeholder="패스워드"
-              @keyup.enter="handleSubmit(login)"
-              :disabled="state.loginProcessing"
-            ></b-form-input>
-            <b-form-invalid-feedback id="input-pwd-live-feedback">{{
-              validationContext.errors[0]
-            }}</b-form-invalid-feedback>
-          </b-form-group>
-        </validation-provider>
-        <p class="error-msg" v-if="loginFailReason.length > 0">{{ loginFailReason }}</p>
-        <b-button type="submit">로그인</b-button>
-      </b-form>
-    </validation-observer>
-
-    <p>{{ text }}</p>
-  </div>
-</template> -->
-
 <template>
   <div class="login-component">
-    <div class="login-header" v-if="!shouldHideLogo">
-      <img class="logo-main" src="@/assets/sopaseom-logo.svg" alt="" />
+    <div class="login-header flex justify-center" v-if="!shouldHideLogo">
+      <img class="" :style="{width: '113px', height: '88.52px'}" src="@/assets/sopaseom-logo.svg" alt="" />
     </div>
     <h2 class="mobile-title">계정으로 로그인</h2>
     <div class="login-body">
@@ -241,7 +140,6 @@ reset        () => void        A function that resets the validation state on th
 </template>
 
 <script>
-import url from 'url';
 import { checkAuth, makeSimpleMutation } from '@/api/graphql-client';
 import router from '@/router';
 import {
@@ -256,29 +154,11 @@ import {
 } from 'bootstrap-vue';
 import { mapActions } from 'vuex';
 
-// const loginMutation = `
-// mutation Login ($email: String!, $pwd: String!) {
-//   login(provider: {email:$email, pwd: $pwd}) {
-//     wrong_reason
-//     wrong_pwd_count
-//     success
-//     emailVerificationRequired
-//     user {
-//       email
-//       role
-//       verified
-//     }
-//     redirectLink
-//   }
-// }
-// `;
 const loginRequest = makeSimpleMutation('login');
 
 export default {
   components: {
     BForm,
-    // BFormGroup,
-    // BFormInvalidFeedback,
     BFormCheckbox,
     BFormInput,
     BLink,
@@ -323,10 +203,12 @@ export default {
     };
   },
   computed: {
+    /** @returns {boolean} */
     shouldHideLogo() {
       const t = typeof this.hideLogo;
       return t === 'string' || t === true;
     },
+    /** @returns {boolean} */
     disableSession() {
       return !this.autoLogin;
     },
@@ -349,6 +231,7 @@ export default {
       await this.loginProcess();
       this.state.loginProcessing = false;
     },
+
     async loginProcess() {
       const { email, pwd } = this;
       // const result = await graphql(loginMutation, { email, pwd });
@@ -421,6 +304,7 @@ export default {
         id: 'loginSuccess',
       });
     },
+
     loginButtonClicked() {
       // validation 실시
       const providerJobs = [];
@@ -494,7 +378,8 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import '@/common';
+@use '../style/common';
+@use '../style/breakpoint';
 
 .login-component {
   max-width: 360px;
@@ -505,26 +390,26 @@ export default {
   text-align: center;
   margin-top: -10px;
 }
-@include max-with(sm) {
+@include breakpoint.max-with(sm) {
   .login-header {
     margin-top: 0px;
   }
 }
-
+/*
 .logo-main {
   width: 113px;
 }
-@include max-with(sm) {
+@include breakpoint.max-with(sm) {
   .logo-main {
     display: none;
   }
-}
+} */
 
 .mobile-title {
   display: none;
   margin-top: 20px;
 }
-@include max-with(sm) {
+@include breakpoint.max-with(sm) {
   .mobile-title {
     display: block;
     font-size: 16px;
@@ -535,7 +420,7 @@ export default {
 .login-body {
   margin-top: 40px;
 }
-@include max-with(sm) {
+@include breakpoint.max-with(sm) {
   .login-body {
     margin-top: 20px;
   }
@@ -566,7 +451,7 @@ export default {
   justify-content: space-between;
   margin-top: 12px;
 }
-@include max-with(sm) {
+@include breakpoint.max-with(sm) {
   .login-sub-menu {
     font-size: 14px;
   }

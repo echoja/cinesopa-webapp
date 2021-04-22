@@ -201,13 +201,14 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import '@/common';
+@use '../../style/common';
+@use '../../style/breakpoint';
 
 .container-fluid {
   margin-top: 50px;
 }
 
-@include min-with(md) {
+@include breakpoint.min-with(md) {
   .container-fluid {
     padding: 0;
   }
@@ -234,7 +235,7 @@ export default {
   border: 0;
 }
 
-@include max-with(md) {
+@include breakpoint.max-with(md) {
   .search-input.form-control {
     width: 150px;
   }

@@ -1,7 +1,9 @@
-@use 'plugins/custom-style.scss';
+
+@import '../../node_modules/bootstrap/scss/functions';
+@import '../../node_modules/bootstrap/scss/variables';
 
 $desktop-max-width: 100%;
-$red: custom-style.$red;
+$red: $red;
 
 $desktop-header-height: 80px;
 // $desktop-min-x-margin: 40px;
@@ -36,13 +38,6 @@ $dt-sopakit-last-page-neg: $dt-sopakit-content-neg + $desktop-subheader-height +
 
 // for animation break with sticky
 
-// $animation-classes: (
-//   fade-enter-active,
-//   fade-leave-actiive,
-//   left-right-enter-active,
-//   left-right-leave-active
-// );
-
 // 페이지 전환 transition 시,
 // position: sitkcy 인 요소의
 // top이 이상하게 계산되는 문제 수정.
@@ -67,43 +62,6 @@ $dt-sopakit-last-page-neg: $dt-sopakit-content-neg + $desktop-subheader-height +
   .slide-enter-active #{$selector},
   .slide-leave-active #{$selector} {
     @content;
-  }
-}
-
-@mixin min-with($breakpoint) {
-  // If the breakpoint exists in the map.
-  @if map-has-key(custom-style.$grid-breakpoints, $breakpoint) {
-    // Get the breakpoint value.
-    $breakpoint-value: map-get(custom-style.$grid-breakpoints, $breakpoint);
-
-    // Write the media query.
-    @media (min-width: $breakpoint-value) {
-      @content;
-    }
-
-    // If the breakpoint doesn't exist in the map.
-  } @else {
-    // Log a warning.
-    @warn 'Invalid breakpoint: #{$breakpoint}.';
-  }
-}
-
-// @include respond-above(sm) {}
-@mixin max-with($breakpoint) {
-  // If the breakpoint exists in the map.
-  @if map-has-key(custom-style.$grid-breakpoints, $breakpoint) {
-    // Get the breakpoint value.
-    $breakpoint-value: map-get(custom-style.$grid-breakpoints, $breakpoint);
-
-    // Write the media query.
-    @media (max-width: ($breakpoint-value - 1)) {
-      @content;
-    }
-
-    // If the breakpoint doesn't exist in the map.
-  } @else {
-    // Log a warning.
-    @warn 'Invalid breakpoint: #{$breakpoint}.';
   }
 }
 

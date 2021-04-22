@@ -421,7 +421,8 @@ export default {
 </style>
 
 <style lang="scss" >
-@import '@/common';
+@use '../../style/common';
+@use '../../style/breakpoint';
 
 .join-content .form-group label {
   font-size: 18px;
@@ -429,7 +430,7 @@ export default {
   margin-bottom: 4px;
 }
 
-@include max-with(sm) {
+@include breakpoint.max-with(sm) {
   .join-content .form-group label {
     font-size: 16px;
   }
@@ -442,7 +443,7 @@ export default {
   height: 55px;
 }
 
-@include max-with(sm) {
+@include breakpoint.max-with(sm) {
   .next-button {
     font-size: 16px;
   }

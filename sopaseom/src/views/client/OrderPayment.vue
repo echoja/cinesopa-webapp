@@ -612,12 +612,12 @@ export default {
         `{
       success code
       list { id user added modified product_id usage
-        product { 
+        product {
           product_type name featured_image_url featured_image_alt
         }
         options {
           id content price count
-        }      
+        }
       }
     }`,
       );
@@ -938,7 +938,7 @@ export default {
     },
     finishPayment(data) {
       const { receipt_id, order_id } = data;
-      
+
       // 마무으리합니다.
       finishPaymentReq(
         { id: parseInt(order_id, 10), receiptId: receipt_id },
@@ -988,12 +988,13 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import '@/common';
+@use '../../style/common';
+@use '../../style/breakpoint';
 
 .payment {
   display: flex;
 }
-@include max-with(md) {
+@include breakpoint.max-with(md) {
   .payment {
     display: block;
   }
@@ -1007,19 +1008,19 @@ export default {
   overflow: hidden;
 }
 
-@include max-with(xl) {
+@include breakpoint.max-with(xl) {
   .delivery-info-wrapper {
     margin-right: 100px;
   }
 }
 
-@include max-with(lg) {
+@include breakpoint.max-with(lg) {
   .delivery-info-wrapper {
     margin-right: 50px;
   }
 }
 
-@include max-with(md) {
+@include breakpoint.max-with(md) {
   .delivery-info-wrapper {
     margin-right: 0;
   }
@@ -1168,7 +1169,7 @@ export default {
   border-left: 2px solid #000;
 }
 
-@include max-with(md) {
+@include breakpoint.max-with(md) {
   .payment-info-wrapper {
     border-left: 0;
     // border-top: 2px solid #000;
@@ -1180,11 +1181,11 @@ $content-margin-top: 30px;
 
 .payment-info {
   position: sticky;
-  top: $content-margin-top + 2px + $desktop-header-height +
-    $desktop-subheader-height;
+  top: $content-margin-top + 2px + common.$desktop-header-height +
+    common.$desktop-subheader-height;
 }
 
-@include prevent-break-top0('.payment-info');
+@include common.prevent-break-top0('.payment-info');
 
 .payment-info hr {
   border-color: #000;
@@ -1226,7 +1227,7 @@ $content-margin-top: 30px;
 
 .input-error-msg {
   font-size: 13px;
-  color: $red;
+  color: common.$red;
   font-weight: bold;
 }
 </style>

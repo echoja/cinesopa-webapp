@@ -194,7 +194,8 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import '@/common';
+@use '../../style/common';
+@use '../../style/breakpoint';
 .wrapper {
   max-width: 460px;
   margin: 50px auto 0;
@@ -206,7 +207,7 @@ h2 {
   margin-bottom: 20px;
 }
 
-@include max-with(sm) {
+@include breakpoint.max-with(sm) {
   h2 {
     font-size: 16px;
   }
@@ -224,7 +225,7 @@ h2 {
   transform: translateY(-1px);
 }
 
-@include max-with(sm) {
+@include breakpoint.max-with(sm) {
   .checkbox-text {
     font-size: 14px;
     transform: translateY(-3px);
@@ -258,7 +259,7 @@ h2 {
   }
 }
 
-@include max-with(sm) {
+@include breakpoint.max-with(sm) {
   .button-box .btn {
     font-size: 16px;
   }

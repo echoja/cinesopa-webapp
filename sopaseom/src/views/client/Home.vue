@@ -661,7 +661,8 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import '@/common';
+@use '../../style/common';
+@use '../../style/breakpoint';
 
 .sticky-container {
   position: relative;
@@ -716,7 +717,7 @@ br.small {
   display: none;
 }
 
-@include max-with(md) {
+@include breakpoint.max-with(md) {
   .slide-big-text p {
     font-size: 36px;
   }
@@ -779,7 +780,7 @@ br.small {
 .sl4-content {
   transform: translateY(-50px);
 }
-@include max-with(sm) {
+@include breakpoint.max-with(sm) {
   .sl4-content {
     transform: translateY(0);
   }
@@ -794,7 +795,7 @@ br.small {
   overflow: hidden;
 }
 
-@include max-with(sm) {
+@include breakpoint.max-with(sm) {
   .wave {
     height: 150px;
   }
@@ -837,7 +838,7 @@ br.small {
   align-items: center;
 }
 
-@include max-with(md) {
+@include breakpoint.max-with(md) {
   .go-surf {
     font-size: 20px;
   }

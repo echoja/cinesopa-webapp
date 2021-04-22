@@ -225,15 +225,16 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import '../common';
+@use '../style/common';
+@use '../style/breakpoint';
 
 .nav-main-menu-wrapper {
   position: sticky;
   top: 0;
   // left: 50%;
   // width: 100%;
-  padding: 0 $desktop-min-x-margin;
-  max-width: $desktop-max-width;
+  padding: 0 common.$desktop-min-x-margin;
+  max-width: common.$desktop-max-width;
   // z-index: 1;
   // transform: translateX(-50%);
   // top: 0;
@@ -241,9 +242,9 @@ export default {
   background-color: #fff;
 }
 
-@include max-with(md) {
+@include breakpoint.max-with(md) {
   .nav-main-menu-wrapper {
-    padding: 0 $mobile-min-x-margin;
+    padding: 0 common.$mobile-min-x-margin;
   }
 }
 
@@ -257,7 +258,7 @@ export default {
   border-bottom: 2px solid black;
 }
 
-@include max-with(md) {
+@include breakpoint.max-with(md) {
   .nav-main-menu {
     border-bottom: 0;
   }
@@ -267,12 +268,12 @@ export default {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  height: $desktop-header-height;
+  height: common.$desktop-header-height;
 }
 
-@include max-with(md) {
+@include breakpoint.max-with(md) {
   .flex-items {
-    height: $mobile-header-height;
+    height: common.$mobile-header-height;
   }
 }
 
@@ -314,36 +315,8 @@ export default {
   }
 }
 
-// .logo-wrapper {
-//   height: 100%;
-// }
-
-// .logo {
-//   position: relative;
-//   width: 113px;
-//   height: 100%;
-//   display: flex;
-//   align-items: center;
-//   justify-content: center;
-// }
-
-// @include max-with(md) {
-//   .logo {
-//     width: 70px;
-//   }
-// }
-
-// .logo img {
-//   box-sizing: content-box;
-//   border: 10px solid transparent;
-//   position: absolute;
-//   width: 100%;
-// }
-
 .logo-abs {
-  // width: 113px;
-  // height: $desktop-header-height;
-  width: $desktop-header-height * 1.1;
+  width: common.$desktop-header-height * 1.1;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -352,7 +325,6 @@ export default {
   transform: translateX(-50%);
   top: 0;
   margin: 0 auto;
-  // transition: 1.5s ease;
   img {
     transition: 1.5s ease;
     top: 0;
@@ -365,7 +337,7 @@ export default {
   }
 }
 
-@include max-with(md) {
+@include breakpoint.max-with(md) {
   .logo-abs {
     width: 70px;
     img {
@@ -392,7 +364,7 @@ export default {
   }
 }
 
-@include max-with(md) {
+@include breakpoint.max-with(md) {
   .zoomed .logo-abs img {
     transform: translate(0, calc(50vh - 50%)) scale(2);
   }
@@ -423,7 +395,7 @@ export default {
   text-align: right;
 }
 
-@include max-with(md) {
+@include breakpoint.max-with(md) {
   .left,
   .right {
     display: none;
@@ -462,7 +434,4 @@ export default {
     color: #666;
   }
 }
-</style>
-
-<style>
 </style>

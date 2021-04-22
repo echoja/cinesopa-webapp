@@ -20,20 +20,22 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import '../common';
+@use '../style/common';
+@use '../style/breakpoint';
+
 
 $gray-c1: #585858;
 $gray-c2: #7a7a7a;
 
 .site-footer-wrapper {
-  padding: 0 $desktop-min-x-margin;
+  padding: 0 common.$desktop-min-x-margin;
   position: relative;
   background-color: #fff;
 }
 
-@include max-with(sm) {
+@include breakpoint.max-with(sm) {
   .site-footer-wrapper {
-    padding: 0 $mobile-min-x-margin;
+    padding: 0 common.$mobile-min-x-margin;
   }
 }
 
@@ -45,13 +47,13 @@ $gray-c2: #7a7a7a;
   align-items: center;
   padding: 10px 0;
   pointer-events: none;
-  height: $desktop-simple-footer-height;
+  height: common.$desktop-simple-footer-height;
 }
 
 .center {
   display: flex;
   align-items: flex-end;
-  color: $cinesopa-logo-color;
+  color: common.$cinesopa-logo-color;
 }
 
 .by {

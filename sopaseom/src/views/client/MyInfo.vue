@@ -9,12 +9,7 @@
       <div class="info-row">
         <div class="info-cell head">비밀번호</div>
         <div class="info-cell body">
-          <b-button
-            size="sm"
-            :to="{
-              name: 'ChangePasswordRequest',
-              query: { initEmail: $store.state.currentUser.email },
-            }"
+          <b-button size="sm" @click="changePasswordClicked"
             >비밀번호 변경</b-button
           >
         </div>
@@ -30,7 +25,6 @@
           </template>
           <template v-else>
             <div>
-              <span class="current-status">연동되지 않음</span>
               <b-button
                 id="connect-kakao-button"
                 size="sm"
@@ -51,14 +45,19 @@
       <div class="info-row">
         <div class="info-cell head">광고성<br />이메일 수신</div>
         <div class="info-cell body advertisement">
-          <span class="current-status">{{ advertisementMessage }}</span>
+          <b-form-checkbox
+            v-model="advertisement"
+            @change="advertisementChanged"
+            >수신합니다.</b-form-checkbox
+          >
+          <!-- <span class="current-status">{{ advertisementMessage }}</span>
           <loading-button
             :loading="advertisementProcessing"
             size="sm"
             @click="changeAdvertisement"
           >
             변경하기
-          </loading-button>
+          </loading-button> -->
         </div>
       </div>
     </div>
@@ -75,8 +74,8 @@
 
         <div class="info-cell body">
           <div>
-            <finding-address-button size="sm" @address-loaded="addressLoaded">
-              주소 찾기
+            <finding-address-button class="mb-2" size="sm" @address-loaded="addressLoaded">
+              주소 찾기 ...
             </finding-address-button>
             <b-form-input v-model="default_dest.address"></b-form-input>
             <p v-if="jibunAddress" class="description">
@@ -121,25 +120,32 @@
 </template>
 
 <script>
-import { BFormInput, BButton, BFormTextarea, BModal } from 'bootstrap-vue';
-import moment from 'moment';
+import {
+  BFormInput,
+  BButton,
+  BFormTextarea,
+  BModal,
+  BFormCheckbox,
+} from 'bootstrap-vue';
 import { mapActions, mapState } from 'vuex';
 import { checkAuth, makeSimpleMutation } from '@/api/graphql-client';
 
 const updateMeReq = makeSimpleMutation('updateMe');
+const requestChangePasswordReq = makeSimpleMutation('requestChangePassword');
 
 export default {
   components: {
     BFormInput,
     BButton,
     BFormTextarea,
+    BFormCheckbox,
     BModal,
     FindingAddressButton: () => import('@/components/FindingAddressButton'),
-    LoadingButton: () => import('@/components/LoadingButton'),
   },
-  title: '내 정보',
   data() {
     return {
+      advertisement: false,
+      vuePageTitle: '',
       defaultDestUpdateSuccessMessageShow: false,
       defaultDestUpdateSuccessMessage: '',
       // isConnectedWithKakao: true,
@@ -155,25 +161,32 @@ export default {
     };
   },
   computed: {
-    ...mapState(['currentUser']),
+    /** @returns {object} */
+    currentUser: mapState(['currentUser']).currentUser,
+
+    /** @returns {string} */
     advertisementMessage() {
       const advertisement = this.currentUser?.user_agreed?.advertisement;
       if (advertisement) return '수신중';
       return '수신하지 않음';
     },
+    /** @returns {string} */
     default_destInitValue() {
       return this.currentUser?.default_dest;
     },
+    /** @returns {boolean} */
     isConnectedWithKakao() {
       return this.currentUser?.has_pwd === false;
     },
   },
   async mounted() {
+    this.vuePageTitle = '내 정보';
     const user = await this.getCurrentUser();
     const dest = user?.default_dest;
     if (dest) {
       this.default_dest = dest;
     }
+    this.advertisement = user.user_agreed.advertisement ?? false;
   },
   // watch: {
   //   // 새롭게 갱신되는 기본 주소 정보를 가져옴.
@@ -245,14 +258,67 @@ export default {
       this.jibunAddress = data.jibunAddress;
       this.default_dest.address_detail = data.buildingName;
     },
+    async advertisementChanged(checked) {
+      this.advertisementProcessing = true;
+      const advertisement = checked;
+      const res = await updateMeReq(
+        { userinfo: { user_agreed: { advertisement } } },
+        `
+      {success code}`,
+      );
+      if (res.success) {
+        if (advertisement) {
+          this.pushMessage({
+            msg: '광고를 수신하도록 설정이 변경되었습니다.',
+            id: 'changeAdvertisementToTrueSuccess',
+            type: 'success',
+          });
+        } else {
+          this.pushMessage({
+            msg: '광고를 수신하지 않도록 설정이 변경되었습니다.',
+            id: 'changeAdvertisementToFalseSuccess',
+            type: 'success',
+          });
+        }
+      } else {
+        this.pushMessage({
+          msg: '광고 수신 변경에 실패했습니다.',
+          id: 'changeAdvertisementFailed',
+          type: 'danger',
+        });
+      }
+
+      // currentUser 정보 업데이트
+      await checkAuth();
+      this.advertisementProcessing = false;
+    },
+    async changePasswordClicked() {
+      const result = await requestChangePasswordReq(
+        {
+          email: this.currentUser.email,
+          // debug: true, // todo: 디버그가 아닐 때에는 디버그를 풀어야함!
+        },
+        '{success code}',
+      );
+      console.log('# requestChangePassword req result');
+      console.log(result);
+      if (result.success) {
+        this.pushMessage({
+          msg: '비밀번호 재설정 링크가 이메일로 전송되었습니다.',
+          type: 'success',
+          id: 'requestChangePasswordSuccess',
+        });
+      }
+    },
   },
 };
 </script>
 
 <style lang="scss" scoped>
-@import '@/common';
+@use '../../style/common';
+@use '../../style/breakpoint';
 
-@include max-with(md) {
+@include breakpoint.max-with(md) {
   .my-info .form-control {
     font-size: 14px;
   }
@@ -272,7 +338,7 @@ p {
   margin-bottom: 35px;
 }
 
-@include max-with(md) {
+@include breakpoint.max-with(md) {
   .info-group {
     font-size: 14px;
   }

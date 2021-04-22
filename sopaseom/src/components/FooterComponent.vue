@@ -100,24 +100,25 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import '../common';
+@use '../style/common';
+@use '../style/breakpoint';
 
 $gray-c1: #585858;
 $gray-c2: #7a7a7a;
 
 .site-footer-wrapper {
-  padding: 0 $desktop-min-x-margin;
+  padding: 0 common.$desktop-min-x-margin;
   position: relative;
   background-color: #fff;
 }
 
-@include max-with(sm) {
+@include breakpoint.max-with(sm) {
   .site-footer-wrapper {
-    padding: 0 $mobile-min-x-margin;
+    padding: 0 common.$mobile-min-x-margin;
   }
 }
 
-// @include max-with(md) {
+// @include  breakpoint.max-with(md) {
 //   .site-footer-wrapper {
 //     margin-bottom: 30px;
 //   }
@@ -127,7 +128,7 @@ $gray-c2: #7a7a7a;
   z-index: 1;
   position: relative;
   width: 100%;
-  height: $desktop-footer-height;
+  height: common.$desktop-footer-height;
   border-top: 2px solid black;
   padding: 30px 0 0;
   color: $gray-c1;
@@ -137,7 +138,7 @@ $gray-c2: #7a7a7a;
   height: 100px;
 }
 
-@include max-with(md) {
+@include breakpoint.max-with(md) {
   .site-footer {
     height: auto;
   }
@@ -197,7 +198,7 @@ $gray-c2: #7a7a7a;
   pointer-events: none;
 }
 
-@include max-with(lg) {
+@include breakpoint.max-with(lg) {
   .center-wrapper {
     position: relative;
     padding-bottom: 30px;
@@ -207,11 +208,11 @@ $gray-c2: #7a7a7a;
 .center {
   display: flex;
   align-items: flex-end;
-  color: $cinesopa-logo-color;
+  color: common.$cinesopa-logo-color;
   transform: translateY(-20px);
 }
 
-@include max-with(md) {
+@include breakpoint.max-with(md) {
   .right {
     margin-top: 10px;
     text-align: left;
