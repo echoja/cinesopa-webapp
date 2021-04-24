@@ -35,7 +35,8 @@ $gray-c2: #7a7a7a;
 
 @include breakpoint.max-with(sm) {
   .site-footer-wrapper {
-    padding: 0 common.$mobile-min-x-margin;
+    padding: 0;
+    /* padding: 0 common.$mobile-min-x-margin; */
   }
 }
 

@@ -11,38 +11,29 @@ const headers = {
 const url = process.env.NODE_ENV === 'production' ? 'https://sopaseom.com/graphql/' : '/graphql';
 
 export const graphql = async (query, variables) => {
-  try {
-    const received = await axios.post(
-      url,
-      JSON.stringify({
-        query,
-        variables,
-      }),
-      {
-        headers,
-        credentials: true,
-        // onUploadProgress: (progressEvent) => {
-        //   console.log('graphql-client onUploadProgress');
-        //   console.dir(progressEvent);
-        // },
-      },
-    );
-    if (received.data.errors) {
-      console.error('graphql error', received.data.errors);
-      throw new Error('GraphQL Error');
-    }
-
-    const { data } = received;
-    store.commit('setErrorMsg', { message: '' });
-    if (data) return data;
-    return received;
-  } catch (error) {
-    store.commit('setErrorMsg', { message: error.response.data.errors });
-    error.response.data.errors.forEach((value) => {
-      console.error(value);
-    });
-    throw error.response.data;
+  const received = await axios.post(
+    url,
+    JSON.stringify({
+      query,
+      variables,
+    }),
+    {
+      headers,
+      credentials: true,
+      // onUploadProgress: (progressEvent) => {
+      //   console.log('graphql-client onUploadProgress');
+      //   console.dir(progressEvent);
+      // },
+    },
+  );
+  if (received.data.errors) {
+    console.error('graphql error', received.data.errors);
+    throw Error('GraphQL Error');
   }
+
+  const { data } = received;
+  if (data) return data;
+  return received;
 };
 
 export const dataGraphql = async (query, variables) => {
@@ -567,14 +558,18 @@ export const makeSimpleQuery = (endpoint) => async (args = {}, resultString = ''
  */
 export const checkAuth = async () => {
   console.log('# grpahql-client checkauth Called');
-  const currentUserAsync = (async () => (await graphql(currentUserQuery, {})).data.currentUser)();
-  store.commit('setCurrentUserAsync', currentUserAsync);
-  // console.log('# grpahql-client currentUserAsync committed');
-  let currentUser = await currentUserAsync;
-  if (!currentUser) currentUser = null;
-  store.commit('setCurrentUser', { currentUser });
-  console.log('# grpahql-client checkauth currentUser GOT!');
-  console.dir(currentUser);
+  try {
+    const currentUserAsync = (async () => (await graphql(currentUserQuery, {})).data.currentUser)();
+    store.commit('setCurrentUserAsync', currentUserAsync);
+    // console.log('# grpahql-client currentUserAsync committed');
+    let currentUser = await currentUserAsync;
+    if (!currentUser) currentUser = null;
+    store.commit('setCurrentUser', { currentUser });
+    console.log('# grpahql-client checkauth currentUser GOT!');
+    console.dir(currentUser);
+  } catch (e) {
+    console.log('no currentUser');
+  }
 };
 
 // export const manualCheckAuth = async () => {

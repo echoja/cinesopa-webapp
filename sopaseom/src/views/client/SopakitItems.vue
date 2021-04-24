@@ -55,7 +55,7 @@
             <b-link>자세히 보기 <svg-next></svg-next></b-link>
           </p> -->
         </div>
-        <div class="items">
+        <div class="items flex-fill">
           <div class="items-inner-wrapper">
             <div class="swiper-container">
               <div class="swiper-wrapper">
@@ -224,12 +224,14 @@
             </div>
           </div>
         </div>
-        <div class="fixed-wave-container">
-          <b-img
-            :style="{ transform: `translateX(${waveTranslateX}px)` }"
-            src="@/assets/wave.png"
-            :class="{ 'swiper-touching': swiperTouching }"
-          ></b-img>
+        <div class="fixed-wave-container-wrapper lg:Thidden">
+          <div class="fixed-wave-container">
+            <b-img
+              :style="{ transform: `translateX(${waveTranslateX}px)` }"
+              src="@/assets/wave.png"
+              :class="{ 'swiper-touching': swiperTouching }"
+            ></b-img>
+          </div>
         </div>
       </div>
     </div>
@@ -254,7 +256,6 @@ SwiperCore.use([Navigation, A11y, Mousewheel]);
 const sopakitsShownGetter = makeSimpleQuery('sopakitsShown');
 
 export default {
-  title: '소파킷',
   components: {
     PageHeader: () => import('@/components/PageHeader.vue'),
     // SvgNext: () => import('@/components/SvgNext'),
@@ -271,6 +272,7 @@ export default {
   },
   data() {
     return {
+      vuePageTitle: '',
       swiper: null,
       noKeywordProducts: [],
       keywords: [
@@ -344,6 +346,7 @@ export default {
   },
   computed: {
     // 파도의 translateX 계산.
+    /** @returns {number} */
     waveTranslateX() {
       const maxWaveTranslate = this.contentWidth - this.waveWidth;
       let maxSliderWidth = this.swiperWidth * (this.swiperLength - 1);
@@ -359,11 +362,14 @@ export default {
     window.addEventListener('resize', this.onResize);
   },
   async mounted() {
+    this.vuePageTitle = '소파킷';
     await this.fetchData();
     this.$nextTick(() => {
       this.swiper = new SwiperCore('.swiper-container', {
         // Optional parameters
         direction: 'horizontal',
+        freeMode: true,
+        freeModeSticky: true,
         // loop: true,
 
         // If we need pagination
@@ -491,19 +497,13 @@ export default {
     },
     recalculateContentWidth() {
       this.contentWidth =
-        document.querySelector('.content')?.offsetWidth ?? 700;
+        document.querySelector('.fixed-wave-container-wrapper')?.offsetWidth ?? 700;
     },
   },
 };
 </script>
 
 <style lang="scss" scoped>
-// h1 {
-//   font-size: 24px;
-//   font-weight: bold;
-//   margin: 0;
-// }
-
 @use '../../style/common';
 @use '../../style/breakpoint';
 
@@ -572,7 +572,8 @@ export default {
   .summary {
     width: 100%;
     border: 0;
-    padding: 0 common.$mobile-sopakit-slide-padding;
+    padding: 0;
+    /* padding: 0 common.$mobile-sopakit-slide-padding; */
     margin-bottom: 50px;
     p {
       font-size: 18px;
@@ -665,7 +666,6 @@ export default {
   font-size: 18px;
   color: #999;
   margin-right: 20px;
-  padding-top: 3px;
   font-weight: bold;
   &.emp {
     color: #000;
@@ -705,8 +705,10 @@ export default {
 
 @include breakpoint.max-with(lg) {
   .items {
-    margin-left: 0;
-    width: 100%;
+    margin-left: -1 * common.$mobile-min-x-margin;
+    margin-right: -1 * common.$mobile-min-x-margin;
+    /* margin-left: 0; */
+  /* width: 100%; */
   }
 }
 
@@ -1062,11 +1064,18 @@ export default {
 }
 
 // fixed wave container
+.fixed-wave-container-wrapper {
+  margin: 0 -1 * common.$desktop-min-x-margin;
+}
+@include breakpoint.max-with(sm) {
+  .fixed-wave-container-wrapper {
+    margin: 0 -1 * common.$mobile-min-x-margin;
+  }
+}
 .fixed-wave-container {
   position: fixed;
   bottom: common.$simple-footer-height - 2;
-  // padding: 0 common.$desktop-min-x-margin;
-  z-index: 100;
+  z-index: 22;
   img:not(.swiper-touching) {
     transition: 0.5s;
   }

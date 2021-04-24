@@ -1,39 +1,48 @@
 <template>
   <div class="change-password-request">
     <div class="info">
-      <p class="notice">
-        이메일을 입력하고, 비밀번호로 찾기 버튼을 눌러주세요.
+      <p class="Ttext-2xl Tmb-3">
+        이메일을 입력하시고,<br />아래의 버튼을 눌러주세요.
       </p>
-      <p class="sub-notice">
-        해당 이메일로 비밀번호를 변경할 수 있는 링크를 전달해 드립니다.
+      <p class="Ttext-lg Ttext-gray-400 Tfont-medium">
+        해당 이메일로 비밀번호를 변경할 수 있는<br />링크를 전달해 드립니다.
       </p>
     </div>
-    <div class="form">
-      <b-form-input
-        placeholder="이메일 입력"
-        class="form-input"
-        v-model="email"
-      >
-      </b-form-input>
+    <div class="Tgrid Tgrid-cols-1 Tjustify-items-center">
+      <b-form-group label-class="Ttext-lg Tfont-bold" label="이메일" class="Tw-96">
+        <b-form-input
+          placeholder="example@naver.com"
+          class="form-input"
+          v-model="email"
+          :state="isEmail"
+          @keyup.enter="findPasswordButtonClicked"
+        >
+        </b-form-input>
+      </b-form-group>
       <loading-button
+        class="Tw-96 Tpy-3 Tmt-5"
         variant="primary"
         @click="findPasswordButtonClicked"
         :loading="loading"
-        >비밀번호 찾기</loading-button
+        :disabled="!isEmail"
       >
+        이메일로 링크 받기
+      </loading-button>
     </div>
   </div>
 </template>
 
 <script>
-import { BFormInput } from 'bootstrap-vue';
+import { BFormGroup, BFormInput } from 'bootstrap-vue';
 import { makeSimpleMutation } from '@/api/graphql-client';
 import { mapActions } from 'vuex';
+import isEmail from 'validator/es/lib/isEmail';
 
 const requestChangePasswordReq = makeSimpleMutation('requestChangePassword');
 export default {
   components: {
     BFormInput,
+    BFormGroup,
     LoadingButton: () => import('@/components/LoadingButton'),
   },
   data() {
@@ -43,8 +52,15 @@ export default {
     };
   },
   computed: {
+    /** @returns {string} */
     initEmail() {
       return this.$route.query.initEmail ?? '';
+    },
+    /** @returns {boolean} */
+    isEmail() {
+      const result = isEmail(this.email);
+      if (result) return true;
+      return null;
     },
   },
   mounted() {
@@ -59,6 +75,7 @@ export default {
     },
 
     async requestChangePassword() {
+      this.loading = true;
       const result = await requestChangePasswordReq(
         {
           email: this.email,
@@ -75,6 +92,7 @@ export default {
           id: 'requestChangePasswordSuccess',
         });
       }
+      this.loading = false;
     },
   },
 };
@@ -82,7 +100,6 @@ export default {
 
 <style lang="scss" scoped>
 p {
-  margin: 0;
   text-align: center;
 }
 .info {

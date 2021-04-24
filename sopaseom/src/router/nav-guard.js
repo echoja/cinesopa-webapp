@@ -137,10 +137,14 @@ export const requireAuth = (condition = {}, failRN = {}) => async (to, from, nex
     agreeRequiredRN = 'JoinOAuthUser',
   } = failRN;
 
-  const user = (await store.state.currentUserAsync) || store.state.currentUser;
-  store.commit('setCurrentUserAsync', null);
-  const currentRole = user?.role ? user.role : 'ANYONE';
-  const userLogined = !!user;
+  let user;
+  try {
+    user = (await store.state.currentUserAsync) || store.state.currentUser;
+    store.commit('setCurrentUserAsync', null);
+  } catch (e) {
+    console.log('# requireAuth no user');
+  }
+  const currentRole = user?.role ?? 'ANYONE';
 
   console.log('# requireAuth processing...');
   console.log(condition);
@@ -150,7 +154,7 @@ export const requireAuth = (condition = {}, failRN = {}) => async (to, from, nex
   // 일단 가장 먼저, 유저가 카카오로 로그인되어 있는 상태인데
   // user_agreed 가 없다면, 우선 약관 동의부터 시킴.
   // should agreed 무시.
-  if (userLogined && user.user_agreed === null) {
+  if (user && user.user_agreed === null) {
     store.commit('setRouteWhereAgreeSuccess', to);
     return next({ name: agreeRequiredRN });
   }
@@ -158,7 +162,7 @@ export const requireAuth = (condition = {}, failRN = {}) => async (to, from, nex
   // role 에 해당하지 않는다면,
   if (!roleArray.includes(currentRole)) {
     // 로그인한 상태라면 권한이 없음
-    if (userLogined) {
+    if (user) {
       return next({ name: noPermissionRN });
     }
 

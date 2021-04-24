@@ -3,7 +3,7 @@
     :disabled="disabled || loading"
     v-bind="$attrs"
     v-on="$listeners"
-    class="loading-button"
+    class="loading-button disabled:Tcursor-default"
     :aria-busy="loading"
     :class="{ loading }"
   >

@@ -1,14 +1,54 @@
 <template>
   <div class="my-ordered">
-    <h2>주문내역</h2>
-    <div class="my-ordered-inner-wrapper">
-      <div class="header-wrapper">
-        <div class="header">
-          <div class="transporting-count">
-            <span class="tr-notice bas">배송중</span>
-            <span class="tr-extra">{{ transporting }}</span>
-            <span class="tr-notice">개</span>
+    <h2 class="my-ordered-head">
+      진행 중인 주문
+      <!--<small class="pl-2 head-small">최근 3주 기준</small>-->
+    </h2>
+
+    <div class="Tblock lg:Tflex Tjustify-between Titems-stretch Tw-full Tmb-16">
+      <!-- count summary -->
+      <div class="Tauto-cols-max Tgrid Tauto-rows-max Tgrid-cols-7 Tmb-3">
+        <template v-for="(countHeader, countHeaderIndex) in summaryGrid">
+          <div
+            class="summary-grid-item Tfont-medium Tmb-3"
+            :key="`head-${countHeader.key}`"
+          >
+            {{ countHeader.label }}
           </div>
+          <div
+            v-if="countHeaderIndex !== summaryGrid.length - 1"
+            class="summary-grid-item"
+            :key="`blank-${countHeader.key}`"
+          ></div>
+        </template>
+
+        <template v-for="(countHeader, countHeaderIndex) in summaryGrid">
+          <div class="summary-grid-item" :key="`count-${countHeader.key}`">
+            <b-link
+              class="Tfont-bold Ttext-4xl"
+              @click="transportPreparingCountClicked"
+            >
+              <template v-if="countMap.get(countHeader.key) === 0">
+                {{ countMap.get(countHeader.key) }}
+              </template>
+              <u v-else>{{ countMap.get(countHeader.key) }}</u>
+            </b-link>
+          </div>
+          <div
+            v-if="countHeaderIndex !== summaryGrid.length - 1"
+            class="summary-grid-item"
+            :key="`arrow-${countHeader.key}`"
+          >
+            <svg-next :style="{ width: '20px' }"></svg-next>
+          </div>
+        </template>
+      </div>
+    </div>
+
+    <h2 class="my-ordered-head">주문/결제내역</h2>
+    <div class="my-ordered-inner-wrapper">
+      <div class="Tmb-4 lg:Tflex">
+        <div class="Tborder-b-2 Tborder-black">
           <div class="search-condition">
             <div class="predefined-date">
               <!-- @click="items[0].c_date = new Date()" -->
@@ -83,45 +123,46 @@
           결과가 없습니다.
         </div>
         <div
-          class="order-list-item-wrapper"
+          class="Tmb-5 Tborder-b"
           v-for="(orderItem, orderIndex) in orders"
           :key="orderIndex"
         >
-          <div class="order-list-item">
-            <div class="order-summary">
-              <div
-                class="order-summary-item"
-                v-for="(cartitem, cartitemIndex) in orderItem.items"
-                :key="cartitemIndex"
-              >
-                <div class="order-summary-left">
-                  <div class="preview-box">
-                    <div
-                      class="preview"
-                      :style="{
-                        'background-image': `url(${cartitem.product.featured_image_url})`,
-                      }"
-                    ></div>
-                  </div>
+          <div class="Tblock lg:Tflex lg:Tjustify-between Tmb-3 lg:Tmb-0">
+            <!-- why not? -->
+            <!-- 각 항목 왼쪽 -->
+            <div
+              class="Tflex Tmb-5"
+              v-for="(cartitem, cartitemIndex) in orderItem.items"
+              :key="cartitemIndex"
+            >
+              <!-- 미리보기 이미지 -->
+              <div class="order-summary-left Tflex Titems-center">
+                <div class="preview-box">
+                  <div
+                    class="pb-full Tbg-gray-200 Tbg-cover Tbg-center"
+                    :style="{
+                      'background-image': `url(${cartitem.product.featured_image_url})`,
+                    }"
+                  ></div>
                 </div>
-                <div class="order-summary-right">
-                  <div class="order-summary-content">
-                    <!-- v-if="cartitem.option_type === 'no_option'" -->
-                    <div class="cartitem-name">
-                      <b-link
-                        :to="{
-                          name: 'SopakitDetail',
-                          params: { id: cartitem.product_id },
-                        }"
-                      >
-                        {{ cartitem.product.name }}
-                      </b-link>
-                    </div>
-                    <!-- 옵션 하나 -->
-                    <div
-                      class="cartitem-count"
-                      v-if="cartitem.options.length <= 1"
+              </div>
+              <div class="order-summary-right">
+                <div class="order-summary-content">
+                  <!-- 제목 -->
+                  <div class="Tfont-medium">
+                    <b-link
+                      :to="{
+                        name: 'SopakitDetail',
+                        params: { id: cartitem.product_id },
+                      }"
                     >
+                      {{ cartitem.product.name }}
+                    </b-link>
+                  </div>
+                  <!-- 옵션 -->
+                  <div class="Tmb-1">
+                    <!-- 옵션 하나 -->
+                    <div class="" v-if="cartitem.options.length <= 1">
                       {{ cartitem.options[0].count }}개
                     </div>
                     <!-- 옵션 여러개 -->
@@ -130,69 +171,31 @@
                       v-else-if="cartitem.options.length > 1"
                     >
                       <div
-                        class="option-row"
+                        class="Tflex Ttext-sm"
                         v-for="(option, optionIndex) in cartitem.options"
                         :key="optionIndex"
                       >
-                        <div class="option-cell name">{{ option.content }}</div>
-                        <div class="option-cell count">
-                          {{ option.count }}개
-                        </div>
+                        <div class="Tpr-2">{{ option.content }}</div>
+                        <div>{{ option.count }}개</div>
                       </div>
                     </div>
                   </div>
-                  <!-- <div
-                    class="order-summary-content"
-                    v-else-if="cartitem.options.length > 1"
-                  >
-                    <div class="cartitem-name">
-                      <b-link
-                        :to="{
-                          name: 'SopakitDetail',
-                          params: { id: cartitem.product_id },
-                        }"
-                      >
-                        {{ cartitem.product.name }}
-                      </b-link>
-                    </div>
-                    <div class="option-table">
-                      <div
-                        class="option-row"
-                        v-for="(option, optionIndex) in cartitem.options"
-                        :key="optionIndex"
-                      >
-                        <div class="option-cell name">{{ option.content }}</div>
-                        <div class="option-cell count">
-                          {{ option.count }}개
-                        </div>
-                      </div>
-                    </div>
-                  </div> -->
-                </div>
-              </div>
-            </div>
-            <div class="order-actions">
-              <div class="info-wrapper">
-                <div class="info-row">
-                  <div class="info-cell head">주문일</div>
-                  <div class="info-cell body">
+                  <div class="Ttext-sm Ttext-gray-500">
                     {{ formatDate(orderItem.c_date) }}
                   </div>
-                </div>
-                <div class="info-row">
-                  <div class="info-cell head">주문금액</div>
-                  <div class="info-cell body">
+                  <div class="Ttext-sm Ttext-gray-500">
                     {{ toPrice(orderItem.amount) }}
                   </div>
                 </div>
-                <div class="info-row">
-                  <div class="info-cell head">상태</div>
-                  <div class="info-cell body">
-                    {{ statusString(orderItem.status) }}
-                  </div>
-                </div>
               </div>
-              <div class="buttons-wrapper">
+            </div>
+
+            <!-- 각 항목 오른쪽 -->
+            <div class="Ttext-sm Tflex Titems-center lg:Tblock">
+              <div class="lg:Tmb-2 Tfont-medium Tmr-2 lg:Tmr-0">
+                {{ statusString(orderItem.status) }}
+              </div>
+              <div class="buttons-wrapper Tblock lg:Tgrid">
                 <b-button @click="showDetailClicked(orderIndex)"
                   >상세정보</b-button
                 >
@@ -204,12 +207,12 @@
                 <b-button
                   v-if="showReqExchange(orderItem.status)"
                   @click="reqExchangeClicked(orderIndex)"
-                  >교환/반품 신청</b-button
+                  >교환/반품</b-button
                 >
                 <b-button
                   v-if="!showReqExchange(orderItem.status)"
                   @click="$bvModal.show(`cancel-order-modal-${orderIndex}`)"
-                  >주문취소</b-button
+                  >변경/취소</b-button
                 >
                 <b-modal
                   :id="`cancel-order-modal-${orderIndex}`"
@@ -217,7 +220,7 @@
                   ok-title="예"
                   cancel-title="아니오"
                   ok-variant="danger"
-                  title="주문취소"
+                  title="변경/취소"
                 >
                   정말로 주문을 취소하시겠습니까?
                 </b-modal>
@@ -239,101 +242,128 @@
     ></b-pagination-nav>
 
     <!-- 상세 정보 modal -->
-    <b-modal id="order-detail" title="주문 상세 정보" size="xl" hide-footer>
-      <h2>상품 정보</h2>
-      <div class="order-summary">
-        <div
-          class="order-summary-item"
-          v-for="(cartitem, cartitemIndex) in detail.items"
-          :key="cartitemIndex"
-        >
-          <div class="order-summary-left">
-            <div class="preview-box">
-              <div
-                class="preview"
-                :style="{
-                  'background-image': `url(${cartitem.product.featured_image_url})`,
-                }"
-              ></div>
-            </div>
-          </div>
-          <div class="order-summary-right">
-            <div class="order-summary-content">
-              <!-- v-if="cartitem.option_type === 'no_option'" -->
-              <div class="cartitem-name">
-                <b-link
-                  :to="{
-                    name: 'SopakitDetail',
-                    params: { id: cartitem.product_id },
-                  }"
-                >
-                  {{ cartitem.product.name }}
-                </b-link>
-              </div>
-              <!-- 옵션 하나 -->
-              <div class="cartitem-count" v-if="cartitem.options.length <= 1">
-                {{ cartitem.options[0].count }}개
-              </div>
-              <!-- 옵션 여러개 -->
-              <div class="option-table" v-else-if="cartitem.options.length > 1">
+    <b-modal
+      id="order-detail"
+      title="주문 상세 정보"
+      size="lg"
+      hide-header
+      hide-footer
+    >
+      <template #default="{ hide }">
+        <div class="Trelative lg:Tmy-4 lg:Tmx-6">
+          <!-- 닫기 버튼 -->
+          <button class="Tborder-0 Tabsolute Tright-0" @click="hide">
+            <svg-close></svg-close>
+          </button>
+
+          <h2 class="modal-head Tmb-7">주문 상세 정보</h2>
+
+          <!-- <pre>{{detail}}</pre> -->
+          <!-- 상품 정보 -->
+          <h2
+            class="modal-head Tborder-b Tborder-black Tpb-1 Tmb-5 Tleading-none"
+          >
+            <span class="Tmr-2">상품 정보</span>
+            <span class="Ttext-sm Tfont-medium"
+              >주문일 | {{ formatDate(detail.c_date) }}</span
+            >
+          </h2>
+          <!-- 상품 상세 정보들 -->
+          <div class="Tmb-4 Ttext-base">
+            <!-- 각각의 상품 -->
+            <div
+              class="Tpb-5 Tborder-b last:Tborder-black"
+              v-for="(cartitem, cartitemIndex) in detail.items"
+              :key="cartitemIndex"
+            >
+              <div class="Tflex Tjustify-between">
+                <div class="Tflex Titems-center">
+                  <!-- 이미지 -->
+                  <div class="Tw-28 Tmr-6">
+                    <div
+                      class="pb-full Tbg-gray-200"
+                      :style="{
+                        'background-image': `url('${cartitem.product.featured_image_url}?size=file_preview')`,
+                      }"
+                    ></div>
+                  </div>
+                  <!-- 상품 이름 -->
+                  <div>
+                    <h2>
+                      <b-link
+                        class="Ttext-lg Tfont-bold"
+                        :to="{
+                          name: 'SopakitDetail',
+                          params: { id: cartitem.product_id },
+                        }"
+                      >
+                        {{ cartitem.product.name }}
+                      </b-link>
+                    </h2>
+                  </div>
+                </div>
+                <!-- 옵션에 따른 가격 -->
                 <div
-                  class="option-row"
-                  v-for="(option, optionIndex) in cartitem.options"
-                  :key="optionIndex"
+                  class="option-grid-cols Ttext-gray-600 Tgrid Tauto-cols-auto Tself-end"
                 >
-                  <div class="option-cell name">{{ option.content }}</div>
-                  <div class="option-cell count">{{ option.count }}개</div>
+                  <template v-for="(option, optionIndex) in cartitem.options">
+                    <div :key="`${optionIndex}-content`" class="Tpx-2">
+                      {{ option.content }}
+                    </div>
+                    <div :key="`${optionIndex}-count`" class="Tpx-2">
+                      {{ option.count }}개
+                    </div>
+                    <div
+                      :key="`${optionIndex}-price`"
+                      class="Ttext-right Tmb-1 Tpl-2 Tml-10"
+                    >
+                      {{ toPrice(option.price * option.count) }}
+                    </div>
+                  </template>
                 </div>
               </div>
             </div>
           </div>
-        </div>
-      </div>
-      <h2>받는 사람 정보</h2>
-      <b-table-lite
-        thead-class="sr-only"
-        :fields="destFields"
-        :items="detailDestItems"
-        class="detail-dest-table"
-      >
-      </b-table-lite>
-      <h2>결제 정보</h2>
-      <div class="detail-payment-info">
-        <div class="payment-method-info">
-          <div class="payment-method-content">
-            <span class="font-weight-bold"> 결제 수단 </span>
-            <br />
-            <span> {{ paymentMethodsLabel(detail.method) }} </span>
-          </div>
-          <div class="payment-buttons">
-            <b-button size="sm">거래명세서</b-button>
-          </div>
-        </div>
-        <div class="price-info">
-          <div class="info-row">
-            <div class="info-cell head">총 상품 금액</div>
-            <div class="info-cell body">
-              {{ toPrice(detail.productsPrice || 0) }}
+
+          <!-- 총 가격 -->
+          <div class="Tflex Tjustify-end Ttext-base Tmb-4">
+            <div
+              class="Ttext-gray-600 Tgrid Tauto-cols-max Tgrid-cols-2 Tauto-rows-max Tml-auto"
+            >
+              <div class="detail-price-head">주문금액</div>
+              <div class="Ttext-right lg:Tw-48">
+                {{ toPrice(detail.productsPrice || 0) }}
+              </div>
+              <div class="detail-price-head">배송비</div>
+              <div class="Ttext-right">
+                {{ toPrice(detail.transport_fee || 0) }}
+              </div>
+              <hr class="Tborder-gray-500 Tcol-span-2 Tmy-3" />
+              <div class="detail-price-head">결제금액</div>
+              <div class="Ttext-right Ttext-2xl Ttext-black Tfont-bold Tmb-3">
+                {{ toPrice(detail.amount || 0) }}
+              </div>
+              <div class="detail-price-head">결제수단</div>
+              <div class="Ttext-right">
+                {{ paymentMethodsLabel(detail.method) }}
+              </div>
             </div>
           </div>
-          <div class="info-row">
-            <div class="info-cell head">배송비</div>
-            <div class="info-cell body">
-              {{ toPrice(detail.transport_fee || 0) }}
-            </div>
+          <!-- 받으실 분 -->
+          <h2 class="modal-head Tborder-black Tpb-1 Tborder-b Tmb-4">
+            받으실 분
+          </h2>
+          <div class="Tinline-grid Ttext-base" :style="{ gridTemplateColumns: 'auto auto' }">
+            <template v-for="dest in detailDestItems">
+              <div :key="`${dest.title}-title`" class="Tp-2 Tpl-0 Tpr-10"><b>{{ dest.title }}</b></div>
+              <div :key="`${dest.title}-content`" class="Tp-2">{{ dest.content }}</div>
+            </template>
           </div>
-          <hr />
-          <div class="info-row">
-            <div class="info-cell head">총 결제 금액</div>
-            <div class="info-cell body bold">
-              {{ toPrice(detail.amount || 0) }}
-            </div>
-          </div>
+          <!-- <pre>
+        {{ detail }}
+        </pre> -->
         </div>
-      </div>
-      <!-- <pre>
-      {{ detail }}
-      </pre> -->
+      </template>
     </b-modal>
   </div>
 </template>
@@ -372,6 +402,18 @@ const paymentMethodLabelMap = {
   phone: '휴대폰결제',
 };
 
+// 'order_received', // "주문접수",
+// 'payment_confirming', // "결제확인중",
+// 'payment_success', // "결제완료",
+// 'product_loading', // "상품준비중",
+// 'transport_preparing', // "배송준비중",
+// 'transporting', // "배송중",
+// 'transport_success', // "배송완료",
+// 'deal_success', // "거래완료",
+// 'returning', // "반송중",
+// 'order_cancelling', // "주문취소중",
+// 'order_cancelled', // "주문취소",
+
 /**
  * 결제 확인중: 취소
  * 결제 완료: 결제 취소
@@ -381,12 +423,12 @@ const paymentMethodLabelMap = {
  */
 
 export default {
-  title: '주문 목록',
   components: {
     BButton,
     BFormDatepicker,
     BFormSelect,
-    BFormSelectOption,
+    SvgNext: () => import('@/components/SvgNext'),
+    SvgClose: () => import('@/components/CloseFigure'),
     BTableLite,
     BLink,
     LoadingButton,
@@ -398,6 +440,7 @@ export default {
     oneMonthBefore.setMonth(oneMonthBefore.getMonth() - 1);
 
     return {
+      vuePageTitle: '',
       a: 0,
       total: 0,
       detail: {},
@@ -406,6 +449,7 @@ export default {
           isRowHeader: true,
           key: 'title',
           label: '이름',
+          class: 'Tp-0',
         },
         {
           key: 'content',
@@ -421,17 +465,37 @@ export default {
         page: 1,
         perpage: 10,
       },
-      //       'order_received', // "주문접수",
-      // 'payment_confirming', // "결제확인중",
-      // 'payment_success', // "결제완료",
-      // 'product_loading', // "상품준비중",
-      // 'transport_preparing', // "배송준비중",
-      // 'transporting', // "배송중",
-      // 'transport_success', // "배송완료",
-      // 'deal_success', // "거래완료",
-      // 'returning', // "반송중",
-      // 'order_cancelling', // "주문취소중",
-      // 'order_cancelled', // "주문취소",
+      countMap: new Map([
+        ['order_received', 0],
+        ['payment_confirming', 0],
+        ['payment_success', 0],
+        ['product_loading', 0],
+        ['transport_preparing', 0],
+        ['transporting', 0],
+        ['transport_success', 0],
+        ['deal_success', 0],
+        ['returning', 0],
+        ['order_cancelling', 0],
+        ['order_cancelled', 0],
+      ]),
+      summaryGrid: [
+        {
+          label: '결제완료',
+          key: 'payment_success',
+        },
+        {
+          label: '배송준비중',
+          key: 'transport_preparing',
+        },
+        {
+          label: '배송중',
+          key: 'transporting',
+        },
+        {
+          label: '배송완료',
+          key: 'transport_success',
+        },
+      ],
 
       orderStatusOptions: [
         { value: '', text: '전체상태' },
@@ -518,48 +582,28 @@ export default {
   },
 
   computed: {
+    /** @returns {object[]} */
     detailDestItems() {
       return Object.keys(this.detail.dest ?? []).map((destKey) => ({
         title: destLabelMap[destKey],
         content: this.detail?.dest?.[destKey],
       }));
     },
+    /** @returns {number} */
     totalPages() {
       return this.total > 0
         ? Math.ceil(this.total / this.condition.perpage)
         : 1;
     },
-    // detailProductPrice() {
-    //   console.log('# MyOrdered computed detailProductPrice');
-    //   console.log(this.detail.options);
-    //   console.log(this.detail);
-    //   return (this.detail.options ?? []).reduce(
-    //     (acc, option) => acc + option.count * option.price,
-    //     0,
-    //   );
-    // },
-    // transportingCount() {
-    //   // 문제임. 현재 페이지 기준으로 order를 필터하고 있으므로 페이지 이외에 것이 반영이 안됨.
-    //   // 예를 들어 1페이지와 2페이지의 개수가 달라짐.
-    //   return this.orders.filter((order) => order.status === 'transporting')
-    //     .length;
-    //   // return 1;
-    // },
-    // formatDate() {
-    //   console.log('# Myinfo formatDate called');
-    //   return (date) => {
-    //     console.log(`# Myinfo formatDate actually returning value >> ${Date}`);
-    //     return moment(date).format('YYYY. MM. DD');
-    //   };
-    // },
   },
   watch: {
-    $route(to) {
+    $route() {
       this.fetchData();
     },
   },
   async mounted() {
     this.fetchData();
+    this.vuePageTitle = '주문내역';
   },
   methods: {
     lastYearClicked(event) {
@@ -622,7 +666,7 @@ export default {
         `{
           transporting total list {
             user status method c_date expected_date cancelled_date return_req_date cash_receipt
-            transport_number transport_fee transport_company bootpay_id 
+            transport_number transport_fee transport_company bootpay_id
             items {
               id user added modified product_id usage
               product {
@@ -633,7 +677,7 @@ export default {
               }
             }
             dest {
-              name address address_detail phone request 
+              name address address_detail phone request
             }
           }
           order_count {
@@ -644,6 +688,13 @@ export default {
       // console.log('# MyOrdered fetchData res');
       // console.dir({ total, list, transporting, order_count });
       this.total = total;
+
+      console.log('# MyOrdered fetchData order_count');
+      console.log(order_count);
+      order_count.forEach(({ status, count }) => {
+        this.countMap.set(status, count);
+      });
+      console.log(this.countMap);
 
       // 입력값 다듬기
       list.forEach((order) => {
@@ -692,6 +743,7 @@ export default {
     },
     showDetailClicked(orderIndex) {
       this.detail = { ...this.orders[orderIndex] };
+      console.log(this.detail);
       this.$bvModal.show('order-detail');
       // todo
     },
@@ -705,27 +757,28 @@ export default {
     linkGen(pageNum) {
       return { name: 'MyOrdered', params: { page: pageNum } };
     },
+    paymentSuccessCountClicked() {},
+    transportPreparingCountClicked() {},
+    transportingCountClicked() {},
+    transportSuccessCountClicked() {},
   },
 };
 </script>
 
 <style lang="scss" scoped>
-@import '@/common';
-// .search-condition {
-//   display: flex;
-//   align-items: stretch;
-// }
-
-// .predefined-date {
-//   display: flex;
-//   align-items: stretch;
-// }
+@use '../../style/common';
+@use '../../style/breakpoint';
 
 $condition-margin: 6px;
 
-h2 {
-  font-size: 20px;
+.my-ordered-head {
+  @apply Ttext-xl Tfont-bold Tleading-none Tmb-4;
+}
+
+.head-small {
+  font-size: 14px;
   font-weight: bold;
+  color: #777;
 }
 
 .my-ordered {
@@ -743,28 +796,21 @@ h2 {
 
 /** header */
 
+.summary-grid-columns {
+  grid-template-columns: 2fr 1fr 2fr 1fr 2fr 1fr 2fr;
+}
+.summary-grid-item {
+  @apply Tflex Titems-center Tjustify-center Tw-full Th-full;
+}
+
 .header-wrapper {
   display: flex;
   margin-bottom: 50px;
 }
 
-@include max-with(lg) {
+@include breakpoint.max-with(lg) {
   .header-wrapper {
     margin-bottom: 10px;
-  }
-}
-
-.header {
-  // display: flex;
-  align-items: flex-end;
-  padding: 10px 0 20px;
-  // padding-bottom: 20px;
-  border-bottom: 2px solid #000;
-}
-
-@include max-with(xl) {
-  .header {
-    display: block;
   }
 }
 
@@ -843,38 +889,6 @@ select.condition {
   border-bottom: 1px solid #000;
 }
 
-.order-list-item {
-  display: flex;
-}
-
-@include max-with(lg) {
-  .order-list-item {
-    display: block;
-  }
-}
-
-.order-summary {
-  flex: 0 0 calc(20vw + 100px);
-}
-.order-summary-item {
-  display: flex;
-  margin-bottom: 20px;
-}
-
-.order-actions {
-  padding-left: 20px;
-  border-left: 1px solid #aaa;
-  flex: 1;
-  font-size: 14px;
-}
-
-@include max-with(lg) {
-  .order-actions {
-    padding-left: 0;
-    border: 0;
-  }
-}
-
 .preview-box {
   width: 100px;
   margin-right: 20px;
@@ -886,23 +900,14 @@ select.condition {
   background-position: center;
 }
 
-.cartitem-name {
-  font-weight: 500;
-}
-
-.option-row,
-.cartitem-count {
+.option-row {
   display: flex;
   font-size: 14px;
   color: #585858;
 }
 
-.option-cell.name {
-  padding-right: 10px;
-}
-
-.info-wrapper {
-  margin-bottom: 20px;
+.option-grid-cols {
+  grid-template-columns: auto auto auto;
 }
 
 .info-row {
@@ -915,19 +920,13 @@ select.condition {
   font-weight: 500;
 }
 
-.buttons-wrapper {
-  display: flex;
-  align-items: flex-start;
-  flex-direction: column;
-}
-
 .buttons-wrapper .btn {
   font-size: 12px;
   padding: 3px 7px 4px;
   margin: 3px 0;
 }
 
-@include max-with(lg) {
+@include breakpoint.max-with(lg) {
   .buttons-wrapper {
     flex-direction: row;
     .btn {
@@ -936,40 +935,21 @@ select.condition {
   }
 }
 
-// details
-.detail-payment-info {
-  display: flex;
-  // justify-content: space-between;
-  .info-cell.head {
-    flex: 1 1 auto;
-    margin-right: 30px;
-  }
-  .info-cell.bold {
-    font-size: 120%;
-    font-weight: bold;
-  }
-  .info-row {
-    align-items: center;
-  }
-
-  .payment-method-info,
-  .price-info {
-    padding: 30px;
-    // background-color: #f4f4f4;
-  }
+.detail-price-head {
+  @apply Tmb-2;
 }
 
-@include max-with(md) {
+@include breakpoint.max-with(md) {
   .detail-payment-info {
     display: block;
   }
+}
+
+.modal-head {
+  @apply Ttext-xl Tfont-bold;
 }
 
 .myordered-pagination {
   align-self: stretch;
 }
 </style>
-
-<style scoped></style>
-
-<style></style>

@@ -10,7 +10,7 @@
         <div class="info-cell head">비밀번호</div>
         <div class="info-cell body">
           <b-button size="sm" @click="changePasswordClicked"
-            >비밀번호 변경</b-button
+            >비밀번호 재설정</b-button
           >
         </div>
       </div>

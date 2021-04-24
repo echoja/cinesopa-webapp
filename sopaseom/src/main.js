@@ -8,6 +8,7 @@ import './plugins/vue-bootstrap';
 import './plugins/custom-style.scss';
 import './plugins/vue-fontawesome';
 import './plugins/vue-load-script';
+import './plugins/tailwind.css';
 import App from './App.vue';
 import router from './router';
 import store from './store';

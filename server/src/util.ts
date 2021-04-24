@@ -38,7 +38,7 @@ export function unwrap<T, U>(
 export function tryUnwrap<T>(
   result: PromiseSettledResult<T>,
   errMsg = 'Promise not fulfilled',
-) {
+): T {
   if (result.status === 'fulfilled') return result.value;
   console.error(`# tryUnwrap ${errMsg}`);
   throw Error(errMsg);
@@ -48,12 +48,24 @@ export function tryUnwrap<T>(
  * rejected 된 Promise 를 제외시킵니다.
  * @param results Promise.allSettled 로 얻은 결과
  */
-export function filterRejected<T>(
+export function onlyFulfilled<T>(
   results: PromiseSettledResult<T>[],
 ): PromiseFulfilledResult<T>[] {
   return results.filter(
     (result): result is PromiseFulfilledResult<T> =>
       result.status === 'fulfilled',
+  );
+}
+
+/**
+ * fulfilled 된 Promise 를 제외시킵니다.
+ * @param results Promise.allSettled 로 얻은 결과
+ */
+export function onlyRejected<T>(
+  results: PromiseSettledResult<T>[],
+): PromiseRejectedResult[] {
+  return results.filter(
+    (result): result is PromiseRejectedResult => result.status === 'rejected',
   );
 }
 
@@ -66,7 +78,7 @@ export async function allSettledFiltered<T>(
   promises: T[],
 ): Promise<(T extends PromiseLike<infer O> ? O : T)[]> {
   const results = await Promise.allSettled(promises);
-  const values = filterRejected(results).map((result) => result.value);
+  const values = onlyFulfilled(results).map((result) => result.value);
   return values;
 }
 

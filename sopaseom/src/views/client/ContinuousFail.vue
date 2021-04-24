@@ -4,7 +4,7 @@
 
 <script>
 export default {
-  title: '비밀번호 변경 필요',
+  title: '비밀번호 재설정 필요',
 };
 </script>
 

@@ -1,3 +1,5 @@
+const colors = require('tailwindcss/colors');
+
 module.exports = {
   // purge: [],
   prefix: 'T',
@@ -5,15 +7,21 @@ module.exports = {
   darkMode: false, // or 'media' or 'class'
   theme: {
     screens: {
-      'sm': '576px',
-      'md': '768px',
-      'lg': '992px',
-      'xl': '1200px',
+      sm: '576px',
+      md: '768px',
+      lg: '992px',
+      xl: '1200px',
       '2xl': '1400px',
-    }
+    },
+    colors: {
+      gray: colors.trueGray,
+    },
   },
   variants: {
-    extend: {},
+    extend: {
+      borderColor: ['last'],
+      cursor: ['disabled'],
+    },
   },
   plugins: [],
 };

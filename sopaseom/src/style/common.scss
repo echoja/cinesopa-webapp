@@ -19,7 +19,7 @@ $mobile-subheader-font-size: 20px;
 $desktop-subheader-height: 58px;
 $mobile-subheader-height: 48px;
 
-$mobile-sopakit-slide-padding: 70px;
+$mobile-sopakit-slide-padding: 50px;
 
 $simple-footer-height: 55px;
 $desktop-simple-footer-height: $simple-footer-height;
@@ -44,16 +44,6 @@ $dt-sopakit-last-page-neg: $dt-sopakit-content-neg + $desktop-subheader-height +
 // transition 하는 동안에는 top을 0으로 설정하여 위치가 어긋나지 않도록 함.
 // (이유는 본인도 모르겠다.)
 
-@mixin prevent-break-top0($selector) {
-  .fade-enter-active #{$selector},
-  .fade-leave-active #{$selector},
-  .left-right-enter-active #{$selector},
-  .left-right-leave-active #{$selector},
-  .slide-enter-active #{$selector},
-  .slide-leave-active #{$selector} {
-    top: 0;
-  }
-}
 @mixin when-page-translating($selector) {
   .fade-enter-active #{$selector},
   .fade-leave-active #{$selector},
@@ -64,6 +54,13 @@ $dt-sopakit-last-page-neg: $dt-sopakit-content-neg + $desktop-subheader-height +
     @content;
   }
 }
+
+@mixin prevent-break-top0($selector) {
+  @include when-page-translating($selector) {
+    top: 0;
+  }
+}
+
 
 // caption 다 숨기기
 

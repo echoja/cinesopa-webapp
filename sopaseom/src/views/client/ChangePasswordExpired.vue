@@ -4,7 +4,7 @@
 
 <script>
 export default {
-  title: '비밀번호 변경 - 유효시간 초과',
+  title: '비밀번호 재설정 - 유효시간 초과',
 };
 </script>
 

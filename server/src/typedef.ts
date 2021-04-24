@@ -569,6 +569,12 @@ interface UserinfoBase {
 
 export interface Userinfo extends UserinfoBase, IIdOption {}
 
+export interface  UpdateUserinfo extends Omit<UserinfoBase, 'user_agreed'>, IIdOption {
+  'user_agreed.privacy'?: boolean;
+  'user_agreed.policy'?: boolean;
+  'user_agreed.advertisement'?: boolean;
+}
+
 export interface IUser extends UserinfoBase, Document {}
 
 export interface UserSearch {
@@ -1012,6 +1018,7 @@ declare module 'express-session' {
     redirectLink: string;
   }
 }
+
 
 // eslint-disable-next-line
 //  @typedef {Object.<string, import('mongoose').Model<import('mongoose').MongooseDocument, {}>>} ModelWrapper */

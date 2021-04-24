@@ -2,6 +2,7 @@ const { expect } = require('chai');
 // const {} = require('./graphql-request');
 const { graphql } = require('graphql');
 const { model, db } = require('@/loader');
+const addContext = require('mochawesome/addContext');
 const {
   createTestServer,
   graphqlSuper,
@@ -414,6 +415,33 @@ describe('order', function () {
     describe('reqCancelOrder', function () {
       it('제대로 동작해야 함', async function () {
         // todo
+      });
+    });
+    describe('orderCountGroupedByStatus', function () { 
+      it('제대로 동작해야 함', async function () { 
+        // model.Order.create({
+        //   user: guestEmail,
+        //   items: [
+        //     {
+        //       user: guestEmail,
+        //       product_id: 1,
+        //     },
+        //   ],
+        // });
+        // model.Order.create({
+        //   user: adminEmail,
+        //   items: [
+        //     {
+        //       user: adminEmail,
+        //       product_id: 1,
+        //     },
+        //   ],
+        // });
+        // await doGuestLogin(agent);
+        // const req = makeSimpleQuery(agent, 'orderCountGroupedByStatus');
+        // const res = await req({}, `{status count}`);
+        // addContext(this, { title: 'res', value: res});
+
       });
     });
   });

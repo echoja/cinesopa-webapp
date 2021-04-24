@@ -1,6 +1,8 @@
 <template>
-  <div class="page-header">
-    <slot></slot>
+  <div class="Tbg-blue-100 page-header-wrapper">
+    <div class="page-header">
+      <slot></slot>
+    </div>
   </div>
 </template>
 
@@ -12,22 +14,34 @@ export default {};
 @use '../style/common';
 @use '../style/breakpoint';
 
-.page-header {
-  font-size: common.$desktop-subheader-font-size;
+.page-header-wrapper {
+  background-color: #fff;
+  margin: 0 -1 * common.$desktop-min-x-margin;
+  padding: 0 common.$desktop-min-x-margin;
+  top: common.$desktop-header-height + 2px;
+  position: sticky;
   z-index: 20;
+}
+
+.page-header {
   width: 100%;
+  font-size: common.$desktop-subheader-font-size;
   height: common.$desktop-subheader-height;
   background-color: #fff;
   border-bottom: 2px solid #000;
   margin-bottom: 0;
-  position: sticky;
+  /* position: sticky;
   // top: 0;
-  top: common.$desktop-header-height + 2px;
+  top: common.$desktop-header-height + 2px; */
 }
 
 // transition 때 이상하게 top 이 계산되는 문제 수정
 
-@include common.prevent-break-top0(".page-header");
+@include common.prevent-break-top0('.page-header-wrapper');
+/*
+@include common.when-page-translating('.page-header-wrapper') {
+  top: 2px;
+} */
 
 // .left-right-enter-active .page-header,
 // .left-right-leave-active .page-header,
@@ -41,12 +55,21 @@ export default {};
 // }
 
 @include breakpoint.max-with(md) {
+  .page-header-wrapper {
+    background-color: #fff;
+    margin: 0 -1 * common.$mobile-min-x-margin;
+    padding: 0 common.$mobile-min-x-margin;
+    top: common.$mobile-header-height;
+    margin-bottom: 20px;
+  }
+
   .page-header {
     font-size: common.$mobile-subheader-font-size;
-    top: common.$mobile-header-height;
     height: common.$mobile-subheader-height;
-    margin-bottom: 20px;
+    /* margin: 0 -1 * common.$mobile-min-x-margin 20px; */
+    /* padding: 0 common.$mobile-min-x-margin; */
     border-top: 2px solid #000;
+    width: auto;
   }
   // .body:not(.left-right-enter-active):not(.left-right-leave-active)
   //   .page-header {

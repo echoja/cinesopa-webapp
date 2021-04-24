@@ -1,13 +1,8 @@
-/* eslint-disable mocha/no-setup-in-describe */
-const sinon = require('sinon');
+
 const { expect } = require('chai');
-const userCreator = require('@/service/user');
 const addContext = require('mochawesome/addContext');
 
 const { model, db } = require('@/loader');
-const passport = require('@/auth/passport');
-const { resetBehavior } = require('sinon');
-const { DBManager } = require('@/typedef');
 const {
   createTestServer,
   graphqlSuper,
@@ -434,6 +429,24 @@ describe('user', function () {
         // console.log(user);
         expect(user.wrong_pwd_count).equal(3);
       });
+      it('user_agreed 수정할 때 낱개로 수정이 되어야 함.', async function () {
+        const email = 'eszqsc112@naver.com';
+        await model.User.create({
+          email,
+          pwd: '13241324',
+          user_agreed: {
+            advertisement: false,
+            policy: false,
+            privacy: false,
+          },
+        });
+        await db.updateUser(email, { user_agreed: { advertisement: true } });
+        const user = await db.getUserByEmail(email);
+        addContext(this, { title: 'user', value: user });
+        expect(user.user_agreed.advertisement).to.equal(true);
+        expect(user.user_agreed.policy).to.equal(false);
+        expect(user.user_agreed.privacy).to.equal(false);
+      });
     });
     describe('isCorrectPassword', function () {
       it('createUser - isCorrectPassword : 비밀번호가 잘 맞아야 함', async function () {
@@ -685,6 +698,7 @@ describe('user', function () {
             email: 'eszqsc112@naver.com',
           });
           // console.log(userExists);
+          addContext(this, { title: 'userExists', value: userExists });
           expect(userExists.email).to.be.true;
           expect(userExists.kakao).to.be.true;
           expect(userExists.pwd).to.be.true;
@@ -1194,7 +1208,9 @@ describe('user', function () {
           })
             .lean()
             .exec();
-          await graphqlSuper(agent, agreementForKakaoUserMutation, {
+          const {
+            body,
+          } = await graphqlSuper(agent, agreementForKakaoUserMutation, {
             user_agreed: {
               privacy: true,
               policy: true,
@@ -1205,10 +1221,12 @@ describe('user', function () {
           })
             .lean()
             .exec();
-          // console.log('userBefore');
-          // console.log(userBefore);
-          // console.log('userAfter');
-          // console.log(userAfter);
+          addContext(this, { title: 'userBefore', value: userBefore });
+          addContext(this, { title: 'userAfter', value: userAfter });
+          addContext(this, {
+            title: 'body',
+            value: body,
+          });
           expect(userBefore.user_agreed).to.be.undefined;
           expect(userAfter.user_agreed.policy).to.be.true;
           expect(userAfter.user_agreed.privacy).to.be.true;

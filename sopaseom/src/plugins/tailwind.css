@@ -6,6 +6,9 @@
   body {
     font-family: var(--font-family-sans-serif);
   }
+  hr {
+    @apply Tmy-3;
+  }
 }
 
 @layer utilities {

@@ -1,7 +1,6 @@
 const pug = require('pug');
 const fs = require('fs');
 const util = require('util');
-// const fs = require('fs');
 
 const { expect } = require('chai');
 const inlineCss = require('inline-css');
@@ -10,6 +9,7 @@ const readFile = util.promisify(fs.readFile);
 const { model, templateArgsRefiner } = require('@/loader');
 const { createTestServer, guestEmail } = require('./tool').default;
 const path = require('path');
+const { resolve } = require('path');
 
 // describe('email-template', function () {
 //   describe('compile, render', function () {

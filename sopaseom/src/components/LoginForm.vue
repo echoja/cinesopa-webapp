@@ -1,6 +1,6 @@
 <template>
   <div class="login-component">
-    <div class="login-header flex justify-center" v-if="!shouldHideLogo">
+    <div class="login-header Tflex Tjustify-center" v-if="!shouldHideLogo">
       <img class="" :style="{width: '113px', height: '88.52px'}" src="@/assets/sopaseom-logo.svg" alt="" />
     </div>
     <h2 class="mobile-title">계정으로 로그인</h2>

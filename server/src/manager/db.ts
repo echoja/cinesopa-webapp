@@ -55,6 +55,7 @@ import {
   IApplication,
   Orderinfo,
   isJsonObject,
+  UpdateUserinfo,
 } from '@/typedef';
 
 // const crypto = require('crypto');
@@ -308,7 +309,21 @@ export class DBManager {
   async updateUser(email: string, userinfo: Userinfo): PromLD<IUser> {
     const user = await model.User.findOne({ email }).exec();
     if (!user) throw Error(`updateUser: ${email}이 존재하지 않습니다`);
-    return user.updateOne(userinfo).exec();
+    const { user_agreed, ...rest } = userinfo;
+    const updateUserinfo: UpdateUserinfo = { ...rest };
+
+
+    if (typeof user_agreed?.advertisement === 'boolean') {
+      updateUserinfo['user_agreed.advertisement'] = user_agreed?.advertisement;
+    }
+    if (typeof user_agreed?.policy === 'boolean') {
+      updateUserinfo['user_agreed.policy'] = user_agreed?.policy;
+    }
+    if (typeof user_agreed?.privacy === 'boolean') {
+      updateUserinfo['user_agreed.privacy'] = user_agreed?.privacy;
+    }
+
+    return user.updateOne(updateUserinfo).exec();
   }
 
   // @returns {?DocumentQuery} 삭제된 유저
@@ -1824,7 +1839,7 @@ export class DBManager {
   async getOrderCountGroupedByStatus(
     condition: OrderSearch,
   ): Promise<GetOrderCountGroupedByStatusResult> {
-    const refined_condition = condition;
+    const refined_condition = { ...condition };
     delete refined_condition.page;
     delete refined_condition.perpage;
     return model.Order.aggregate([

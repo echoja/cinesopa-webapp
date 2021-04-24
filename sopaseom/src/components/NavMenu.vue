@@ -31,7 +31,7 @@
               >소파밋
             </b-link>
           </li>
-          <hr />
+          <hr class="Tmy-3" />
           <li>
             <b-link
               class="mobile-menu-link"

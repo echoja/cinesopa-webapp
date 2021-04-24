@@ -3,14 +3,18 @@
     <!-- <div class="loading" v-if="loading">
       <small-spinner></small-spinner>로딩중입니다.
     </div> -->
-    <div class="form">
+    <div class="Tw-96 Tmx-auto Tmt-4">
       <validation-provider
         name="Password"
         ref="passwordProvider"
         :rules="{ required: true, password_min: 8 }"
         v-slot="vcon"
       >
-        <b-form-group label="비밀번호" label-for="input-password">
+        <b-form-group
+          label-class="Ttext-lg Tfont-bold"
+          label="비밀번호"
+          label-for="input-password"
+        >
           <!-- description="비밀번호는 최소 8자 이상이어야 합니다." -->
           <b-form-input
             type="password"
@@ -18,14 +22,14 @@
             class="input-password"
             autocomplete="new-password"
             v-model="validate.password.value"
-            @keyup.enter="nextButtonClicked"
+            @keyup.enter="changePasswordClicked"
             :state="validate['password'].valid"
             @update="inputted('password')"
           ></b-form-input>
           <template
             #description
             v-if="
-              (validate['password'].valid === null) | validate['password'].valid
+              validate['password'].valid === null || validate['password'].valid
             "
           >
             비밀번호는 최소 8자 이상이어야 합니다.
@@ -55,14 +59,18 @@
         }"
         v-slot="vcon"
       >
-        <b-form-group label="비밀번호 재입력" label-for="input-password-again">
+        <b-form-group
+          label-class="Ttext-lg Tfont-bold"
+          label="비밀번호 확인"
+          label-for="input-password-again"
+        >
           <b-form-input
             type="password"
             id="input-password-again"
             class="input-password-again"
             autocomplete="off"
             v-model="validate['password-again'].value"
-            @keyup.enter="nextButtonClicked"
+            @keyup.enter="changePasswordClicked"
             :state="validate['password-again'].valid"
             @update="inputted('password-again')"
           ></b-form-input>
@@ -83,12 +91,15 @@
               }}</b-form-invalid-feedback> -->
         </b-form-group>
       </validation-provider>
-      <b-button
-        :disabled="!canNext"
-        @click="changePasswordClicked"
+      <loading-button
+        class="Tpy-3 Tw-full Tmt-5"
         variant="primary"
-        >비밀번호 변경</b-button
+        @click="changePasswordClicked"
+        :loading="loading"
+        :disabled="!canNext"
       >
+        비밀번호 재설정
+      </loading-button>
     </div>
   </div>
 </template>
@@ -99,7 +110,6 @@ import {
   BFormGroup,
   BFormInput,
   BFormInvalidFeedback,
-  BSpinner,
   BButton,
 } from 'bootstrap-vue';
 import { makeSimpleMutation } from '@/api/graphql-client';
@@ -108,19 +118,18 @@ import { mapActions } from 'vuex';
 const changePasswordReq = makeSimpleMutation('changePassword');
 
 export default {
-  title: '비밀번호 변경',
   components: {
     ValidationProvider,
     BFormInvalidFeedback,
     BFormInput,
     BFormGroup,
-    BSpinner,
     BButton,
-    SmallSpinner: () => import('@/components/SmallSpinner'),
+    LoadingButton: () => import('@/components/LoadingButton'),
   },
   data() {
     return {
-      loading: true,
+      vuePageTitle: '',
+      loading: false,
       isTokenValid: false,
       validate: {
         password: {
@@ -146,12 +155,18 @@ export default {
       },
     };
   },
+  mounted() {
+    this.vuePageTitle = '비밀번호 재설정';
+  },
   computed: {
+    /** @returns {boolean} */
     canNext() {
       return Object.values(this.validate)
         .filter((item) => item.required === true)
         .every((item) => item.valid === true);
     },
+
+    /** @returns {string} */
     token() {
       return this.$route.query.token ?? '';
     },
@@ -226,8 +241,9 @@ export default {
       }
     },
 
-    // 비밀번호 변경을 클릭하면 실행되는 함수
+    // 비밀번호 재설정을 클릭하면 실행되는 함수
     async changePasswordClicked() {
+      this.loading = true;
       const args = {
         token: this.token,
         pwd: this.validate.password.value,
@@ -236,17 +252,17 @@ export default {
       console.log(args);
       const result = await changePasswordReq(args, '{success code}');
       if (result.success) {
-        this.pushMessage({
-          msg: '비밀번호가 성공적으로 변경되었습니다.',
-          type: 'success',
-          id: 'changePasswordSuccess',
-        });
+        // this.pushMessage({
+        //   msg: '비밀번호가 성공적으로 변경되었습니다.',
+        //   type: 'success',
+        //   id: 'changePasswordSuccess',
+        // });
         this.$router.push({
-          name: 'Home',
+          name: 'ChangePasswordSuccess',
         });
       } else {
         this.pushMessage({
-          msg: `비밀번호 변경 중 오류가 발생했습니다. > ${result.code}`,
+          msg: `비밀번호 재설정 중 오류가 발생했습니다. > ${result.code}`,
           type: 'success',
           id: 'changePasswordFailed',
         });
@@ -254,6 +270,7 @@ export default {
           name: 'ChangePasswordRequest',
         });
       }
+      this.loading = false;
     },
   },
 };

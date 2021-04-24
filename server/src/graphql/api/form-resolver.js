@@ -10,8 +10,9 @@ const {
 } = require('@/loader');
 
 const moment = require('moment');
-const { enumFilmAvailableSubtitle } = require('../../db/schema/enum');
+const { enumFilmAvailableSubtitle } = require('@/db/schema/enum');
 const { isJsonObject, ApplicationTransportStatus } = require('@/typedef');
+const { onlyRejected } = require('@/util');
 
 const requestShowingLabelMap = {
   companyName: '기관 이름',
@@ -266,7 +267,7 @@ module.exports = {
         });
 
         const results = await Promise.allSettled(promises);
-        results.filter((result) => result.status === 'rejected').forEach((result) => console.log(result.reason))
+        onlyRejected(results).forEach((result) => console.log(result.reason)); // need check
         if (results.some((result) => result.status === 'rejected')) {
           return { success: false, code: 'error_while_mail' };
         }

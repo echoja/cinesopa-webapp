@@ -24,13 +24,13 @@ export default {
   min-height: calc(
     100vh - #{common.$desktop-footer-height + common.$desktop-footer-height}
   );
-  padding: 0 common.$desktop-min-x-margin 30px;
+  padding: 0 common.$desktop-min-x-margin common.$main-wrapper-padding-bottom;
 }
 
 @include breakpoint.max-with(sm) {
   .main-wrapper {
     // margin-top: common.$mobile-header-height;
-    padding: 0 common.$mobile-min-x-margin 30px;
+    padding: 0 common.$mobile-min-x-margin common.$main-wrapper-padding-bottom;
   }
 }
 </style>
