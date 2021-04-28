@@ -47,20 +47,11 @@ type UserExistsResult {
   pwd: Boolean
 }
 
-type RequestChangePasswordResult {
+type SimpleResult {
   success: Boolean
   code: String
 }
 
-type RequestVerifyEmailResult {
-  success: Boolean
-  code: String
-}
-
-type ChangePasswordResult {
-  success: Boolean
-  code: String
-}
 
 type UserAgreed {
   privacy: Boolean
@@ -72,16 +63,6 @@ input UserAgreedInput {
   privacy: Boolean
   policy: Boolean
   advertisement: Boolean
-}
-
-type AgreementForKakaoUserResult {
-  success: Boolean
-  code: String
-}
-
-type UpdateMeResult {
-  success: Boolean
-  code: String
 }
 
 type VerifyUserEmailResult {
@@ -158,6 +139,9 @@ extend type Mutation {
   login(provider: EmailAuthProvider!, redirectLink: String): LoginResult
   # logout(email: String!): LoginResult
   logoutMe: User
+  cancelKakaoAgreement: SimpleResult
+  unlinkKakao: SimpleResult
+  createLoginForKakaoUser(pwd: String!): SimpleResult
   # createAdmin(email: String!, pwd: String!, role: UserRole!): User
   createGuest(
     email: String!
@@ -173,10 +157,10 @@ extend type Mutation {
   makePwdForKakaoUser(pwd: String!): User # 실패시 user null
   agreementForKakaoUser(
     user_agreed: UserAgreedInput!
-  ): AgreementForKakaoUserResult
-  updateMe(userinfo: UpdateMeInput!): UpdateMeResult
-  requestVerifyEmail(debug: Boolean): RequestVerifyEmailResult
-  requestChangePassword(email: String!, debug: Boolean): RequestChangePasswordResult
-  changePassword(token: String!, pwd: String!): ChangePasswordResult
+  ): SimpleResult
+  updateMe(userinfo: UpdateMeInput!): SimpleResult
+  requestVerifyEmail(debug: Boolean): SimpleResult
+  requestChangePassword(email: String!, debug: Boolean): SimpleResult
+  changePassword(token: String!, pwd: String!): SimpleResult
   forceLogin(email: String!): User # 반드시 삭제해야 함. todo
 }

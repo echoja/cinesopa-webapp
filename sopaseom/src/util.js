@@ -1,6 +1,7 @@
 // import url from 'url';
 import axios from 'axios';
 import { makeSimpleQuery } from './api/graphql-client';
+import store from './store';
 
 export const numberWithCommas = (x) => {
   if (typeof x === 'number') {
@@ -276,3 +277,21 @@ export const getOptionsFromServer = async (...names) => {
   );
   return optionResults;
 };
+
+export async function handleSimpleResult(result, id, successMsg, failMsg) {
+  if (result.success) {
+    store.dispatch('pushMessage', {
+      type: 'success',
+      id: `${id}Success`,
+      msg: successMsg,
+    });
+  } else {
+    console.error(result.code);
+
+    store.dispatch('pushMessage', {
+      type: 'danger',
+      id: `${id}failed`,
+      msg: failMsg,
+    });
+  };
+}

@@ -26,7 +26,7 @@ module.exports = {
   rules: {
     'no-await-in-loop': 1,
     'no-underscore-dangle': 0,
-    'no-unused-vars': 1,
+    'no-unused-vars': 0, // 다른 옵션과 겹침
     'no-plusplus': 0,
     'no-return-await': 1,
     'no-use-before-define': 0,
@@ -44,6 +44,7 @@ module.exports = {
     '@typescript-eslint/no-empty-interface': 0,
     'import/no-cycle': 1,
     'mocha/no-setup-in-describe': 1,
+
   },
   settings: {
     'import/parsers': {

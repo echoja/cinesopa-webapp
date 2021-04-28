@@ -9,7 +9,7 @@ const validator = require('@/auth/validator').make({
   ANYONE: 1,
   GUEST: 2,
 });
-const { kakaoVerifyFunctionMaker } = require('@/auth/strategy/kakao');
+const { kakaoVerifyFunctionMaker } = require('@/auth/kakao');
 const {
   createTestServer,
   graphqlSuper,
@@ -142,6 +142,10 @@ describe('auth', function () {
         it('존재하는 유저에 대해 제대로 동작해야함.', async function () {
           const done = sinon.fake();
           const goodProfile = {
+            _raw: '',
+            displayName: '',
+            id: '',
+            provider: '',
             _json: {
               id: '123',
               kakao_account: {
@@ -161,6 +165,10 @@ describe('auth', function () {
         it('is_email_valid 가 false 일때 실패해야 함.', async function () {
           const done = sinon.fake();
           const badInvalidProfile = {
+            _raw: '',
+            displayName: '',
+            id: '',
+            provider: '',
             _json: {
               id: '123',
               kakao_account: {
@@ -177,6 +185,10 @@ describe('auth', function () {
         it('is_email_verified 가 false 일때 실패해야 함.', async function () {
           const done = sinon.fake();
           const badInvalidVerified = {
+            _raw: '',
+            displayName: '',
+            id: '',
+            provider: '',
             _json: {
               id: '123',
               kakao_account: {
@@ -192,7 +204,12 @@ describe('auth', function () {
         });
         it('is_email_verified, is_email_valid 둘 다 false 일 때 실패해야 함.', async function () {
           const done = sinon.fake();
+          /** @type {import('passport-kakao').Profile} */
           const badAllProfile = {
+            _raw: '',
+            displayName: '',
+            id: '',
+            provider: '',
             _json: {
               id: '123',
               kakao_account: {

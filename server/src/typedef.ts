@@ -20,6 +20,10 @@ import { JsonObject, JsonValue } from 'type-fest';
 
 import type FileImported from './manager/file';
 
+import type { UserService as UserServiceClass } from './service/user';
+
+export type UserService = InstanceType<typeof UserServiceClass>;
+
 // import {MailManager as MailManagerClass} from './manager/mail';
 
 // export type MailManager = typeof MailManagerClass;
@@ -569,7 +573,9 @@ interface UserinfoBase {
 
 export interface Userinfo extends UserinfoBase, IIdOption {}
 
-export interface  UpdateUserinfo extends Omit<UserinfoBase, 'user_agreed'>, IIdOption {
+export interface UpdateUserinfo
+  extends Omit<UserinfoBase, 'user_agreed'>,
+    IIdOption {
   'user_agreed.privacy'?: boolean;
   'user_agreed.policy'?: boolean;
   'user_agreed.advertisement'?: boolean;
@@ -1013,12 +1019,33 @@ declare global {
   }
 }
 
+export const authActions = ['kakaoDetach', 'example'] as const;
+
+export type AuthActions = typeof authActions[number];
+export interface AuthActionDataMap {
+  kakaoDetach: null;
+  example: string;
+}
+
+export type _AuthActionsDumbType = {
+  [P in AuthActions]: never;
+};
+
+type _AuthActionCheck<
+  T extends AuthActions,
+  U extends keyof AuthActionDataMap
+> = {
+  interfaceContainsReadonly: AuthActionDataMap[T];
+  readonlyContainsInterface: _AuthActionsDumbType[U];
+} & never;
+
 declare module 'express-session' {
   export interface SessionData {
     redirectLink: string;
+    authAction?: AuthActions;
+    authActionData?: AuthActionDataMap[AuthActions];
   }
 }
-
 
 // eslint-disable-next-line
 //  @typedef {Object.<string, import('mongoose').Model<import('mongoose').MongooseDocument, {}>>} ModelWrapper */

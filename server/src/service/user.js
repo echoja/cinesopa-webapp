@@ -11,6 +11,7 @@ const {
 
 // const { enumAuthmap, enumTokenPurpose } = require('../db/schema/enum');
 const crypto = require('crypto');
+const { flattenDiagnosticMessageText } = require('typescript');
 const { enumTokenPurpose } = require('../db/schema/enum');
 // const { composeResolvers } = require('graphql-tools');
 
@@ -89,19 +90,32 @@ class UserService {
       await this.#db.createUser(email, pwd, { role: 'GUEST', user_agreed });
       await this.startEmailVerifying(email, debug);
     }
-    // 만약 유저가 있다면 (카카오 계정이라면) 새롭게 추가합니다. (실제로는 쓰이지 않음.)
-    else if (typeof user.kakao_id === 'string') {
+  }
+
+  /**
+   * 이미 가입한 카카오 유저에게 비밀번호를 부여합니다.
+   * @param {string} email 이메일
+   * @param {string} pwd 비밀번호
+   * @returns {Promise<{success: boolean, code?: string}>} 결과 
+   */
+  async addPasswordToKakaoUser(email, pwd) {
+    const user = await this.#db.getUserByEmail(email);
+
+    // 만약 유저가 있고 (카카오 계정이라면) 새롭게 추가합니다. (실제로는 쓰이지 않음.)
+    if (user && typeof user.kakao_id === 'string') {
       await this.#db.updateUser(email, {
         has_pwd: true,
       });
       await this.#db.upsertOnlyLogin(email, pwd);
+      return { success: true };
     }
+    return { success: false, code: 'invalid_user' };
   }
 
   /**
    * 계정에 대해 비밀번호 변경 링크를 만들어 계정에게 이메일을 보냄.
-   * @param {string} email 
-   * @param {boolean=} debug 
+   * @param {string} email
+   * @param {boolean=} debug
    */
   async requestChangePassword(email, debug = false) {
     // 이메일을 찾을 수 없는 경우 에러
@@ -258,4 +272,5 @@ module.exports = {
   make(dbManager, mailManager) {
     return new UserService(dbManager, mailManager);
   },
+  UserService,
 };

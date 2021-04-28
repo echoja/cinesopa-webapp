@@ -1,7 +1,11 @@
 // require('./typedef');
 
 import { Handler } from 'express';
+import { argsToArgsConfig } from 'graphql/type/definition';
+import { PassportStatic } from 'passport';
+import { registerCustomQueryHandler } from 'puppeteer';
 import { Asyncify, SetReturnType } from 'type-fest';
+import { Userinfo } from './typedef';
 
 /** ******************* */
 /* express middleware */
@@ -33,6 +37,25 @@ export function unwrap<T, U>(
 ): T | U {
   if (result.status === 'fulfilled') return result.value;
   return defaultValue;
+}
+
+type AuthHandlerParams = [...Parameters<Handler>, Userinfo]; // todo: need to change into "[...Parameters<Handler>, user: Userinfo]" in typescript 4.3.1
+
+export function authHandler(
+  passport: PassportStatic,
+  strategy: string,
+  handler: (...args: AuthHandlerParams) => void,
+): Handler {
+  return (req, res, next) => {
+    passport.authenticate(strategy, (err, user: Userinfo) => {
+      console.log('#util.ts authHandler authenticate callback called');
+      if (err) {
+        console.log('#util.ts authHandler error occurred');
+        return;
+      }
+      handler(req, res, next, user);
+    })(req, res, next);
+  };
 }
 
 export function tryUnwrap<T>(

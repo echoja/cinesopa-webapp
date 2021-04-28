@@ -312,7 +312,6 @@ export class DBManager {
     const { user_agreed, ...rest } = userinfo;
     const updateUserinfo: UpdateUserinfo = { ...rest };
 
-
     if (typeof user_agreed?.advertisement === 'boolean') {
       updateUserinfo['user_agreed.advertisement'] = user_agreed?.advertisement;
     }
@@ -330,15 +329,21 @@ export class DBManager {
   /**
    * 이메일 기준으로 유저를 삭제합니다.
    * @param email 이메일
-   * @throws 이메일을 찾을 수 없을 때
    */
-  async removeUserByEmail(email: string): Promise<void> {
-    // console.dir(model.User);
-    const user = await model.User.findOne({ email }).exec();
-    if (!user) throw Error(`removeUserByEmail: ${email} 을 찾을 수 없습니다.`);
-    await model.Login.deleteMany({ email });
-    await model.User.deleteMany({ email });
-    await model.Token.deleteMany({ email });
+  async removeUserByEmail(
+    email: string,
+  ): Promise<
+    PromiseSettledResult<{
+      ok?: number;
+      n?: number;
+      deletedCount?: number;
+    }>[]
+  > {
+    return Promise.allSettled([
+      model.User.deleteMany({ email }).exec(),
+      model.Login.deleteMany({ email }).exec(),
+      model.Token.deleteMany({ email }).exec(),
+    ]);
   }
 
   /*= ====================================

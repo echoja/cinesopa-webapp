@@ -2,6 +2,7 @@
 const path = require('path');
 
 const mongoose = require('mongoose');
+const passport = require('passport');
 const nodemailer = require('nodemailer');
 
 /* db */
@@ -70,7 +71,12 @@ const auth = require('./service/auth').make(db);
 const dest = 'uploads/';
 const field = 'bin';
 const fileManager = require('./manager/file');
-const file = require('./service/file').default.make(db, fileManager, dest, field);
+const file = require('./service/file').default.make(
+  db,
+  fileManager,
+  dest,
+  field,
+);
 
 /* validator */
 const validatorInitializer = require('./auth/validator');
@@ -78,12 +84,16 @@ const validatorInitializer = require('./auth/validator');
 const validator = validatorInitializer.make(auth.authmapLevel);
 
 /* authMiddleware */
-const makeAuthMiddleware = require('./auth/auth-middleware').make;
+const { makeAuthMiddleware } = require('./auth/middlewares');
 
 /* passport graphql lodal strategy */
-const local = require('./auth/passport').default;
+const {
+  configureLocalAuth: configureLocalAuthImpl,
+} = require('./auth/passport-config').default;
 
-const localAuthConfig = local.make(db);
+const configureLocalAuth = () => {
+  configureLocalAuthImpl(passport, db);
+};
 
 // const localAuthConfig = local.make(db.getUserByEmail, async (email, pwd) => {
 //   if (await db.isCorrectPassword(email, pwd)) {
@@ -137,7 +147,7 @@ module.exports = {
   validator,
   file,
   payment,
-  localAuthConfig,
+  configureLocalAuth,
   makeAuthMiddleware,
   makeResolver,
   uploadBaseUrl,

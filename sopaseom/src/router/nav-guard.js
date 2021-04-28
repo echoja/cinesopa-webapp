@@ -147,17 +147,6 @@ export const requireAuth = (condition = {}, failRN = {}) => async (to, from, nex
   const currentRole = user?.role ?? 'ANYONE';
 
   console.log('# requireAuth processing...');
-  console.log(condition);
-  console.log(to);
-  console.log(failRN);
-
-  // 일단 가장 먼저, 유저가 카카오로 로그인되어 있는 상태인데
-  // user_agreed 가 없다면, 우선 약관 동의부터 시킴.
-  // should agreed 무시.
-  if (user && user.user_agreed === null) {
-    store.commit('setRouteWhereAgreeSuccess', to);
-    return next({ name: agreeRequiredRN });
-  }
 
   // role 에 해당하지 않는다면,
   if (!roleArray.includes(currentRole)) {
@@ -198,33 +187,7 @@ export const requireAuth = (condition = {}, failRN = {}) => async (to, from, nex
 
   // 모든 조건을 다 통과했다면 정상적으로 진행
   return next();
-
-  // if (permissionStatus === 'LOGIN_REQUIRED') {
-  //   next({ name: loginRequiredRN });
-  // } else if (permissionStatus === 'NO_PERMISSION') {
-  //   if (emailVerificationRequired) {
-  //     next({ name: emailVerificationRequiredRN });
-  //   } else {
-  //     next({ name: noPermissionRN });
-  //   }
-  // } else {
-  //   store.commit('setCurrentUser', {
-  //     currentUser: user,
-  //   });
-  //   next();
-  // }
 };
-
-// export const makeRouterScrollToTopIfSamePage = (router) => {
-//   console.log('ho1!');
-//   router.afterEach((to, from) => {
-//     console.log('ho2!');
-//     if (to.fullPath === from.fullPath) {
-//       console.log('ho3!');
-//       VueScrollTo.scrollTo('body', 300);
-//     }
-//   });
-// };
 
 /**
  * 해당 라우터에 대해 매번 checkAuth 를 실시합니다.
@@ -233,13 +196,28 @@ export const requireAuth = (condition = {}, failRN = {}) => async (to, from, nex
  * @param {VueRouter} router
  */
 
-export const checkAuthFor = (router) => {
+export const globalBeforeEach = (router, { agreeRequiredRN = 'JoinOAuthUser' } = {}) => {
   router.beforeEach(async (to, from, next) => {
-    // console.log(next.toString());
+    // 유저 정보 초기화
     if (!store.state.userInitialized) {
       store.commit('setUserInitialized', true);
-      checkAuth();
+      await checkAuth();
     }
-    next();
+
+    // 만약 user 가 있는데 kakao uninitialized 상태라면
+    // 무조건 동의창으로 이동.
+    let user = null;
+    try {
+      user = (await store.state.currentUserAsync) || store.state.currentUser;
+      store.commit('setCurrentUserAsync', null);
+    } catch (e) {
+      // blank
+    }
+    if (user && user.user_agreed === null && to.name !== agreeRequiredRN) {
+      store.commit('setRouteWhereAgreeSuccess', to);
+      return next({ name: agreeRequiredRN });
+    }
+
+    return next();
   });
 };

@@ -1,7 +1,12 @@
 <template>
   <div class="login-component">
     <div class="login-header Tflex Tjustify-center" v-if="!shouldHideLogo">
-      <img class="" :style="{width: '113px', height: '88.52px'}" src="@/assets/sopaseom-logo.svg" alt="" />
+      <img
+        class=""
+        :style="{ width: '113px', height: '88.52px' }"
+        src="@/assets/sopaseom-logo.svg"
+        alt=""
+      />
     </div>
     <h2 class="mobile-title">계정으로 로그인</h2>
     <div class="login-body">
@@ -157,6 +162,7 @@ import { mapActions } from 'vuex';
 const loginRequest = makeSimpleMutation('login');
 
 export default {
+  name: 'LoginForm',
   components: {
     BForm,
     BFormCheckbox,
@@ -165,16 +171,22 @@ export default {
     BButton,
     BTooltip,
   },
-  props: {
-    modalId: {
-      type: String,
-      default: '',
-    },
-    hideLogo: {
-      type: String,
-      deafult: null,
-    },
-  },
+  props: ['modalId', 'hideLogo'],
+  // {
+
+  //   /** @type {String} */
+  //   modalId: {
+  //     type: String,
+  //     default: '',
+  //     required: false,
+  //   },
+  //   /** @type {String} */
+  //   hideLogo: {
+  //     type: [String, Boolean],
+  //     deafult: false,
+  //     required: false,
+  //   },
+  // },
   data() {
     return {
       state: {
@@ -214,7 +226,8 @@ export default {
     },
   },
   methods: {
-    ...mapActions(['pushMessage', 'getCurrentUser']),
+    pushMessage: mapActions(['pushMessage']).pushMessage,
+    getCurrentUser: mapActions(['getCurrentUser']).getCurrentUser,
     async initWhenLoginFail() {
       // this.email = '';
       // this.pwd = '';
@@ -344,9 +357,7 @@ export default {
             this.login();
           }
         })
-        .catch((error) => {});
-
-      // 모든 validation 이 만족하는지 체크
+        .catch(() => {});
     },
 
     closeModal() {
@@ -355,6 +366,7 @@ export default {
       }
     },
 
+    /** @returns {boolean} */
     getValidationState({ dirty, validated, valid = null }) {
       return dirty || validated ? valid : null;
     },
@@ -366,13 +378,10 @@ export default {
     },
 
     kakaoLoginButtonClicked() {
+      // 카카오 로그인하는 곳으로 이동
       window.location.href = '/graphql/kakao/login';
       // this.$router.push('/graphql/kakao/login');
     },
-  },
-  created() {
-    // console.log(this.$data);
-    // => { message: "goodbye", foo: "abc", bar: "def" }
   },
 };
 </script>

@@ -259,7 +259,6 @@ export default [
         path: 'success',
         name: 'JoinSuccess',
         component: () => import('@/views/client/JoinSuccess.vue'),
-        // beforeEnter: onlyNoLoginBeforeEnter,
         meta: BodyFixedFooterMeta,
       },
     ],
@@ -268,7 +267,6 @@ export default [
     path: '/join/only-agreement',
     name: 'JoinOAuthUser',
     component: () => import('@/views/client/JoinOAuthUser.vue'),
-    // beforeEnter: requireAuth({ role: 'guest', shouldVerified: 'true' }),
     meta: BodyFooterMeta,
   },
   {
@@ -276,30 +274,12 @@ export default [
     name: 'VerifyEmailRequired',
     component: () => import('@/views/client/VerifyEmailRequired.vue'),
     beforeEnter: requireAuth({ role: 'guest', shouldNotVerified: true }),
-    // beforeEnter: onlyNoLoginBeforeEnter,
   },
   {
     path: '/verify-email',
     name: 'VerifyEmail',
     component: () => import('@/views/client/VerifyEmail.vue'),
     beforeEnter: requireAuth({ role: 'guest', shouldNotVerified: true }),
-    // children: [
-    //   {
-    //     path: 'auth',
-    //     name: 'VerifyEmailAuth',
-    //     component: () => import('@/views/client/VerifyEmailAuth.vue'),
-    //   },
-    //   {
-    //     path: 'success',
-    //     name: 'VerifyEmailSuccess',
-    //     component: () => import('@/views/client/VerifyEmailSuccess.vue'),
-    //   },
-    //   {
-    //     path: 'expired',
-    //     name: 'VerifyEmailExpired',
-    //     component: () => import('@/views/client/VerifyEmailExpired.vue'),
-    //   },
-    // ],
   },
   {
     path: '/continuous-fail',
@@ -348,28 +328,6 @@ export default [
     meta: {
       layout: () => import('@/views/layout/LayoutPlain.vue'),
     },
-  },
-
-  // {
-  //   path: '/admin/page/new',
-  //   component: () => import('@/views/admin/PageNew.vue'),
-  //   name: 'PageNew',
-  //   meta: {
-  //     layout: () => import('@/views/layout/LayoutAdmin.vue'),
-  //   },
-  // },
-  // {
-  //   path: '/admin/page/:id',
-  //   component: () => import('@/views/admin/PageEdit.vue'),
-  //   name: 'PageEdit',
-  //   meta: {
-  //     layout: () => import('@/views/layout/LayoutAdmin.vue'),
-  //   },
-  // },
-  {
-    path: '/404',
-    name: '404',
-    component: () => import('@/views/client/404.vue'),
   },
   {
     path: '/:permalink',

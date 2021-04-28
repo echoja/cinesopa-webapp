@@ -68,7 +68,7 @@
           <template
             #description
             v-if="
-              (validate['password'].valid === null) | validate['password'].valid
+              (validate['password'].valid === null) || validate['password'].valid
             "
           >
             비밀번호는 최소 8자 이상이어야 합니다.
@@ -145,17 +145,15 @@
 import {
   BFormGroup,
   BFormInput,
-  // BTooltip,
   BButton,
   BForm,
   BFormInvalidFeedback,
-  BOverlay,
   BSpinner,
 } from 'bootstrap-vue';
 import { graphql } from '@/loader';
 
 import { mapGetters, mapMutations, mapState } from 'vuex';
-import { checkAuth, manualCheckAuth } from '@/api/graphql-client';
+import { checkAuth } from '@/api/graphql-client';
 
 const userExistsQuery = `
 query userExistsQuery($email: String!) {
@@ -184,7 +182,6 @@ mutation createGuestMutation($email: String!, $pwd: String!, $user_agreed: UserA
 `;
 
 export default {
-  title: '회원가입 - 정보입력',
   components: {
     BFormGroup,
     BFormInput,
@@ -192,11 +189,11 @@ export default {
     BButton,
     BForm,
     BFormInvalidFeedback,
-    BOverlay,
     BSpinner,
   },
   data() {
     return {
+      vuePageTitle: '',
       emailAlreadyExists: false,
       emailAlreadyExistsErrorMsg: '',
       emailValidationFailMessage: '',
@@ -237,6 +234,7 @@ export default {
   computed: {
     ...mapGetters(['isValidUserAgreed']),
     ...mapState(['joinProcessing', 'createUserAgreed']),
+    /** @returns {boolean} */
     canNext() {
       return (
         Object.values(this.validate)
@@ -244,9 +242,11 @@ export default {
           .every((item) => item.valid === true) && this.emailIsValid
       );
     },
+    /** @returns {string} */
     emailValue() {
       return this.validate.email.value;
     },
+    /** @returns {boolean} */
     emailIsValid() {
       return (
         this.validate.email.valid &&
@@ -254,23 +254,6 @@ export default {
         !this.emailAlreadyExists
       );
     },
-    emailErrorMsg() {
-      return this.emailAlreadyExistsErrorMsg || 1;
-    },
-    // emailError() {
-    //   if (this.validate.email.value === '') return null;
-    //   if (this.validate.email.valid && this.emailAlreadyExists) return true;
-    //   return false;
-    // },
-    // passwordAgainValid() {
-    //   return (
-    //     this.validate['password-again'].valid &&
-    //     this.validate['password-again'].value === this.validate.password.value
-    //   );
-    // },
-    // passwordAgainErrorMsg() {
-    //   return this.validate[]
-    // },
   },
   watch: {
     async emailValue() {
@@ -280,6 +263,7 @@ export default {
   },
 
   mounted() {
+    this.vuePageTitle = '회원가입 - 정보입력';
     if (!this.isValidUserAgreed) {
       this.$router.push({ name: 'JoinPolicy' });
     }
@@ -367,7 +351,7 @@ export default {
       }
       if (email && kakao) {
         this.emailAlreadyExists = true;
-        this.emailAlreadyExistsErrorMsg = '이미 카카오로 인증된 계정입니다.';
+        this.emailAlreadyExistsErrorMsg = '이미 존재하는 카카오 계정입니다. 카카오 계정으로 로그인 후 비밀번호 접속 정보를 추가해주세요.';
         return;
       }
       this.emailAlreadyExists = false;

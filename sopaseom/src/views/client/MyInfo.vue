@@ -9,9 +9,63 @@
       <div class="info-row">
         <div class="info-cell head">비밀번호</div>
         <div class="info-cell body">
-          <b-button size="sm" @click="changePasswordClicked"
-            >비밀번호 재설정</b-button
+          <b-button
+            v-if="currentUser.has_pwd"
+            size="sm"
+            @click="changePasswordClicked"
           >
+            비밀번호 재설정
+          </b-button>
+          <template v-else>
+            <b-button
+              class="Tmr-3"
+              size="sm"
+              @click="$bvModal.show('new-password-modal')"
+              >비밀번호 설정하기
+            </b-button>
+            <info>
+              카카오 계정만 연결된 상태에서 비밀번호를 별도로 설정할 수
+              있습니다. 비밀번호를 설정하게 되면 카카오 계정의 연동을 해제할 수
+              있습니다.
+            </info>
+          </template>
+          <b-modal id="new-password-modal" hide-footer hide-header>
+            <template #default="{ hide }">
+              <div class="Trelative">
+                <b-button
+                  class="Tborder-0 Tp-3 Tabsolute Tright-0 Ttop-0 Tbg-opacity-0"
+                  @click="hide"
+                >
+                  <close-figure> </close-figure>
+                </b-button>
+                <p class="Tmb-4">비밀번호는 최소 8자리여야 합니다.</p>
+                <div
+                  class="Tmb-3"
+                  v-for="newPwdValue in newPwdValues"
+                  :key="newPwdValue.key"
+                >
+                  <label class="Ttext-base Tfont-bold" :for="newPwdValue.key">{{
+                    newPwdValue.label
+                  }}</label>
+                  <b-form-input
+                    :id="newPwdValue.key"
+                    type="password"
+                    v-model="newPwdValue.value"
+                  />
+                </div>
+                <div class="Ttext-right">
+                  <loading-button
+                    variant="primary"
+                    :loading="newPasswordLoading"
+                    :disabled="!newPwdValid"
+                    @click="newPasswordClicked"
+                  >
+                    설정하기
+                  </loading-button>
+                </div>
+              </div>
+            </template>
+          </b-modal>
         </div>
       </div>
       <div class="info-row">
@@ -19,9 +73,14 @@
         <div class="info-cell body kakao">
           <template v-if="isConnectedWithKakao">
             <span class="current-status">연동됨</span>
-            <b-button size="sm" @click="disableKakaoClicked">
+            <loading-button
+              :loading="unlinkKakaoLoading"
+              size="sm"
+              @click="unlinkKakaoClicked"
+              :disabled="!currentUser.has_pwd"
+            >
               연동 해제
-            </b-button>
+            </loading-button>
           </template>
           <template v-else>
             <div>
@@ -74,7 +133,11 @@
 
         <div class="info-cell body">
           <div>
-            <finding-address-button class="mb-2" size="sm" @address-loaded="addressLoaded">
+            <finding-address-button
+              class="mb-2"
+              size="sm"
+              @address-loaded="addressLoaded"
+            >
               주소 찾기 ...
             </finding-address-button>
             <b-form-input v-model="default_dest.address"></b-form-input>
@@ -129,9 +192,14 @@ import {
 } from 'bootstrap-vue';
 import { mapActions, mapState } from 'vuex';
 import { checkAuth, makeSimpleMutation } from '@/api/graphql-client';
+import { handleSimpleResult } from '@/util';
 
 const updateMeReq = makeSimpleMutation('updateMe');
 const requestChangePasswordReq = makeSimpleMutation('requestChangePassword');
+const createLoginForKakaoUserReq = makeSimpleMutation(
+  'createLoginForKakaoUser',
+);
+const unlinkKakaoReq = makeSimpleMutation('unlinkKakao');
 
 export default {
   components: {
@@ -141,9 +209,26 @@ export default {
     BFormCheckbox,
     BModal,
     FindingAddressButton: () => import('@/components/FindingAddressButton'),
+    Info: () => import('@/components/admin/Info'),
+    CloseFigure: () => import('@/components/CloseFigure'),
+    LoadingButton: () => import('@/components/LoadingButton'),
   },
   data() {
     return {
+      unlinkKakaoLoading: false,
+      newPasswordLoading: false,
+      newPwdValues: [
+        {
+          key: 'newPwd',
+          label: '비밀번호',
+          value: '',
+        },
+        {
+          key: 'newPwdAgain',
+          label: '비밀번호 확인',
+          value: '',
+        },
+      ],
       advertisement: false,
       vuePageTitle: '',
       defaultDestUpdateSuccessMessageShow: false,
@@ -176,7 +261,13 @@ export default {
     },
     /** @returns {boolean} */
     isConnectedWithKakao() {
-      return this.currentUser?.has_pwd === false;
+      return !!this.currentUser?.kakao_id;
+    },
+    /** @returns {boolean} */
+    newPwdValid() {
+      const pwd = this.newPwdValues[0].value;
+      const pwdAgain = this.newPwdValues[1].value;
+      return pwd && pwd.length >= 8 && pwd === pwdAgain;
     },
   },
   async mounted() {
@@ -188,15 +279,22 @@ export default {
     }
     this.advertisement = user.user_agreed.advertisement ?? false;
   },
-  // watch: {
-  //   // 새롭게 갱신되는 기본 주소 정보를 가져옴.
-  //   currentUser(user) {
-  //     this.default_dest = user.default_dest;
-  //   },
-  // },
   methods: {
     ...mapActions(['getCurrentUser', 'pushMessage']),
-    disableKakaoClicked() {},
+    async unlinkKakaoClicked() {
+      this.unlinkKakaoLoading = true;
+      const result = await unlinkKakaoReq({}, '{success code}');
+      await handleSimpleResult(
+        result,
+        'unlinkKakao',
+        '카카오 계정이 성공적으로 연결 해제되었습니다.',
+        '카카오 계정 연결을 해제하는 데 오류가 발생했습니다. 카카오 계정으로 재로그인 후 다시 시도해주세요.',
+      );
+      if (result.success) {
+        await checkAuth();
+      }
+      this.unlinkKakaoLoading = false;
+    },
     async saveDefaultDest() {
       const res = await updateMeReq(
         { userinfo: { default_dest: this.default_dest } },
@@ -216,13 +314,6 @@ export default {
       setTimeout(() => {
         this.defaultDestUpdateSuccessMessageShow = false;
       }, 2500);
-      // if (res.success) {
-      //   this.pushMessage({
-      //     type: 'success',
-      //     msg: '기본 배송지 설정 완료했습니다.',
-      //     id: 'defaultDestUpdateSuccess',
-      //   });
-      // }
     },
     async changeAdvertisement() {
       this.advertisementProcessing = true;
@@ -250,7 +341,9 @@ export default {
       await checkAuth();
       this.advertisementProcessing = false;
     },
-    connectKakaoClicked() {},
+    connectKakaoClicked() {
+      window.location.href = `/graphql/kakao/login?redirection_url=${window.location.href}`;
+    },
     addressLoaded(data) {
       console.log('MyInfo addressLoaded');
       console.log(data);
@@ -310,6 +403,30 @@ export default {
         });
       }
     },
+    async newPasswordClicked() {
+      this.newPasswordLoading = true;
+      const result = await createLoginForKakaoUserReq(
+        { pwd: this.newPwdValues[0].value },
+        '{success code}',
+      );
+      if (result.success) {
+        this.pushMessage({
+          type: 'success',
+          id: 'newPasswordSuccess',
+          msg: '비밀번호를 성공적으로 설정했습니다.',
+        });
+        await checkAuth();
+      } else {
+        console.error(result.code);
+        this.pushMessage({
+          type: 'danger',
+          id: 'newPasswordfailed',
+          msg: '비밀번호를 생성하는 데 에러가 발생했습니다.',
+        });
+      }
+      this.$bvModal.hide('new-password-modal');
+      this.newPasswordLoading = false;
+    },
   },
 };
 </script>
@@ -328,10 +445,6 @@ h2 {
   font-size: 20px;
   font-weight: bold;
   margin-bottom: 20px;
-}
-
-p {
-  margin: 0;
 }
 
 .info-group {
@@ -395,7 +508,3 @@ span.current-status {
   margin-left: 15px;
 }
 </style>
-
-<style scoped></style>
-
-<style></style>

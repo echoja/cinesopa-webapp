@@ -115,7 +115,7 @@
           </div>
         </div>
       </div>
-      <div class="order-list">
+      <div class="order-list Tmb-4">
         <div
           class="order-list-item-wrapper no-result"
           v-if="!loading && orders.length === 0"
@@ -192,7 +192,7 @@
 
             <!-- 각 항목 오른쪽 -->
             <div class="Ttext-sm Tflex Titems-center lg:Tblock">
-              <div class="lg:Tmb-2 Tfont-medium Tmr-2 lg:Tmr-0">
+              <div class="lg:Tmb-2 Tfont-medium Tmr-2 lg:Tmr-0 Ttext-center">
                 {{ statusString(orderItem.status) }}
               </div>
               <div class="buttons-wrapper Tblock lg:Tgrid">
@@ -229,17 +229,16 @@
           </div>
         </div>
       </div>
+      <!-- 페이지네이션 -->
+      <b-pagination-nav
+        class="myordered-pagination"
+        :link-gen="linkGen"
+        :number-of-pages="totalPages"
+        align="center"
+        :value="condition.page"
+        use-router
+      ></b-pagination-nav>
     </div>
-
-    <!-- 페이지네이션 -->
-    <b-pagination-nav
-      class="myordered-pagination"
-      :link-gen="linkGen"
-      :number-of-pages="totalPages"
-      align="center"
-      :value="condition.page"
-      use-router
-    ></b-pagination-nav>
 
     <!-- 상세 정보 modal -->
     <b-modal
@@ -353,10 +352,17 @@
           <h2 class="modal-head Tborder-black Tpb-1 Tborder-b Tmb-4">
             받으실 분
           </h2>
-          <div class="Tinline-grid Ttext-base" :style="{ gridTemplateColumns: 'auto auto' }">
+          <div
+            class="Tinline-grid Ttext-base"
+            :style="{ gridTemplateColumns: 'auto auto' }"
+          >
             <template v-for="dest in detailDestItems">
-              <div :key="`${dest.title}-title`" class="Tp-2 Tpl-0 Tpr-10"><b>{{ dest.title }}</b></div>
-              <div :key="`${dest.title}-content`" class="Tp-2">{{ dest.content }}</div>
+              <div :key="`${dest.title}-title`" class="Tp-2 Tpl-0 Tpr-10">
+                <b>{{ dest.title }}</b>
+              </div>
+              <div :key="`${dest.title}-content`" class="Tp-2">
+                {{ dest.content }}
+              </div>
             </template>
           </div>
           <!-- <pre>

@@ -3,7 +3,7 @@ const logger = require('morgan');
 const session = require('express-session');
 const passport = require('passport');
 const uuidv4 = require('uuid').v4;
-const { localAuthConfig } = require('./loader');
+const { configureLocalAuth } = require('./loader');
 const { dbServerInit } = require('./db/db-server');
 const config = require('../config/common');
 const { getRouter } = require('./router');
@@ -30,7 +30,7 @@ webapp.use(
     store: sessionStore, // store
   }),
 );
-localAuthConfig();
+configureLocalAuth();
 webapp.use(passport.initialize()); // passport 구동
 webapp.use(passport.session());
 

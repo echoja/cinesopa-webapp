@@ -252,18 +252,14 @@ export default {
       console.log(args);
       const result = await changePasswordReq(args, '{success code}');
       if (result.success) {
-        // this.pushMessage({
-        //   msg: '비밀번호가 성공적으로 변경되었습니다.',
-        //   type: 'success',
-        //   id: 'changePasswordSuccess',
-        // });
         this.$router.push({
           name: 'ChangePasswordSuccess',
         });
       } else {
+        console.error(result.code);
         this.pushMessage({
           msg: `비밀번호 재설정 중 오류가 발생했습니다. > ${result.code}`,
-          type: 'success',
+          type: 'danger',
           id: 'changePasswordFailed',
         });
         this.$router.push({

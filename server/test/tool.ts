@@ -18,8 +18,8 @@ import fileServiceMaker from '@/service/file';
 
 // eslint-disable-next-line import/named
 import { graphQLServerMiddleware } from '@/graphql';
-import local from '@/auth/passport';
-import { make as makeAuthMiddleware } from '@/auth/auth-middleware';
+import local from '@/auth/passport-config';
+import { makeAuthMiddleware } from '@/auth/middlewares';
 import {
   db,
   auth,
@@ -180,7 +180,7 @@ export const createTestServer = (hookFunctions: Mocha.Suite, options: {additiona
     /** 웹앱 세팅 */
     webapp.use(
       session({
-        genid: (req) => uuidv4(),
+        genid: () => uuidv4(),
         secret: 'test',
         resave: false,
         saveUninitialized: false,
@@ -192,7 +192,6 @@ export const createTestServer = (hookFunctions: Mocha.Suite, options: {additiona
     );
     webapp.use(passport.initialize()); // passport 구동
     webapp.use(passport.session());
-    local.init(db);
     webapp.use('/graphql', graphQLServerMiddleware);
 
     webapp.get('/session', (req, res) => {

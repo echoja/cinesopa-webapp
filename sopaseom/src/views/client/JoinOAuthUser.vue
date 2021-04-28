@@ -32,7 +32,11 @@
           </b-link>
         </div>
         <div class="button-box">
-          <b-button @click="logoutButtonClicked">로그아웃</b-button>
+          <loading-button
+            :loading="kakaoUnlinkLoading"
+            @click="cancelKakaoAgreementClicked"
+            >카카오 연결 끊기</loading-button
+          >
           <loading-button
             :loading="loading"
             :disabled="!canNext"
@@ -74,24 +78,24 @@
 </template>
 
 <script>
-import { BFormCheckbox, BLink, BButton } from 'bootstrap-vue';
-import { checkAuth, doLogout, makeSimpleMutation } from '@/api/graphql-client';
+import { BFormCheckbox, BLink } from 'bootstrap-vue';
+import { checkAuth, makeSimpleMutation } from '@/api/graphql-client';
 import { mapActions, mapState } from 'vuex';
 
 const updateMeReq = makeSimpleMutation('updateMe');
+const cancelKakaoAgreementReq = makeSimpleMutation('cancelKakaoAgreement');
 
 export default {
-  title: '회원가입 - 약관동의',
   components: {
     BFormCheckbox,
     BLink,
-    BButton,
     SvgNext: () => import('@/components/SvgNext'),
     PageHeader: () => import('@/components/PageHeader'),
     LoadingButton: () => import('@/components/LoadingButton'),
   },
   data() {
     return {
+      vuePageTitle: '',
       allCheck: false,
       loading: false,
       checks: [
@@ -117,15 +121,20 @@ export default {
           modalId: 'advertisement-modal',
         },
       ],
+      kakaoUnlinkLoading: false,
     };
   },
   computed: {
     ...mapState(['routeWhereAgreeSuccess']),
+    /** @returns {boolean} */
     canNext() {
       return this.checks
         .filter((item) => item.required === true)
         .every((item) => item.value === true);
     },
+  },
+  mounted() {
+    this.vuePageTitle = '회원가입 - 약관동의';
   },
   methods: {
     ...mapActions(['pushMessage']),
@@ -147,8 +156,10 @@ export default {
       }
     },
     async logoutButtonClicked() {
-      await doLogout();
-      this.$router.push({ name: 'Home' });
+      window.location.href = '/graphql/kakao/detach';
+      // await doLogout();
+
+      // this.$router.push({ name: 'Home' });
     },
     async nextClicked() {
       this.loading = true;
@@ -188,6 +199,28 @@ export default {
       // });
       // this.$router.push({ name: 'JoinInfo' });
       this.loading = false;
+    },
+
+    async cancelKakaoAgreementClicked() {
+      this.kakaoUnlinkLoading = true;
+      const result = await cancelKakaoAgreementReq({}, '{success code}');
+      if (result.success) {
+        this.pushMessage({
+          type: 'success',
+          id: 'cancelKakaoAgreementSuccess',
+          msg: '카카오와의 연결이 성공적으로 해제되었습니다.',
+        });
+        this.$store.commit('setCurrentUser', { currentUser: null });
+        this.$router.push({ name: 'Home' });
+      } else {
+        console.error(result.code);
+        this.pushMessage({
+          type: 'danger',
+          id: 'cancelKakaoAgreementFailed',
+          msg: '카카오와의 연결을 끊는 도중 에러가 발생했습니다.',
+        });
+      }
+      this.kakaoUnlinkLoading = false;
     },
   },
 };

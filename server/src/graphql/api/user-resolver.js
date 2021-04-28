@@ -15,6 +15,7 @@ const {
 const IsEmail = require('isemail');
 const { getDateFromObj } = require('@/util');
 const { enumAuthmap } = require('@/db/schema/enum');
+const { tryUnlink } = require('@/auth/kakao');
 
 /**
  *
@@ -72,7 +73,7 @@ const checkAuth = makeResolver(async (obj, args, context, info) => {
 
   /** @type {{redirectLink: string}} */
   const { redirectLink } = args;
-  
+
   const { should_verified = false } = args;
   const contextUser = context.getUser();
   // console.log('# user-resolver checkAuth');
@@ -265,6 +266,49 @@ const forceLogin = makeResolver(async (obj, args, context, info) => {
   return found;
 }).only(ACCESS_ALL);
 
+// 카카오 동의 안하는 것. 카카오 연결 해제하고 계정 삭제
+const cancelKakaoAgreement = makeResolver(async (obj, args, context, info) => {
+  const {
+    email,
+    kakao_access_token: access_token,
+    kakao_refresh_token: refresh_token,
+  } = context.getUser();
+  const result = await tryUnlink(access_token, refresh_token);
+  if (!result.success) {
+    return result;
+  }
+  await db.removeUserByEmail(email);
+  return { success: true };
+}).only(ACCESS_AUTH);
+
+const createLoginForKakaoUser = makeResolver(
+  async (obj, args, context, info) => {
+    const { email } = context.getUser();
+    const { pwd } = args;
+    return user.addPasswordToKakaoUser(email, pwd);
+  },
+).only(ACCESS_AUTH);
+
+const unlinkKakao = makeResolver(async (obj, args, context, info) => {
+  const {
+    email,
+    kakao_access_token: access_token,
+    kakao_refresh_token: refresh_token,
+  } = context.getUser();
+  const result = await tryUnlink(access_token, refresh_token);
+  if (!result.success) {
+    return result;
+  }
+  
+  // 실제 db 반영
+  await db.updateUser(email, {
+    kakao_access_token: null,
+    kakao_id: null,
+    kakao_refresh_token: null,
+  });
+  return { success: true };
+}).only(ACCESS_AUTH);
+
 module.exports = {
   Query: {
     users,
@@ -278,6 +322,7 @@ module.exports = {
     login,
     logoutMe,
     createGuest,
+    cancelKakaoAgreement,
     verifyUserEmail,
     updateUserAdmin,
     makePwdForKakaoUser,
@@ -286,6 +331,8 @@ module.exports = {
     requestVerifyEmail,
     requestChangePassword,
     changePassword,
+    unlinkKakao,
+    createLoginForKakaoUser,
     forceLogin: process.env.NODE_ENV === 'production' ? () => null : forceLogin,
   },
 };
