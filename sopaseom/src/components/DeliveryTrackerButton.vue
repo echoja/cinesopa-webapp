@@ -1,8 +1,11 @@
 <template>
-  <span class="delivery-tracker-button-wrapper">
-    <b-button :size="size" class="delivery-tracker-button" @click="$bvModal.show(modalId)">{{
-      buttonText
-    }}</b-button>
+  <b-button
+    :size="size"
+    @click="$bvModal.show(modalId)"
+    :class="buttonClasses"
+    :style="buttonStyle"
+    >{{ buttonText }}
+
     <b-modal
       size="xl"
       :id="modalId"
@@ -11,8 +14,8 @@
       ok-title="확인"
       title="배송조회"
     >
-      <div class="loading" v-if="dataLoading">
-        <small-spinner></small-spinner>로딩중입니다.
+      <div class="Tflex Titems-center" v-if="dataLoading">
+        <small-spinner></small-spinner><span>로딩중입니다.</span>
       </div>
       <div class="error" v-else-if="err">
         {{ errMsg }}
@@ -66,7 +69,7 @@
       </pre> -->
       </div>
     </b-modal>
-  </span>
+  </b-button>
 </template>
 
 <script>
@@ -103,11 +106,18 @@ export default {
     },
     transportNumber: {
       type: [String, Number],
-      required: true,
     },
     size: {
       type: String,
       default: 'sm',
+    },
+    buttonClasses: {
+      type: Array,
+      default: () => [],
+    },
+    buttonStyle: {
+      type: Object,
+      default: () => {},
     },
   },
 
@@ -139,18 +149,23 @@ export default {
     };
   },
   computed: {
+    /** @returns {string} */
     modalId() {
       return `delivery-tracker-modal-${this.id}`;
     },
+    /** @returns {string} */
     fromName() {
       return this.data?.from?.name;
     },
+    /** @returns {string} */
     fromTime() {
       return this.formatTime(this.data?.from?.time);
     },
+    /** @returns {string} */
     toName() {
       return this.data?.to?.name;
     },
+    /** @returns {string} */
     toTime() {
       return this.formatTime(this.data?.to?.time);
     },

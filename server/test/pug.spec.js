@@ -155,14 +155,11 @@ describe('email-template', function () {
   describe('template-map.js', function () {
     describe('makeTemplateMap', function () {
       it('기본 동작이 제대로 되어야 함.', async function () {
-        const getter = async () => ({
-          name: 'hi',
-        });
         const fileinfo = {
           tname: 'test/template/test.pug',
         };
 
-        const rendererMap = await makeTemplateMap(fileinfo, getter);
+        const rendererMap = await makeTemplateMap(fileinfo);
         // console.dir(rendererMap);
         const keys = [...rendererMap.keys()];
         expect(keys).to.include(
@@ -176,7 +173,8 @@ describe('email-template', function () {
           '결과가 일치해야 합니다.',
         );
       });
-      it('default 값이 덮어써져야 함.', async function () {
+      it('default 값이 덮어써져야 함. - getter: deprecated.', async function () {
+        this.skip();
         const getter = async () => ({
           name: 'hi',
           a: 'aDefault',
@@ -187,7 +185,7 @@ describe('email-template', function () {
           tname: 'test/template/test.pug',
         };
 
-        const rendererMap = await makeTemplateMap(fileinfo, getter);
+        const rendererMap = await makeTemplateMap(fileinfo);
         const html = await rendererMap.get('tname')({
           b: 'b특별~',
           c: 'c도해~',
@@ -199,12 +197,11 @@ describe('email-template', function () {
         );
       });
       it('style 이 inline 되어야 함.', async function () {
-        const getter = async () => ({});
         const fileinfo = {
           tname: 'test/template/test-style.pug',
         };
 
-        const rendererMap = await makeTemplateMap(fileinfo, getter);
+        const rendererMap = await makeTemplateMap(fileinfo);
         const html = await rendererMap.get('tname')();
         // console.log(html);
         expect(html).to.equal(

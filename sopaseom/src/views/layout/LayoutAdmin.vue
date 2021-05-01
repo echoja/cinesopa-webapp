@@ -97,7 +97,7 @@
             <info> 공동체 상영 신청을 관리합니다. </info>
           </b-list-group-item>
           <b-list-group-item to="/admin/sopaseom/user">
-            <span>사용자</span>
+            <span>회원</span>
             <info> 회원을 관리합니다. </info>
           </b-list-group-item>
           <!-- <b-list-group-item to="/admin/sopaseom/menu">
@@ -116,7 +116,7 @@
           '사이트 정보'), makeListItem('/admin/sopaseom/page', '페이지'),
           makeListItem('/admin/sopaseom/product', '소파킷'),
           makeListItem('/admin/sopaseom/application', '신청'), makeListItem('/admin/sopaseom/user',
-          '사용자'), makeListItem('/admin/sopaseom/menu', '메뉴'),
+          '회원'), makeListItem('/admin/sopaseom/menu', '메뉴'),
           makeListItem('/admin/sopaseom/design', '디자인'), -->
 
           <!-- <b-list-group-item v-for="item in sidebar" :key="item.id" :to="item.to">

@@ -4,7 +4,7 @@ import { Handler } from 'express';
 import { argsToArgsConfig } from 'graphql/type/definition';
 import { PassportStatic } from 'passport';
 import { registerCustomQueryHandler } from 'puppeteer';
-import { Asyncify, SetReturnType } from 'type-fest';
+import { Asyncify, JsonArray, SetReturnType } from 'type-fest';
 import { Userinfo } from './typedef';
 
 /** ******************* */
@@ -12,7 +12,7 @@ import { Userinfo } from './typedef';
 /** ******************* */
 
 /**
- *
+ * async 함수도 express middleware 에 사용할 수 있도록 try-catch 문을 씌운 async 래퍼 함수
  * @param {import('express').Handler} asyncFunc
  */
 export const aw = (asyncFunc: Asyncify<Handler>): Asyncify<Handler> => async (
@@ -28,7 +28,7 @@ export const aw = (asyncFunc: Asyncify<Handler>): Asyncify<Handler> => async (
 };
 
 /**
- *
+ * PromiseSettledResult 가 이행되었다면 그 이행된 값을, 그렇지 않다면 defaultValue 를 반환하는 함수
  * @param {PromiseSettledResult<T>} promise
  */
 export function unwrap<T, U>(
@@ -58,6 +58,7 @@ export function authHandler(
   };
 }
 
+/** PromiseSettledResult 가 이행되었다면 그 값을 반환하고, 그렇지 않으면 예외를 던지는 함수 */
 export function tryUnwrap<T>(
   result: PromiseSettledResult<T>,
   errMsg = 'Promise not fulfilled',
@@ -129,84 +130,15 @@ export async function asyncMap<T, U>(
   return result;
 }
 
-// /**
-//  *
-//  * @param {} roleList
-//  * @param {Func[args]} func
-//  */
-// module.exports.withAuth = (roleList, func) => {
-//   return async (args, context) => {
-//     if (context.isUnauthenticated()) throw Error("Not Authenticated");
-//     const user = await context.getUser();
-//     if (!roleList.includes(user.role))
-//       throw Error(
-//         `UserRole not matched. required:${roleList}, given:${user.role}`
-//       );
-//     return await func(args, context);
-//   };
-// };
-
-// // export const withAuthPiece = (roleList) => {
-// //   return
-// // }
-
-// // // resolverBuilder(withAuthPicece(["ADMIN"]))(async (args, context) => { ... })
-// // export const resolverBuilder = (...args) => {
-// //   return (func) => {
-// //     return async (args, context) => {
-// //       return await func(args)
-// //     }
-// //   }
-// // }
-
-/** ******************* */
-/* LODASH MAKE ENUM!!! */
-/** ******************* */
-
-// const _ = require("lodash");
-// const t = ["a", "b", "c", "d"];
-// const arr = _.chain(t).keyBy( (o) => {
-//   return o;
-// }).mapValues((o) => {
-//   return Symbol(o);
-// }).value();
-// console.log(arr);
-
-// /**
-//  * string 만 있는 배열을 이용하여 enum 객체를 만듭니다.
-//  * 이 객체는 raw_str_list 멤버가 있습니다. 순수 javascript string array 입니다.
-//  * @param {string[]} str_list enum할 것들의 string 배열
-//  */
-// const makeEnum = (str_list) => {
-//   const result = {}
-//   Object.keys(str_list).forEach((key) => {
-//     const val = str_list[key];
-//     result[val] = Symbol(val);
-//   });
-//   // for (const key in str_list) {
-//   // const val = str_list[key];
-//   // result[val] = Symbol(val);
-//   // }
-//   result.raw_str = str_list;
-//   return Object.freeze(result);
-// };
-
+/** @deprecated */
 export const getDateFromObj = (datetime) => {
   const { year, month, day, hour, minute, second } = datetime;
   return new Date(year, month, day, hour, minute, second);
 };
-/**
- * @deprecated
- * @param {Date} date
- */
-export const getObjFromDate = (date) => ({
-  year: date.getFullYear(),
-  month: date.getMonth(),
-  day: date.getDate(),
-  hour: date.getHours(),
-  minute: date.getMinutes(),
-  second: date.getSeconds(),
-});
+
+export function isStringArray(array: JsonArray): array is string[] {
+  return array.every((value) => typeof value === 'string');
+}
 
 /**
  * 오브젝트의 해당하는 키에 대하여 func의 return 값으로 대채 적용 후, obj를 리턴합니다.

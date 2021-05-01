@@ -661,7 +661,7 @@ export default {
       console.log('# OrderPayment fetchTransporationFee res');
       console.log(res);
       if (res[0].success) {
-        this.transportationFee = res[0].value;
+        this.transportationFee = parseInt(res[0].value, 10);
       }
     },
   },

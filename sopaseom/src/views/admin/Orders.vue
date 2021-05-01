@@ -1,63 +1,79 @@
 <template>
   <div class="admin-orders">
-    <header>
-      <h2>주문 목록</h2>
+    <header class="Tmb-3">
+      <h2 class="Tmb-1">주문 목록</h2>
       <p>행을 클릭하면 자세한 내용 열람 및 편집이 가능합니다.</p>
     </header>
-    <h2 class="filter-title">필터</h2>
-    <div class="filter">
-      <div class="fliter-date">
-        <h3>날짜</h3>
+    <div class="Tflex Tflex-wrap Titems-center Tmb-2">
+      <!-- 날짜 필터 -->
+      <div class="Tmr-2">
         <div class="filter-date-row">
           <b-form-datepicker
+            size="sm"
+            locale="ko-KR"
             class="filter-datepicker"
             value-as-date
             v-model="conditionInput.date_gte"
           ></b-form-datepicker>
-          부터
-        </div>
-        <div class="filter-date-row">
+          <span class="Tmx-3 Tfont-bold"> ~ </span>
           <b-form-datepicker
+            size="sm"
+            locale="ko-KR"
             class="filter-datepicker"
             value-as-date
             v-model="conditionInput.date_lte"
           ></b-form-datepicker>
-          까지
         </div>
       </div>
-      <div class="filter-user">
-        <h3>유저</h3>
-        <div class="user-search-form">
-          <b-form-input
-            class="user-search-input"
-            size="sm"
-            v-model="userFilterInput"
-            placeholder="이메일 입력"
-          ></b-form-input>
-          <b-button size="sm" @click="userFilterInputClicked"
-            >유저 검색</b-button
-          >
-        </div>
-        <b-form-select
-          :options="userFilterOptions"
-          v-model="conditionInput.user"
-        ></b-form-select>
+      <!-- 회원 검색 -->
+      <div class="Tmr-2">
+        <b-dropdown size="sm">
+          <template #button-content>
+            <font-awesome-icon
+              class="Tmr-1"
+              :icon="['fas', 'user']"
+            ></font-awesome-icon>
+            <span> {{ conditionInput.user || '회원 검색' }}</span>
+          </template>
+          <template #default="{ hide }">
+            <b-dropdown-form>
+              <user-select
+                v-model="conditionInput.user"
+                @change="hide"
+              ></user-select>
+            </b-dropdown-form>
+          </template>
+        </b-dropdown>
       </div>
-      <div class="filter-status">
-        <h3>상태</h3>
+      <!-- 상태 필터 -->
+      <div class="Tflex Titems-center Tmr-2">
+        <!-- <font-awesome-icon
+          class="Tmr-2"
+          :icon="['fas', 'ring']"
+        ></font-awesome-icon> -->
         <b-form-select
+          size="sm"
           :options="orderStatusOptions"
           v-model="conditionInput.status"
         >
         </b-form-select>
       </div>
-      <div class="filter-method">
-        <h3>결제 수단</h3>
-        <b-form-select :options="methodOptions" v-model="conditionInput.method">
+      <!-- 결제수단 필터 -->
+      <div class="Tflex Titems-center Tmr-2">
+        <!-- <font-awesome-icon
+          class="Tmr-2"
+          :icon="['fas', 'won-sign']"
+        ></font-awesome-icon> -->
+        <b-form-select
+          size="sm"
+          :options="methodOptions"
+          v-model="conditionInput.method"
+        >
         </b-form-select>
       </div>
+      <!-- 검색 버튼 -->
       <div class="filter-action">
-        <b-button @click="filterClicked" variant="primary">
+        <b-button size="sm" @click="filterClicked" variant="primary">
           <span class="font-weight-bold">검색</span>
         </b-button>
       </div>
@@ -126,25 +142,56 @@
       <!--- 주소행 -->
       <template #cell(dest_name)="{ item: order }">
         <span class="text-break">
-          {{ order.dest.name }}
+          {{ order.dest ? order.dest.name : '' }}
         </span>
       </template>
       <template #cell(dest_phone)="{ item: order }">
         <span class="text-break">
-          {{ order.dest.phone }}
+          {{ order.dest ? order.dest.phone : '' }}
         </span>
       </template>
       <template #cell(dest_address)="{ item: order }">
-        {{ order.dest.address }} {{ order.dest.address_detail }}
+        <div class="Tflex Titems-center">
+          <span class="Ttruncate Tblock" :style="{ maxWidth: '200px' }">
+            {{ order.dest ? order.dest.address : '' }}
+            {{ order.dest ? order.dest.address_detail : '' }}
+          </span>
+          <copy-button
+            :content="`${order.dest ? order.dest.address : ''} ${
+              order.dest ? order.dest.address_detail : ''
+            }`"
+          ></copy-button>
+        </div>
       </template>
 
       <!--- row details -->
       <template #row-details="{ item, index }">
         <div class="row-details">
           <h2>결제 및 일반 정보</h2>
-          <form-row title="유저">
-            <p>현재 유저: {{ item.user }}</p>
-            <div class="user-search-form">
+          <form-row title="회원">
+            <span class="Tmr-2">
+              {{ editing.user }}
+            </span>
+            <b-dropdown
+              class="Tinline-block"
+              size="sm"
+              @click="$bvModal.show('editing-change-user-modal')"
+            >
+              <template #button-content> 회원 변경 </template>
+              <template #default="{ hide }">
+                <b-dropdown-form>
+                  <!-- <b-button @click="hide">숨기기</b-button> -->
+                  <user-select
+                    v-model="editing.user"
+                    @change="hide"
+                  ></user-select>
+                </b-dropdown-form>
+              </template>
+            </b-dropdown>
+
+            <b-modal id="editing-change-user-modal"> </b-modal>
+
+            <!-- <div class="user-search-form">
               <b-form-input
                 class="user-search-input"
                 size="sm"
@@ -156,14 +203,24 @@
             <b-form-select
               :options="userOptions"
               v-model="editing.user"
-            ></b-form-select>
-            <!-- todo -->
+            ></b-form-select> -->
           </form-row>
+          <!-- 상태 -->
           <form-row title="상태">
             <b-form-select
               :options="orderStatusOptions"
               v-model="editing.status"
             ></b-form-select>
+          </form-row>
+          <!-- 취소 사유 -->
+          <form-row
+            v-if="
+              editing.status === 'order_cancelling' ||
+              editing.status === 'order_cancelled'
+            "
+            title="취소 사유"
+          >
+            <b-form-textarea v-model="editing.cancel_reason"></b-form-textarea>
           </form-row>
           <form-row title="결제 수단">
             {{ paymentMethodMap[editing.method] }}
@@ -295,8 +352,11 @@
     <p v-if="!hasData && !state.processing.get">주문이 없습니다.</p>
     <hr />
     <div class="buttons">
-      <b-button @click="allCheckClicked">모두 선택</b-button>
+      <b-button class="Tmr-2 Tfont-bold" @click="allCheckClicked"
+        >모두 선택</b-button
+      >
       <b-button
+        class="Tmr-2 Tfont-bold"
         :disabled="!checkedAtleastOne"
         variant="danger"
         @click="$bvModal.show('remove-products-modal')"
@@ -312,13 +372,12 @@
       >
         <p>
           {{ items.filter((item) => item.checked === true).length }} 개의 주문을
-          정말로 삭제하시겠습니까? 다시는 복구할 수 없습니다! 기록은 계속
-          남겨놓는 게 좋으며, 유효하지 않은 주문만 삭제해 주세요.
+          정말로 삭제하시겠습니까? 다시는 복구할 수 없습니다! 유효하지 않은 주문만 삭제해 주세요.
         </p>
       </b-modal>
-      <!-- <b-button class="mx-1" variant="primary" @click="createOrderClicked"
+      <b-button variant="primary" class="Tfont-bold" @click="createOrderClicked"
         >새로 추가</b-button
-      > -->
+      >
     </div>
     <div class="pagination-wrapper">
       <b-pagination-nav
@@ -342,16 +401,25 @@ import {
   BFormInput,
   BFormDatepicker,
   BFormSelect,
+  BFormTextarea,
+  BDropdown,
+  BDropdownForm,
 } from 'bootstrap-vue';
 import moment from 'moment';
 import { makeSimpleMutation, makeSimpleQuery } from '@/api/graphql-client';
 import FormRow from '@/components/admin/FormRow.vue';
 import LoadingButton from '@/components/LoadingButton.vue';
 import { mapActions } from 'vuex';
-import { statusMap, toPrice, paymentMethodMap } from '@/util';
+import {
+  statusMap,
+  toPrice,
+  paymentMethodMap,
+  handleSimpleResult,
+} from '@/util';
 import axios from 'axios';
 
 const ordersOnServer = makeSimpleQuery('ordersAdmin');
+const createOrderReq = makeSimpleMutation('createOrder');
 const removeOrderOnServer = makeSimpleMutation('removeOrder');
 const updateOrderOnServer = makeSimpleMutation('updateOrder');
 const usersReq = makeSimpleQuery('users');
@@ -368,8 +436,13 @@ export default {
     FormRow,
     LoadingButton,
     BFormSelect,
+    BFormTextarea,
+    BDropdown,
+    BDropdownForm,
     DeliveryTrackerButton: () =>
       import('@/components/DeliveryTrackerButton.vue'),
+    UserSelect: () => import('@/components/admin/UserSelect'),
+    CopyButton: () => import('@/components/admin/CopyButton'),
   },
   data() {
     const now = new Date();
@@ -379,18 +452,18 @@ export default {
       now.getDate(),
     );
     return {
-      userFilterInput: '', // 필터 상에서 검색하는 유저 v-model
+      userFilterInput: '', // 필터 상에서 검색하는 회원 v-model
       userFilterOptions: [
         {
           value: null,
-          text: '검색 후 유저 선택',
+          text: '검색 후 회원 선택',
         },
       ],
-      userSearch: '', // 주문 상세에서 수정할 때 검색하는 유저 v-model
+      userSearch: '', // 주문 상세에서 수정할 때 검색하는 회원 v-model
       userOptions: [
         {
           value: null,
-          text: '검색 후 유저 선택',
+          text: '검색 후 회원 선택',
         },
       ],
       conditionInput: {
@@ -419,7 +492,7 @@ export default {
         },
         {
           key: 'user',
-          label: '유저 이메일',
+          label: '회원 이메일',
         },
         {
           key: 'status',
@@ -437,10 +510,10 @@ export default {
           key: 'product_name',
           label: '주문한 물건',
         },
-        {
-          key: 'product_count',
-          label: '총 수량',
-        },
+        // {
+        //   key: 'product_count',
+        //   label: '총 수량',
+        // },
         {
           key: 'dest_name',
           label: '수취자 이름',
@@ -525,9 +598,9 @@ export default {
         value: key,
         text: this.statusMap[key],
       }));
-      result.push({
+      result.unshift({
         value: null,
-        text: '모두',
+        text: '모든 상태',
       });
       return result;
     },
@@ -537,9 +610,9 @@ export default {
         value: key,
         text: this.paymentMethodMap[key],
       }));
-      result.push({
+      result.unshift({
         value: null,
-        text: '모두',
+        text: '모든 결제 수단',
       });
       return result;
     },
@@ -653,18 +726,18 @@ export default {
         query: { ...this.$route.query, page: pageNum },
       };
     },
-    async userSearchClicked() {
-      const { total, list } = await usersReq(
-        { condition: { email: this.userSearch } },
-        '{total list {email role}}',
-      );
-      console.log('# Orders usersEarchClicked');
-      console.log({ total, list });
-      this.userOptions = list.map((user) => ({
-        value: user.email,
-        text: user.email,
-      }));
-    },
+    // async userSearchClicked() {
+    //   const { total, list } = await usersReq(
+    //     { condition: { email: this.userSearch } },
+    //     '{total list {email role}}',
+    //   );
+    //   console.log('# Orders usersEarchClicked');
+    //   console.log({ total, list });
+    //   this.userOptions = list.map((user) => ({
+    //     value: user.email,
+    //     text: user.email,
+    //   }));
+    // },
     async userFilterInputClicked() {
       const { total, list } = await usersReq(
         { condition: { email: this.userFilterInput } },
@@ -711,7 +784,7 @@ export default {
           list {
             id user status method c_date expected_date cancelled_date return_req_date payer
             cash_receipt transport_number transport_company transport_fee bootpay_id meta
-            bootpay_payment_info
+            bootpay_payment_info cancel_reason
             items {
               id user added modified product_id usage
               product {
@@ -781,23 +854,24 @@ export default {
       }
       this.fetchData();
     },
-    // async createOrderClicked() {
-    //   const num = this.items.push({
-    //     checked: false,
-    //     _showDetails: true,
-    //     mode: 'new',
-    //   });
-    //   console.log('# Orders createOrderClicked num');
-    //   console.log(num);
-    // },
-    // async rowImageSelected(file, index) {
-    //   console.log('# Orders rowImageSelected file');
-    //   console.log(file);
-    //   this.items[index].image_url = file.fileurl;
-    //   this.items[index].image_alt = file.alt;
 
-    //   // todo
-    // },
+    async createOrderClicked() {
+      const res = await createOrderReq(
+        {
+          input: {
+            user: '임의 생성 주문',
+          },
+        },
+        '{success code}',
+      );
+      handleSimpleResult(
+        res,
+        'createOrder',
+        '성공적으로 주문을 생성했습니다.',
+        '주문을 생성하는 데 실패했습니다.',
+      );
+      await this.fetchData();
+    },
 
     // 편집할 때 값들이 유효한지 체크하는 함수
     validate() {
@@ -840,6 +914,7 @@ export default {
         'c_date',
         'expected_date',
         'cancelled_date',
+        'cancel_reason',
         'return_req_date',
         'cash_receipt',
         'transport_number',
@@ -910,34 +985,12 @@ export default {
   }
 }
 
-.filter-title {
-  font-size: 24px;
-  font-weight: bold;
-}
-.filter {
-  display: flex;
-  padding-bottom: 15px;
-  // border-bottom: 1px solid #ddd;
-  margin-bottom: 15px;
-  h3 {
-    font-size: 16px;
-    font-weight: bold;
-  }
-  > div {
-    margin-right: 15px;
-    border: 1px solid #aaa;
-    padding: 15px;
-  }
-}
 .filter-date-row {
   display: flex;
   align-items: center;
 }
 .filter-datepicker {
   flex: 1;
-}
-.user-search-form {
-  display: flex;
 }
 .user-search-input {
   flex: 1;

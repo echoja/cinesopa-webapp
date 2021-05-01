@@ -1,5 +1,5 @@
-import type { MailGate , TemplateMap } from '@/typedef';
-import { gmail_v1 , google, Auth } from 'googleapis';
+import type { MailGate, TemplateMap } from '@/typedef';
+import { gmail_v1, google, Auth } from 'googleapis';
 
 import nodemailer, { Transporter } from 'nodemailer';
 
@@ -7,8 +7,6 @@ import path from 'path';
 
 import MailComposer from 'nodemailer/lib/mail-composer';
 import Mail from 'nodemailer/lib/mailer';
-
-
 
 const SCOPES = [
   'https://mail.google.com/',
@@ -118,6 +116,7 @@ export class MailManager {
 
   /**
    * 사전 설정된 세팅을 바탕으로 메일을 보내는 함수
+   * @deprecated
    * @param {MailGate} gate
    * @param {string} subject 제목
    * @param {string} html 내용
@@ -158,6 +157,7 @@ export class MailManager {
 
   /**
    * 템플릿 이름 기반으로 보냅니다.
+   * @deprecated
    * @param {MailGate} gate
    * @param {string} subject 제목
    * @param {string} templateName 템플릿 이름
@@ -203,7 +203,7 @@ export class MailManager {
    * @param {string} subject 제목
    * @param {string} html 내용
    */
-  async sendGmail(gate, subject, html) {
+  async sendGmail(gate: MailGate, subject: string, html: string) {
     // gmail
     this.gmail = google.gmail({
       auth: this.auth,
@@ -226,6 +226,7 @@ export class MailManager {
     const buf = await msg.compile().build();
     const encoded = buf.toString('base64');
 
+    // 메일 전송
     const sendRes = await this.gmail.users.messages.send({
       userId: ACCOUNT,
       requestBody: {

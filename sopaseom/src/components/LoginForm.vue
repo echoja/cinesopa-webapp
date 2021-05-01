@@ -303,7 +303,7 @@ export default {
       // 로그인 창 없애기
       this.closeModal();
 
-      // 로그인 성공한 유저를 현재 상태에 저장
+      // 로그인 성공한 회원을 현재 상태에 저장
       // this.$store.commit('setCurrentUser', { currentUser: user });
       checkAuth();
 

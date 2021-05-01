@@ -60,9 +60,9 @@ import {
 
 // const crypto = require('crypto');
 import crypto from 'crypto';
-import { LeanDocument, UpdateWriteOpResult } from 'mongoose';
-import { allSettledFiltered } from '@/util';
-import { JsonValue } from 'type-fest';
+import { LeanDocument, Query, UpdateWriteOpResult } from 'mongoose';
+import { allSettledFiltered, isStringArray } from '@/util';
+import { JsonObject, JsonValue } from 'type-fest';
 
 // const {
 //   MongooseDocument,
@@ -1464,7 +1464,7 @@ export class DBManager {
    * @param id
    */
   async removeProduct(id: number): Promise<void> {
-    // todo cartitem 관련 삭제
+    // todo: 관련된 cartitem 삭제
 
     await model.Product.deleteOne({ id });
   }
@@ -1707,57 +1707,68 @@ export class DBManager {
   주문
   ===================================== */
 
-  /**
-   * 주문 여러개를 얻습니다.
-   */
-  async getOrders(
-    condition: OrderSearch = {},
-  ): Promise<GetDBItems<IOrder> & { transporting: number }> {
+  /** 주문을 얻을 때 사용하는 쿼리를 만듭니다. */
+  buildOrdersQuery(condition: OrderSearch = {}): Query<IOrder[], IOrder> {
     const {
       date_gte = new Date(0),
       date_lte = new Date(),
-      page,
-      perpage,
       status,
+      status_list = [],
       user,
+      method,
     } = condition;
+
+    // 우선 정렬
+
+    const query = model.Order.find().sort({ c_date: -1 });
+
+    // 유저 이메일 필터
+    if (user) {
+      query.find({ user });
+    }
+
+    // 날짜 필터
+    if (date_gte instanceof Date && date_lte instanceof Date) {
+      query.find({
+        c_date: {
+          $gte: date_gte,
+          $lte: date_lte,
+        },
+      });
+    }
+    // 상태 필터
+    if (status) {
+      query.find({ status });
+    } else if (status_list.length > 0) {
+      query.find({ status: { $in: status_list } });
+    }
+    // 결제수단 필터
+    if (method) {
+      query.find({ method });
+    }
+
+    return query;
+  }
+
+  /** 주문 여러개를 얻습니다. */
+  async getOrders(
+    condition: OrderSearch = {},
+  ): Promise<GetDBItems<IOrder> & { transporting: number }> {
+    const { page, perpage } = condition;
     // console.log('# db getOrders condition');
     // console.log(condition);
 
-    const buildQuery = () => {
-      // 우선 정렬
-      let query = model.Order.find().sort({ c_date: -1 });
-
-      // 유저 이메일 필터
-      if (user) {
-        query.find({ user });
-      }
-
-      // 날짜 필터
-      if (date_gte instanceof Date && date_lte instanceof Date) {
-        query.find({
-          c_date: {
-            $gte: date_gte,
-            $lte: date_lte,
-          },
-        });
-      }
-      // 상태 필터
-      if (status) {
-        query = query.find({ status });
-      }
-
-      return query;
-    };
-
-    const orderQuery = buildQuery();
+    const query = this.buildOrdersQuery(condition);
 
     // 총 갯수 구하기
-    const total = (await orderQuery.exec()).length;
+    const total = (await query.exec()).length;
 
     // 총 배송중 개수 구하기 (지금까지의 조건에 추가하여 적용. 별도로 작동되는 건 아님.)
     const transporting = (
-      await buildQuery().find({ status: 'transporting' }).lean().exec()
+      await this.buildOrdersQuery()
+        .find({ status: 'transporting' })
+        .lean()
+        .exec()
     ).length;
 
     // const transportingQuery = query.find({status: 'transporting"});
@@ -1770,9 +1781,9 @@ export class DBManager {
 
     // 페이지별로 잘라내기
     if (typeof page === 'number' && typeof perpage === 'number') {
-      orderQuery.limit(perpage).skip(perpage * page);
+      query.limit(perpage).skip(perpage * page);
     }
-    const list = await orderQuery.lean().exec();
+    const list = await query.lean().exec();
 
     // console.log('# db getOrders transporting');
     // console.log(list);
@@ -1809,8 +1820,6 @@ export class DBManager {
    * @param input
    */
   async updateOrder(id: number, input: OrderInput): Promise<void> {
-    // console.log('#db updateOrder input');
-    // console.log(input);
     await model.Order.updateOne({ id }, input).lean().exec();
   }
 
@@ -1901,6 +1910,20 @@ export class DBManager {
   }
 
   /**
+   * 이메일이 저장되어 있는 사이트 옵션을 읽어서 이메일 리스트를 가져옵니다.
+   * 옵션은 반드시 value: [{email: ...}, {email: ...}] 와 같이 저장되어 있어야 합니다.
+   */
+  async getEmailsFromSiteOption(optionName: string): Promise<string[]> {
+    const option = await model.SiteOption.findOne({ name: optionName });
+    if (!option || !Array.isArray(option.value)) return [];
+    const emailObjs = option.value ?? [];
+    const emails = emailObjs.map((emailObj: JsonObject) => emailObj.email);
+    // 하나라도 형태가 이상하면 아무 행동도 하지 않음.
+    if (!isStringArray(emails)) return [];
+    return emails;
+  }
+
+  /**
    * 사이트 옵션을 삭제합니다.
    * @param name
    */
@@ -1910,15 +1933,6 @@ export class DBManager {
     // console.log(result);
     if (result.deletedCount !== 1) return { success: false };
     return { success: true };
-  }
-
-  /**
-   * 사이트 옵션에 저장되어 있는 download url 및 파일 정보를 가져옵니다.
-   * @param name
-   */
-  async getSiteOptionFileInfo(name: string) {
-    // todo
-    return null;
   }
 
   /*= ====================================

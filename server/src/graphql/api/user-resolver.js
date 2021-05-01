@@ -13,8 +13,6 @@ const {
   makeResolver,
 } = require('@/loader');
 const IsEmail = require('isemail');
-const { getDateFromObj } = require('@/util');
-const { enumAuthmap } = require('@/db/schema/enum');
 const { tryUnlink } = require('@/auth/kakao');
 
 /**

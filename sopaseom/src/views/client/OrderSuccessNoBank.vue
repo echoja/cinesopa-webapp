@@ -1,39 +1,44 @@
 <template>
   <div class="order-success-nobank">
     <div class="congratulations">주문이 성공적으로 접수되었습니다!</div>
-    <div class="header">
-      <h2>무통장입금 안내사항</h2>
+    <div class="Tflex Tjustify-center">
+      <div class="Tflex Tflex-col Titems-start Tmx-auto">
+        <div class="header">
+          <h2 class="Tmb-2">무통장입금 안내사항</h2>
+        </div>
+        <div class="Tmb-4">
+          <ul>
+            <li>
+              입금자명 혹은 입금액이 다를 경우 입금 확인이 어려워 배송이 지연될
+              수 있습니다.
+            </li>
+            <li>
+              주문 후 48시간 이내에 입금하지 않으실 경우 주문이 취소될 수
+              있습니다.
+            </li>
+            <!-- <li>기타 문의사항은 이메일로 문의해주시기 바랍니다.</li> -->
+          </ul>
+        </div>
+        <table class="info">
+          <tr>
+            <td class="col-head">입금자명</td>
+            <td class="col-body">{{ order.payer }}</td>
+          </tr>
+          <tr>
+            <td class="col-head">입금액</td>
+            <td class="col-body">{{ toPrice(totalPrice) }}</td>
+          </tr>
+          <tr>
+            <td class="col-head">입금하실 곳</td>
+            <td class="col-body">
+              신협 131-019-316608 (예금주: 영화배급협동조합 씨네소파)
+            </td>
+          </tr>
+        </table>
+      </div>
     </div>
-    <div class="nobank-notice">
-      <ul>
-        <li>
-          입금자명 혹은 입금액이 다를 경우 입금 확인이 어려워 배송이 지연될 수
-          있습니다.
-        </li>
-        <li>
-          주문 후 48시간 이내에 입금하지 않으실 경우 주문이 취소될 수 있습니다.
-        </li>
-        <!-- <li>기타 문의사항은 이메일로 문의해주시기 바랍니다.</li> -->
-      </ul>
-    </div>
-    <table class="info">
-      <tr>
-        <td class="col-head">입금자명</td>
-        <td class="col-body">{{ order.payer }}</td>
-      </tr>
-      <tr>
-        <td class="col-head">입금액</td>
-        <td class="col-body">{{ toPrice(totalPrice) }}</td>
-      </tr>
-      <tr>
-        <td class="col-head">입금하실 곳</td>
-        <td class="col-body">
-          신협 131-019-316608 (예금주: 영화배급협동조합 씨네소파)
-        </td>
-      </tr>
-    </table>
-    <div class="to-home">
-      <b-button :to="{ name: 'Home' }"> 홈으로 </b-button>
+    <div class="Tmt-8 Ttext-center">
+      <oval-button :to="{ name: 'Home' }"> 홈으로 </oval-button>
     </div>
   </div>
 </template>
@@ -41,30 +46,32 @@
 <script>
 import { makeSimpleQuery } from '@/api/graphql-client';
 import { toPrice } from '@/util';
-import { BButton } from 'bootstrap-vue';
 
-const nobankOrderInfoReq = makeSimpleQuery('nobankOrderInfo');
+const nobankOrderinfoReq = makeSimpleQuery('nobankOrderinfo');
 
 export default {
-  title: '주문성공',
   components: {
-    BButton,
+    OvalButton: () => import('@/components/OvalButton'),
   },
   data() {
     return {
       order: {
+        vuePageTitle: '',
         items: [],
         transport_fee: 0,
       },
     };
   },
   computed: {
+    /** @returns {number} */
     orderId() {
       return parseInt(this.$route.query.orderId, 10) ?? null;
     },
+    /** @returns {number} */
     totalPrice() {
       return this.totalProductPrice + this.order.transport_fee;
     },
+    /** @returns {number} */
     totalProductPrice() {
       const options = this.order.items
         .map((cartitem) => cartitem.options)
@@ -76,6 +83,7 @@ export default {
     },
   },
   async mounted() {
+    this.vuePageTitle = '주문성공';
     if (this.orderId === null) {
       this.$router.push({ name: '401' });
     }
@@ -84,10 +92,10 @@ export default {
   methods: {
     toPrice,
     async fetchData() {
-      const { success, code, order } = await nobankOrderInfoReq(
+      const { success, code, order } = await nobankOrderinfoReq(
         { id: this.orderId },
         `
-          { success code 
+          { success code
             order {
               transport_fee payer items {
                 options {

@@ -293,5 +293,12 @@ export async function handleSimpleResult(result, id, successMsg, failMsg) {
       id: `${id}failed`,
       msg: failMsg,
     });
-  };
+  }
+}
+
+export function addressNew(data) {
+  if (data.roadAddress) {
+    return `${data.roadAddress} (${data.bname})`;
+  }
+  return '';
 }

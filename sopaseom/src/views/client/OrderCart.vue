@@ -172,7 +172,7 @@ export default {
       cartitems: [
         // {
         //   id: 1,
-        //   user: 'eszqsc112@naver.com', // 유저 이메일
+        //   user: 'eszqsc112@naver.com', // 회원 이메일
         //   added: new Date('2020-10-12'),
         //   modified: new Date('2020-10-13'),
         //   product: {
@@ -326,7 +326,7 @@ export default {
       console.log('# OrderCart fetchTransporationFee res');
       console.log(res);
       if (res[0].success) {
-        this.transportationFee = res[0].value;
+        this.transportationFee = parseInt(res[0].value, 10);
       }
     },
   },

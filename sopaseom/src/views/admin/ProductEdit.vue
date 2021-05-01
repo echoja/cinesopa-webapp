@@ -100,7 +100,7 @@
         <template #head(disabled)="{ label }">
           <span class="mr-2">{{ label }}</span>
           <info>
-            비활성화 하게 되면, 사용자가 상품 상세에서 해당 옵션만 구매하거나
+            비활성화 하게 되면, 회원이 상품 상세에서 해당 옵션만 구매하거나
             장바구니에 넣을 수 없습니다.
           </info>
         </template>
@@ -241,7 +241,7 @@ const getProductFromServer = makeRequest('product', {
 #      name
 #      role
 #    }
-#    watch_grade  
+#    watch_grade
 #    synopsis
   }
 }`,

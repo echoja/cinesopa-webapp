@@ -1,14 +1,10 @@
-import { enumAuthmap, enumOrderMethod, enumOrderStatus } from "./enum";
-import makeCartItem from "./cartitem";
-import makeDestinfo from "./destinfo";
-import { Mongoose } from "mongoose";
-import autoIdSetter from "./auto-id-setter";
+import { Mongoose, Schema } from 'mongoose';
+import { enumAuthmap, enumOrderMethod, enumOrderStatus } from './enum';
+import makeCartItem from './cartitem';
+import makeDestinfo from './destinfo';
+import autoIdSetter from './auto-id-setter';
 
-/**
- *
- * @param {Mongoose} mongoose
- */
-export default (mongoose) => {
+export default (mongoose: Mongoose): Schema => {
   const CartItem = makeCartItem(mongoose, false, false);
   const Destinfo = makeDestinfo(mongoose);
   const Order = new mongoose.Schema({
@@ -28,6 +24,7 @@ export default (mongoose) => {
     meta: mongoose.Schema.Types.Mixed,
     items: [CartItem],
     dest: Destinfo,
+    cancel_reason: String,
     payer: String, // 무통장 입금시 입금자명
   });
 

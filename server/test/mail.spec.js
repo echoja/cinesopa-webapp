@@ -68,10 +68,6 @@ describe('mail', function () {
         {
           test: 'test/template/test.pug',
         },
-        async () => ({
-          name: 'defaultName',
-          a: 'defaultA',
-        }),
       );
       // console.log(templateMap);
       mailManager = mail.make(transporter, { templateMap });

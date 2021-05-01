@@ -203,7 +203,7 @@ export default [
         meta: { ...BodyFixedFooterMeta },
       },
       {
-        path: 'success',
+        path: 'success-nobank',
         name: 'PaymentSuccessNoBank',
         component: () => import('@/views/client/OrderSuccessNoBank.vue'),
         beforeEnter: requireAuth({ role: 'guest', shouldVerified: 'true' }),

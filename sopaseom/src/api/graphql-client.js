@@ -7,7 +7,7 @@ const headers = {
   Accept: 'application/json',
 };
 
-// URL 수정 주의!! url이 같지 않으면 사용자 쿠키가 저장이 안되어 세션이 살아남지 못함!
+// URL 수정 주의!! url이 같지 않으면 회원 쿠키가 저장이 안되어 세션이 살아남지 못함!
 const url = process.env.NODE_ENV === 'production' ? 'https://sopaseom.com/graphql/' : '/graphql';
 
 export const graphql = async (query, variables) => {
@@ -554,7 +554,7 @@ export const makeSimpleQuery = (endpoint) => async (args = {}, resultString = ''
 /** ------------------------------------------------------------- */
 
 /**
- * 유저의 정보를 서버로부터 받아 store의 currentUser state에 저장합니다.
+ * 회원의 정보를 서버로부터 받아 store의 currentUser state에 저장합니다.
  */
 export const checkAuth = async () => {
   console.log('# grpahql-client checkauth Called');

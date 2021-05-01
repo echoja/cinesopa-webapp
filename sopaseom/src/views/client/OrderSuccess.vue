@@ -68,8 +68,8 @@
         </td>
       </tr>
     </table>
-    <div class="to-home">
-      <b-button :to="{ name: 'Home' }"> 홈으로 </b-button>
+    <div class="Tmt-8 Ttext-center">
+      <oval-button :to="{ name: 'Home' }"> 홈으로 </oval-button>
     </div>
   </div>
 </template>
@@ -77,14 +77,14 @@
 <script>
 import { makeSimpleQuery } from '@/api/graphql-client';
 import { getOrderInfo, toPrice } from '@/util';
-import { BButton, BImg, BLink } from 'bootstrap-vue';
+import { BImg, BLink } from 'bootstrap-vue';
 
 const myOrderReq = makeSimpleQuery('myOrder');
 
 export default {
   title: '주문성공',
   components: {
-    BButton,
+    OvalButton: () => import('@/components/OvalButton'),
     BImg,
     BLink,
   },
@@ -127,7 +127,7 @@ export default {
       const order = await myOrderReq(
         { id: this.orderId },
         `
-          { 
+          {
             transport_fee payer items {
               options {
                 id count price content

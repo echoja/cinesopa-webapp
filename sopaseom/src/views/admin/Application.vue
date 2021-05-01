@@ -4,13 +4,12 @@
       <header>
         <h2>상영 신청 목록</h2>
         <p>
-          각 항목을 클릭하여 세부 내용을 확인하고 수정하세요. 각 항목을 우클릭하면 편의 메뉴
+          각 항목을 클릭하여 세부 내용을 확인하고 수정하세요. 각 항목을
+          우클릭하면 편의 메뉴
 
           <info>
             <ul class="pl-4 text-left">
-              <li class="m-1">
-                편집 및 삭제
-              </li>
+              <li class="m-1">편집 및 삭제</li>
               <li class="m-1">
                 <b>정산 상태, 배송 상태, 세금계산서 상태</b> 다음 단계로
                 편리하게 변경 (각 상태가 설정되어 있지 않거나 제일 마지막 단계일
@@ -18,7 +17,10 @@
               </li>
               <li class="m-1">견적서 다운로드</li>
               <li class="m-1">세금계산서 발행 정보 요청 링크 생성 및 복사</li>
-              <li class="m-1">세금계산서 발행 정보 복사 (상영료, 발행 작성일자, 발행 이메일이 설정되어 있지 않을 시 비활성화)</li>
+              <li class="m-1">
+                세금계산서 발행 정보 복사 (상영료, 발행 작성일자, 발행 이메일이
+                설정되어 있지 않을 시 비활성화)
+              </li>
             </ul>
           </info>
           가 나타납니다!
@@ -35,7 +37,8 @@
           <font-awesome-icon :icon="['far', 'plus-square']"></font-awesome-icon>
           <span class="button-content ml-2"> 신청 추가 </span>
           <info v-once>
-            내용이 없는 신청을 하나 추가합니다. 지금 날짜를 기준으로 대략 10개월 뒤의 날로 초기화합니다.
+            내용이 없는 신청을 하나 추가합니다. 지금 날짜를 기준으로 대략 10개월
+            뒤의 날로 초기화합니다.
           </info>
         </loading-button>
         <loading-button
@@ -56,9 +59,13 @@
       >
         <!-- <div class="d-flex"> -->
         <!-- 선택된 항목 일괄처리 -->
-        <b-dropdown size="sm" class="process-selected mr-2" v-if="hasChecked">
+        <b-dropdown
+          :disabled="!hasChecked"
+          size="sm"
+          class="process-selected mr-2"
+        >
           <template #button-content>
-            <span> 선택된 항목 일괄처리 </span>
+            <span> 일괄처리 </span>
           </template>
           <b-dropdown-item
             @click="$bvModal.show('remove-confirm-modal')"
@@ -470,7 +477,7 @@
               <info
                 >세금계산서 발행 정보과 관련하여 클립보드로 복사를 합니다.
                 작품명, 세금계산서 작성 일자, 발행 이메일, 공급가액,
-                부가가치세액이 복사됩니다. <b>상영료</b>,
+                부가가치세액이 복사됩니다. 아래에서 <b>상영료</b>,
                 <b>세금계산서 작성 일자</b>, <b>세금계산서 발행 이메일</b>을
                 먼저 작성해야 합니다.
               </info>
@@ -840,7 +847,14 @@
         <context-menu-button v-else @click="contextCopyTaxLinkClicked">
           세금계산서 발행 정보 요청 링크 복사
         </context-menu-button>
-        <context-menu-button v-if="contextItem.charge && contextItem.receipt_date && contextItem.receipt_email" @click="contextReceiptCopyClicked">
+        <context-menu-button
+          v-if="
+            contextItem.charge &&
+            contextItem.receipt_date &&
+            contextItem.receipt_email
+          "
+          @click="contextReceiptCopyClicked"
+        >
           세금계산서 발행 정보 복사
         </context-menu-button>
         <hr class="my-2" />

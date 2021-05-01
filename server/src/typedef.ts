@@ -30,6 +30,11 @@ export type UserService = InstanceType<typeof UserServiceClass>;
 
 export * from '@/db/schema/enum';
 
+export interface SimpleResult {
+  success: boolean;
+  code?: string;
+}
+
 export interface ModelWrapper {
   Page: Model<IPage>;
   User: Model<IUser>;
@@ -124,6 +129,17 @@ export interface Paymentinfo {
   status_en: string; // ex): complete,
   status_ko: string; // ex): 결제완료
 }
+
+export interface PaymentCancelResData {
+  receipt_id: string; // "5df6e8034f74b4002177e0bb",
+  request_cancel_price: number; // 3000,
+  remain_price: number; // 0,
+  remain_tax_free: number; // 0,
+  cancelled_price: number; // 3000,
+  cancelled_tax_free: number; // 1500,
+  revoked_at: string; // "2019-12-16 11:12:28",
+  tid: string; // "48586080"
+}
 export interface GetActualPaymentInfoResult {
   success: boolean;
   code?: string;
@@ -137,9 +153,26 @@ export interface GetTokenResult {
 }
 
 export interface CancelPaymentArgs {
+  /** 부트페이 거래 고유 키 값입니다. 취소, 검증에 반드시 필요한 값입니다. */
+  receipt_id: string;
+
+  /** 취소자 명입니다. 관리 목적으로 사용됩니다. */
+  name: string;
+
+  /** 취소 사유입니다. 관리 목적으로 사용됩니다. */
+  reason: string;
+
+  /** 부분 취소 중복을 막기 위한 값입니다. 가맹점에서 지정하는 cancel_id를 보내면, 실수로 중복 요청한 경우 취소가 되지 않도록 막습니다. */
+  cancel_id?: string;
+
+  //
+  /**
+   * 취소 금액입니다. 부분 취소일 경우엔 취소할 금액만 적어주시면 됩니다. 금액을 적지 않으면 전액 취소 처리 됩니다.
+   * 1,000원보다 더 큰 값을 입력해야 합니다.
+   * 부분취소는 일부 PG사만 가능합니다.
+   * (지원가능 PG사: 이니시스, kcp, 다날, 페이레터, 나이스페이, 카카오페이, 페이코)
+   */
   price?: number;
-  name?: string;
-  reason?: string;
 }
 
 export interface CancelPaymentResult {
@@ -490,7 +523,7 @@ export interface CartiteminfoSearch {
 
 interface OrderinfoBase {
   user?: string; // 유저의 이메일
-  status?: string; //
+  status?: OrderStatus; //
   method?: string; //
   c_date?: Date; //
   expected_date?: Date; //
@@ -501,6 +534,8 @@ interface OrderinfoBase {
   transport_company?: string; //
   transport_fee?: number; //
   bootpay_id?: string; //
+  cancel_reason?: string;
+  bootpay_payment_info?: Paymentinfo; //
   payer?: string; //
   meta?: JsonValue; //
   dest?: Destinfo; //
@@ -520,29 +555,15 @@ export interface IOrder extends OrderinfoBase, Document {
   items: ICartitem[];
 }
 
-export interface OrderInput {
-  user?: string; // 유저의 이메일
-  status?: string; //
-  method?: string; //
-  c_date?: Date; //
-  expected_date?: Date; //
-  cancelled_date?: Date; //
-  return_req_date?: Date; //
-  cash_receipt?: string; //
-  transport_number?: string; //
-  transport_company?: string; //
-  transport_fee?: number; //
-  bootpay_id?: string; //
-  bootpay_payment_info?: Paymentinfo; //
-  meta?: JsonValue; //
-  items?: number[]; //    카트아이템 id 목록
-  dest?: Destinfo; //
+export interface OrderInput extends OrderinfoBase {
+  items?: number[]; // 카트아이템 id 목록
 }
 
 export interface OrderSearch {
   date_gte?: Date; //
   date_lte?: Date; //
-  status?: string; //
+  status?: OrderStatus; //
+  status_list?: OrderStatus[]; // 여기에 포함되는 모든 status_list. 만약 status 가 설정되어 있다면 무시됨.
   method?: string; //
   page?: number; //
   perpage?: number; //

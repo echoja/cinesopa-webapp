@@ -96,7 +96,7 @@ class UserService {
    * 이미 가입한 카카오 유저에게 비밀번호를 부여합니다.
    * @param {string} email 이메일
    * @param {string} pwd 비밀번호
-   * @returns {Promise<{success: boolean, code?: string}>} 결과 
+   * @returns {Promise<{success: boolean, code?: string}>} 결과
    */
   async addPasswordToKakaoUser(email, pwd) {
     const user = await this.#db.getUserByEmail(email);
@@ -118,19 +118,6 @@ class UserService {
    * @param {boolean=} debug
    */
   async requestChangePassword(email, debug = false) {
-    // 이메일을 찾을 수 없는 경우 에러
-    // const user = await this.#db.getUserByEmail(email);
-    // if (!user) {
-    //   throw Error(`requestChangePassword: ${email} 유저를 찾을 수 없습니다.`);
-    // }
-
-    // 이메일이 인증되지 않은 상태일 경우 에러.
-    // if (user.verified !== true) {
-    //   throw Error(
-    //     `requestChangePassword: ${email} 유저가 이메일 인증된 상태가 아닙니다.`,
-    //   );
-    // }
-
     const token = crypto.randomBytes(20).toString('hex');
     await this.#db.createToken({ email, token, purpose: 'change_password' });
 
@@ -139,31 +126,14 @@ class UserService {
       recipientName: '',
     };
     if (!debug) {
-      this.#mail
-        .sendTemplatedGmail(
-          mailGate,
-          '[소파섬] 비밀번호 변경 링크',
-          'change-password',
-          {
-            tokenUrl: `https://sopaseom.com/change-password/auth?token=${token}`,
-          },
-        )
-        .catch((err) => {
-          console.log(
-            '# user service requestChangePassword sendTemplatedMail 실패',
-          );
-          console.error(err);
-        });
-
-      // await this.#mail.sendMail(
-      //   mailGate,
-      //   '[소파섬] 비밀번호 변경 링크',
-      //   `
-      // <div>
-      //   <p>비밀번호를 변경하려면, 아래 링크를 클릭하여 계속 진행해주세요.</p>
-      //   <p><a href="https://sopaseom.com/change-password/auth?token=${token}">비밀번호 변경</a></p>
-      // </div>`,
-      // );
+      await this.#mail.sendTemplatedGmail(
+        mailGate,
+        '[소파섬] 비밀번호 변경 링크',
+        'change-password',
+        {
+          tokenUrl: `https://sopaseom.com/change-password/auth?token=${token}`,
+        },
+      );
     }
     return { success: true };
   }

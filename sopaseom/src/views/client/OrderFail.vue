@@ -1,28 +1,32 @@
 <template>
   <div class="order-fail">
-    <h2>주문 도중 오류가 발생했습니다.</h2>
-    <div v-if="reason">사유: {{ reason }}</div>
+    <h2 class="Tmb-2">주문 도중 오류가 발생했습니다.</h2>
+    <div class="Tmb-5" v-if="reason">사유: {{ reason }}</div>
     <div class="button-group">
-      <b-button :to="{ name: 'Home' }"> 홈으로 </b-button>
-      <b-button :to="{ name: 'Cart' }"> 장바구니 </b-button>
+      <oval-button :to="{ name: 'Home' }"> 홈으로 </oval-button>
+      <oval-button :to="{ name: 'Cart' }"> 장바구니 </oval-button>
     </div>
   </div>
 </template>
 
 <script>
-import { BButton } from 'bootstrap-vue';
-// import OvalButton from '@/components/OvalButton.vue';
-
 export default {
-  title: '주문실패',
   components: {
-    BButton,
-    // OvalButton,
+    OvalButton: () => import('@/components/OvalButton'),
   },
   computed: {
+    /** @returns {string} */
     reason() {
       return this.$route.params.reason;
     },
+  },
+  data() {
+    return {
+      vuePageTitle: '',
+    };
+  },
+  mounted() {
+    this.vuePageTitle = '주문실패';
   },
 };
 </script>

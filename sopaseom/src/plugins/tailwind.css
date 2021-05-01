@@ -16,5 +16,8 @@
     .pb-full {
       padding-bottom: 100%;
     }
+    .rounded-oval {
+      border-radius: 50%;
+    }
   }
 }

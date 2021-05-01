@@ -92,6 +92,12 @@ module.exports = {
     // }).only(ACCESS_AUTH),
   },
   Mutation: {
+    /** 관리자가 빈 주문을 생성할 때 사용됩니다. */
+    createOrder: makeResolver(async (obj, args, context, info) => {
+      const { input } = args;
+      await db.createOrder(input);
+      return { success: true };
+    }).only(ACCESS_ADMIN),
     // 우선 결제하기 직전 Order id를 얻기 위해서 무조건 먼저 실행되는 함수.
     // 이 endpoint 에 왔을 때에는 아직까지 주문이 완료되지 않은 상태임.
     createOrderFromCart: makeResolver(async (obj, args, context, info) => {
@@ -144,14 +150,29 @@ module.exports = {
         payer,
       });
 
-      // 일반 결제 모듈은 승인된 이후 삭제해야 하므로
-      // 일단 cartitem 을 삭제하지 않음.
-      // 무통장 입금은 바로 cartitem 을 삭제하도록 함.
+      // 무통장입금일 경우 특수 처리 (무통장입금은 이후 finishPayment 가 호출되지 않음. 바로 끝남.)
       if (input.method === 'nobank') {
+        // cartitem 삭제
         const removePromises = cartitems.map((cartitem) =>
           db.removeCartitem(cartitem.id),
         );
-        await Promise.allSettled(removePromises);
+
+        // 관리자에게 이메일을 보냄
+        const adminHtml = `
+      - 사용자: ${email}<br>
+      - 주문번호: ${order.id}<br>
+      - 상품명: ${order.items.map((item) => item.product.name).join(', ')}
+    `;
+        const adminEmails = await db.getEmailsFromSiteOption('shopping_email');
+        const mailAdminPromises = adminEmails.map((adminEmail) =>
+          mail.sendGmail(
+            { recipientEmail: adminEmail },
+            `[소파섬] 새 주문 (무통장입금): ${order.id}`,
+            adminHtml,
+          ),
+        );
+
+        await Promise.allSettled([...removePromises, ...mailAdminPromises]);
       }
       return { success: true, code: 'normal', order_id: order.id };
     }).only(ACCESS_AUTH),
@@ -159,21 +180,14 @@ module.exports = {
     // 결제 모듈에서 무사히 결제된 후 호출되는 endpoint.
     finishPayment: makeResolver(async (obj, args, context, info) => {
       const { id, receiptId } = args;
-      // console.log('#order-resolver finishPayment args');
-      // console.log(args);
 
       let order = await db.getOrder(id);
       const user = context.getUser();
-      // console.log('#order-resolver finishPayment order');
-      // console.log(order);
 
       // 유저 소유의 order 이어야 함.
       if (order.user !== user.email) {
         return { success: false, code: 'no_ownership' };
       }
-
-      // console.log('#order-resolver finishPayment user');
-      // console.log(user);
 
       // 우선 bootpay id를 order에 넣어야 함.
       await db.updateOrder(id, { bootpay_id: receiptId });
@@ -183,13 +197,11 @@ module.exports = {
       if (!result.success) {
         return { success: false, code: result.code };
       }
-      // console.log('#order-resolver finishPayment result');
-      // console.log(result);
 
-      // 결제 완료 되었다고 메일을 보냄
+      // 결제 완료 되었다고 메일을 보냄 (사용자)
       order = await db.getOrder(id);
       mail
-        .sendTemplatedMail(
+        .sendTemplatedGmail(
           {
             recipientEmail: user.email,
             recipientName: order.payer ?? order?.dest?.name ?? '',
@@ -203,26 +215,86 @@ module.exports = {
           // todo: 메일이 제대로 안갔을 경우 처리
         });
 
-      // 기존에 있던 쓸모없는 order 들을 삭제함.
+      // 관리자에게 이메일을 보냄
+      const adminHtml = `
+        - 사용자: ${user.email}<br>
+        - 주문번호: ${id}<br>
+        - 상품명: ${order.items.map((item) => item.product.name).join(', ')}
+      `;
+      const mailAdminPromise = (async () => {
+        const adminEmails = await db.getEmailsFromSiteOption('shopping_email');
+        await Promise.allSettled(
+          adminEmails.map((adminEmail) =>
+            mail.sendGmail(
+              { recipientEmail: adminEmail },
+              `[소파섬] 새 주문: ${id}`,
+              adminHtml,
+            ),
+          ),
+        );
+      })();
+
+      // createOrderFromCart만 되고 실제 결제가 되지 않았던 쓸모 없는 Order를 삭제함.
+      // todo: 문제가 있음. 왜냐하면 결제실패 이후 결제를 안하고 있으면 계속 DB에 남아 있음.
       const rresult = await db.removeDangledOrder(user.email);
       console.log('#order-resolver finishPayment rresult');
       console.log(rresult);
 
-      // const orders = await this.db.getOrders({ user: user.email });
-      // console.log('#order-resolver finishPayment orders final');
-      // console.dir(orders);
+      // unresolved Promises 처리
+      await mailAdminPromise;
 
       // 검증 결과를 내보냄.
       return { ...result, order };
     }).only(ACCESS_AUTH),
+    // todo: make test
     reqCancelOrder: makeResolver(async (obj, args, context, info) => {
-      const { id } = args;
+      const { id, cancel_reason } = args;
+      const { email } = context.getUser();
+      const orderDoc = await db.getOrder(id);
+      // 자기 것이 아닐 경우 에러
+      if (orderDoc.user !== email) {
+        return { success: false, code: 'not_own_order' };
+      }
+
+      // 업데이트
+      await db.updateOrder(id, { status: 'order_cancelling', cancel_reason });
+
+      // 메일 보내기
+      const adminEmails = await db.getEmailsFromSiteOption('shopping_email');
+      const body = `
+        - 사용자: ${email}<br>
+        - 상품id: ${id}<br>
+        - 취소사유: ${cancel_reason}<br>
+        - 상품명: ${orderDoc.items.map((item) => item.product.name).join(', ')}
+      `;
+      const sendPromises = adminEmails.map((adminEmail) =>
+        mail.sendGmail(
+          { recipientEmail: adminEmail, recipientName: '쇼핑관리자' },
+          `[소파섬] 주문취소 요청: ${id}`,
+          body,
+        ),
+      );
+      await Promise.allSettled(sendPromises);
+
+      return { success: true };
     }).only(ACCESS_AUTH),
     updateOrder: makeResolver(async (obj, args, context, info) => {
       const { id, input } = args;
       await db.updateOrder(id, input);
       return { success: true };
     }).only(ACCESS_ADMIN),
+    updateMyOrder: makeResolver(async (obj, args, context, info) => {
+      const { id, input } = args;
+      const { email } = context.getUser();
+      const orderDoc = await db.getOrder(id);
+      // 자기 것이 아닐 경우 에러
+      if (orderDoc.user !== email) {
+        return { success: false, code: 'not_own_order' };
+      }
+      await db.updateOrder(id, input);
+      // todo: 메일보내기
+      return { success: true };
+    }).only(ACCESS_AUTH),
     removeOrder: makeResolver(async (obj, args, context, info) => {
       const { id } = args;
       await db.removeOrder(id);

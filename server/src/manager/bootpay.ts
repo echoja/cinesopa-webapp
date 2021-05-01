@@ -1,12 +1,15 @@
-import type { VerifyPaymentResult, CancelPaymentArgs } from "@/typedef"
+import type {
+  VerifyPaymentResult,
+  CancelPaymentArgs,
+  GetTokenResult,
+  GetActualPaymentInfoResult,
+  SimpleResult,
+} from '@/typedef';
 
-import { RestClient } from "@bootpay/server-rest-client";
-import { bootpayRestAppID, bootpayRestPvKey } from "@config/common";
+import { RestClient } from '@bootpay/server-rest-client';
+import { bootpayRestAppID, bootpayRestPvKey } from '@config/common';
 
 RestClient.setConfig(bootpayRestAppID, bootpayRestPvKey);
-
-
-
 
 // /**
 //  * @typedef {Object} GetActualPaymentInfoResult
@@ -23,7 +26,6 @@ RestClient.setConfig(bootpayRestAppID, bootpayRestPvKey);
 //  * @property {string=} token
 //  */
 
-
 // /**
 //  *
 //  * @typedef {Object} CancelPaymentArgs
@@ -32,27 +34,23 @@ RestClient.setConfig(bootpayRestAppID, bootpayRestPvKey);
 //  * @property {?string} [reason='']  취소 이유. 관리용임. 필수 X
 //  */
 
-  // /**
-  //  * cancelPayment 함수의 리턴 값
-  //  * @typedef {Object} CancelPaymentResult
-  //  * @property {boolean} success
-  //  * @property {string=} code
-  //  */
+// /**
+//  * cancelPayment 함수의 리턴 값
+//  * @typedef {Object} CancelPaymentResult
+//  * @property {boolean} success
+//  * @property {string=} code
+//  */
 
-  // /**
-  //  * 결제 취소를 수행합니다. 관리자모드에서 수동으로 취소하고자 할 때 사용됨.
-  //  * @param {string} receipt_id
-  //  * @param {} args
-  //  * @return {Promise<CancelPaymentResult>}
-  //  */
-
+// /**
+//  * 결제 취소를 수행합니다. 관리자모드에서 수동으로 취소하고자 할 때 사용됨.
+//  * @param {string} receipt_id
+//  * @param {} args
+//  * @return {Promise<CancelPaymentResult>}
+//  */
 
 export class BootpayManager {
-
-  /**
-   * @return {Promise<GetTokenResult>}
-   */
-  async getToken() {
+  /** 토큰을 얻는 함수 */
+  async getToken(): Promise<GetTokenResult> {
     try {
       const tokenRes = await RestClient.getAccessToken();
       // console.log('# bootpay.js getActualPaymentInfo tokenRes');
@@ -66,12 +64,10 @@ export class BootpayManager {
     }
   }
 
-  /**
-   * 실제 정보를 부트페이로브터 가져옵니다. 결제 검증 시 이용됨.
-   * @param {string} receipt_id
-   * @return {Promise<GetActualPaymentInfoResult>}
-   */
-  async getActualPaymentInfo(receipt_id) {
+  /** 실제 정보를 부트페이로브터 가져옵니다. 결제 검증 시 이용됨.   */
+  async getActualPaymentInfo(
+    receipt_id: string,
+  ): Promise<GetActualPaymentInfoResult> {
     try {
       const tokenRes = await this.getToken();
       if (!tokenRes.success) {
@@ -89,9 +85,10 @@ export class BootpayManager {
     }
   }
 
-
-  async cancelPayment(receipt_id, args: CancelPaymentArgs = {}) {
-    const { price = null, name = '', reason = '' } = args;
+  async cancelPayment(
+    args: CancelPaymentArgs = { receipt_id: '', name: '', reason: '' },
+  ): Promise<SimpleResult> {
+    const { receipt_id, price, name, reason } = args;
     // 인수가 잘못되었을 때에는 즉시 오류.
     if (
       typeof receipt_id !== 'string' ||
@@ -132,14 +129,16 @@ export class BootpayManager {
     return { success: true };
   }
 
-
   /**
    * 결제 검증시 사용됩니다. 내부적으로 getActualPaymentInfo를 사용함.
    * 결과값에 따라서 로직은 외부에서 잘 처리하면 됨.
    * @param  receipt_id
    * @param  totalPrice 총 가격이 일치하는지를 봐야 함.
    */
-  async verifyPayment(receipt_id: string, totalPrice: number) : Promise<VerifyPaymentResult> {
+  async verifyPayment(
+    receipt_id: string,
+    totalPrice: number,
+  ): Promise<VerifyPaymentResult> {
     try {
       const paymentInfoResult = await this.getActualPaymentInfo(receipt_id);
 
@@ -167,5 +166,4 @@ export class BootpayManager {
   }
 }
 
-export const make = () => new BootpayManager()
-
+export const make = () => new BootpayManager();

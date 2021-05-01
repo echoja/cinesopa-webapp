@@ -77,9 +77,9 @@ export const onlyNoLoginBeforeEnter = async (to, from, next) => {
 // };
 
 /**
- * 현재 사용자의 role 을 기반으로, 해당 페이지가
+ * 현재 회원의 role 을 기반으로, 해당 페이지가
  * 접근가능한지 아닌지 판단하는 router before 함수 입니다.
- * @param {string} role 사용자의 role
+ * @param {string} role 회원의 role
  * @param {string} shouldVerified 이메일이 인증되어야 하는지 여부를 체크
  * @param {string} failRN 만약 실패했을 때 이동할 route 이름 (RN = Route Name)
  */
@@ -198,7 +198,7 @@ export const requireAuth = (condition = {}, failRN = {}) => async (to, from, nex
 
 export const globalBeforeEach = (router, { agreeRequiredRN = 'JoinOAuthUser' } = {}) => {
   router.beforeEach(async (to, from, next) => {
-    // 유저 정보 초기화
+    // 회원 정보 초기화
     if (!store.state.userInitialized) {
       store.commit('setUserInitialized', true);
       await checkAuth();

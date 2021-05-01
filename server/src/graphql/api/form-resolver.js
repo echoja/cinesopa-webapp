@@ -210,7 +210,6 @@ const convertInput = (input) => {
 module.exports = {
   Query: {},
   Mutation: {
-    // todo 언젠가 고쳐야 함. 지금은 간단하게 임시로 메일을 보내는 정도임.
     /** 상영신청 받았을 때 실행되는 resolver */
     requestShowing: makeResolver(async (obj, args, context, info) => {
       const { input } = args;
@@ -244,6 +243,7 @@ module.exports = {
         if (!Array.isArray(optionRes.value))
           return { success: false, code: 'unexpected_option_type' };
         const emails = optionRes?.value ?? [];
+        // const emails =  await db.getEmailsFromSiteOption('show_application_email');
 
         // /** @type {Array<*>} */
         // const emails =
@@ -319,7 +319,7 @@ module.exports = {
 
       const promises = opt.map((emailObject) => {
         // need check
-        if (!isJsonObject(emailObject))
+        if (!isJsonObject(emailObject) || typeof emailObject.email !== 'string')
           return async () => {
             /* empty */
           };

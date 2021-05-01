@@ -205,7 +205,7 @@
             label-align-sm="left"
             label-size="md"
             label-for="detail-label"
-            description="사용자가 파일을 다운로드할 때 나타나는 이름이며 일반적으로 드러나지 않습니다."
+            description="회원이 파일을 다운로드할 때 나타나는 이름이며 일반적으로 드러나지 않습니다."
           >
             <b-form-input
               v-model="detailForm.label"

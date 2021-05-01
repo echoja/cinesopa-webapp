@@ -27,6 +27,12 @@ library.add(
   fas.faTimes,
   fas.faPaperPlane,
   fas.faCheck,
+  fas.faUser,
 );
+
+/**
+ * EXAMPLE
+ * <font-awesome-icon :icon="['fas', 'user']"></font-awesome-icon>
+ */
 
 Vue.component('font-awesome-icon', FontAwesomeIcon);

@@ -1,309 +1,317 @@
 <template>
-  <div class="payment">
-    <div class="delivery-info-wrapper">
-      <div class="delivery-info">
-        <div class="header">
-          <h2>배송정보</h2>
-        </div>
-
-        <div class="select-delivery-place">
-          <b-form-radio-group
-            v-model="selectDeliveryPlace"
-            @change="selectDeliveryPlaceChanged"
-          >
-            <b-form-radio :value="'default'"> 기본 배송지 </b-form-radio>
-            <b-form-radio :value="'manual'"> 직접 입력 </b-form-radio>
-          </b-form-radio-group>
-        </div>
-        <hr />
-        <div class="form-item name">
-          <div class="form-title">이름</div>
-          <div class="form-content">
-            <b-form-input
-              size="sm"
-              v-model="form.name"
-              @update="nameUpdated"
-              :state="validate.name.status"
-              ref="name"
-            ></b-form-input>
-            <div class="input-error-msg" v-if="validate.name.status === false">
-              {{ validate.name.msg }}
-            </div>
+  <b-overlay :show="loading" variant="white">
+    <div class="payment">
+      <div class="delivery-info-wrapper">
+        <div class="delivery-info">
+          <div class="header">
+            <h2>배송정보</h2>
           </div>
-        </div>
-        <div class="form-item address">
-          <!-- <div class="form-address-title-wrapper"> -->
-          <div class="form-title">주소</div>
 
-          <!-- </div> -->
-
-          <div class="form-content">
-            <finding-address-button
-              @address-loaded="addressLoaded"
-              class="load-address-button"
+          <div class="select-delivery-place">
+            <b-form-radio-group
+              v-model="selectDeliveryPlace"
+              @change="selectDeliveryPlaceChanged"
             >
-              주소 찾기
-            </finding-address-button>
-            <div class="finding-address-but"></div>
-            <b-form-input
-              size="sm"
-              disabled
-              v-model="form.address"
-              class="address-new"
-              :state="validate.address.status"
-              ref="address"
-              @update="addressUpdated"
-            ></b-form-input>
-            <div v-if="addressOld" class="address-old">
-              지번: {{ addressOld }}
-            </div>
-            <div
-              class="input-error-msg"
-              v-if="validate.address.status === false"
-            >
-              {{ validate.address.msg }}
-            </div>
+              <b-form-radio :value="'default'"> 기본 배송지 </b-form-radio>
+              <b-form-radio :value="'manual'"> 직접 입력 </b-form-radio>
+            </b-form-radio-group>
           </div>
-        </div>
-        <div class="form-item address">
-          <div class="form-title">상세 주소</div>
-          <div class="form-content">
-            <b-form-input
-              size="sm"
-              v-model="form.address_detail"
-              @update="addressDetailUpdated"
-              :state="validate.address_detail.status"
-              ref="address_detail"
-            ></b-form-input>
-            <div
-              class="input-error-msg"
-              v-if="validate.address_detail.status === false"
-            >
-              {{ validate.address_detail.msg }}
-            </div>
-          </div>
-        </div>
-        <div class="form-item phone">
-          <div class="form-title">전화번호</div>
-          <div class="form-content">
-            <b-form-input
-              size="sm"
-              v-model="form.phone"
-              @update="phoneUpdated"
-              :state="validate.phone.status"
-              ref="phone"
-            ></b-form-input>
-            <div class="input-error-msg" v-if="validate.phone.status === false">
-              {{ validate.phone.msg }}
-            </div>
-            <span class="form-example">예: 010-1234-5678</span>
-          </div>
-        </div>
-
-        <div class="form-item request">
-          <div class="form-title">배송시 요청사항</div>
-          <div class="form-content">
-            <b-form-textarea
-              size="sm"
-              v-model="form.request"
-              @update="requestUpdated"
-            ></b-form-textarea>
-          </div>
-        </div>
-
-        <div
-          class="form-item save-info"
-          v-if="selectDeliveryPlace === 'manual'"
-        >
-          <div class="form-content">
-            <b-form-checkbox v-model="saveDestDefault">
-              위 정보를 기본 배송지에 저장합니다.
-            </b-form-checkbox>
-          </div>
-        </div>
-        <!-- todo: 위 정보를 기본 배송지로 설정합니다. (선택) -->
-        <div class="header">
-          <h2>주문내역</h2>
-        </div>
-        <div class="order-list-table">
-          <div class="order-row head">
-            <div class="order-cell name">상품</div>
-            <div class="order-cell count">수량</div>
-            <div class="order-cell price">금액</div>
-          </div>
-          <div class="order-row loading" v-if="orderList.length === 0">
-            <b-spinner class="spinner"></b-spinner>
-            상품 정보를 가져오는 중입니다.
-          </div>
-          <div
-            class="order-row"
-            v-for="(order, orderIndex) in orderList"
-            :key="orderIndex"
-          >
-            <!-- 옵션이 하나 두개 이상일 때 여러개의 옵션을 보여주고 각각에 대한 가격을 표시 -->
-            <div class="has-option-wrapper" v-if="order.options.length > 1">
-              <div class="order-has-options-title">
-                {{ order.name }}
-              </div>
-              <div
-                class="order-row-inner-wrapper"
-                v-for="(option, optionIndex) in order.options"
-                :key="optionIndex"
-              >
-                <div class="order-cell name option">{{ option.content }}</div>
-                <div class="order-cell count option">{{ option.count }}</div>
-                <div class="order-cell price option">
-                  {{ toPrice(option.count * option.price) }}
-                </div>
-              </div>
-            </div>
-            <!-- 옵션이 오직 하나일 경우 옵션 이름은 패스하고 그냥 가격만 표시 -->
-            <div class="order-row-inner-wrapper" v-else>
-              <div class="order-cell name">{{ order.name }}</div>
-              <div class="order-cell count">{{ order.options[0].count }}</div>
-              <div class="order-cell price">
-                {{ toPrice(order.options[0].count * order.options[0].price) }}
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="header">
-          <h2>결제 방법</h2>
-        </div>
-        <div
-          class="input-error-msg"
-          v-if="validate.paymentMethod.status === false"
-        >
-          {{ validate.paymentMethod.msg }}
-        </div>
-        <!-- 결제 방법 -->
-
-        <div class="payment-method row" ref="paymentMethod" tabindex="-1">
-          <div
-            class="col-6 payment-method-option"
-            v-for="methodKey in Object.keys(paymentMethodMap)"
-            :key="methodKey"
-          >
-            <div class="option-inner-wrapper">
-              <b-button
-                @click="setPaymentMethod(methodKey, $event)"
-                :class="{ selected: form.paymentMethod === methodKey }"
-              >
-                {{ paymentMethodMap[methodKey] }}
-              </b-button>
-            </div>
-          </div>
-        </div>
-        <template v-if="form.paymentMethod === 'nobank'">
-          <div class="form-item payer">
-            <div class="form-title">입금자명</div>
+          <hr />
+          <div class="form-item name">
+            <div class="form-title">이름</div>
             <div class="form-content">
               <b-form-input
                 size="sm"
-                v-model="form.payer"
-                @update="payerUpdated"
-                :state="validate.payer.status"
-                ref="payer"
+                v-model="form.name"
+                @update="nameUpdated"
+                :state="validate.name.status"
+                ref="name"
               ></b-form-input>
               <div
                 class="input-error-msg"
-                v-if="validate.payer.status === false"
+                v-if="validate.name.status === false"
               >
-                {{ validate.payer.msg }}
+                {{ validate.name.msg }}
+              </div>
+            </div>
+          </div>
+          <div class="form-item address">
+            <!-- <div class="form-address-title-wrapper"> -->
+            <div class="form-title">주소</div>
+
+            <!-- </div> -->
+
+            <div class="form-content">
+              <finding-address-button
+                @address-loaded="addressLoaded"
+                class="load-address-button"
+              >
+                주소 찾기
+              </finding-address-button>
+              <div class="finding-address-but"></div>
+              <b-form-input
+                size="sm"
+                disabled
+                v-model="form.address"
+                class="address-new"
+                :state="validate.address.status"
+                ref="address"
+                @update="addressUpdated"
+              ></b-form-input>
+              <div v-if="addressOld" class="address-old">
+                지번: {{ addressOld }}
+              </div>
+              <div
+                class="input-error-msg"
+                v-if="validate.address.status === false"
+              >
+                {{ validate.address.msg }}
+              </div>
+            </div>
+          </div>
+          <div class="form-item address">
+            <div class="form-title">상세 주소</div>
+            <div class="form-content">
+              <b-form-input
+                size="sm"
+                v-model="form.address_detail"
+                @update="addressDetailUpdated"
+                :state="validate.address_detail.status"
+                ref="address_detail"
+              ></b-form-input>
+              <div
+                class="input-error-msg"
+                v-if="validate.address_detail.status === false"
+              >
+                {{ validate.address_detail.msg }}
+              </div>
+            </div>
+          </div>
+          <div class="form-item phone">
+            <div class="form-title">전화번호</div>
+            <div class="form-content">
+              <b-form-input
+                size="sm"
+                v-model="form.phone"
+                @update="phoneUpdated"
+                :state="validate.phone.status"
+                ref="phone"
+              ></b-form-input>
+              <div
+                class="input-error-msg"
+                v-if="validate.phone.status === false"
+              >
+                {{ validate.phone.msg }}
+              </div>
+              <span class="form-example">예: 010-1234-5678</span>
+            </div>
+          </div>
+
+          <div class="form-item request">
+            <div class="form-title">배송시 요청사항</div>
+            <div class="form-content">
+              <b-form-textarea
+                size="sm"
+                v-model="form.request"
+                @update="requestUpdated"
+              ></b-form-textarea>
+            </div>
+          </div>
+
+          <div
+            class="form-item save-info"
+            v-if="selectDeliveryPlace === 'manual'"
+          >
+            <div class="form-content">
+              <b-form-checkbox v-model="saveDestDefault">
+                위 정보를 기본 배송지에 저장합니다.
+              </b-form-checkbox>
+            </div>
+          </div>
+          <!-- todo: 위 정보를 기본 배송지로 설정합니다. (선택) -->
+          <div class="header">
+            <h2>주문내역</h2>
+          </div>
+          <div class="order-list-table">
+            <div class="order-row head">
+              <div class="order-cell name">상품</div>
+              <div class="order-cell count">수량</div>
+              <div class="order-cell price">금액</div>
+            </div>
+            <div class="order-row loading" v-if="orderList.length === 0">
+              <b-spinner class="spinner"></b-spinner>
+              상품 정보를 가져오는 중입니다.
+            </div>
+            <div
+              class="order-row"
+              v-for="(order, orderIndex) in orderList"
+              :key="orderIndex"
+            >
+              <!-- 옵션이 하나 두개 이상일 때 여러개의 옵션을 보여주고 각각에 대한 가격을 표시 -->
+              <div class="has-option-wrapper" v-if="order.options.length > 1">
+                <div class="order-has-options-title">
+                  {{ order.name }}
+                </div>
+                <div
+                  class="order-row-inner-wrapper"
+                  v-for="(option, optionIndex) in order.options"
+                  :key="optionIndex"
+                >
+                  <div class="order-cell name option">{{ option.content }}</div>
+                  <div class="order-cell count option">{{ option.count }}</div>
+                  <div class="order-cell price option">
+                    {{ toPrice(option.count * option.price) }}
+                  </div>
+                </div>
+              </div>
+              <!-- 옵션이 오직 하나일 경우 옵션 이름은 패스하고 그냥 가격만 표시 -->
+              <div class="order-row-inner-wrapper" v-else>
+                <div class="order-cell name">{{ order.name }}</div>
+                <div class="order-cell count">{{ order.options[0].count }}</div>
+                <div class="order-cell price">
+                  {{ toPrice(order.options[0].count * order.options[0].price) }}
+                </div>
               </div>
             </div>
           </div>
           <div class="header">
-            <h2>무통장입금 안내사항</h2>
+            <h2>결제 방법</h2>
           </div>
-          <div class="nobank-notice">
-            <ul>
-              <li>
-                입금자명 혹은 입금액이 다를 경우 입금 확인이 어려워 배송이
-                지연될 수 있습니다.
-              </li>
-              <li>
-                주문 후 48시간 이내에 입금하지 않으실 경우 주문이 취소될 수
-                있습니다.
-              </li>
-              <!-- <li>기타 문의사항은 이메일로 문의해주시기 바랍니다.</li> -->
-            </ul>
+          <div
+            class="input-error-msg"
+            v-if="validate.paymentMethod.status === false"
+          >
+            {{ validate.paymentMethod.msg }}
           </div>
-          <!-- <div class="form-item ">
+          <!-- 결제 방법 -->
+
+          <div class="payment-method row" ref="paymentMethod" tabindex="-1">
+            <div
+              class="col-6 payment-method-option"
+              v-for="methodKey in Object.keys(paymentMethodMap)"
+              :key="methodKey"
+            >
+              <div class="option-inner-wrapper">
+                <b-button
+                  @click="setPaymentMethod(methodKey, $event)"
+                  :class="{ selected: form.paymentMethod === methodKey }"
+                >
+                  {{ paymentMethodMap[methodKey] }}
+                </b-button>
+              </div>
+            </div>
+          </div>
+          <template v-if="form.paymentMethod === 'nobank'">
+            <div class="form-item payer">
+              <div class="form-title">입금자명</div>
+              <div class="form-content">
+                <b-form-input
+                  size="sm"
+                  v-model="form.payer"
+                  @update="payerUpdated"
+                  :state="validate.payer.status"
+                  ref="payer"
+                ></b-form-input>
+                <div
+                  class="input-error-msg"
+                  v-if="validate.payer.status === false"
+                >
+                  {{ validate.payer.msg }}
+                </div>
+              </div>
+            </div>
+            <div class="header">
+              <h2>무통장입금 안내사항</h2>
+            </div>
+            <div class="nobank-notice">
+              <ul>
+                <li>
+                  입금자명 혹은 입금액이 다를 경우 입금 확인이 어려워 배송이
+                  지연될 수 있습니다.
+                </li>
+                <li>
+                  주문 후 48시간 이내에 입금하지 않으실 경우 주문이 취소될 수
+                  있습니다.
+                </li>
+                <!-- <li>기타 문의사항은 이메일로 문의해주시기 바랍니다.</li> -->
+              </ul>
+            </div>
+            <!-- <div class="form-item ">
             <div class="form-title">입금액</div>
             <div class="form-content">
               {{ toPrice(totalPrice) }}
             </div>
           </div> -->
-        </template>
-      </div>
-    </div>
-    <div class="payment-info-wrapper">
-      <div class="payment-info">
-        <div class="header">
-          <h2>결제 정보</h2>
+          </template>
         </div>
-        <div class="payment-table">
-          <div class="payment-table-row">
-            <div class="payment-table-cell head">총 상품 가격</div>
-            <div class="payment-table-cell price">
-              {{ toPrice(totalProductPrice) }}
-            </div>
+      </div>
+      <div class="payment-info-wrapper">
+        <div class="payment-info">
+          <div class="header">
+            <h2>결제 정보</h2>
           </div>
-          <div class="payment-table-row">
-            <div class="payment-table-cell head">배송비</div>
-            <div class="payment-table-cell price">
-              {{ toPrice(transportationFee) }}
+          <div class="payment-table">
+            <div class="payment-table-row">
+              <div class="payment-table-cell head">총 상품 가격</div>
+              <div class="payment-table-cell price">
+                {{ toPrice(totalProductPrice) }}
+              </div>
             </div>
-          </div>
-          <div class="payment-table-row">
-            <div class="payment-table-cell head">총 주문 수량</div>
-            <div class="payment-table-cell price">
-              {{ totalCount }}
+            <div class="payment-table-row">
+              <div class="payment-table-cell head">배송비</div>
+              <div class="payment-table-cell price">
+                {{ toPrice(transportationFee) }}
+              </div>
             </div>
-          </div>
-          <hr />
+            <div class="payment-table-row">
+              <div class="payment-table-cell head">총 주문 수량</div>
+              <div class="payment-table-cell price">
+                {{ totalCount }}
+              </div>
+            </div>
+            <hr />
 
-          <div class="payment-table-row">
-            <div class="payment-table-cell head">총 결제 금액</div>
-            <div class="payment-table-cell total-price">
-              {{ toPrice(totalPrice) }}
+            <div class="payment-table-row">
+              <div class="payment-table-cell head">총 결제 금액</div>
+              <div class="payment-table-cell total-price">
+                {{ toPrice(totalPrice) }}
+              </div>
             </div>
           </div>
-        </div>
-        <div class="last-notice">위 주문 내용으로 결제에 동의합니다.</div>
-        <!-- 주문 내용을 확인 하였으며, 회원 본인은 결제에 동의합니다.
+          <div class="last-notice">위 주문 내용으로 결제에 동의합니다.</div>
+          <!-- 주문 내용을 확인 하였으며, 회원 본인은 결제에 동의합니다.
          -->
-        <div class="go-payment-wrapper">
-          <oval-button @click="paymentClicked" class="go-payment"
-            >결제하기</oval-button
-          >
-          <!-- <b-button @click="testClicked">테스트</b-button> -->
-          <!-- {{ paymentProductName }} -->
+          <div class="go-payment-wrapper">
+            <oval-button @click="paymentClicked" class="go-payment"
+              >결제하기</oval-button
+            >
+            <!-- <b-button @click="testClicked">테스트</b-button> -->
+            <!-- {{ paymentProductName }} -->
+          </div>
         </div>
-      </div>
-      <!-- <div class="test">
+        <!-- <div class="test">
         <b-link :to="{ name: 'Cart' }">이전</b-link>
       </div> -->
-    </div>
-    <!-- <b-button @click="testKakao" class="test">테스트</b-button> -->
-    <!-- <pre>
+      </div>
+      <!-- <b-button @click="testKakao" class="test">테스트</b-button> -->
+      <!-- <pre>
 
       {{ bootpayArgs }}
       </pre> -->
-  </div>
+    </div>
+  </b-overlay>
 </template>
 
 <script>
 import {
   BFormInput,
-  BLink,
   BFormRadio,
   BFormRadioGroup,
   BFormTextarea,
   BButton,
   BSpinner,
   BFormCheckbox,
+  BOverlay,
 } from 'bootstrap-vue';
 import { paymentMethodMap, toPrice } from '@/util';
 import {
@@ -321,9 +329,7 @@ const finishPaymentReq = makeSimpleMutation('finishPayment');
 const updateMeReq = makeSimpleMutation('updateMe');
 
 export default {
-  title: '주문결제',
   components: {
-    BLink,
     BSpinner,
     BButton,
     BFormInput,
@@ -331,11 +337,14 @@ export default {
     BFormRadioGroup,
     BFormTextarea,
     BFormCheckbox,
+    BOverlay,
     FindingAddressButton: () => import('@/components/FindingAddressButton'),
     OvalButton: () => import('@/components/OvalButton'),
   },
   data() {
     return {
+      loading: false,
+      vuePageTitle: '',
       paymentMethodMap: { ...paymentMethodMap },
       transportationFee: 123,
       selectDeliveryPlace: 'default', // dest 선택시 기본배송지 또는 직접입력 선택용
@@ -478,9 +487,11 @@ export default {
     },
   },
   computed: {
+    /** @returns {string} */
     formAddress() {
       return this.form.address;
     },
+    /** @returns {number} */
     totalProductPrice() {
       const options = this.orderList.map((cartitem) => cartitem.options).flat();
       // console.log('# OrderPayment.vue totalProductPrice options');
@@ -488,6 +499,7 @@ export default {
       const sum = options.reduce((acc, now) => acc + now.count * now.price, 0);
       return sum;
     },
+    /** @returns {number} */
     totalCount() {
       const options = this.orderList.map((cartitem) => cartitem.options).flat();
       // console.log('# OrderPayment.vue totalProductPrice options');
@@ -495,24 +507,29 @@ export default {
       const count = options.reduce((acc, now) => acc + now.count, 0);
       return count;
     },
+    /** @returns {number} */
     totalPrice() {
       return this.totalProductPrice + this.transportationFee;
     },
+    /** @returns {string} */
     addressNew() {
       if (this.addressObj.roadAddress) {
         return `${this.addressObj.roadAddress} (${this.addressObj.bname})`;
       }
       return '';
     },
+    /** @returns {string} */
     addressOld() {
       return this.addressObj.jibunAddress;
     },
+    /** @returns {number[]} */
     cartitems() {
       const { ids } = this.$route.params;
       if (ids) return ids.split(',').map((item) => parseInt(item, 10));
       return [];
     },
     // 결제창에서 보여질 이름
+    /** @returns {string} */
     paymentProductName() {
       const options = this.orderList.map((cartitem) => cartitem.options).flat();
       if (options.length === 0) {
@@ -527,6 +544,7 @@ export default {
     },
 
     // 결제창에서 넣을 items
+    /** @returns {any[]} */
     paymentItems() {
       return this.orderList
         .map((cartitem) =>
@@ -542,6 +560,7 @@ export default {
     },
 
     // bootpay 결제 request 에 넣을 args
+    /** @returns {any} */
     bootpayArgs() {
       return {
         price: this.totalPrice, // 실제 결제되는 가격
@@ -588,6 +607,7 @@ export default {
     },
   },
   async mounted() {
+    this.vuePageTitle = '주문결제';
     this.fetchCartitemData();
     this.fetchDefaultDest();
     this.fetchTransportationFee();
@@ -724,7 +744,7 @@ export default {
       console.log('# OrderPayment fetchTransporationFee res');
       console.log(res);
       if (res[0].success) {
-        this.transportationFee = res[0].value;
+        this.transportationFee = parseInt(res[0].value, 10);
       }
     },
     async validateInputs() {
@@ -814,6 +834,7 @@ export default {
     },
     // 결제하기 버튼이 클릭되었을 때
     async paymentClicked() {
+      this.loading = true;
       const validated = await this.validateInputs();
       console.log('# OrderPayment paymentClicked validated');
       console.log(validated);
@@ -864,30 +885,12 @@ export default {
       // 무통장 입금이고, 그냥 order 만드는 게 성공했을 때
       // 다음 화면으로 넘어간다. 그리고 바로 끝낸다!
       else if (res.success) {
+        this.loading = false;
         this.$router.push({
           name: 'PaymentSuccessNoBank',
           query: { orderId: res.order_id },
         });
       }
-      // 결제하게 되면, bootpay에 넘겨주는 콜백으로 모든 결과를 처리하게 됨.
-      // 그러므로 이 함수는 이제 역할을 다 함.
-
-      // // 결제에 성공했을 경우 다음 페이지 전환
-      // if (res.success) {
-      //   // 무통장 입금일 경우
-      //   if (this.form.paymentMethod === 'nobank') {
-      //     // ...PaymentSuccessNoBank
-      //   }
-
-      //   // 그 외 결제일 경우
-      //   else {
-      //     this.$router.push({ name: 'PaymentSuccess' });
-      //   }
-      // }
-      // // 결제에 실패했을 경우
-      // else {
-      //   this.getFail(res.code);
-      // }
     },
     requestPayment() {
       // 실제 복사하여 사용시에는 모든 주석을 지운 후 사용하세요
@@ -955,12 +958,14 @@ export default {
           console.log('# OrderPayment finishPaymentReq result');
           console.log(result);
           if (result.success) {
+            this.loading = false;
             this.$router.push({
               name: 'PaymentSuccess',
               query: { orderId: order_id },
             });
           } else {
             console.error('결제 실패');
+            this.loading = false;
             this.pushMessage({
               msg: `결제에 실패했습니다. - ${result.code}`,
               type: 'danger',
@@ -969,6 +974,7 @@ export default {
           }
         })
         .catch((err) => {
+          this.loading = false;
           console.error(err);
         });
     },

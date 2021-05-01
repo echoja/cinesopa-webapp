@@ -32,6 +32,7 @@ type Order {
   meta: JSON
   items: [CartItem]
   dest: Destinfo
+  cancel_reason: String
   payer: String
 }
 
@@ -51,6 +52,7 @@ input OrderInput {
   bootpay_payment_info: JSON
   meta: JSON
   dest: DestinfoInput
+  cancel_reason: String
   payer: String
 }
 
@@ -122,6 +124,18 @@ type OrderCountGroupedByStatusResult {
   count: Int
 }
 
+type CreateOrderResult {
+  success: Boolean
+  code: String
+}
+
+type CancelOrderResult {
+  success: Boolean
+  code: String
+  cancelled_price: Int
+  remain_price: Int  
+}
+
 extend type Query {
   orderAdmin(id: Int!): Order
   ordersAdmin(condition: OrderSearch!): OrdersResult
@@ -140,12 +154,15 @@ extend type Query {
 
 extend type Mutation {
   # createOrderFromCart: Order
+  createOrder(input: OrderInput!): CreateOrderResult
   createOrderFromCart(
     input: CreateOrderFromCartInput!
     payer: String
   ): CreateOrderFromCartResult # 새 주문 생성
   finishPayment(id: Int!, receiptId: String!): FinishPaymentResult
-  reqCancelOrder(id: Int!): ReqCancelOrderResult
+  reqCancelOrder(id: Int!, cancel_reason: String!): ReqCancelOrderResult
+  cancelOrder(id: Int!, cancel_reason: String!, price: Int): CancelOrderResult
   updateOrder(id: Int!, input: OrderInput!): updateOrderResult
+  updateMyOrder(id: Int!, input: OrderInput!): updateOrderResult
   removeOrder(id: Int!): removeOrderResult
 }

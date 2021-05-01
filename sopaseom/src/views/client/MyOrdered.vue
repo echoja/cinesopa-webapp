@@ -24,14 +24,15 @@
 
         <template v-for="(countHeader, countHeaderIndex) in summaryGrid">
           <div class="summary-grid-item" :key="`count-${countHeader.key}`">
+            <!-- 숫자 링크 (누르면 필터링됨) -->
             <b-link
               class="Tfont-bold Ttext-4xl"
-              @click="transportPreparingCountClicked"
+              @click="statusCountClicked(countHeader.key)"
             >
-              <template v-if="countMap.get(countHeader.key) === 0">
-                {{ countMap.get(countHeader.key) }}
+              <template v-if="countMap[countHeader.key] === 0">
+                {{ countMap[countHeader.key] }}
               </template>
-              <u v-else>{{ countMap.get(countHeader.key) }}</u>
+              <u v-else>{{ countMap[countHeader.key] }}</u>
             </b-link>
           </div>
           <div
@@ -64,6 +65,7 @@
             </div>
             <div class="date-select">
               <b-form-datepicker
+                locale="ko-KR"
                 class="condition"
                 value-as-date
                 :date-format-options="{
@@ -76,6 +78,7 @@
               </b-form-datepicker>
               <span> ~ </span>
               <b-form-datepicker
+                locale="ko-KR"
                 class="condition"
                 value-as-date
                 :date-format-options="{
@@ -199,30 +202,110 @@
                 <b-button @click="showDetailClicked(orderIndex)"
                   >상세정보</b-button
                 >
-                <b-button
-                  v-if="showTransportSearchButton(orderItem.status)"
+                <delivery-tracker-button
+                  v-if="orderItem.showTransportSearchButton"
+                  :carrier-id="orderItem.transport_company"
+                  :transport-number="orderItem.transport_number"
+                  button-text="배송조회"
+                  :button-classes="[]"
+                  :button-style="{ fontSize: '12px' }"
+                  size="sm"
+                >
+                  배송조회
+                </delivery-tracker-button>
+                <!-- <b-button
+                  v-if="orderItem.showTransportSearchButton"
                   @click="showTrackClicked(orderIndex)"
-                  >배송조회</b-button
                 >
+                  배송조회
+                </b-button> -->
                 <b-button
-                  v-if="showReqExchange(orderItem.status)"
+                  v-if="orderItem.showReqExchange"
                   @click="reqExchangeClicked(orderIndex)"
-                  >교환/반품</b-button
                 >
+                  교환/반품
+                </b-button>
                 <b-button
-                  v-if="!showReqExchange(orderItem.status)"
-                  @click="$bvModal.show(`cancel-order-modal-${orderIndex}`)"
-                  >변경/취소</b-button
+                  v-if="orderItem.showModifyCancel"
+                  @click="modifyOrCancelClicked(orderIndex)"
                 >
+                  변경/취소
+                </b-button>
                 <b-modal
+                  :id="`modify-order-modal-${orderIndex}`"
+                  hide-header
+                  hide-footer
+                  ok-variant="danger"
+                >
+                  <template #default="{ hide }">
+                    <div class="Trelative">
+                      <custom-modal-close-button :hide="hide">
+                      </custom-modal-close-button>
+                      <!-- 주문 변경 -->
+                      <h2 class="Ttext-lg Tfont-bold Tmb-2 Tpt-4">주문 변경</h2>
+
+                      <b-form-group
+                        :label-for="`input-modifying-${id}`"
+                        v-for="(form, id) in modifyingDest"
+                        :key="id"
+                        :label="form.label"
+                        label-class="Tfont-bold"
+                      >
+                        <finding-address-button
+                          @address-loaded="modifyingAddressLoaded($event)"
+                          v-if="id === 'address'"
+                          size="sm"
+                          class="Tmb-2"
+                          >주소 검색</finding-address-button
+                        >
+                        <b-form-input
+                          :id="`input-modifying-${id}`"
+                          v-model="form.value"
+                        ></b-form-input>
+                      </b-form-group>
+                      <loading-button
+                        variant="primary"
+                        :loading="modifyingLoading"
+                        @click="updateOrderClicked(orderIndex)"
+                      >
+                        주문을 변경합니다.
+                      </loading-button>
+                      <hr class="Tborder-black" />
+
+                      <!-- 주문 취소 -->
+                      <h2 class="Ttext-lg Tfont-bold Tmb-2 Tpt-4">주문 취소</h2>
+                      <b-form-group
+                        label="취소 사유 (선택)"
+                        label-class="Tfont-bold"
+                        label-for="cancel-reason"
+                      >
+                        <b-form-textarea
+                          placeholder="예: 단순 변심"
+                          v-model="cancelReason"
+                          id="cancel-reason"
+                        ></b-form-textarea>
+                      </b-form-group>
+                      <loading-button
+                        :loading="cancellingLoading"
+                        variant="danger"
+                        @click="
+                          $bvModal.show(`cancel-order-modal-${orderIndex}`)
+                        "
+                      >
+                        주문을 취소합니다.
+                      </loading-button>
+                    </div>
+                  </template>
+                </b-modal>
+                <b-modal
+                  ok-variant="danger"
                   :id="`cancel-order-modal-${orderIndex}`"
-                  :ok="reqCancelOrder(orderIndex)"
                   ok-title="예"
                   cancel-title="아니오"
-                  ok-variant="danger"
-                  title="변경/취소"
+                  @ok="cancelOrderClicked(orderIndex)"
+                  hide-header
                 >
-                  정말로 주문을 취소하시겠습니까?
+                  주문을 정말로 취소하시겠습니까?
                 </b-modal>
               </div>
             </div>
@@ -339,12 +422,24 @@
               </div>
               <hr class="Tborder-gray-500 Tcol-span-2 Tmy-3" />
               <div class="detail-price-head">결제금액</div>
-              <div class="Ttext-right Ttext-2xl Ttext-black Tfont-bold Tmb-3">
+              <div
+                class="Ttext-right Ttext-2xl Ttext-black Tfont-bold Tmb-3 Ttext-black"
+              >
                 {{ toPrice(detail.amount || 0) }}
               </div>
               <div class="detail-price-head">결제수단</div>
               <div class="Ttext-right">
-                {{ paymentMethodsLabel(detail.method) }}
+                <span>
+                  {{ paymentMethodsLabel(detail.method) }}
+                </span>
+                <span v-if="detail.bootpay_payment_info">
+                  <b-link
+                    class="Tml-3 Ttext-sm Tpx-2 Tpy-1 Tborder Tborder-black hover:Tno-underline Tbg-white Ttext-black Tleading-none Ttransition-all Tfont-bold Trounded hover:Topacity-60"
+                    target="_blank"
+                    :href="detail.bootpay_payment_info.receipt_url"
+                    >영수증</b-link
+                  >
+                </span>
               </div>
             </div>
           </div>
@@ -378,20 +473,22 @@
 import {
   BButton,
   BFormDatepicker,
+  BFormGroup,
+  BFormInput,
   BFormSelect,
-  BFormSelectOption,
+  BFormTextarea,
   BLink,
-  BTableLite,
   BPaginationNav,
 } from 'bootstrap-vue';
 import moment from 'moment';
 
-import { toPrice, statusMap } from '@/util';
+import { toPrice, statusMap, addressNew, handleSimpleResult } from '@/util';
 import { makeSimpleMutation, makeSimpleQuery } from '@/api/graphql-client';
 import LoadingButton from '@/components/LoadingButton.vue';
 
 const myOrdersReq = makeSimpleQuery('myOrders');
-const canclOrderReq = makeSimpleMutation('');
+const reqCancelOrderReq = makeSimpleMutation('reqCancelOrder');
+const updateMyOrderReq = makeSimpleMutation('updateMyOrder');
 
 const destLabelMap = {
   name: '이름',
@@ -406,6 +503,8 @@ const paymentMethodLabelMap = {
   nobank: '무통장입금',
   bank: '계좌이체',
   phone: '휴대폰결제',
+  kakao: '카카오페이',
+  npay: '네이버페이',
 };
 
 // 'order_received', // "주문접수",
@@ -431,11 +530,16 @@ const paymentMethodLabelMap = {
 export default {
   components: {
     BButton,
+    BFormInput,
+    BFormGroup,
     BFormDatepicker,
     BFormSelect,
     SvgNext: () => import('@/components/SvgNext'),
     SvgClose: () => import('@/components/CloseFigure'),
-    BTableLite,
+    CustomModalCloseButton: () => import('@/components/CustomModalCloseButton'),
+    FindingAddressButton: () => import('@/components/FindingAddressButton'),
+    DeliveryTrackerButton: () => import('@/components/DeliveryTrackerButton'),
+    BFormTextarea,
     BLink,
     LoadingButton,
     BPaginationNav,
@@ -471,19 +575,19 @@ export default {
         page: 1,
         perpage: 10,
       },
-      countMap: new Map([
-        ['order_received', 0],
-        ['payment_confirming', 0],
-        ['payment_success', 0],
-        ['product_loading', 0],
-        ['transport_preparing', 0],
-        ['transporting', 0],
-        ['transport_success', 0],
-        ['deal_success', 0],
-        ['returning', 0],
-        ['order_cancelling', 0],
-        ['order_cancelled', 0],
-      ]),
+      countMap: {
+        order_received: 0,
+        payment_confirming: 0,
+        payment_success: 0,
+        product_loading: 0,
+        transport_preparing: 0,
+        transporting: 0,
+        transport_success: 0,
+        deal_success: 0,
+        returning: 0,
+        order_cancelling: 0,
+        order_cancelled: 0,
+      },
       summaryGrid: [
         {
           label: '결제완료',
@@ -507,83 +611,23 @@ export default {
         { value: '', text: '전체상태' },
         { value: 'payment_confirming', text: '결제확인중' },
         { value: 'payment_success', text: '결제완료' },
+        { value: 'transport_preparing', text: '배송준비중' },
         { value: 'transporting', text: '배송중' },
         { value: 'transport_success', text: '배송완료' },
         { value: 'order_cancelling', text: '주문취소중' },
         { value: 'order_cancelled', text: '주문취소' },
       ],
-      orders: [
-        {
-          items: [
-            {
-              // featured_image_url: require('@/assets/ex1.jpg');
-              product: {
-                name: '소파킷 고독 - 기억할 만한 지나침',
-                featured_image_url: '',
-              },
-              options: [
-                {
-                  content: 'A옵션',
-                  count: 2,
-                },
-                {
-                  content: 'B옵션',
-                  count: 3,
-                },
-              ],
-            },
-            {
-              product: {
-                name: '소파킷 파워',
-                featured_image_url: '',
-              },
-              options: [
-                {
-                  count: 5,
-                },
-              ],
-            },
-          ],
-          c_date: new Date(),
-          amount: 347000,
-          status: 'transporting',
-        },
-        {
-          items: [
-            {
-              // featured_image_url: require('@/assets/ex1.jpg');
-              product: {
-                name: '소파킷 고독',
-                featured_image_url: '',
-              },
-              options: [
-                {
-                  content: 'A옵션',
-                  count: 2,
-                },
-                {
-                  content: 'B옵션',
-                  count: 3,
-                },
-              ],
-            },
-            {
-              product: {
-                name: '소파킷 파워',
-                featured_image_url: '',
-              },
-              options: [
-                {
-                  count: 5,
-                },
-              ],
-            },
-          ],
-          c_date: new Date(),
-          amount: 347000,
-          status: 'transporting',
-        },
-      ],
+      orders: [],
+      modifyingDest: {
+        name: { label: '수취인 이름', value: '' },
+        address: { label: '주소', value: '' },
+        address_detail: { label: '상세 주소', value: '' },
+        phone: { label: '연락처', value: '' },
+        request: { label: '요청사항', value: '' },
+      },
+      modifyingLoading: false,
+      cancellingLoading: false,
+      cancelReason: '',
     };
   },
 
@@ -671,8 +715,8 @@ export default {
         { condition },
         `{
           transporting total list {
-            user status method c_date expected_date cancelled_date return_req_date cash_receipt
-            transport_number transport_fee transport_company bootpay_id
+            id user status method c_date expected_date cancelled_date return_req_date cash_receipt
+            transport_number transport_fee transport_company bootpay_id bootpay_payment_info cancel_reason
             items {
               id user added modified product_id usage
               product {
@@ -691,21 +735,46 @@ export default {
           }
         }`,
       );
-      // console.log('# MyOrdered fetchData res');
-      // console.dir({ total, list, transporting, order_count });
+      console.log('# MyOrdered fetchData res');
+      console.dir({ total, list, transporting, order_count });
       this.total = total;
 
-      console.log('# MyOrdered fetchData order_count');
-      console.log(order_count);
-      order_count.forEach(({ status, count }) => {
-        this.countMap.set(status, count);
+      // console.log('# MyOrdered fetchData order_count');
+      // console.log(order_count);
+      Object.keys(this.countMap).forEach((status) => {
+        this.countMap[status] = 0;
       });
-      console.log(this.countMap);
+      order_count.forEach(({ status, count }) => {
+        this.countMap[status] = count;
+      });
 
       // 입력값 다듬기
       list.forEach((order) => {
+        // 상품들의 가격들을 정리하기.
         order.productsPrice = this.getProductsPrice(order);
-        order.amount = order.productsPrice + order.transport_fee ?? 0; // 배송비가 있다면 추가시켜주기.
+
+        // 배송비가 있다면 추가시켜주기.
+        order.amount = order.productsPrice + order.transport_fee ?? 0;
+
+        // 각 버튼들을 보여줘야 하는지 계산하기
+        const { status } = order;
+        order.showTransportSearchButton = [
+          'deal_success',
+          'transporting',
+          'transport_success',
+          'returning',
+        ].includes(status);
+        order.showReqExchange = [
+          'transporting',
+          'transport_success',
+          'deal_success',
+        ].includes(status);
+        order.showModifyCancel = [
+          'order_received',
+          'payment_confirming',
+          'payment_success',
+          'product_loading',
+        ].includes(status);
       });
 
       // observable 데이터와 바인드
@@ -734,39 +803,86 @@ export default {
         0,
       );
     },
-    showTransportSearchButton(status) {
-      return [
-        'deal_success',
-        'transporting',
-        'transport_success',
-        'returning',
-      ].includes(status);
-    },
-    showReqExchange(status) {
-      return ['transporting', 'transport_success', 'deal_success'].includes(
-        status,
-      );
-    },
     showDetailClicked(orderIndex) {
       this.detail = { ...this.orders[orderIndex] };
       console.log(this.detail);
       this.$bvModal.show('order-detail');
-      // todo
-    },
-    showTrackClicked(orderIndex) {
-      // todo
     },
     reqExchangeClicked(orderIndex) {
       // todo
     },
-    reqCancelOrder(orderIndex) {},
+    async cancelOrderClicked(orderIndex) {
+      this.cancellingLoading = true;
+      const { id } = this.orders[orderIndex];
+      const result = await reqCancelOrderReq(
+        { id, cancel_reason: this.cancelReason },
+        '{success code}',
+      );
+      handleSimpleResult(
+        result,
+        'reqCancelOrder',
+        '성공적으로 주문 취소를 요청했습니다.',
+        '주문취소 요청 도중 오류가 발생했습니다.',
+      );
+      if (result.success) {
+        this.loading = true;
+        await this.fetchData();
+        this.loading = false;
+      }
+      this.$bvModal.hide(`modify-order-modal-${orderIndex}`);
+      this.$bvModal.hide(`cancel-order-modal-${orderIndex}`);
+      this.cancellingLoading = false;
+    },
+    async updateOrderClicked(orderIndex) {
+      this.modifyingLoading = true;
+      const order = this.orders[orderIndex];
+      const dest = {};
+      Object.entries(this.modifyingDest).forEach(([name, { value }]) => {
+        dest[name] = value;
+      });
+      const result = await updateMyOrderReq(
+        {
+          id: order.id,
+          input: { dest },
+        },
+        '{success code}',
+      );
+      handleSimpleResult(
+        result,
+        'updateOrderDest',
+        '성공적으로 주문을 변경했습니다.',
+        '주문을 변경하던 도중 오류가 발생했습니다.',
+      );
+      if (result.success) {
+        this.loading = true;
+        await this.fetchData();
+        this.loading = false;
+      }
+      this.modifyingLoading = false;
+      this.$bvModal.hide(`modify-order-modal-${orderIndex}`);
+    },
     linkGen(pageNum) {
       return { name: 'MyOrdered', params: { page: pageNum } };
     },
-    paymentSuccessCountClicked() {},
-    transportPreparingCountClicked() {},
-    transportingCountClicked() {},
-    transportSuccessCountClicked() {},
+    async statusCountClicked(status) {
+      this.condition.status = status;
+      this.loading = true;
+      await this.fetchData();
+      this.loading = false;
+    },
+    modifyOrCancelClicked(orderIndex) {
+      this.$bvModal.show(`modify-order-modal-${orderIndex}`);
+      this.cancelReason = '';
+      Object.entries(this.orders[orderIndex].dest).forEach(([key, value]) => {
+        this.modifyingDest[key].value = value;
+      });
+    },
+    modifyingAddressLoaded(data) {
+      console.log('# MyOrdered modifyingAddressLoaded');
+      console.log(data);
+      this.modifyingDest.address.value = addressNew(data);
+      this.modifyingDest.address_detail.value = data.buildingName;
+    },
   },
 };
 </script>

@@ -26,19 +26,12 @@ const mailTemplateFileInfo = {
 };
 const { makeTemplateMap } = require('./mail-template/template-map');
 
-const mailDefaultArgsGetter = async () => ({
-  // todo
-});
-
 /**
  * mail Template Map
  * 파일로부터 템플릿 정보를 받아오므로 일단 Promise 형태입니다.
  * 추후 이용할 때 Promise.resolve() 함수를 이용해 Promise 형태를 풀어야 합니다.
  */
-const mailTemplateMap = makeTemplateMap(
-  mailTemplateFileInfo,
-  mailDefaultArgsGetter,
-);
+const mailTemplateMap = makeTemplateMap(mailTemplateFileInfo);
 
 /* mail manager */
 const mailManagerMaker = require('./manager/mail').default;
