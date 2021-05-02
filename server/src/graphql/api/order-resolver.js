@@ -263,13 +263,13 @@ module.exports = {
       const adminEmails = await db.getEmailsFromSiteOption('shopping_email');
       const body = `
         - 사용자: ${email}<br>
-        - 상품id: ${id}<br>
+        - 주문번호: ${id}<br>
         - 취소사유: ${cancel_reason}<br>
         - 상품명: ${orderDoc.items.map((item) => item.product.name).join(', ')}
       `;
       const sendPromises = adminEmails.map((adminEmail) =>
         mail.sendGmail(
-          { recipientEmail: adminEmail, recipientName: '쇼핑관리자' },
+          { recipientEmail: adminEmail, recipientName: '상품관리자' },
           `[소파섬] 주문취소 요청: ${id}`,
           body,
         ),
@@ -278,21 +278,74 @@ module.exports = {
 
       return { success: true };
     }).only(ACCESS_AUTH),
+
+    // todo: make test
+    cancelPayment: makeResolver(async (obj, args, context, info) => {
+      const { id, cancel_reason, price } = args;
+      const order = await db.getOrder(id);
+      if (!order.bootpay_id) {
+        return { success: false, code: 'no_bootpay_id' };
+      }
+      /** @type {import('@/typedef').CancelPaymentArgs} */
+      const arg = {
+        name: '관리자',
+        reason: cancel_reason,
+        receipt_id: order.bootpay_id,
+      };
+      // price 가 있을 시 정보 넣어주기.
+      if (price) {
+        arg.price = price;
+      }
+
+      const result = await payment.bootpay.cancelPayment(arg);
+      // 성공했을 시 db 업데이트 및 결과 리턴
+      if (result.success) {
+        await db.updateOrder(id, {
+          cancelled_fee: result.data.cancelled_price,
+        });
+        return {
+          success: true,
+          cancelled_price: result.data.cancelled_price,
+        };
+      }
+      // 실패했을 시에는 result 를 그대로 리턴
+      return result;
+    }).only(ACCESS_ADMIN),
     updateOrder: makeResolver(async (obj, args, context, info) => {
       const { id, input } = args;
       await db.updateOrder(id, input);
       return { success: true };
     }).only(ACCESS_ADMIN),
+
+    /** 회원이 자신의 order 를 수정 */
     updateMyOrder: makeResolver(async (obj, args, context, info) => {
       const { id, input } = args;
       const { email } = context.getUser();
       const orderDoc = await db.getOrder(id);
+
       // 자기 것이 아닐 경우 에러
       if (orderDoc.user !== email) {
         return { success: false, code: 'not_own_order' };
       }
-      await db.updateOrder(id, input);
-      // todo: 메일보내기
+      const updatePromise = db.updateOrder(id, input);
+
+      // 메일 보내기
+      const adminEmails = await db.getEmailsFromSiteOption('shopping_email');
+      const body = `
+        - 사용자: ${email}<br>
+        - 주문번호: ${id}<br>
+        - 상품명: ${orderDoc.items.map((item) => item.product.name).join(', ')}<br>
+        주문이 수정되었습니다. 자세한 내용은 관리자 창에서 확인해주세요. 
+      `;
+      const sendPromises = adminEmails.map((adminEmail) =>
+        mail.sendGmail(
+          { recipientEmail: adminEmail, recipientName: '상품관리자' },
+          `[소파섬] 주문수정: ${id}`,
+          body,
+        ),
+      );
+      await Promise.allSettled([...sendPromises, updatePromise]);
+
       return { success: true };
     }).only(ACCESS_AUTH),
     removeOrder: makeResolver(async (obj, args, context, info) => {

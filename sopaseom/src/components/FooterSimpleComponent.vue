@@ -68,7 +68,7 @@ $gray-c2: #7a7a7a;
 .cineesopa-logo {
   width: 55px;
   display: block;
-  transform: translateY(-2px);
+  transform: translateY(-5px);
 }
 </style>
 

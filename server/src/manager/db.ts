@@ -1716,11 +1716,17 @@ export class DBManager {
       status_list = [],
       user,
       method,
+      id,
     } = condition;
 
     // 우선 정렬
 
     const query = model.Order.find().sort({ c_date: -1 });
+
+    // id 정확하게 검색
+    if (id) {
+      query.find({ id });
+    }
 
     // 유저 이메일 필터
     if (user) {

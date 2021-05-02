@@ -96,10 +96,10 @@
 
             <info> 공동체 상영 신청을 관리합니다. </info>
           </b-list-group-item>
-          <b-list-group-item to="/admin/sopaseom/user">
+          <!-- <b-list-group-item to="/admin/sopaseom/user">
             <span>회원</span>
             <info> 회원을 관리합니다. </info>
-          </b-list-group-item>
+          </b-list-group-item> -->
           <!-- <b-list-group-item to="/admin/sopaseom/menu">
             메뉴
           </b-list-group-item>

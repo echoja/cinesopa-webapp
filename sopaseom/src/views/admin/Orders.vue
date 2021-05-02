@@ -71,6 +71,19 @@
         >
         </b-form-select>
       </div>
+      <!-- id 일치 -->
+      <div class="Tmr-2">
+        <b-form-input
+          size="sm"
+          :style="{ maxWidth: '120px' }"
+          placeholder="주문번호 입력"
+          v-model="conditionInput.id"
+          number
+          type="number"
+          @keydown.enter="filterClicked"
+        >
+        </b-form-input>
+      </div>
       <!-- 검색 버튼 -->
       <div class="filter-action">
         <b-button size="sm" @click="filterClicked" variant="primary">
@@ -163,6 +176,17 @@
           ></copy-button>
         </div>
       </template>
+      <template #cell(action)="{ item }">
+        <div class="Tflex Titems-center">
+          <loading-button
+            class="Ttext-sm Tp-1 Trounded-md"
+            variant="danger"
+            :disabled="!item.canBeCancelled"
+            @click="cancelPaymentClicked(item)"
+            >결제취소</loading-button
+          >
+        </div>
+      </template>
 
       <!--- row details -->
       <template #row-details="{ item, index }">
@@ -226,9 +250,26 @@
             {{ paymentMethodMap[editing.method] }}
           </form-row>
           <form-row title="총 결제액">
+            <template #info>
+              이미 결제가 완료된 총 결제액입니다. 무통장 입금의 경우 입금해야
+              하는 금액을 나타냅니다.
+            </template>
+
             {{ toPrice(bpPrice) }}
           </form-row>
+          <!-- v-if="editing.cancelled_fee" -->
+          <form-row title="취소된 결제액">
+            <template #info>
+              결제액의 일부 혹은 전부가 취소되었을 때 얼마만큼 취소되었는지를
+              나타냅니다.
+            </template>
+            {{ toPrice(editing.cancelled_fee) }}
+          </form-row>
           <form-row title="부트페이 영수증 번호">
+            <template #info>
+              부트페이는 결제모듈 서비스의 이름입니다. 부트페이에서 별도로
+              관리하는 영수증 번호입니다
+            </template>
             {{ editing.bootpay_id || '-' }}
             <b-button
               size="sm"
@@ -242,24 +283,28 @@
           </form-row>
           <form-row title="주문일">
             <b-form-datepicker
+              locale="ko-KR"
               v-model="editing.c_date"
               value-as-date
             ></b-form-datepicker>
           </form-row>
           <form-row title="예상 도착일">
             <b-form-datepicker
+              locale="ko-KR"
               v-model="editing.expected_date"
               value-as-date
             ></b-form-datepicker>
           </form-row>
           <form-row title="주문취소일">
             <b-form-datepicker
+              locale="ko-KR"
               v-model="editing.cancelled_date"
               value-as-date
             ></b-form-datepicker>
           </form-row>
           <form-row title="교환/반품 요청일">
             <b-form-datepicker
+              locale="ko-KR"
               v-model="editing.return_req_date"
               value-as-date
             ></b-form-datepicker>
@@ -333,21 +378,70 @@
           </form-row>
           <hr />
 
-          <div class="button-group" v-if="editing.mode === 'edit'">
-            <loading-button
-              :loading="editing.processingRequest"
-              variant="primary"
-              @click="updateOrderConfirmClicked(index)"
-              >변경사항 적용</loading-button
-            >
-            <b-button @click="updateOrderCancelClicked(index)">취소</b-button>
-          </div>
-          <pre>
-            {{ editing }}
-          </pre>
+          <!-- <div class="button-group" v-if="editing.mode === 'edit'"> -->
+          <apply-button-set
+            @ok="updateOrderConfirmClicked(index)"
+            @cancel="updateOrderCancelClicked(index)"
+            :loading="editing.processingRequest"
+          >
+          </apply-button-set>
+          <!-- </div> -->
+          <!-- <pre> -->
+          <!-- {{ editing }} -->
+          <!-- </pre> -->
         </div>
       </template>
     </b-table>
+    <!-- 결제취소 모달 -->
+    <b-modal id="cancel-payment-modal" title="결제 취소" hide-footer>
+      <div class="Tgrid Tgrid-cols-2 Tmb-4">
+        <template v-for="item in cancelPaymentModalGridItems">
+          <div class="Tfont-bold Tmb-2" :key="`title-${item.title}`">
+            {{ item.title }}
+          </div>
+          <div :key="`value-${item.title}`">{{ item.value }}</div>
+        </template>
+      </div>
+      <hr />
+      <!-- 모든 금액을 취소합니다. -->
+      <b-form-checkbox class="Tmb-3" v-model="cancelPaymentAll"
+        >모든 금액을 취소합니다.</b-form-checkbox
+      >
+      <!-- 취소 금액 -->
+      <div v-if="!cancelPaymentAll" class="Tmb-3">
+        <label class="Tfont-bold" for="cancel-payment-input"
+          >취소하고자 하는 금액</label
+        >
+        <b-form-input
+          id="cancel-payment-input"
+          type="number"
+          v-model="cancelPaymentInput"
+          number
+          @change="validateCancelPayment"
+        >
+        </b-form-input>
+      </div>
+      <!-- 취소 사유 -->
+      <label for="cancel-payment-reason" class="Tfont-bold">취소 사유</label>
+      <b-form-textarea
+        ref="cancel-payment-reason"
+        class="Tmb-3"
+        id="cancel-payment-reason"
+        v-model="cancelPaymentReason"
+      >
+      </b-form-textarea>
+
+      <!-- 취소 버튼 -->
+      <div class="Ttext-right">
+        <loading-button
+          @click="startCancelPayment"
+          variant="danger"
+          :loading="cancelPaymentLoading"
+        >
+          결제취소
+        </loading-button>
+      </div>
+    </b-modal>
     <p v-if="state.processing.get">로딩중입니다.</p>
     <p v-if="!hasData && !state.processing.get">주문이 없습니다.</p>
     <hr />
@@ -372,7 +466,8 @@
       >
         <p>
           {{ items.filter((item) => item.checked === true).length }} 개의 주문을
-          정말로 삭제하시겠습니까? 다시는 복구할 수 없습니다! 유효하지 않은 주문만 삭제해 주세요.
+          정말로 삭제하시겠습니까? 다시는 복구할 수 없습니다! 유효하지 않은
+          주문만 삭제해 주세요.
         </p>
       </b-modal>
       <b-button variant="primary" class="Tfont-bold" @click="createOrderClicked"
@@ -408,7 +503,6 @@ import {
 import moment from 'moment';
 import { makeSimpleMutation, makeSimpleQuery } from '@/api/graphql-client';
 import FormRow from '@/components/admin/FormRow.vue';
-import LoadingButton from '@/components/LoadingButton.vue';
 import { mapActions } from 'vuex';
 import {
   statusMap,
@@ -423,6 +517,7 @@ const createOrderReq = makeSimpleMutation('createOrder');
 const removeOrderOnServer = makeSimpleMutation('removeOrder');
 const updateOrderOnServer = makeSimpleMutation('updateOrder');
 const usersReq = makeSimpleQuery('users');
+const cancelPaymentReq = makeSimpleMutation('cancelPayment');
 
 export default {
   components: {
@@ -434,7 +529,6 @@ export default {
     BFormInput,
     BFormDatepicker,
     FormRow,
-    LoadingButton,
     BFormSelect,
     BFormTextarea,
     BDropdown,
@@ -443,6 +537,8 @@ export default {
       import('@/components/DeliveryTrackerButton.vue'),
     UserSelect: () => import('@/components/admin/UserSelect'),
     CopyButton: () => import('@/components/admin/CopyButton'),
+    ApplyButtonSet: () => import('@/components/admin/button/ApplyButtonSet'),
+    LoadingButton: () => import('@/components/LoadingButton'),
   },
   data() {
     const now = new Date();
@@ -452,6 +548,14 @@ export default {
       now.getDate(),
     );
     return {
+      cancelPaymentItem: {},
+      cancelPaymentModalGridItems: [],
+      cancelPaymentLoading: false,
+      cancelPaymentMax: 0,
+      cancelPaymentMin: 0,
+      cancelPaymentAll: false,
+      cancelPaymentInput: 0,
+      cancelPaymentReason: '',
       userFilterInput: '', // 필터 상에서 검색하는 회원 v-model
       userFilterOptions: [
         {
@@ -467,10 +571,15 @@ export default {
         },
       ],
       conditionInput: {
+        /** @type {number} */
+        id: null,
         date_gte: beforeOneMonth,
         date_lte: now,
+        /** @type {string} */
         status: null,
+        /** @type {string} */
         method: null,
+        /** @type {string} */
         user: null,
       },
       statusMap,
@@ -529,6 +638,10 @@ export default {
         {
           key: 'payer',
           label: '입금자명',
+        },
+        {
+          key: 'action',
+          label: '행동',
         },
       ],
       items: [
@@ -618,21 +731,25 @@ export default {
     },
     /** @returns {object} */
     receivedCondition() {
+      const oneYearAgo = new Date();
+      oneYearAgo.setFullYear(oneYearAgo.getFullYear() - 1);
       const {
         page = 1,
         method = null,
         status = null,
         user = null,
-        date_gte = 0,
+        date_gte = oneYearAgo.getTime(),
         date_lte = new Date().getTime(),
+        id = null,
       } = this.$route.query;
       const date_lte_added = new Date(date_lte);
       date_lte_added.setDate(date_lte_added.getDate() + 1);
       return {
-        page: page - 1,
+        page: parseInt(page, 10),
         method,
         status,
         user,
+        id: parseInt(id, 10),
         date_gte: new Date(date_gte),
         date_lte: date_lte_added,
         perpage: 20,
@@ -640,7 +757,10 @@ export default {
     },
     /** @returns {number} */
     bpPrice() {
-      return this.editing.bootpay_payment_info?.price;
+      return (
+        this.editing.bootpay_payment_info?.price ||
+        this.getProductsPrice(this.editing) + this.editing.transport_fee
+      );
     },
     /** @returns {string} */
     bpReceipt_url() {
@@ -777,14 +897,23 @@ export default {
       // const { a } = this.$route.query;
       console.log('# Orders fetchData this.receivedCondition');
       console.log(this.receivedCondition);
+      // 현재 조건들을 receivedCondition 에 맞추는 작업
+      this.conditionInput = this.receivedCondition;
+
+      // 서버로부터 데이터 가져오기 (페이지 값 보정)
       const res = await ordersOnServer(
-        { condition: this.receivedCondition },
+        {
+          condition: {
+            ...this.receivedCondition,
+            page: this.receivedCondition.page - 1,
+          },
+        },
         `{
           total
           list {
             id user status method c_date expected_date cancelled_date return_req_date payer
             cash_receipt transport_number transport_company transport_fee bootpay_id meta
-            bootpay_payment_info cancel_reason
+            bootpay_payment_info cancel_reason cancelled_fee
             items {
               id user added modified product_id usage
               product {
@@ -814,6 +943,16 @@ export default {
         mode: 'edit',
         processingRequest: false,
         managing_date: new Date(order.managing_date),
+        canBeCancelled:
+          // 결제가 완료된 상태일 경우
+          !['order_received', 'payment_confirming'].includes(order.status) &&
+          // 결제수단이 무통장입금이 아닐 경우
+          order.method !== 'nobank' &&
+          // 취소가능한 금액이 1,000원 보다 크거나 같을 경우
+          this.getProductsPrice(order) +
+            (order.transport_fee ?? 0) -
+            (order.cancelled_fee ?? 0) >=
+            1000,
         _showDetails: false,
         expected_date: order.expected_date
           ? new Date(order.expected_date)
@@ -964,6 +1103,97 @@ export default {
       await this.fetchData();
     },
     checkBootpayReceiptClicked() {},
+    /** 결제취소 모달을 띄우는 함수. */
+    async cancelPaymentClicked(item) {
+      const min = 1000;
+      const max =
+        this.getProductsPrice(item) +
+        (item.transport_fee ?? 0) -
+        (item.cancelled_fee ?? 0);
+      this.cancelPaymentModalGridItems = [
+        {
+          title: '주문번호',
+          value: item.id,
+        },
+        {
+          title: '총 결제 금액',
+          value: toPrice(this.getProductsPrice(item) + item.transport_fee),
+        },
+        {
+          title: '취소 가능한 최소 금액',
+          value: toPrice(min),
+        },
+        {
+          title: '취소 가능한 최대 금액',
+          value: toPrice(max),
+        },
+      ];
+      this.cancelPaymentMin = min;
+      this.cancelPaymentMax = max;
+      this.cancelPaymentItem = item;
+      this.$bvModal.show('cancel-payment-modal');
+    },
+
+    /** 결제취소 모달에서 결제취소 버튼을 눌렀을 때 실행됨 */
+    async startCancelPayment() {
+      // 검사 & 검증
+      if (this.cancelPaymentMax < parseInt(this.cancelPaymentInput, 10)) {
+        this.pushMessage({
+          type: 'danger',
+          id: 'validationFailCancelPayment',
+          msg: '취소 금액은 최대 가능한 금액보다 작아야 합니다.',
+        });
+        return;
+      }
+      if (this.cancelPaymentMin > parseInt(this.cancelPaymentInput, 10)) {
+        this.pushMessage({
+          type: 'danger',
+          id: 'validationFailCancelPayment',
+          msg: '취소 금액은 최소 가능한 금액보다 커야 합니다.',
+        });
+        return;
+      }
+      if (this.cancelPaymentReason === '') {
+        this.pushMessage({
+          type: 'danger',
+          id: 'validationFailCancelPayment',
+          msg: '취소 사유가 반드시 기입되어야 합니다.',
+        });
+        this.$refs['cancel-payment-reason'].focus();
+        return;
+      }
+
+      // 수행
+      this.cancelPaymentLoading = true;
+      const arg = {
+        id: this.cancelPaymentItem.id,
+        cancel_reason: this.cancelPaymentReason,
+      };
+      if (!this.cancelPaymentAll) {
+        arg.price = parseInt(this.cancelPaymentInput, 10);
+      }
+      const res = await cancelPaymentReq(arg, '{success code cancelled_price}');
+      handleSimpleResult(
+        res,
+        'cancelPayment',
+        '결제 취소를 성공했습니다.',
+        '결제 취소 도중 오류가 발생했습니다.',
+      );
+      if (res.success) {
+        await this.fetchData();
+        this.$bvModal.hide('cancel-payment-modal');
+      }
+      this.cancelPaymentLoading = false;
+    },
+    /** 취소 금액이 적절한지 검사하는 함수. onChange 때 호출됨. */
+    async validateCancelPayment() {
+      const price = parseInt(this.cancelPaymentInput, 10) ?? 0;
+      if (price < this.cancelPaymentMin) {
+        this.cancelPaymentInput = this.cancelPaymentMin;
+      } else if (price > this.cancelPaymentMax) {
+        this.cancelPaymentInput = this.cancelPaymentMax;
+      }
+    },
   },
 };
 </script>

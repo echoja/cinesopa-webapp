@@ -420,64 +420,7 @@ export default {
           },
         },
       },
-      orderList: [
-        // {
-        //   name: '소파킷 고독',
-        //   // option_type: 'has_options',
-        //   options: [
-        //     {
-        //       id: '123',
-        //       content: 'a옵션',
-        //       count: 3,
-        //       price: 30000,
-        //     },
-        //     {
-        //       id: '456',
-        //       content: 'B옵션',
-        //       count: 2,
-        //       price: 20000,
-        //     },
-        //   ],
-        // },
-        // {
-        //   name: '소파킷 파워',
-        //   // option_type: 'no_options',
-        //   options: [
-        //     {
-        //       id: '123',
-        //       content: 'a옵션',
-        //       count: 5,
-        //       price: 34000,
-        //     },
-        //   ],
-        // },
-      ],
-      paymentMethodOptions: [
-        {
-          name: 'card',
-          label: '신용카드',
-        },
-        {
-          name: 'bank',
-          label: '계좌이체',
-        },
-        {
-          name: 'nobank',
-          label: '무통장입금',
-        },
-        {
-          name: 'phone',
-          label: '휴대폰결제',
-        },
-        // {
-        //   name: 'kakao',
-        //   label: '카카오페이',
-        // },
-        // {
-        //   name: 'npay',
-        //   label: '네이버페이',
-        // },
-      ],
+      orderList: [],
     };
   },
   watch: {
@@ -899,12 +842,14 @@ export default {
           // 결제 진행시 에러가 발생하면 수행됩니다.
           console.log('# Bootpay error');
           console.log(data);
+          this.loading = false;
         })
         .cancel((data) => {
           // 결제가 취소되면 수행됩니다.
           // 할 일은 아무것도 없음.
           console.log('# Bootpay cancel');
           console.log(data);
+          this.loading = false;
         })
         .ready((data) => {
           // 가상계좌 입금 계좌번호가 발급되면 호출되는 함수입니다.

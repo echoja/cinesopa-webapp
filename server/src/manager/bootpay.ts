@@ -4,6 +4,7 @@ import type {
   GetTokenResult,
   GetActualPaymentInfoResult,
   SimpleResult,
+  PaymentCancelResData,
 } from '@/typedef';
 
 import { RestClient } from '@bootpay/server-rest-client';
@@ -86,8 +87,8 @@ export class BootpayManager {
   }
 
   async cancelPayment(
-    args: CancelPaymentArgs = { receipt_id: '', name: '', reason: '' },
-  ): Promise<SimpleResult> {
+    args: CancelPaymentArgs,
+  ): Promise<{ success: boolean; code?: string; data?: PaymentCancelResData }> {
     const { receipt_id, price, name, reason } = args;
     // 인수가 잘못되었을 때에는 즉시 오류.
     if (
@@ -126,7 +127,7 @@ export class BootpayManager {
     }
 
     // 성공 리턴
-    return { success: true };
+    return { success: true, data: cancelRes.data };
   }
 
   /**

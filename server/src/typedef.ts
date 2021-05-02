@@ -533,6 +533,7 @@ interface OrderinfoBase {
   transport_number?: string; //
   transport_company?: string; //
   transport_fee?: number; //
+  cancelled_fee?: number; // 결제 취소된 금액
   bootpay_id?: string; //
   cancel_reason?: string;
   bootpay_payment_info?: Paymentinfo; //
@@ -560,6 +561,7 @@ export interface OrderInput extends OrderinfoBase {
 }
 
 export interface OrderSearch {
+  id?: number;
   date_gte?: Date; //
   date_lte?: Date; //
   status?: OrderStatus; //

@@ -879,11 +879,11 @@
       >
         이 항목을 정말로 삭제하시겠습니까? 삭제되면 복구할 수 없습니다.
       </b-modal>
-      <!-- <pre>{{ changed }}</pre>
-    <pre>{{ $cm._map }}</pre>
-    <pre>
-    {{ tableItems }}
-    </pre> -->
+      <!-- <pre>{{ changed }}</pre> -->
+    <!-- <pre>{{ $cm._map }}</pre> -->
+    <!-- <pre> -->
+    <!-- {{ tableItems }} -->
+    <!-- </pre> -->
     </b-overlay>
   </div>
 </template>

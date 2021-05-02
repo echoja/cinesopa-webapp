@@ -27,6 +27,7 @@ type Order {
   transport_number: String # 송장 번호
   transport_company: String # 택배 회사
   transport_fee: Int
+  cancelled_fee: Int
   bootpay_id: String
   bootpay_payment_info: JSON
   meta: JSON
@@ -48,6 +49,7 @@ input OrderInput {
   transport_number: String # 송장 번호
   transport_company: String # 택배 회사
   transport_fee: Int
+  cancelled_fee: Int
   bootpay_id: String
   bootpay_payment_info: JSON
   meta: JSON
@@ -57,6 +59,7 @@ input OrderInput {
 }
 
 input OrderSearch {
+  id: Int
   date_gte: DateTime
   date_lte: DateTime
   status: String
@@ -129,11 +132,10 @@ type CreateOrderResult {
   code: String
 }
 
-type CancelOrderResult {
+type CancelPaymentResult {
   success: Boolean
   code: String
-  cancelled_price: Int
-  remain_price: Int  
+  cancelled_price: Int 
 }
 
 extend type Query {
@@ -161,7 +163,7 @@ extend type Mutation {
   ): CreateOrderFromCartResult # 새 주문 생성
   finishPayment(id: Int!, receiptId: String!): FinishPaymentResult
   reqCancelOrder(id: Int!, cancel_reason: String!): ReqCancelOrderResult
-  cancelOrder(id: Int!, cancel_reason: String!, price: Int): CancelOrderResult
+  cancelPayment(id: Int!, cancel_reason: String!, price: Int): CancelPaymentResult
   updateOrder(id: Int!, input: OrderInput!): updateOrderResult
   updateMyOrder(id: Int!, input: OrderInput!): updateOrderResult
   removeOrder(id: Int!): removeOrderResult

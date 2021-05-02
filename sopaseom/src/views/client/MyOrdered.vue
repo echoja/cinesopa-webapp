@@ -342,14 +342,17 @@
 
           <!-- <pre>{{detail}}</pre> -->
           <!-- 상품 정보 -->
-          <h2
-            class="modal-head Tborder-b Tborder-black Tpb-1 Tmb-5 Tleading-none"
-          >
-            <span class="Tmr-2">상품 정보</span>
-            <span class="Ttext-sm Tfont-medium"
-              >주문일 | {{ formatDate(detail.c_date) }}</span
-            >
-          </h2>
+          <div class="Tflex Titems-center Tjustify-between Tpb-1 Tborder-b Tborder-black Tmb-5">
+            <div class="Tflex Titems-center">
+              <h2 class="modal-head Tleading-none Tmr-2">상품 정보</h2>
+
+              <span class="Ttext-sm Tfont-medium"
+                >주문일 | {{ formatDate(detail.c_date) }}</span
+              >
+            </div>
+            <span>주문번호 | {{detail.id}}</span>
+
+          </div>
           <!-- 상품 상세 정보들 -->
           <div class="Tmb-4 Ttext-base">
             <!-- 각각의 상품 -->

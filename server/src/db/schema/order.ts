@@ -19,6 +19,7 @@ export default (mongoose: Mongoose): Schema => {
     transport_number: String, // 송장 번호
     transport_company: String, // 택배 회사 (코드)
     transport_fee: Number,
+    cancelled_fee: Number,
     bootpay_id: String, // 부트페이 검증용 id
     bootpay_payment_info: mongoose.Schema.Types.Mixed,
     meta: mongoose.Schema.Types.Mixed,
