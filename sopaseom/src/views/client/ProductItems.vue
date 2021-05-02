@@ -136,8 +136,8 @@ export default {
         product_type: 'sopakit',
         search: this.search,
       };
-      console.log('# ProductItems fetchData condition');
-      console.log(condition);
+      // console.log('# ProductItems fetchData condition');
+      // console.log(condition);
       const res = await productsReq(
         {
           condition,
@@ -180,7 +180,7 @@ export default {
             },
           })
           .catch((err) => {
-            console.log('ho');
+            // console.log('ho');
             console.dir(err);
             this.fetchData();
           });

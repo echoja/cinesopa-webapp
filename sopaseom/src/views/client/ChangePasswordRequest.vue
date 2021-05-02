@@ -83,8 +83,8 @@ export default {
         },
         '{success code}',
       );
-      console.log('# requestChangePassword req result');
-      console.log(result);
+      // console.log('# requestChangePassword req result');
+      // console.log(result);
       if (result.success) {
         this.pushMessage({
           msg: '비밀번호 재설정 링크가 이메일로 전송되었습니다.',

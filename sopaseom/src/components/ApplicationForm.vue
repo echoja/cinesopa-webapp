@@ -1489,8 +1489,8 @@ export default {
       }
     }
 
-    console.log('# ApplicaionForm mounted filmSummary');
-    console.log(this.filmSummary);
+    // console.log('# ApplicaionForm mounted filmSummary');
+    // console.log(this.filmSummary);
   },
 
   methods: {
@@ -1586,8 +1586,8 @@ export default {
       return weekday === 0 || weekday === 5 || weekday === 6;
     },
     steelSlidingStart(slide) {
-      console.log('# ApplicationForm steelSlidingStart slide');
-      console.log(slide);
+      // console.log('# ApplicationForm steelSlidingStart slide');
+      // console.log(slide);
       if (!this.film.photos[slide].loaded) {
         this.film.photos[slide].loaded = true;
       }

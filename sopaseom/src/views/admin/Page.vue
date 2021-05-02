@@ -98,7 +98,7 @@ export default {
   },
   methods: {
     async getData(belongsTo, page, perpage) {
-      console.log(`getData - ${belongsTo}`);
+      // console.log(`getData - ${belongsTo}`);
       const { pages } = await dataGraphql(getPagesQuery, {
         belongs_to: belongsTo,
         page,
@@ -108,9 +108,9 @@ export default {
       this.state.dataLoaded = true;
     },
     rowClicked(item /* , index, event */) {
-      console.log('hi');
-      console.log(this);
-      console.log(item);
+      // console.log('hi');
+      // console.log(this);
+      // console.log(item);
       router.push({
         name: 'PageEdit',
         params: { id: item.id, belongs_to: this.belongs_to },

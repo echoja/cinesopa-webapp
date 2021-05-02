@@ -341,7 +341,7 @@ export default {
     async checkAlreadyExist() {
       const result = await graphql(userExistsQuery, { email: this.emailValue });
       const userExists = result.data?.userExists;
-      console.log(userExists);
+      // console.log(userExists);
       if (!userExists) return;
       const { email, kakao, pwd } = userExists;
       if (email && pwd) {
@@ -366,13 +366,13 @@ export default {
         user_agreed: this.createUserAgreed,
         // debug: true, // 이걸 false 로 해야 실제 메일이 보내집니다!
       };
-      console.log('# JoinInfo nextButtonClicked ');
-      console.log(args);
+      // console.log('# JoinInfo nextButtonClicked ');
+      // console.log(args);
       const r1 = await graphql(createGuestMutation, args);
-      console.log('power super created guest');
-      console.log(r1);
+      // console.log('power super created guest');
+      // console.log(r1);
       await checkAuth();
-      console.log('power super login');
+      // console.log('power super login');
       this.setJoinFinished(true);
       this.$router.push({ name: 'JoinSuccess' });
     },

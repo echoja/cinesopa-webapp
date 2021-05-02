@@ -738,7 +738,7 @@ export default {
           }
         }`,
       );
-      console.log('# MyOrdered fetchData res');
+      // console.log('# MyOrdered fetchData res');
       console.dir({ total, list, transporting, order_count });
       this.total = total;
 
@@ -808,7 +808,7 @@ export default {
     },
     showDetailClicked(orderIndex) {
       this.detail = { ...this.orders[orderIndex] };
-      console.log(this.detail);
+      // console.log(this.detail);
       this.$bvModal.show('order-detail');
     },
     reqExchangeClicked(orderIndex) {
@@ -881,8 +881,8 @@ export default {
       });
     },
     modifyingAddressLoaded(data) {
-      console.log('# MyOrdered modifyingAddressLoaded');
-      console.log(data);
+      // console.log('# MyOrdered modifyingAddressLoaded');
+      // console.log(data);
       this.modifyingDest.address.value = addressNew(data);
       this.modifyingDest.address_detail.value = data.buildingName;
     },

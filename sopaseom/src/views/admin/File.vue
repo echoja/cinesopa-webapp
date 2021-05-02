@@ -1,6 +1,8 @@
 <template>
   <div>
-    <h2>파일 관리</h2>
+    <header>
+      <h2 class="Tmb-3">파일 관리</h2>
+    </header>
     <!-- select-message="false" -->
     <file-manager :modal-id="'hello-modal'" :selectable="false"></file-manager>
 

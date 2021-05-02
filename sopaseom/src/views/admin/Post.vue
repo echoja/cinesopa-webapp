@@ -1,10 +1,10 @@
 <template>
   <div>
-    <header>
-      <h2 class="header">
-        <span class="mr-2">글 목록</span
-        ><info>글을 수정하려면 <b>열</b>을 클릭하세요</info>
+    <header class="Tmb-3">
+      <h2 class="header Tmb-1">
+        <span>글 목록</span>
       </h2>
+      <span> 글을 수정하려면 <b>행</b>을 클릭하세요 </span>
     </header>
     <b-table
       :items="items"
@@ -84,7 +84,7 @@
 
 <script>
 import { mapActions } from 'vuex';
-import { BButton, BFormCheckbox, BLink, BTable } from 'bootstrap-vue';
+import { BButton, BFormCheckbox, BTable } from 'bootstrap-vue';
 import moment from 'moment';
 import { queryString, graphql } from '@/loader';
 import Info from '@/components/admin/Info.vue';
@@ -99,7 +99,6 @@ export default {
   components: {
     BButton,
     BFormCheckbox,
-    BLink,
     BTable,
     Info,
   },
@@ -221,13 +220,13 @@ export default {
           boardTitle: this.boards[post.board],
         });
       }
-      console.log(items);
+      // console.log(items);
       this.items = items;
       this.state.processing.get = false;
     },
     async removePost() {
       const removing = this.items.filter((item) => item.checked === true);
-      console.log(removing);
+      // console.log(removing);
       // this.pushMessage({
       //   type: 'info',
       //   msg: JSON.
@@ -240,7 +239,7 @@ export default {
         );
       });
       const result = await Promise.allSettled(promises);
-      console.log(result);
+      // console.log(result);
 
       const completed = result.every(
         (promise) => promise.status === 'fulfilled',
@@ -265,7 +264,7 @@ export default {
       }
       this.fetchData();
     },
-    rowClicked(item, index, event) {
+    rowClicked(item) {
       this.$router.push({ name: 'PostEdit', params: { id: item.id } });
     },
   },

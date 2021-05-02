@@ -19,16 +19,16 @@ export const logoutBeforeEnter = async (to, from, next) => {
 export const emailVerifyBeforeEnter = async (to, from, next) => {
   const { token } = to?.params;
   if (!token) {
-    console.log('no token exist');
+    // console.log('no token exist');
     next('/');
     return;
   }
-  console.log('# emailVerifyBeforeEnter');
-  console.log(token);
+  // console.log('# emailVerifyBeforeEnter');
+  // console.log(token);
   const result = await graphql(emailVerifyMutation, { token });
   // const user = data.verifyUserEmail;
 
-  console.log(result);
+  // console.log(result);
   next('/');
 };
 /**
@@ -117,7 +117,7 @@ const roleConditionMap = {
  */
 
 export const requireAuth = (condition = {}, failRN = {}) => async (to, from, next) => {
-  console.log('# requireAuth Called');
+  // console.log('# requireAuth Called');
   const {
     role = 'anyone',
     shouldVerified = false,
@@ -142,11 +142,11 @@ export const requireAuth = (condition = {}, failRN = {}) => async (to, from, nex
     user = (await store.state.currentUserAsync) || store.state.currentUser;
     store.commit('setCurrentUserAsync', null);
   } catch (e) {
-    console.log('# requireAuth no user');
+    // console.log('# requireAuth no user');
   }
   const currentRole = user?.role ?? 'ANYONE';
 
-  console.log('# requireAuth processing...');
+  // console.log('# requireAuth processing...');
 
   // role 에 해당하지 않는다면,
   if (!roleArray.includes(currentRole)) {

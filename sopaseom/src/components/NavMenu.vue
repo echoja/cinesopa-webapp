@@ -210,7 +210,7 @@ export default {
   },
   methods: {
     async openLoginForm() {
-      console.log('openLoginForm!!');
+      // console.log('openLoginForm!!');
     },
     async goTopIfSame(routeName) {
       if (this.$route.name === routeName) {

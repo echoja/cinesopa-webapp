@@ -441,8 +441,8 @@ export default {
       return Math.floor(this.film.show_time / 60);
     },
     filmOpenDate() {
-      console.log('# SopakitDetail filmOpenDate');
-      console.log(this.film.open_date);
+      // console.log('# SopakitDetail filmOpenDate');
+      // console.log(this.film.open_date);
       const date = new Date(this.film.open_date);
       if (date && date.getTime() === 0) {
         return null;
@@ -485,7 +485,7 @@ export default {
     mobileCartClicked(event) {
       event.target.blur();
       if (this.mobileOrderModalVisible) {
-        console.log('카트에 담는다!!');
+        // console.log('카트에 담는다!!');
         this.startCartProcess();
       } else {
         this.$bvModal.show('mobile-order');
@@ -496,7 +496,7 @@ export default {
       event.target.blur();
       // });
       if (this.mobileOrderModalVisible) {
-        console.log('산다!!');
+        // console.log('산다!!');
         this.startBuyProcess();
       } else {
         this.$bvModal.show('mobile-order');
@@ -522,12 +522,12 @@ export default {
           }
         }`,
       );
-      console.log('# SopakitDetail fetchData received');
-      console.log({ ...received });
+      // console.log('# SopakitDetail fetchData received');
+      // console.log({ ...received });
 
       // data 바인딩
       this.film = { ...received.related_film };
-      console.log(this.film);
+      // console.log(this.film);
       this.sopakit = { ...received.kit };
       delete received.related_film;
       delete received.kit;
@@ -568,8 +568,8 @@ export default {
         },
         '{ name value success code }',
       );
-      console.log('# SopakitDetail fetchDefaultNotice res');
-      console.log(res);
+      // console.log('# SopakitDetail fetchDefaultNotice res');
+      // console.log(res);
       this.product.notice = res[0].value;
     },
 
@@ -602,8 +602,8 @@ export default {
         },
         '{success code}',
       );
-      console.log('# SopakitDetail startCartProcess res');
-      console.log(res);
+      // console.log('# SopakitDetail startCartProcess res');
+      // console.log(res);
 
       this.addCartTooltipShow = true;
       setTimeout(() => {
@@ -635,8 +635,8 @@ export default {
           id
         }}`,
       );
-      console.log('# SopakitDetail startBuyProcess res');
-      console.log(res);
+      // console.log('# SopakitDetail startBuyProcess res');
+      // console.log(res);
 
       if (res.success) {
         this.$router.push({
@@ -658,8 +658,8 @@ export default {
         },
         '{ name value success code }',
       );
-      console.log('# OrderPayment fetchTransporationFee res');
-      console.log(res);
+      // console.log('# OrderPayment fetchTransporationFee res');
+      // console.log(res);
       if (res[0].success) {
         this.transportationFee = parseInt(res[0].value, 10);
       }

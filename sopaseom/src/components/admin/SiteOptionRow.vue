@@ -313,8 +313,8 @@ export default {
         }
       });
       value.push(toPush);
-      console.log('# SiteOptionRow addRow');
-      console.log(value);
+      // console.log('# SiteOptionRow addRow');
+      // console.log(value);
       this.$emit('input', value);
     },
 

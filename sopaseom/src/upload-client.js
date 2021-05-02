@@ -2,8 +2,8 @@ import axios from 'axios';
 import FormData from 'form-data';
 
 const defaultOnUploadProgress = (progressEvent) => {
-  console.log('# upload-client.js onUploadProgress');
-  console.log(progressEvent.loaded);
+  // console.log('# upload-client.js onUploadProgress');
+  // console.log(progressEvent.loaded);
 };
 
 const defaultUrl = '/upload';

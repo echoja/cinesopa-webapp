@@ -96,7 +96,7 @@ export default {
       return this.confirmEdit();
     },
     confirmNew() {
-      console.log('confirmNew');
+      // console.log('confirmNew');
       dataGraphql(createPageMutation, {
         permalink: this.permalink,
         belongs_to: this.belongs_to,
@@ -108,8 +108,8 @@ export default {
         },
       })
         .then((result) => {
-          console.log('pageWirteSuccessed!');
-          console.log(result);
+          // console.log('pageWirteSuccessed!');
+          // console.log(result);
         })
         .catch((err) => {
           console.error(err);
@@ -136,25 +136,25 @@ export default {
         },
       })
         .then((result) => {
-          console.log('page Update Successed!');
-          console.log(result);
+          // console.log('page Update Successed!');
+          // console.log(result);
         })
         .catch((err) => {
           console.error(err);
         });
-      console.log('confirmEdit');
+      // console.log('confirmEdit');
     },
     async fileUpload() {
-      console.log(this.file2);
+      // console.log(this.file2);
       try {
-        console.log(this.$refs['file-input']);
+        // console.log(this.$refs['file-input']);
         const result = await upload(
           this.$refs['file-input'].selectedFile,
           'hi',
         );
-        console.log(result);
+        // console.log(result);
       } catch (e) {
-        console.log(e);
+        // console.log(e);
       }
       // const { data, error } = await client.request({
       //   query: singleUploadQuery,

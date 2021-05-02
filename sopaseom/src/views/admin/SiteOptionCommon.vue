@@ -76,14 +76,14 @@ export default {
           value: null,
           type: 'file',
           description:
-            '씨네소파의 사업자등록증을 설정합니다. 상영신청서 관련 절차에 필요합니다.',
+            '씨네소파의 사업자등록증을 설정합니다.',
         },
         cinesopa_bank_account: {
           label: '씨네소파 통장',
           value: null,
           type: 'file',
           description:
-            '씨네소파의 통장 사본을 설정합니다. 상영신청서 관련 절차에 필요합니다.',
+            '씨네소파의 통장 사본을 설정합니다.',
         },
         distribution_application_email: {
           label: '배급의뢰 받을 이메일',

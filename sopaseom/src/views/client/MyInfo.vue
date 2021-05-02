@@ -345,8 +345,8 @@ export default {
       window.location.href = `/graphql/kakao/login?redirection_url=${window.location.href}`;
     },
     addressLoaded(data) {
-      console.log('MyInfo addressLoaded');
-      console.log(data);
+      // console.log('MyInfo addressLoaded');
+      // console.log(data);
       this.default_dest.address = `${data.roadAddress} (${data.bname})`;
       this.jibunAddress = data.jibunAddress;
       this.default_dest.address_detail = data.buildingName;
@@ -393,8 +393,8 @@ export default {
         },
         '{success code}',
       );
-      console.log('# requestChangePassword req result');
-      console.log(result);
+      // console.log('# requestChangePassword req result');
+      // console.log(result);
       if (result.success) {
         this.pushMessage({
           msg: '비밀번호 재설정 링크가 이메일로 전송되었습니다.',

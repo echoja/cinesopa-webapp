@@ -72,8 +72,8 @@ export default {
     async searchClicked() {
       this.fetchingList = true;
       const { success, code, list } = await getMovieList(this.search);
-      console.log('# KobisForm searchClicked results');
-      console.log({ success, code, list });
+      // console.log('# KobisForm searchClicked results');
+      // console.log({ success, code, list });
       if (success) {
         this.films = list.map((film) => ({
           ...film,
@@ -90,7 +90,7 @@ export default {
     },
     async filmClicked(index) {
       this.fetchingList = true;
-      console.log('# KobisForm filmClicked!');
+      // console.log('# KobisForm filmClicked!');
       const { movieCd } = this.films[index];
       const { success, code, info } = await getMovieInfo(movieCd);
       if (success) {

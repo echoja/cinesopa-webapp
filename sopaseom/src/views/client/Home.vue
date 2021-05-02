@@ -451,8 +451,8 @@ export default {
     $route(to, from) {
       // 페이지가 달라질 경우에만 this.init 실행.
       // if (to.fullPath !== from.fullPath) {
-      console.log(`watch route - from: ${from.fullpath} to: ${to.fullPath}`);
-      console.log('route changed!! from Home component');
+      // console.log(`watch route - from: ${from.fullpath} to: ${to.fullPath}`);
+      // console.log('route changed!! from Home component');
       this.init();
       // }
     },
@@ -568,7 +568,7 @@ export default {
       // console.log(currentPos);
 
       if (scrollTop >= 20 && this.isTop) {
-        console.log(`onscroll top, set Logo Zoomed to false >> ${scrollTop}`);
+        // console.log(`onscroll top, set Logo Zoomed to false >> ${scrollTop}`);
         store.commit('setLogoZoomed', false);
         this.isTop = false;
       } else if (scrollTop < 20 && !this.isTop) {

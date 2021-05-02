@@ -24,11 +24,11 @@ const component = {
     loginSuccess() {
       const to = this.$store.state.routeWhereLoginSuccess;
       if (to) {
-        console.log('# Login.vue loginSuccess yes routeWhereLoginSuccess');
+        // console.log('# Login.vue loginSuccess yes routeWhereLoginSuccess');
         this.setRouteWhereLoginSuccess(null);
         return this.$router.push(to);
       }
-      console.log('# Login.vue loginSuccess no routeWhereLoginSuccess');
+      // console.log('# Login.vue loginSuccess no routeWhereLoginSuccess');
       return this.$router.push('/');
     },
   },

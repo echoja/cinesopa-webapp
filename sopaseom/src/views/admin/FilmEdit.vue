@@ -998,8 +998,8 @@ export default {
       staffRoleNm: "투자"
     typeNm: "장편" */
     async importFilmSelected(info) {
-      console.log('# FilmEdit importFilmSelected');
-      console.log(info);
+      // console.log('# FilmEdit importFilmSelected');
+      // console.log(info);
       this.$bvModal.hide('kobis-form-modal');
       this.film.kobis_code = info.movieCd;
       this.film.title = info.movieNm;

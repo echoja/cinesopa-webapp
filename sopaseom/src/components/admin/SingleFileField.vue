@@ -68,8 +68,8 @@ export default {
     uploadClicked() {},
     handleSingleFile(files) {
       const file = files[0];
-      console.log('# SingleFileField.vue handleSingleFile');
-      console.log(file);
+      // console.log('# SingleFileField.vue handleSingleFile');
+      // console.log(file);
       const obj = {};
       obj.fileurl = file.fileurl;
       obj.label = file.label;

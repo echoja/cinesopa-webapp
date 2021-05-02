@@ -219,8 +219,8 @@ export default {
     ...mapActions(['pushMessage']),
     toPrice,
     async removeCartitem(index) {
-      console.log('# OrderCart removeCartitem');
-      console.log(index);
+      // console.log('# OrderCart removeCartitem');
+      // console.log(index);
       const { id } = this.cartitems[index];
       const result = await removeCartitemReq({ id }, '{success code}');
       // 삭제 성공했을 시
@@ -255,11 +255,11 @@ export default {
       }`,
       );
       this.cartitems = res;
-      console.log('# OrderCart fetchData');
-      console.log(res);
+      // console.log('# OrderCart fetchData');
+      // console.log(res);
     },
     async orderButtonClicked() {
-      console.log('# OrderCart.vue orderButtonClicked');
+      // console.log('# OrderCart.vue orderButtonClicked');
       this.$router.push({
         name: 'Payment',
         params: {
@@ -296,8 +296,8 @@ export default {
         },
         '{success code}',
       );
-      console.log('# OrderCart updateOptionCount');
-      console.log(res);
+      // console.log('# OrderCart updateOptionCount');
+      // console.log(res);
       // 업데이트 성공시
       if (res.success) {
         // this.pushMessage({
@@ -323,8 +323,8 @@ export default {
         },
         '{ name value success code }',
       );
-      console.log('# OrderCart fetchTransporationFee res');
-      console.log(res);
+      // console.log('# OrderCart fetchTransporationFee res');
+      // console.log(res);
       if (res[0].success) {
         this.transportationFee = parseInt(res[0].value, 10);
       }

@@ -54,8 +54,8 @@ export default {
       { token: this.token },
       '{success code user {email verified role}}',
     );
-    console.log('# VerifyEmail mounted');
-    console.log(res);
+    // console.log('# VerifyEmail mounted');
+    // console.log(res);
     this.loading = false;
     // 실패했을 경우
     if (res.success === false) {

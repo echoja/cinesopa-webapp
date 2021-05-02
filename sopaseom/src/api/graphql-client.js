@@ -20,10 +20,6 @@ export const graphql = async (query, variables) => {
     {
       headers,
       credentials: true,
-      // onUploadProgress: (progressEvent) => {
-      //   console.log('graphql-client onUploadProgress');
-      //   console.dir(progressEvent);
-      // },
     },
   );
   if (received.data.errors) {
@@ -532,8 +528,8 @@ export const makeSimpleMutation = (endpoint) => async (args, resultString) => {
     args,
     resultString,
   )}`;
-  console.log('# graphql-client makeSimpleMutation');
-  console.log(reqStr);
+  // console.log('# graphql-client makeSimpleMutation');
+  // console.log(reqStr);
   const res = await graphql(reqStr);
   return res.data[endpoint];
 };
@@ -557,7 +553,7 @@ export const makeSimpleQuery = (endpoint) => async (args = {}, resultString = ''
  * 회원의 정보를 서버로부터 받아 store의 currentUser state에 저장합니다.
  */
 export const checkAuth = async () => {
-  console.log('# grpahql-client checkauth Called');
+  // console.log('# grpahql-client checkauth Called');
   try {
     const currentUserAsync = (async () => (await graphql(currentUserQuery, {})).data.currentUser)();
     store.commit('setCurrentUserAsync', currentUserAsync);
@@ -565,10 +561,10 @@ export const checkAuth = async () => {
     let currentUser = await currentUserAsync;
     if (!currentUser) currentUser = null;
     store.commit('setCurrentUser', { currentUser });
-    console.log('# grpahql-client checkauth currentUser GOT!');
+    // console.log('# grpahql-client checkauth currentUser GOT!');
     console.dir(currentUser);
   } catch (e) {
-    console.log('no currentUser');
+    // console.log('no currentUser');
   }
 };
 

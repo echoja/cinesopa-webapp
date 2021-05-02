@@ -350,12 +350,12 @@ export default {
         _showDetails: true,
         mode: 'new',
       });
-      console.log('# Sopakit createSopakitClicked num');
-      console.log(num);
+      // console.log('# Sopakit createSopakitClicked num');
+      // console.log(num);
     },
     async rowImageSelected(file, index) {
-      console.log('# Sopakit rowImageSelected file');
-      console.log(file);
+      // console.log('# Sopakit rowImageSelected file');
+      // console.log(file);
       this.items[index].image_url = file.fileurl;
       this.items[index].image_alt = file.alt;
     },

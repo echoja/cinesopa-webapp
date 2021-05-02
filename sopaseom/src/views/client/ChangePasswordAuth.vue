@@ -248,8 +248,8 @@ export default {
         token: this.token,
         pwd: this.validate.password.value,
       };
-      console.log('# ChangePasswordAuth changePasswordClicked args');
-      console.log(args);
+      // console.log('# ChangePasswordAuth changePasswordClicked args');
+      // console.log(args);
       const result = await changePasswordReq(args, '{success code}');
       if (result.success) {
         this.$router.push({

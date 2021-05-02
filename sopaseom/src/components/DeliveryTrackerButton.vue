@@ -186,8 +186,8 @@ export default {
       const reqUrl = `https://apis.tracker.delivery/carriers/${this.carrierId}/tracks/${this.transportNumber}`;
       try {
         const { data } = await axios.get(reqUrl);
-        console.log('# DeliveryTrackerButton fetchData data');
-        console.log(data);
+        // console.log('# DeliveryTrackerButton fetchData data');
+        // console.log(data);
         this.err = false;
         this.errMsg = '';
         this.data = data;

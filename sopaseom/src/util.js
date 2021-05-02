@@ -221,11 +221,11 @@ export const getMovieList = async (filmName) => {
     const reqUrl = makeSearchMovieListUrl();
     reqUrl.searchParams.set('movieNm', filmName);
     const result = await axios.get(reqUrl.href);
-    console.log('# util.js getMovieList result');
-    console.log(result);
+    // console.log('# util.js getMovieList result');
+    // console.log(result);
     return { success: true, code: 'normal', list: result.data.movieListResult.movieList };
   } catch (e) {
-    console.log('# util.js getMovieList failed');
+    // console.log('# util.js getMovieList failed');
     console.error(e);
     return { success: false, code: e.message, list: null };
   }
@@ -255,11 +255,11 @@ export const getMovieInfo = async (movieCd) => {
     const reqUrl = makeSearchMovieInfoUrl();
     reqUrl.searchParams.set('movieCd', movieCd);
     const result = await axios.get(reqUrl.href);
-    console.log('# util.js getMovieList result');
-    console.log(result);
+    // console.log('# util.js getMovieList result');
+    // console.log(result);
     return { success: true, code: 'normal', info: result.data.movieInfoResult.movieInfo };
   } catch (e) {
-    console.log('# util.js getMovieInfo failed');
+    // console.log('# util.js getMovieInfo failed');
     console.error(e);
     return { success: false, code: e.message, info: null };
   }

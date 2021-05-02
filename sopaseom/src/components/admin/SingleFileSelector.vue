@@ -116,7 +116,7 @@ export default {
   },
   methods: {
     singleFileSelected(files) {
-      console.log(files);
+      // console.log(files);
       const file = files[0];
       this.file = file;
       this.$emit('file-selected', file);

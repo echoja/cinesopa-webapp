@@ -113,21 +113,20 @@
           @submit.prevent.stop="updateDetail"
           @change="detailFormChanged = true"
         >
-          <h3 class="form-h3">
+          <h3 class="form-h3 Tmb-2">
             파일 상세 정보 수정
             <info class="ml-2">
-              <ul class="text-left pl-4">
+              <ul class="text-left pl-4 Tlist-disc">
                 <li>
-                  파일/이미지를 그냥 클릭한 후, 굵은 검정색 테두리로 설정된
-                  파일의 상세 정보를 수정합니다.
+                  파일/이미지를 클릭하면 굵은 검정색으로 테두리가 생깁니다. 그 상태에서 해당 파일의 정보를 수정할 수 있습니다.
                 </li>
                 <li>
                   이 창을 벗어나거나 다른 파일을 선택하기 전에 아래
                   <b>파일 세부정보 변경사항 적용</b> 버튼을 눌러야 합니다.
                 </li>
                 <li>
-                  <code>대체 텍스트</code>를 수정해도 이미 본문에 삽입한
-                  이미지는 수정되지 않습니다. 이미 삽입된 내용은 에디터에서 직접
+                  이미 본문에 삽입한
+                  이미지는 <code>대체 텍스트</code>등을 수정해도 반영되지 않습니다. 이미 삽입된 내용은 에디터에서 직접
                   수정해야 합니다.
                 </li>
               </ul>
@@ -148,7 +147,7 @@
           <!--------------- b-form-broup start ----------------->
           <b-form-group
             class="main-detail-row"
-            label="원본 파일 이름"
+            label="원본 파일"
             label-cols-sm="3"
             label-align-sm="left"
             label-size="md"
@@ -156,7 +155,16 @@
             description="최초 업로드할 때의 파일 이름입니다."
           >
             <p id="detail-origin" class="form-sticky">
-              {{ detailForm.origin }}
+              <span class="Tmr-3">
+                {{ detailForm.origin }}
+              </span>
+              <a
+                v-if="detailForm.filename"
+                :href="downloadLink(detailForm.filename)"
+                class="Tp-1 Trounded Tbg-gray-500 Tfont-medium Ttext-white hover:Tbg-gray-400 hover:Tno-underline hover:Ttext-white Ttransition-colors"
+              >
+                다운로드
+              </a>
             </p>
           </b-form-group>
           <!--------------- b-form-broup start ----------------->
@@ -315,6 +323,7 @@ import { queryString, graphql } from '@/loader';
 import { makeSimpleQuery } from '@/api/graphql-client';
 import upload from '@/upload-client';
 import Info from '@/components/admin/Info.vue';
+import { downloadLink } from '@/util';
 
 const detailFormInitValue = () => ({
   filename: null,
@@ -423,10 +432,13 @@ export default {
       // console.log('ho!');
       this.cancelDetail();
     },
+    downloadLink(filename) {
+      return downloadLink(filename);
+    },
     async onFileInput() {
       if (this.uploadingFile.length === 0) return;
 
-      console.log(`OnFileInput!!! ${this.uploadingFile}`);
+      // console.log(`OnFileInput!!! ${this.uploadingFile}`);
       const promises = [];
       // console.dir(this.uploadingFile[0]);
       this.uploadingFile.forEach((file) => {
@@ -498,7 +510,7 @@ export default {
           this.cancelDetail();
         })
         .catch((err) => {
-          console.log(err);
+          // console.log(err);
           this.pushMessage({
             type: 'danger',
             msg: `파일을 업데이트하는 도중 에러가 발생했습니다. >> ${err}`,

@@ -1543,7 +1543,7 @@ export default {
       if (event.key) {
         event.target.blur();
       }
-      console.log(event);
+      // console.log(event);
       await this.fetchData();
     },
     async submitDateFilter(hideMethod) {
@@ -1556,8 +1556,8 @@ export default {
     },
 
     async editingBusinessLicenseChanged(fileObject) {
-      console.log('# Application.vue editingBusinessLicenseChanged');
-      console.log(fileObject);
+      // console.log('# Application.vue editingBusinessLicenseChanged');
+      // console.log(fileObject);
       this.editing.business_license_filename = fileObject.filename;
       this.editing.business_license_url = fileObject.fileurl;
       this.changed.add('business_license_filename');
@@ -1739,8 +1739,8 @@ export default {
       const proms = ids.map((id) =>
         (async () => {
           const res = await removeApplicationReq({ id }, '{success, code}');
-          console.log(`# Application.vue ${id} remove res`);
-          console.log(res);
+          // console.log(`# Application.vue ${id} remove res`);
+          // console.log(res);
           if (res.success) {
             successCount += 1;
           } else {

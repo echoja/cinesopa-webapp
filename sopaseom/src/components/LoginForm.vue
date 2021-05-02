@@ -280,7 +280,7 @@ export default {
         wrong_pwd_count,
       } = login;
 
-      console.log(`wrong_reason: ${wrong_reason}`);
+      // console.log(`wrong_reason: ${wrong_reason}`);
       // 로그인 실패
       if (!success) {
         if (wrong_reason === 'too_much_attempt') {

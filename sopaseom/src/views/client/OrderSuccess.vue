@@ -138,8 +138,8 @@ export default {
             dest { name phone address address_detail }
           }`,
       );
-      console.log('# OrderSuccess fetchData order');
-      console.log(order);
+      // console.log('# OrderSuccess fetchData order');
+      // console.log(order);
       // 만약 실패시 창을 옮기고 바로 리턴
       if (!order) {
         this.getFail();
@@ -147,8 +147,8 @@ export default {
       }
       this.order = order;
       this.orderInfo = getOrderInfo(order);
-      console.log('# OrderSuccess fetchData orderInfo');
-      console.log(this.orderInfo);
+      // console.log('# OrderSuccess fetchData orderInfo');
+      // console.log(this.orderInfo);
     },
     getFail(reason = '') {
       this.$router.push({ name: 'PaymentFail', params: { reason } });

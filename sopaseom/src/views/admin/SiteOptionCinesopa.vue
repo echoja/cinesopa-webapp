@@ -199,12 +199,12 @@ export default {
       }
     },
     sortHistory() {
-      console.log('# SiteOptionCinesopa sortHistory value');
-      console.log(this.form.history.value);
+      // console.log('# SiteOptionCinesopa sortHistory value');
+      // console.log(this.form.history.value);
       const hiv = Array.from(this.form.history.value);
       hiv.sort((a, b) => (a.date > b.date ? 1 : -1));
       this.form.history.value = hiv;
-      console.log(hiv);
+      // console.log(hiv);
     },
     async confirmClicked() {
       this.sortHistory();
@@ -228,8 +228,8 @@ export default {
       {name, success, code}
       `,
       );
-      console.log('# SiteOptionCinesopa confirmClicked res');
-      console.log(res);
+      // console.log('# SiteOptionCinesopa confirmClicked res');
+      // console.log(res);
       // const result = res.data.setSiteOptions;
       // console.log(result);
       if (res.every((item) => item.success === true)) {

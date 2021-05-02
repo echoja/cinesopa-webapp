@@ -390,8 +390,8 @@ export default {
           //   console.log({ slider, event });
           // },
           init: (swiper) => {
-            console.log('# SoakitItems setTranslate event');
-            console.log(
+            // console.log('# SoakitItems setTranslate event');
+            // console.log(
               `total width: ${swiper.width * swiper.slides.length}px,  width: ${
                 swiper.width
               }`,
@@ -434,10 +434,10 @@ export default {
   },
   methods: {
     onSwiper(swiper) {
-      console.log(swiper);
+      // console.log(swiper);
     },
     onSlideChange() {
-      console.log('slide change');
+      // console.log('slide change');
     },
     async fetchData() {
       const res = await sopakitsShownReq(
@@ -458,8 +458,8 @@ export default {
           }
         }`,
       );
-      console.log('# SopakitItems fetchData res');
-      console.log(res);
+      // console.log('# SopakitItems fetchData res');
+      // console.log(res);
       this.keywords = res.sopakitsShownItems.map((item) => ({
         ...item.sopakit,
         products: item.products,
@@ -483,13 +483,13 @@ export default {
             },
           })
           .catch((err) => {
-            console.log('ho');
+            // console.log('ho');
             console.dir(err);
             this.fetchData();
           });
       } catch (e) {
         console.dir(e);
-        console.log('error!!');
+        // console.log('error!!');
       }
     },
     onResize() {

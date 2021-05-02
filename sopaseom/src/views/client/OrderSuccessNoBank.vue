@@ -76,7 +76,7 @@ export default {
       const options = this.order.items
         .map((cartitem) => cartitem.options)
         .flat();
-      console.log('# OrderSuccessNoBank.vue totalProductPrice options');
+      // console.log('# OrderSuccessNoBank.vue totalProductPrice options');
       console.dir(options);
       const sum = options.reduce((acc, now) => acc + now.count * now.price, 0);
       return sum;

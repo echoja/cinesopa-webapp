@@ -116,7 +116,7 @@ export default [
     component: () => import('@/views/client/My.vue'),
     // beforeEnter: myBeforeEnter,
     beforeEnter(to, from, next) {
-      console.log(from);
+      // console.log(from);
       if (from.name === 'MyInfo') {
         // console.log('hohofsdofhd');
         return next(false);

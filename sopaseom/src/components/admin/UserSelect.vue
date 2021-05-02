@@ -61,8 +61,8 @@ export default {
     /** @returns {string[]} */
   },
   mounted() {
-    console.log('# UserSelect.vue value');
-    console.log(this.value);
+    // console.log('# UserSelect.vue value');
+    // console.log(this.value);
   },
   methods: {
     selectOption(value, index) {
@@ -81,8 +81,8 @@ export default {
         { condition: { email: this.search } },
         '{total list {email role}}',
       );
-      console.log('# UserSelect.vue userSearchClicked');
-      console.log({ total, list });
+      // console.log('# UserSelect.vue userSearchClicked');
+      // console.log({ total, list });
       this.options = list.map((user) => ({
         value: user.email,
         text: user.email,

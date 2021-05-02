@@ -53,8 +53,8 @@ export default {
     async sendTokenButtonClicked() {
       this.loading = true;
       const res = await requestVerifyEmailReq({}, '{success}');
-      console.log('# sendTokenButtonClicked res');
-      console.log(res);
+      // console.log('# sendTokenButtonClicked res');
+      // console.log(res);
       this.loading = false;
       this.buttonDisabled = true;
       this.buttonText = '전송되었습니다';

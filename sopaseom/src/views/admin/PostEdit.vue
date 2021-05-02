@@ -1,7 +1,9 @@
 <template>
   <wrap-with-editor>
     <template #main>
-      <h2>글 편집</h2>
+      <header class="Tmb-2">
+        <h2>글 편집</h2>
+      </header>
       <div class="post-edit-content">
         <b-form-group
           id="input-title-group"
@@ -16,7 +18,11 @@
             class="flex-grow-1"
           ></b-form-input>
         </b-form-group>
-        <common-editor height="600" :autoresize="true" v-model="input.content"></common-editor>
+        <common-editor
+          height="600"
+          :autoresize="true"
+          v-model="input.content"
+        ></common-editor>
       </div>
       <b-modal
         title="다른 페이지로 이동중입니다."
@@ -306,7 +312,7 @@ export default {
     window.removeEventListener('beforeunload', this.onBeforeunload);
   },
   beforeRouteLeave(to, from, next) {
-    console.log('# PostEdit beforeRouteLeave');
+    // console.log('# PostEdit beforeRouteLeave');
     if (typeof this.onBeforeunload() === 'string') {
       this.$bvModal.show('confirm-routing');
       this.leaveTo = to;
@@ -355,7 +361,7 @@ export default {
         input,
       })
         .then((result) => {
-          console.log(result);
+          // console.log(result);
           this.pushMessage({
             type: 'success',
             msg: '글이 성공적으로 수정되었습니다.',
@@ -401,8 +407,8 @@ export default {
         true,
         '<div>하하하하 ~!!</div>',
       );
-      console.log(event);
-      console.log(values);
+      // console.log(event);
+      // console.log(values);
     },
     onBeforeunload(e = {}) {
       if (this.dirty) {

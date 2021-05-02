@@ -62,13 +62,13 @@ const getLocalMethods = (menuId) => {
  * directive 에 붙어있을 경우 el 을 지정해주고 직접 값을 지정한다면 payload 에 지정해야 함.
  */
 const showGlobal = (menuId, event, from = {}) => {
-  console.log('# ConextMenu showGlobal');
+  // console.log('# ConextMenu showGlobal');
   const { elid, payload } = from;
   event.preventDefault();
-  console.log(`elid: ${elid}`);
-  console.log(`payload: ${payload}`);
+  // console.log(`elid: ${elid}`);
+  // console.log(`payload: ${payload}`);
   // console.log(menuId);
-  console.log(localMethods);
+  // console.log(localMethods);
   // console.log(directivePayloadMap);
   let payloadToPush;
   if (elid) {
@@ -98,7 +98,7 @@ Vue.prototype.$cm = Vue.observable({
 const getShowHandler = (menuId, elid) => {
   if (!handlerMap.get(elid)) {
     handlerMap.set(elid, (event) => {
-      console.log('# eventListener getShowHandler made');
+      // console.log('# eventListener getShowHandler made');
       // console.log(`${menuId}`);
       // console.log(el);
       showGlobal(menuId, event, { elid });
@@ -116,8 +116,8 @@ let duuid = 0;
 
 Vue.directive('contextmenu', {
   bind(el, binding, vnode) {
-    console.log('# ContextMenu directive binded!');
-    console.log(vnode);
+    // console.log('# ContextMenu directive binded!');
+    // console.log(vnode);
     const menuId = binding.arg;
     const elid = duuid.toString();
     el.dataset.contextElid = elid;
@@ -126,15 +126,15 @@ Vue.directive('contextmenu', {
     el.addEventListener('contextmenu', getShowHandler(menuId, elid));
   },
   unbind(el, binding, vnode) {
-    console.log(vnode);
-    console.log('# ContextMenu directive unbinded!');
+    // console.log(vnode);
+    // console.log('# ContextMenu directive unbinded!');
     const menuId = binding.value;
     const elid = el.dataset.contextElid;
     directivePayloadMap.delete(elid);
     el.removeEventListener('contextmenu', getShowHandler(menuId, elid));
   },
   update(el, binding, vnode) {
-    console.log('# ContextMenu directive componentUpdated');
+    // console.log('# ContextMenu directive componentUpdated');
     const payload = binding.value;
     const elid = el.dataset.contextElid;
     directivePayloadMap.set(elid, payload);
@@ -180,14 +180,14 @@ export default {
   },
   methods: {
     show(event, payload) {
-      console.log('# ContextMenu show payload');
+      // console.log('# ContextMenu show payload');
       // console.log(event);
       // console.log(payload);
       this.payload = payload;
       this.contextMenu(event);
     },
     hide() {
-      console.log('# ContextMenu hide payload');
+      // console.log('# ContextMenu hide payload');
       // console.log(evt);
       if (this.popperInstance) {
         this.popperInstance.destroy();

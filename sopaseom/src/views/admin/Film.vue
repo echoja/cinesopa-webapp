@@ -125,7 +125,7 @@ export default {
           director: director?.name,
         };
       });
-      console.log(list);
+      // console.log(list);
       this.films = list;
       this.total = total;
     },

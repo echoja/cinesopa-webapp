@@ -584,8 +584,8 @@ export default {
       }
     }`,
       );
-      console.log('# OrderPayment mounted res');
-      console.log(res);
+      // console.log('# OrderPayment mounted res');
+      // console.log(res);
       // 실패 했을 때 처리
       if (!res.success) {
         if (res.code === 'invalid_id') {
@@ -611,8 +611,8 @@ export default {
       }
     },
     addressLoaded(data) {
-      console.log('# OrderPayment addressLoaded');
-      console.log(data);
+      // console.log('# OrderPayment addressLoaded');
+      // console.log(data);
       this.addressObj = data;
       this.form.address = this.addressNew;
       this.form.address_detail = data.buildingName;
@@ -684,8 +684,8 @@ export default {
         },
         '{ name value success code }',
       );
-      console.log('# OrderPayment fetchTransporationFee res');
-      console.log(res);
+      // console.log('# OrderPayment fetchTransporationFee res');
+      // console.log(res);
       if (res[0].success) {
         this.transportationFee = parseInt(res[0].value, 10);
       }
@@ -720,7 +720,7 @@ export default {
           if (validated && status === false) {
             this.$nextTick(() => {
               this.$refs[dataName].focus();
-              console.log(this.$refs[dataName]);
+              // console.log(this.$refs[dataName]);
               // console.log('focuessed!!!!');
             });
           }
@@ -752,8 +752,8 @@ export default {
       {success code}`,
       )
         .then((result) => {
-          console.log('# OrderPayment paymentClicked updateMeReq');
-          console.log(result);
+          // console.log('# OrderPayment paymentClicked updateMeReq');
+          // console.log(result);
           if (result.success) {
             this.pushMessage({
               type: 'success',
@@ -779,8 +779,8 @@ export default {
     async paymentClicked() {
       this.loading = true;
       const validated = await this.validateInputs();
-      console.log('# OrderPayment paymentClicked validated');
-      console.log(validated);
+      // console.log('# OrderPayment paymentClicked validated');
+      // console.log(validated);
 
       // 만약 validated 되지 않았다면, 즉시 종료.
       if (!validated) {
@@ -817,8 +817,8 @@ export default {
         success code order_id
       }`,
       );
-      console.log('# OrderPayment paymentClicked res');
-      console.log(res);
+      // console.log('# OrderPayment paymentClicked res');
+      // console.log(res);
       this.orderId = res.order_id;
 
       // nobank 가 아닐 경우 결제창으로 결제!
@@ -840,28 +840,28 @@ export default {
       BootPay.request(this.bootpayArgs)
         .error((data) => {
           // 결제 진행시 에러가 발생하면 수행됩니다.
-          console.log('# Bootpay error');
-          console.log(data);
+          // console.log('# Bootpay error');
+          // console.log(data);
           this.loading = false;
         })
         .cancel((data) => {
           // 결제가 취소되면 수행됩니다.
           // 할 일은 아무것도 없음.
-          console.log('# Bootpay cancel');
-          console.log(data);
+          // console.log('# Bootpay cancel');
+          // console.log(data);
           this.loading = false;
         })
         .ready((data) => {
           // 가상계좌 입금 계좌번호가 발급되면 호출되는 함수입니다.
-          console.log('# Bootpay ready');
-          console.log(data);
+          // console.log('# Bootpay ready');
+          // console.log(data);
         })
         .confirm((data) => {
           // 결제가 실행되기 전에 수행되며, 주로 재고를 확인하는 로직이 들어갑니다.
           // 주의 - 카드 수기결제일 경우 이 부분이 실행되지 않습니다.
           // 그냥 무조건 승인 처리 한다음에, 뭐 안되면 그냥 승인 취소하는 방향으로 가자.
-          console.log('# Bootpay confirm');
-          console.log(data);
+          // console.log('# Bootpay confirm');
+          // console.log(data);
           const enable = true; // 재고 수량 관리 로직 혹은 다른 처리
           if (enable) {
             BootPay.transactionConfirm(data); // 조건이 맞으면 승인 처리를 한다.
@@ -871,16 +871,16 @@ export default {
         })
         .close((data) => {
           // 결제창이 닫힐때 수행됩니다. (성공,실패,취소에 상관없이 모두 수행됨)
-          console.log('# Bootpay close');
-          console.log(data);
+          // console.log('# Bootpay close');
+          // console.log(data);
         })
         .done((data) => {
           // 결제가 정상적으로 완료되면 수행됩니다
           // 비즈니스 로직을 수행하기 전에 결제 유효성 검증을 하시길 추천합니다.
           // todo: 진행한 후 bootpay 에서 receipt_id 를 이용해 검증 및 order 생성
           // const result = await finishPaymentReq({id: })
-          console.log('# Bootpay done');
-          console.log(data);
+          // console.log('# Bootpay done');
+          // console.log(data);
           this.finishPayment(data);
         });
     },
@@ -900,8 +900,8 @@ export default {
       )
         // 성공했을 시
         .then((result) => {
-          console.log('# OrderPayment finishPaymentReq result');
-          console.log(result);
+          // console.log('# OrderPayment finishPaymentReq result');
+          // console.log(result);
           if (result.success) {
             this.loading = false;
             this.$router.push({

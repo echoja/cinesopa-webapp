@@ -194,9 +194,9 @@ export default {
         `
       {
         total, list {
-  id title title_en poster poster_url poster_alt kobis_code genres show_time type_name prod_date open_date watch_grade 
+  id title title_en poster poster_url poster_alt kobis_code genres show_time type_name prod_date open_date watch_grade
   note  is_featured is_opened featured_steel featured_color featured_synopsis badge_text
-  badge_color status synopsis meta 
+  badge_color status synopsis meta
   people { role_type name name_en role }
   companies { name name_en role }
   reviews { title url source author }
@@ -207,7 +207,7 @@ export default {
         }
       }`,
       );
-      console.log('# Application fetchData res');
+      // console.log('# Application fetchData res');
       console.dir({ total, list });
       this.total = total;
       this.films = list;

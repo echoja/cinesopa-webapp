@@ -197,8 +197,8 @@ export default {
         .filter((item) => item.checked === true)
         .map((item) => removeProductAtServer({ id: item.id }));
       const results = await Promise.allSettled(promises);
-      console.log('# Product.vue removeClicked');
-      console.log(results);
+      // console.log('# Product.vue removeClicked');
+      // console.log(results);
       this.pushMessage({
         type: 'success',
         msg: `${results.length} 개의 상품을 성공적으로 삭제했습니다.`,

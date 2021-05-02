@@ -292,8 +292,8 @@ export default {
             },
           },
         );
-        console.log('# RequestTaxInfo.vue submitClicked file upload res');
-        console.log(res);
+        // console.log('# RequestTaxInfo.vue submitClicked file upload res');
+        // console.log(res);
         const { file } = res.data;
         this.application.business_license_filename = file.filename;
         this.application.business_license_url = file.fileurl;
@@ -316,8 +316,8 @@ export default {
         },
         '{success code}',
       );
-      console.log('# RequestTaxInfo.vue submitTaxInformationReq res');
-      console.log(res);
+      // console.log('# RequestTaxInfo.vue submitTaxInformationReq res');
+      // console.log(res);
 
       // 성공 실패에 따른 로직
       if (res.success) {
@@ -358,7 +358,7 @@ export default {
       // 가져온 값으로 초기화
       if (res.success) {
         this.status = 'loaded';
-        console.log('# RequestTaxInfo request res');
+        // console.log('# RequestTaxInfo request res');
         const { doc } = res;
         this.application = {
           ...doc,

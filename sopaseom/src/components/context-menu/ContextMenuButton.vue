@@ -16,7 +16,7 @@ export default {
     /** @type {Vue} */
     let vnode = this;
     while (vnode && vnode.$options.name !== 'ContextMenu') {
-      console.log(vnode.$options.name);
+      // console.log(vnode.$options.name);
       vnode = vnode.$parent;
     }
     if (vnode) {

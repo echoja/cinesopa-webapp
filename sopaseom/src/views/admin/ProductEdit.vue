@@ -334,8 +334,8 @@ export default {
           id: this.id,
           input: this.product,
         });
-        console.log('# ProductEdit updateProductClicked');
-        console.log(result);
+        // console.log('# ProductEdit updateProductClicked');
+        // console.log(result);
         if (result.success) {
           this.pushMessage({
             type: 'success',
@@ -430,8 +430,8 @@ export default {
         }
       }`,
       );
-      console.log('# ProductEdit fetchData');
-      console.log(product);
+      // console.log('# ProductEdit fetchData');
+      // console.log(product);
       // product 설정
       if (!product) {
         console.error('# ProductEdit fetchData product 를 찾을 수 없습니다.');
@@ -462,14 +462,14 @@ export default {
       // this.getRelatedFilmInfo();
     },
     async relatedFilmSelected(film) {
-      console.log('# ProductEdit.vue relatedFilmSelected');
-      console.log(film);
+      // console.log('# ProductEdit.vue relatedFilmSelected');
+      // console.log(film);
       this.$bvModal.hide('related-film-select-modal');
       this.product.related_film = film.id;
       this.getRelatedFilmInfo();
     },
     async getRelatedFilmInfo() {
-      console.log(this.product.related_film.id);
+      // console.log(this.product.related_film.id);
       const film = await getRelatedFilmOnServer(
         { id: parseInt(this.product.related_film, 10) },
         '{title}',
