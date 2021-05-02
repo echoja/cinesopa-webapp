@@ -1,4 +1,4 @@
-import { Fulfilled } from '@/typedef';
+import { Fulfilled, Productinfo } from '@/typedef';
 
 import Hangul from 'hangul-js';
 import {
@@ -27,16 +27,19 @@ export default {
      */
     sopakitsShown: makeResolver(async (obj, args, context, info) => {
       const condition = { status: 'show' };
-      const { list: products } = await db.getProducts({
+
+      /** 일단 products 를 가져옴. perpage와 page 가 설정되어
+       *  있지 않으므로 조건에 맞는 모든 products 를 가져오게 됨.
+       */
+      let { list: products } = await db.getProducts({
         product_type: 'sopakit',
         status: 'public',
       });
-      const kitIdSet = new Set<number>(); // need check
-      // console.log('# sopakit-resolver sopakitsShown products');
-      // console.log(products);
       // 우선 product 를 순회하면서 중복 없이 kit id 정보들을 빼옴.
-      // 중복 없이 담기 위해 일단 Map을 사용하며, 값은 의미없는 값('')을 둠.
-      const promises = products // need check
+      // 중복 없이 담기 위해 Set 를 사용함.
+      const kitIdSet = new Set<number>();
+      
+      const promises = products
         .filter(
           (product) =>
             typeof product.kit_id === 'number' && !kitIdSet.has(product.kit_id),
@@ -67,8 +70,16 @@ export default {
       // console.log(promises);
       // console.log('# sopakit-resolver sopakitsShown sopakitMap1');
       // console.log(sopakitMap);
-      const sopakitsShownItems = [];
-      const sopakitProductMap = new Map();
+
+      // product 에 대해 그 kit에 대한 정보가 없으면 (kit 가 show 가 아니라면)
+      // 그 결과를 제외하도록 함. kit_id 가 없는 경우는 noKeywordProducts 에 포함되어야 하므로
+      // 제외하지 않음.
+      products = products.filter((product) => !product.kit_id || sopakitMap.get(product.kit_id));
+
+      
+      /** key: 소파킷 id, 값: 상품 정보들 */
+      const sopakitProductMap = new Map<number, Productinfo[]>();
+      /** 키워드가 없는 상품 */
       const noKeywordProducts = [];
 
       // 영화 정보 갖고오기
@@ -113,9 +124,9 @@ export default {
           noKeywordProducts.push(product);
         }
       });
-      // console.log('forEachBefore');
 
-      // sopakitsShownItems 완성
+      // sopakitsShownItems 완성 (최종 결과)
+      const sopakitsShownItems = [];
       sopakitMap.forEach((sopakitDoc, sopakitId) => {
         // need-check
         sopakitsShownItems.push({

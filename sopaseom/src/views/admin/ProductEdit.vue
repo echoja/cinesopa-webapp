@@ -197,55 +197,7 @@ import FilmSelector from '@/components/admin/FilmSelector.vue';
 import Info from '@/components/admin/Info.vue';
 
 const getRelatedFilmOnServer = makeSimpleQuery('film');
-
-const getProductFromServer = makeRequest('product', {
-  type: 'query',
-  paramList: [
-    {
-      varName: 'id',
-      typeName: 'Int!',
-    },
-  ],
-  resultString: `{
-  product_type
-  status
-  featured_image_url
-  featured_image_alt
-  content_main
-  content_sub
-  side_phrase
-  is_notice_default
-  notice
-  name
-  kit {
-    id
-  }
-  options {
-    id
-    content
-    left
-    price
-    disabled
-  }
-  related_film {
-    id
-#    poster_url
-    title
-#    title_en
-#    prod_date
-#    open_date
-#    genres
-#    show_time
-#    people {
-#      role_type
-#      name
-#      role
-#    }
-#    watch_grade
-#    synopsis
-  }
-}`,
-});
+const getProductReq = makeSimpleQuery('productAdmin');
 const createProductToServer = makeRequest('createProduct', {
   type: 'mutation',
   paramList: [
@@ -435,12 +387,55 @@ export default {
     },
 
     async fetchData(id) {
-      const product = await getProductFromServer({ id });
+      // const product = await getProductFromServer({ id });
+      const product = await getProductReq(
+        { id },
+        `{
+        product_type
+        status
+        featured_image_url
+        featured_image_alt
+        content_main
+        content_sub
+        side_phrase
+        is_notice_default
+        notice
+        name
+        kit {
+          id
+        }
+        options {
+          id
+          content
+          left
+          price
+          disabled
+        }
+        related_film {
+          id
+      #    poster_url
+          title
+      #    title_en
+      #    prod_date
+      #    open_date
+      #    genres
+      #    show_time
+      #    people {
+      #      role_type
+      #      name
+      #      role
+      #    }
+      #    watch_grade
+      #    synopsis
+        }
+      }`,
+      );
       console.log('# ProductEdit fetchData');
       console.log(product);
       // product 설정
       if (!product) {
         console.error('# ProductEdit fetchData product 를 찾을 수 없습니다.');
+        return;
       }
       // relatedFilm 설정
       if (product.related_film) {
