@@ -629,8 +629,8 @@ export default {
       });
     },
     async openedChanged(value, refname) {
-      console.log('# FilmList oenedChanged value');
-      console.log(value);
+      // console.log('# FilmList oenedChanged value');
+      // console.log(value);
       // this.$nextTick(() => {
       //   console.log(this);
       //   this.$refs[refname].$el.focus();

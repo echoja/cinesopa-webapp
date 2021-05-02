@@ -978,11 +978,12 @@ export class DBManager {
   }
 
   /**
-   * id에 따라서 게시판을 얻습니다. (id는 mongodb id 입니다.)
+   * id에 따라서 게시판을 얻습니다. 
+   * id는 mongodb의 _id 입니다.
    * @param id
    */
-  async getBoard(id: number): PromLD<IBoard> {
-    return model.Board.findOne({ id }).lean().exec();
+  async getBoard(id: string): PromLD<IBoard> {
+    return model.Board.findOne({ _id: id }).lean().exec();
   }
 
   /**

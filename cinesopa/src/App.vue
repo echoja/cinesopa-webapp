@@ -666,7 +666,7 @@ export default {
       });
     },
     sidebarMenuShown() {
-      console.log('# App sidebarMenuShown called');
+      // console.log('# App sidebarMenuShown called');
 
       this.$nextTick(() => {
         const closeButton = document

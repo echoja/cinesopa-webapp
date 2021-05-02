@@ -360,8 +360,8 @@ export default {
       this.$nextTick(() => {
         this.removeAria();
       });
-      console.log('onShown');
-      console.log(event);
+      // console.log('onShown');
+      // console.log(event);
       // keyUP 보정 초기화!!
       this.keyDowned = false;
       this.allowKeyUp = false;
@@ -393,10 +393,10 @@ export default {
       this.keyDowned = true;
     },
     onKeyUp(event) {
-      console.log('# BFormDatepickerKorean keyup');
-      console.log(event);
-      console.log(this.$refs.datepicker);
-      console.log({ keyDowned: this.keyDowned, allowKeyUp: this.allowKeyUp });
+      // console.log('# BFormDatepickerKorean keyup');
+      // console.log(event);
+      // console.log(this.$refs.datepicker);
+      // console.log({ keyDowned: this.keyDowned, allowKeyUp: this.allowKeyUp });
       // const {
       //   onKeydownWrapper,
       // } = this.$refs.datepicker.$children[0].$children[0];
@@ -435,7 +435,7 @@ export default {
       this.$emit('input', value);
     },
     onCalendarSelected(value) {
-      console.log('# BFormDatepickerKorean onCalendarSelected');
+      // console.log('# BFormDatepickerKorean onCalendarSelected');
       // console.log(this.$refs.dropdown);
       // this.$root.$emit('bv::dropdown::hide', this.dropdownId);
       // this.$refs.dropdown.hide();
@@ -451,13 +451,13 @@ export default {
       });
     },
     onButtonClicked() {
-      console.log('# BFormDatepickerKorean onButtonClicked');
+      // console.log('# BFormDatepickerKorean onButtonClicked');
 
       this.show = !this.show;
       // 만약 현재 창이 보이는 상태라면 calendar focus.
       if (this.show) {
         this.$nextTick(() => {
-          console.log(this.$refs.calendar);
+          // console.log(this.$refs.calendar);
           this.$refs.container.focus();
         });
       }

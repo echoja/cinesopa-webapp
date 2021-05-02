@@ -81,6 +81,7 @@ export default {
       return;
     }
 
+
     // console.log('# Post.vue mounted post data');
     // console.log(post);
 

@@ -733,9 +733,9 @@ export default {
     getRatio(iframeHtml) {
       const width = parseInt(iframeHtml.match('width="(\\d+?)"')?.[1], 10);
       const height = parseInt(iframeHtml.match('height="(\\d+?)"')?.[1], 10);
-      console.log('# Film getRatio');
-      console.log(width);
-      console.log(height);
+      // console.log('# Film getRatio');
+      // console.log(width);
+      // console.log(height);
       return height / width || 9 / 16;
     },
   },

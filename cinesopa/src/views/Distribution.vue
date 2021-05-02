@@ -511,8 +511,8 @@ export default {
           },
           '{success code recipient}',
         );
-        console.log('# Distribution submit result');
-        console.log(result);
+        // console.log('# Distribution submit result');
+        // console.log(result);
         if (result.success === true) {
           this.$router.push({ name: 'SuccessRequest' });
         }
