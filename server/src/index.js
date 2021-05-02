@@ -3,6 +3,7 @@ const logger = require('morgan');
 const session = require('express-session');
 const passport = require('passport');
 const uuidv4 = require('uuid').v4;
+const helmet = require('helmet');
 const { configureLocalAuth } = require('./loader');
 const { dbServerInit } = require('./db/db-server');
 const config = require('../config/common');
@@ -15,6 +16,19 @@ console.log(`This server locates in ${__dirname}`);
 
 // create express app
 const webapp = express();
+
+// security settings
+webapp.use(helmet.contentSecurityPolicy());
+webapp.use(helmet.referrerPolicy());
+webapp.use(helmet.dnsPrefetchControl());
+webapp.use(helmet.expectCt());
+webapp.use(helmet.frameguard());
+webapp.use(helmet.hidePoweredBy());
+webapp.use(helmet.hsts());
+webapp.use(helmet.ieNoOpen());
+webapp.use(helmet.noSniff());
+webapp.use(helmet.permittedCrossDomainPolicies());
+webapp.use(helmet.xssFilter());
 
 // initial mongoose
 dbServerInit();
