@@ -64,10 +64,7 @@
         소파킷 목업 이미지는 소파킷 키워드 설정에서 할 수 있습니다.
       </template>
       <single-file-selector
-        :initObj="{
-          fileurl: product.featured_image_url,
-          label: product.featured_image_alt,
-        }"
+        :initObj="initFeaturedObj"
         @file-selected="featuredImageSelected"
       ></single-file-selector>
       <!-- featured_image_url featured_image_alt -->
@@ -154,8 +151,11 @@
       <b-form-input v-model="product.side_phrase"> </b-form-input>
     </form-row>
     <form-row title="안내사항 기본값으로 사용">
-            <template #info>
-        상품 상세 페이지 최하단에 나올 안내사항을 기본값으로 사용할 것인지 설정합니다. (기본값은 <b-link :to="{name: 'SiteOptionSopaseom'}">사이트 정보</b-link>에서 수정할 수 있습니다.)
+      <template #info>
+        상품 상세 페이지 최하단에 나올 안내사항을 기본값으로 사용할 것인지
+        설정합니다. (기본값은
+        <b-link :to="{ name: 'SiteOptionSopaseom' }">사이트 정보</b-link>에서
+        수정할 수 있습니다.)
       </template>
 
       <b-form-radio-group v-model="product.is_notice_default">
@@ -309,10 +309,6 @@ export default {
           key: 'content',
           label: '옵션 이름',
         },
-        // {
-        //   key: 'left',
-        //   label: '재고',
-        // },
         {
           key: 'price',
           label: '가격',
@@ -327,6 +323,10 @@ export default {
         },
       ],
       films: {},
+      initFeaturedObj: {
+        fileurl: '',
+        label: '',
+      },
       product: {
         name: '',
         related_film: null,
@@ -458,6 +458,12 @@ export default {
         delete product.kit;
       }
       this.product = product;
+
+      // 대표 이미지 설정
+      this.initFeaturedObj = {
+        fileurl: product.featured_image_url,
+        label: product.featured_image_alt,
+      };
       // this.getRelatedFilmInfo();
     },
     async relatedFilmSelected(film) {
