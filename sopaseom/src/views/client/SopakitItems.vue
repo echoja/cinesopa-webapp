@@ -392,10 +392,10 @@ export default {
           init: (swiper) => {
             // console.log('# SoakitItems setTranslate event');
             // console.log(
-              `total width: ${swiper.width * swiper.slides.length}px,  width: ${
-                swiper.width
-              }`,
-            );
+            //   `total width: ${swiper.width * swiper.slides.length}px,  width: ${
+            //     swiper.width
+            //   }`,
+            // );
             this.swiperWidth = swiper.width;
             this.swiperLength = swiper.slides.length;
             this.recalculateContentWidth();
