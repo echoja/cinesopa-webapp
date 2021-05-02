@@ -8,7 +8,7 @@
           우클릭하면 편의 메뉴
 
           <info>
-            <ul class="pl-4 text-left">
+            <ul class="pl-4 text-left Tlist-disc">
               <li class="m-1">편집 및 삭제</li>
               <li class="m-1">
                 <b>정산 상태, 배송 상태, 세금계산서 상태</b> 다음 단계로
@@ -314,13 +314,22 @@
             </div>
           </info>
         </template>
+        <!-- 메모 -->
         <template #head(memo)="">
           <span class="table-head-text">메모</span>
-          <info
-            >관리자는 각 신청마다 메모를 설정할 수 있습니다. 메모가 있을 경우
-            <b>검정 색</b>으로 표시되며, 주문에 메모 강조를 끈다고 설정하면
-            메모가 없는 것처럼 옅은 색으로 표시됩니다.</info
+          <info> 관리자는 각 신청마다 메모를 설정할 수 있습니다. </info>
+        </template>
+        <template #cell(memo)="row">
+          <div
+            :id="`memo-${row.index}`"
+            class="Ttruncate"
+            :style="{ maxWidth: '10vw' }"
           >
+            {{ row.value }}
+          </div>
+          <b-tooltip :target="`memo-${row.index}`">
+            {{ row.value }}
+          </b-tooltip>
         </template>
         <!-- 편집창 -->
         <template #row-details="row">
@@ -880,10 +889,10 @@
         이 항목을 정말로 삭제하시겠습니까? 삭제되면 복구할 수 없습니다.
       </b-modal>
       <!-- <pre>{{ changed }}</pre> -->
-    <!-- <pre>{{ $cm._map }}</pre> -->
-    <!-- <pre> -->
-    <!-- {{ tableItems }} -->
-    <!-- </pre> -->
+      <!-- <pre>{{ $cm._map }}</pre> -->
+      <!-- <pre> -->
+      <!-- {{ tableItems }} -->
+      <!-- </pre> -->
     </b-overlay>
   </div>
 </template>
@@ -904,6 +913,7 @@ import {
   BFormTextarea,
   BPaginationNav,
   BOverlay,
+  BTooltip,
 } from 'bootstrap-vue';
 import moment from 'moment';
 import {
@@ -956,6 +966,7 @@ export default {
     BTable,
     BFormCheckbox,
     BOverlay,
+    BTooltip,
     LoadingButton,
     Info,
     EyeBox,
@@ -1026,9 +1037,9 @@ export default {
         {
           key: 'destination',
         },
-        {
-          key: 'message',
-        },
+        // {
+        //   key: 'message',
+        // },
         {
           key: 'memo',
         },

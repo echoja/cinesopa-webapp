@@ -6,29 +6,13 @@
 
     <site-option-table>
       <site-option-row
-        v-model="form.transportation_fee.value"
-        :label="form.transportation_fee.label"
-        description="모든 상품의 배송비를 일괄 설정합니다. 현재 상품별로 배송비를 설정할 수는
-        없습니다. 이미 결제가 완료된 주문의 배송비도 수정할 수 없습니다."
-        :type="form.transportation_fee.type"
-      ></site-option-row>
-      <site-option-row
-        v-model="form.default_notice.value"
-        :label="form.default_notice.label"
-        description="매 상품 설명 페이지 하단에 들어가는 공통 공지의 기본값을 설정합니다. 각 상품 편집에서 이 설정을 덮어쓸 수 있습니다."
-        :type="form.default_notice.type"
-      ></site-option-row>
-      <site-option-row
-        v-model="form.option_privacy.value"
-        :label="form.option_privacy.label"
-        description="소파섬 개인정보보호방침과 관련된 내용입니다."
-        :type="form.option_privacy.type"
-      ></site-option-row>
-      <site-option-row
-        v-model="form.option_policy.value"
-        :label="form.option_policy.label"
-        description="소파섬 이용약관을 설정합니다."
-        :type="form.option_policy.type"
+        v-for="(form, key) in forms"
+        :key="key"
+        :id="`option-${key}`"
+        v-model="form.value"
+        :label="form.label"
+        :description="form.description"
+        :type="form.type"
       ></site-option-row>
     </site-option-table>
     <hr />
@@ -63,26 +47,31 @@ export default {
   name: 'SiteOptionSopaseom',
   data() {
     return {
-      form: {
-
+      forms: {
         transportation_fee: {
           label: '기본 배송비',
           value: null,
+          description:
+            '모든 상품의 배송비를 일괄 설정합니다. 현재 상품별로 배송비를 설정할 수는 없습니다. 이미 결제가 완료된 주문의 배송비도 수정할 수 없습니다.',
           type: 'number',
         },
         default_notice: {
           label: '상품 안내사항 기본값',
           value: null,
+          description:
+            '매 상품 설명 페이지 하단에 들어가는 공통 공지의 기본값을 설정합니다. 각 상품 편집에서 이 설정을 덮어쓸 수 있습니다.',
           type: 'editor',
         },
         option_privacy: {
           label: '개인정보처리방침',
           value: null,
+          description: '소파섬 개인정보보호방침과 관련된 내용입니다.',
           type: 'editor',
         },
         option_policy: {
           label: '소파섬 이용약관',
           value: null,
+          description: '소파섬 이용약관을 설정합니다.',
           type: 'editor',
         },
       },
@@ -95,12 +84,12 @@ export default {
     },
   },
   async mounted() {
-    await this.initOptionValues(this.form);
+    await this.initOptionValues(this.forms);
   },
   methods: {
     ...mapActions(['pushMessage']),
-    async initOptionValues(form) {
-      const names = Object.keys(form);
+    async initOptionValues(forms) {
+      const names = Object.keys(forms);
       const res = await graphql(siteOptionsQuery, {
         names,
       });
@@ -116,7 +105,7 @@ export default {
 
       // 서버로부터 받아온 옵션 값을 v-model 연결된 값으로 대입시킴.
       result.forEach((item) => {
-        const formItem = form[item.name];
+        const formItem = forms[item.name];
         formItem.value = item.value;
         // console.log(
         //   `# initOptionValues - SiteOptionCinesopa.vue - pushed ${item.name}`,
@@ -144,13 +133,13 @@ export default {
     async confirmClicked() {
       // console.log('# confirmClicked');
       // console.log(this.form);
-      const inputs = Object.keys(this.form).map(
+      const inputs = Object.keys(this.forms).map(
         (name) =>
           // const { type, value } = this.form[name];
           // if (type === 'string') {
           ({
             name,
-            value: this.form[name].value,
+            value: this.forms[name].value,
           }),
         // }
         // if (type === 'array') {

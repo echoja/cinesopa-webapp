@@ -594,30 +594,37 @@ export default {
         {
           key: 'checkbox',
           label: '선택',
+          tdClass: 'Ttruncate',
         },
         {
           key: 'c_date',
           label: '주문일',
+          tdClass: 'Ttruncate',
         },
         {
           key: 'user',
           label: '회원 이메일',
+          tdClass: 'Ttruncate',
         },
         {
           key: 'status',
           label: '상태',
+          tdClass: 'Ttruncate',
         },
         {
           key: 'transport_company',
           label: '택배사',
+          tdClass: 'Ttruncate',
         },
         {
           key: 'transport_number',
           label: '송장 번호',
+          tdClass: 'Ttruncate',
         },
         {
           key: 'product_name',
           label: '주문한 물건',
+          tdClass: 'Ttruncate',
         },
         // {
         //   key: 'product_count',
@@ -626,10 +633,12 @@ export default {
         {
           key: 'dest_name',
           label: '수취자 이름',
+          tdClass: 'Ttruncate',
         },
         {
           key: 'dest_phone',
           label: '수취자 전화번호',
+          tdClass: 'Ttruncate',
         },
         {
           key: 'dest_address',
@@ -638,10 +647,12 @@ export default {
         {
           key: 'payer',
           label: '입금자명',
+          tdClass: 'Ttruncate',
         },
         {
           key: 'action',
           label: '행동',
+          tdClass: 'Ttruncate',
         },
       ],
       items: [

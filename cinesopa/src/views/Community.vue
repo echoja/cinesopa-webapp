@@ -380,7 +380,6 @@
           label-size="md"
           label-for="format"
         >
-          
         </b-form-group> -->
         <h4>비용 및 배송 관련 정보</h4>
         <b-form-group
@@ -537,11 +536,11 @@
             </template>
 
             <option
-              v-for="(key, index) in Object.keys(showingFeePopLabels)"
-              :value="key"
-              :key="index"
+              v-for="entry in Object.entries(showingFeePopLabels)"
+              :value="entry[1]"
+              :key="entry[0]"
             >
-              {{ showingFeePopLabels[key] }}
+              {{ entry[1] }}
             </option>
           </b-form-select>
         </b-form-group>
@@ -950,12 +949,10 @@ import Privacy from '@/components/Privacy.vue';
 import CopyrightConsent from '@/components/CopyrightConsent.vue';
 import { makeSimpleMutation } from '@/graphql-client';
 import LoadingButton from '@/components/LoadingButton.vue';
-import { mapActions } from 'vuex';
 
 extend('shouldCheck', (value) => value === true);
 
 export default {
-  title: '상영신청 - 신청하기',
   name: 'Community',
   components: {
     Privacy,
@@ -968,6 +965,7 @@ export default {
   },
   data() {
     return {
+      vuePageTitle: '',
       submitting: false,
       showingFeeMap: {
         0: {
@@ -1058,6 +1056,7 @@ export default {
     // disabledReceiveByEmail() {
     //   return this.form.format !== 'MOV3' && this.form.format !== null;
     // },
+    /** @returns {boolean} */
     receivedByEmail() {
       return this.form.howToReceive === '온라인';
     },
@@ -1069,7 +1068,7 @@ export default {
     //   fee += fee / 10 + 10000;
     //   return this.numberWithCommas(fee);
     // },
-
+    /** @returns {{popClass: string, long: string, short: string}[]} */
     showingFeeItems() {
       const keys = Object.keys(this.showingFeeMap);
       const items = [];
@@ -1092,9 +1091,11 @@ export default {
     //   const lis = this.$refs.filmlist;
     //   return lis[lis.length - 1];
     // },
+    /** @returns {number} */
     lastFilmIndex() {
       return this.form.films.length - 1;
     },
+    /** @returns {string} */
     filmSelectFocus() {
       return this.lastFilmIndex === -1
         ? '#select-film-button'
@@ -1103,6 +1104,7 @@ export default {
   },
 
   mounted() {
+    this.vuePageTitle = '상영신청 - 신청하기';
     this.$loadScript(
       'https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js',
     )

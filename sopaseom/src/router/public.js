@@ -78,22 +78,6 @@ export default [
     component: () => import('@/views/client/ProductItems.vue'),
   },
   {
-    path: '/privacy',
-    name: 'Privacy',
-    component: () => import('@/views/client/Page.vue'),
-    props: {
-      permalink: 'privacy',
-    },
-  },
-  {
-    path: '/policy',
-    name: 'Policy',
-    component: () => import('@/views/client/Page.vue'),
-    props: {
-      permalink: 'policy',
-    },
-  },
-  {
     path: '/advertisement',
     name: 'Advertisement',
     component: () => import('@/views/client/Page.vue'),
@@ -330,8 +314,18 @@ export default [
     },
   },
   {
-    path: '/:permalink',
-    name: 'Page',
-    component: () => import('@/views/client/Page.vue'),
+    path: '/policy',
+    name: 'Policy',
+    component: () => import('@/views/client/Policy.vue'),
   },
+  {
+    path: '/privacy',
+    name: 'Privacy',
+    component: () => import('@/views/client/Privacy.vue'),
+  },
+  // {
+  //   path: '/:permalink',
+  //   name: 'Page',
+  //   component: () => import('@/views/client/Page.vue'),
+  // },
 ];

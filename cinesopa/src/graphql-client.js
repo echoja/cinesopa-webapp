@@ -31,7 +31,8 @@ export const graphql = async (query, variables) => {
     }
     return received.data;
   } catch (e) {
-    console.error('graphql axios error', e);
+    console.error('graphql axios error');
+    console.dir(e);
     return null;
   }
 };

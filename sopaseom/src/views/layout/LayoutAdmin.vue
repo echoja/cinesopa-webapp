@@ -71,10 +71,10 @@
               개인정보처리방침, 이용약관 등은 페이지에서 설정할 수 있습니다.
             </info>
           </b-list-group-item>
-          <b-list-group-item to="/admin/sopaseom/page">
+          <!-- <b-list-group-item to="/admin/sopaseom/page">
             <span>페이지</span>
             <info> 개인정보처리방침, 이용약관 등을 설정합니다. </info>
-          </b-list-group-item>
+          </b-list-group-item> -->
           <b-list-group-item :to="{ name: 'AdminSopakit' }">
             <span>소파킷 키워드</span>
             <info> 소파킷의 키워드를 추가/편집/삭제할 수 있습니다. </info>
@@ -132,18 +132,18 @@
           <b-navbar-nav>
             <b-nav-item-dropdown text="새로 추가" right>
               <b-dropdown-header>cinesopa.kr</b-dropdown-header>
-              <b-dropdown-item :to="{ name: 'CinesopaNewPage' }"
+              <!-- <b-dropdown-item :to="{ name: 'CinesopaNewPage' }"
                 >페이지</b-dropdown-item
-              >
+              > -->
               <b-dropdown-item :to="{ name: 'PostNew' }"
                 >게시글</b-dropdown-item
               >
               <b-dropdown-item :to="{ name: 'FilmNew' }">영화</b-dropdown-item>
               <b-dropdown-divider />
               <b-dropdown-header>sopaseom.com</b-dropdown-header>
-              <b-dropdown-item :to="{ name: 'SopaseomNewPage' }"
+              <!-- <b-dropdown-item :to="{ name: 'SopaseomNewPage' }"
                 >페이지</b-dropdown-item
-              >
+              > -->
               <b-dropdown-item :to="{ name: 'AdminProductNew' }"
                 >소파킷</b-dropdown-item
               >
