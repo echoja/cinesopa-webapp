@@ -253,7 +253,7 @@ import SopakitListFooterInfo from '@/components/SopakitListFooterInfo.vue';
 import { makeSimpleQuery } from '@/api/graphql-client';
 
 SwiperCore.use([Navigation, A11y, Mousewheel]);
-const sopakitsShownGetter = makeSimpleQuery('sopakitsShown');
+const sopakitsShownReq = makeSimpleQuery('sopakitsShown');
 
 export default {
   components: {
@@ -440,7 +440,7 @@ export default {
       console.log('slide change');
     },
     async fetchData() {
-      const res = await sopakitsShownGetter(
+      const res = await sopakitsShownReq(
         {},
         `{
           sopakitsShownItems {

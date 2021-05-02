@@ -75,50 +75,10 @@
 <script>
 import { BTable, BButton, BPaginationNav, BFormCheckbox } from 'bootstrap-vue';
 import moment from 'moment';
-import { graphql, makeRequest } from '@/api/graphql-client';
+import { makeRequest, makeSimpleQuery } from '@/api/graphql-client';
 import { mapActions } from 'vuex';
 
-const productsQuery = `
-query productsQuery($condition: ProductSearch!) {
-  products(condition: $condition) {
-    total
-    list {
-    id
-    status
-    kit { num title }
-    #  product_type
-    #  featured_image_url
-    #  featured_image_alt
-    #  content_main
-    #  content_sub
-    #  side_phrase
-    #  notice
-    name
-    #  options {
-    #    id
-    #    content
-    #    left
-    #    price
-    #  }
-    related_film {
-    #    poster_url
-      title
-    #    title_en
-    #    prod_date
-    #    open_date
-    #    genres
-    #    show_time
-    #    people {
-    #      role_type
-    #      name
-    #      role
-    #    }
-    #    watch_grade
-    #    synopsis
-      }
-    }
-  }
-}`;
+const productsAdminReq = makeSimpleQuery('productsAdmin');
 
 const removeProductAtServer = makeRequest('removeProduct', {
   type: 'mutation',
@@ -248,18 +208,65 @@ export default {
     },
     async fetchData() {
       this.state.processing.get = true;
-      const result = await graphql(productsQuery, {
-        condition: {
-          product_type: 'sopakit',
-          page: this.page - 1,
-          perpage: this.perpage,
+      const products = await productsAdminReq(
+        {
+          condition: {
+            product_type: 'sopakit',
+            page: this.page - 1,
+            perpage: this.perpage,
+          },
         },
-      });
-      console.log('# Product fetchData');
-      console.log(result);
-      const { products } = result.data;
-      // 만약 데이터가 없으면 바로 리턴
-      if (!products) return;
+        `{
+          total
+          list {
+          id
+          status
+          kit { num title }
+          #  product_type
+          #  featured_image_url
+          #  featured_image_alt
+          #  content_main
+          #  content_sub
+          #  side_phrase
+          #  notice
+          name
+          #  options {
+          #    id
+          #    content
+          #    left
+          #    price
+          #  }
+          related_film {
+          #    poster_url
+            title
+          #    title_en
+          #    prod_date
+          #    open_date
+          #    genres
+          #    show_time
+          #    people {
+          #      role_type
+          #      name
+          #      role
+          #    }
+          #    watch_grade
+          #    synopsis
+            }
+          }
+        }`,
+      );
+      // const result = await graphql(productsQuery, {
+      //   condition: {
+      //     product_type: 'sopakit',
+      //     page: this.page - 1,
+      //     perpage: this.perpage,
+      //   },
+      // });
+      // console.log('# Product fetchData');
+      // console.log(result);
+      // const { products } = result.data;
+      // // 만약 데이터가 없으면 바로 리턴
+      // if (!products) return;
 
       // 받아온 Product 데이터 적용
       this.total = products.total;
