@@ -161,7 +161,7 @@ module.exports = {
         const adminHtml = `
       - 사용자: ${email}<br>
       - 주문번호: ${order.id}<br>
-      - 상품명: ${order.items.map((item) => item.product.name).join(', ')}
+      - 상품명: ${order.items.map((item) => item?.product?.name).join(', ')}
     `;
         const adminEmails = await db.getEmailsFromSiteOption('shopping_email');
         const mailAdminPromises = adminEmails.map((adminEmail) =>

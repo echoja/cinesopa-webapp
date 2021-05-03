@@ -725,6 +725,9 @@ describe('file', function () {
               pathCalled = path;
               filenameCalled = filename;
             };
+            resInner.sendFile = (path) => {
+              pathCalled = path;
+            };
             await fileService.initGetEstimateMiddleware()(req, resInner, next);
             resInner.status(200).send();
           }),

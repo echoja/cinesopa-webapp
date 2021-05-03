@@ -169,7 +169,7 @@ describe('email-template', function () {
         const html = await rendererMap.get('tname')();
         // console.log(html);
         expect(html).to.equal(
-          '<div>name: hi</div><div>a: </div><div>b: </div><div>c: </div>',
+          '<div>name: </div><div>a: </div><div>b: </div><div>c: </div>',
           '결과가 일치해야 합니다.',
         );
       });

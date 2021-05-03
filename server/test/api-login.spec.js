@@ -20,7 +20,7 @@ const axios = require('axios').default;
 const { expect } = require('chai');
 const addContext = require('mochawesome/addContext');
 
-const { db } = require('@/loader');
+const { db, model } = require('@/loader');
 const {
   graphqlSuper,
   createTestServer,
@@ -55,11 +55,13 @@ describe('login & logout', function () {
     });
     it('로그인이 성공해야함 (createUser 사용)', async function () {
       const loginReq = makeSimpleMutation(agent, 'login');
+      const doc = await model.User.findOne({email: 'eszqsc112@naver.com'}).lean().exec();
       const result = await loginReq(
         { provider: { email: 'eszqsc112@naver.com', pwd: '13241324' } },
         loginResultString,
       );
-      // console.log(result.body.data);
+      addContext(this, { title: 'ressult', value: result});
+      addContext(this, { title: 'doc', value: doc});
       expect(result?.user?.email).to.equal(
         'eszqsc112@naver.com',
       );

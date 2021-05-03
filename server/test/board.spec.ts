@@ -32,8 +32,8 @@ describe('board', function () {
     });
     describe('getBoard', function () {
       it('제대로 작동해야 함', async function () {
-        await model.Board.create({ title: '하이' });
-        const doc = await db.getBoard(1);
+        const created = await model.Board.create({ title: '하이' });
+        const doc = await db.getBoard(created._id);
         // console.log(doc);
         expect(doc.title).to.equal('하이');
       });

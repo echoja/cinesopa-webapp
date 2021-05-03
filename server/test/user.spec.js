@@ -1048,37 +1048,6 @@ describe('user', function () {
           );
         });
       });
-      describe('db.upsertKakaoUser > createGuest', function () {
-        it('카카오 계정이 있는 상태에서는 계정이 합병되어야 함. (실제 기능으로는 악용의 소지가 있으므로 넣지 않아야 함)', async function () {
-          await db.upsertKakaoUser('eszqsc112@naver.com', {
-            kakao_access_token: '123',
-            kakao_refresh_token: '456',
-            kakao_id: '789',
-          });
-          const res = await graphqlSuper(agent, createGuestMutation, {
-            email: 'eszqsc112@naver.com',
-            pwd: '13241324',
-            debug: true,
-          });
-          const result = res.body.data.createGuest;
-          addContext(this, { title: 'log', value: result });
-          const found = await model.User.findOne({
-            email: 'eszqsc112@naver.com',
-          })
-            .lean()
-            .exec();
-          const login = await model.Login.findOne({
-            email: 'eszqsc112@naver.com',
-          })
-            .lean()
-            .exec();
-          expect(login).to.not.be.null;
-          expect(login.pwd).to.be.a('string');
-          expect(login.salt).to.be.a('string');
-          expect(found.verified).to.be.true;
-          expect(found.has_pwd).to.be.true;
-        });
-      });
       describe('verifyUserEmail', function () {
         it('유효기간이 될 경우 제대로 동작해야 함', async function () {
           await model.User.updateOne(

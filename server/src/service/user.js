@@ -224,7 +224,7 @@ class UserService {
   //   //
   // }
   /**
-   * 카카오 유저에게 비밀번호를 만들어줍니다.
+   * 카카오 유저에게 비밀번호를 만들어줍니다. need test
    * @param {string} pwd
    */
   async makePwdForKakaoUser(email, pwd) {

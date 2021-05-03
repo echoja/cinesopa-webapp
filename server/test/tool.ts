@@ -18,7 +18,7 @@ import fileServiceMaker from '@/service/file';
 
 // eslint-disable-next-line import/named
 import { graphQLServerMiddleware } from '@/graphql';
-import local from '@/auth/passport-config';
+import local, { configureLocalAuth } from '@/auth/passport-config';
 import { makeAuthMiddleware } from '@/auth/middlewares';
 import {
   db,
@@ -190,6 +190,7 @@ export const createTestServer = (hookFunctions: Mocha.Suite, options: {additiona
         },
       }),
     );
+    configureLocalAuth(passport, db);
     webapp.use(passport.initialize()); // passport 구동
     webapp.use(passport.session());
     webapp.use('/graphql', graphQLServerMiddleware);
