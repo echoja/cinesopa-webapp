@@ -18,7 +18,14 @@ console.log(`This server locates in ${__dirname}`);
 const webapp = express();
 
 // security settings
-webapp.use(helmet.contentSecurityPolicy());
+webapp.use(
+  helmet.contentSecurityPolicy({
+    useDefaults: true,
+    directives: {
+      'default-src': ["'self'", '*.cinesopa.kr', '*.sopaseom.com'],
+    },
+  }),
+);
 webapp.use(helmet.referrerPolicy());
 webapp.use(helmet.dnsPrefetchControl());
 webapp.use(helmet.expectCt());
