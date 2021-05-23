@@ -1155,7 +1155,6 @@ import moment from 'moment';
 extend('shouldCheck', (value) => value === true);
 
 export default {
-  title: '상영신청 - 신청하기',
   name: 'ApplicationForm',
   components: {
     Privacy,
@@ -1231,7 +1230,7 @@ export default {
           label: '단편',
         },
       ],
-      required: true, // 얘를 false로 하면 폼에 값을 다 채워넣지 않고서도 제출할 수 있게 됨.
+      required: false, // 얘를 false로 하면 폼에 값을 다 채워넣지 않고서도 제출할 수 있게 됨.
       checkPrivacy: false,
       checkCopyright: false,
       mapLoader: null,
@@ -1280,6 +1279,7 @@ export default {
     // disabledReceiveByEmail() {
     //   return this.form.format !== 'MOV3' && this.form.format !== null;
     // },
+    /** @returns {boolean} */
     receivedByEmail() {
       return this.form.howToReceive === '온라인';
     },
@@ -1292,6 +1292,7 @@ export default {
     //   return this.numberWithCommas(fee);
     // },
 
+    /** @returns {{popClass: string, long: string, short: string}[]} */
     showingFeeItems() {
       const keys = Object.keys(this.showingFeeMap);
       const items = [];
@@ -1314,20 +1315,24 @@ export default {
     //   const lis = this.$refs.filmlist;
     //   return lis[lis.length - 1];
     // },
+    /** @returns {number} */
     lastFilmIndex() {
       return this.form.films.length - 1;
     },
+    /** @returns {string} */
     filmSelectFocus() {
       return this.lastFilmIndex === -1
         ? '#select-film-button'
         : `#film-list-item-${this.lastFilmIndex}`;
     },
+    /** @returns {string} */
     filmDirector() {
       return (this.film.people ?? [])
         .filter((person) => person.role_type === 'director')
         .map((person) => person.name)
         .join(', ');
     },
+    /** @returns {number | null} */
     filmOpenYear() {
       // console.log(this.film.open_date);
       if (this.film.open_date && this.film.open_date.getTime() > 0) {
@@ -1335,12 +1340,14 @@ export default {
       }
       return null;
     },
+    /** @returns {number | null} */
     filmProdYear() {
       if (this.film.prod_date && this.film.prod_date.getTime() > 0) {
         return this.film.prod_date.getFullYear();
       }
       return null;
     },
+    /** @returns {string} */
     mainTrailerIframe() {
       const main = this.film.videos.find(
         (video) => video.is_main_trailer === true,
@@ -1351,24 +1358,29 @@ export default {
       }
       return '';
     },
+    /** @returns {string} */
     filmActors() {
       return (this.film.people ?? [])
         .filter((person) => person.role_type === 'actor')
         .map((person) => `${person.name}(${person.role})`)
         .join(', ');
     },
+    /** @returns {string} */
     filmGenres() {
       return (this.film.genres ?? []).join(', ');
     },
+    /** @returns {number} */
     filmShowMinutes() {
       return Math.floor(this.film.show_time / 60);
     },
+    /** @returns {string} */
     filmOpenDate() {
       if (this.film.open_date.getTime() === 0) {
-        return null;
+        return '';
       }
       return moment(this.film.open_date).format('yyyy.MM.DD');
     },
+    /** @returns {any[]} */
     filmPeople() {
       const result = [];
       const refined = {
@@ -1391,12 +1403,14 @@ export default {
 
       return result;
     },
+    /** @returns {string} */
     filmSynopsis() {
       if (this.film.synopsis) {
         return this.film.synopsis.replace(/\n/gi, '<br>');
       }
-      return null;
+      return '';
     },
+    /** @returns {{label: string, key: string, isRowHeader?: boolean}} */
     filmPeopleFields() {
       return [
         {
@@ -1410,6 +1424,7 @@ export default {
         },
       ];
     },
+    /** @returns {any} */
     filmAwards() {
       const result = groupBy(this.film.awards ?? [], (item) => item.year);
       // eslint-disable-next-line no-restricted-syntax

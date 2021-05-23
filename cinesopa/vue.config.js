@@ -17,6 +17,9 @@ module.exports = {
     }
   },
   devServer: {
+    port: 29537,
+    public: 'localhost:29537',
+    // disableHostCheck: true,
     proxy: {
       '^/graphql': {
         target: 'http://localhost:4000',

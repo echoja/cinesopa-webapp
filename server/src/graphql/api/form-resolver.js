@@ -52,7 +52,7 @@ const requestShowingLabelMap = {
  */
 const formatShowingContent = (key, value) => {
   if (value instanceof Date) {
-    return moment(value).format('YYYY년 MM월 DD일');
+    return moment(value).tz('Asia/Seoul').format('YYYY년 MM월 DD일');
   }
   if (typeof value === 'string') {
     return value;
@@ -87,7 +87,7 @@ const requestDistributionLabelMap = {
  */
 const formatDiscributionContent = (key, value) => {
   if (value instanceof Date) {
-    return moment(value).format('YYYY년 MM월 DD일');
+    return moment(value).tz('Asia/Seoul').format('YYYY년 MM월 DD일');
   }
   if (typeof value === 'string') {
     return value;
@@ -143,7 +143,7 @@ const convertInput = (input) => {
   tsmap.set('택배', 'yet_to_delivery');
   tsmap.set('온라인', 'online_or_direct');
 
-  const formatDate = (date) => moment(date).format('yyyy-MM-DD');
+  const formatDate = (date) => moment(date).tz('Asia/Seoul').format('yyyy-MM-DD');
 
   /** @type {ApplicationTransportStatus} */
   const transport_status = tsmap.get(howToReceive) ?? 'online_or_direct';

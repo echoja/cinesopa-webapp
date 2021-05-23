@@ -167,12 +167,12 @@ export const makeApplicationExcel = async (
         receipt_status: applicationReceiptStatusMap[doc.receipt_status],
         transport_status: applicationTransportStatusMap[doc.transport_status],
         memo_unremarked: doc.memo_unremarked ? '예' : '아니오',
-        c_date: toSeoulDate(doc.c_date),
-        m_date: toSeoulDate(doc.m_date),
-        start_date: doc.start_date ? toSeoulDate(doc.start_date) : null,
-        end_date: doc.end_date ? toSeoulDate(doc.end_date) : null,
-        deposit_date: doc.deposit_date ? toSeoulDate(doc.deposit_date) : null,
-        receipt_date: doc.receipt_date ? toSeoulDate(doc.receipt_date) : null,
+        c_date: moment(doc.c_date).tz('Asia/Seoul').format("yyyy-MM-DD"),
+        m_date: moment(doc.m_date).tz('Asia/Seoul').format("yyyy-MM-DD"),
+        start_date: doc.start_date ? moment(doc.start_date).tz('Asia/Seoul').format("yyyy-MM-DD") : null,
+        end_date: doc.end_date ? moment(doc.end_date).tz('Asia/Seoul').format("yyyy-MM-DD") : null,
+        deposit_date: doc.deposit_date ? moment(doc.deposit_date).tz('Asia/Seoul').format("yyyy-MM-DD") : null,
+        receipt_date: doc.receipt_date ? moment(doc.receipt_date).tz('Asia/Seoul').format("yyyy-MM-DD") : null,
       };
       return result;
     } catch (e) {

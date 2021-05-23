@@ -1,5 +1,6 @@
-import axios from 'axios';
+import * as axiosGlobal from 'axios';
 
+const axios = axiosGlobal.default.create();
 const headers = {
   'Content-Type': 'application/json',
   Accept: 'application/json',
@@ -10,31 +11,26 @@ const url =
 
 export const graphql = async (query, variables) => {
   // try {}
-  try {
-    const received = await axios.post(
-      url,
-      JSON.stringify({
-        query,
-        variables,
-      }),
-      {
-        headers,
-      },
-    );
-    // console.log('# graphql-client graphql received');
-    // console.log(received);
-    // received 구죠
-    // received.data.errors 가 존재한다면 에러임.
-    const { errors } = received.data;
-    if (errors) {
-      throw new Error(errors);
-    }
-    return received.data;
-  } catch (e) {
-    console.error('graphql axios error');
-    console.dir(e);
+  const received = await axios.post(
+    url,
+    JSON.stringify({
+      query,
+      variables,
+    }),
+    {
+      headers,
+    },
+  );
+  // console.log('# graphql-client graphql received');
+  // console.log(received);
+  // received 구죠
+  // received.data.errors 가 존재한다면 에러임.
+  const { errors } = received.data;
+  if (errors) {
+    console.error(errors);
     return null;
   }
+  return received.data;
 };
 
 export const dataGraphql = async (...args) => {
@@ -427,6 +423,8 @@ export const makeSimpleMutation = (endpoint) => async (args, resultString) => {
   // console.log('# graphql-client makeSimpleMutation');
   // console.log(reqStr);
   const res = await graphql(reqStr);
+  console.log('# makeSimpleMutation');
+  console.log(res);
   return res.data[endpoint];
 };
 

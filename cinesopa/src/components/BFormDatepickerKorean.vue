@@ -288,7 +288,7 @@ export default {
   methods: {
     checkAndEmitInput() {
       if (this.year && this.month && this.date) {
-        this.$emit('input', new Date(this.year, this.month, this.date));
+        this.$emit('input', new Date(this.year, this.month - 1, this.date));
       }
       return null;
     },
