@@ -253,8 +253,8 @@ export default {
         }}`,
       );
 
-      console.log('# Post.vue fetchData res');
-      console.log(res);
+      // console.log('# Post.vue fetchData res');
+      // console.log(res);
 
       const { total, list } = res;
       this.total = total;
