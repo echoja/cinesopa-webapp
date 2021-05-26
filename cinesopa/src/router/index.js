@@ -73,7 +73,7 @@ const routes = [
         component: () => import('../views/Board.vue'),
         props: {
           title: '아카이브',
-          boardPermalinks: ['community', 'study', 'archive-etc'],
+          boardPermalinks: ['community', 'study', 'archive-etc', 'project'],
           viewType: 'gallery',
           perpage: 6,
         },

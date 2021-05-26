@@ -227,85 +227,9 @@ export default {
       currentPage: 1,
       postTotal: 0,
       vuePageTitle: '',
-      boards: [
-        // {
-        //   permalinks: '_all',
-        //   title: '전체',
-        //   selected: true,
-        // },
-        // {
-        //   permalinks: 'press',
-        //   title: '프레스',
-        //   selected: false,
-        // },
-        // {
-        //   permalinks: 'cooperative',
-        //   title: '조합소식',
-        //   selected: false,
-        // },
-      ],
+      boards: [],
       boardTitleMap: {},
-      posts: [
-        //   // http://m.cine21.com/news/view/?mag_id=89286
-        //   {
-        //     id: 1,
-        //     board: '프레스',
-        //     title: '성송이 영화배급협동조합 씨네소파 대표 - 부산에서 독립영화 배급하기',
-        //     date: new Date('2018-01-18'),
-        //     // eslint-disable-next-line global-require, import/no-unresolved
-        //     thumbnailUrl: require('../assets/test/steel23.jpg'),
-        //   },
-        //   // http://www.busan.com/view/busan/view.php?code=20170720000205
-        //   {
-        //     id: 3,
-        //     board: '프레스',
-        //     title: "독립영화 배급 나선 당찬 20대 청년들 '씨네소파' 협동조합 \"멀티플렉스 게, 섰거라!",
-        //     date: new Date('2017-07-20'),
-        //     // eslint-disable-next-line global-require, import/no-unresolved
-        //     thumbnailUrl: require('../assets/test/steel23.jpg'),
-        //   },
-        //   // https://actmediact.tistory.com/1204
-        //   {
-        //     id: 2,
-        //     board: '프레스',
-        //     title: '[ACT! 107호 인터뷰] “희생하지 않습니다.” - 부산 영화배급협동조합 씨네소파',
-        //     date: new Date('2017-11-06'),
-        //     // eslint-disable-next-line global-require, import/no-unresolved
-        //     thumbnailUrl: require('../assets/test/steel23.jpg'),
-        //   },
-        //   {
-        //     id: 4,
-        //     board: '조합소식',
-        //     title: '2018년 임시총회 공고',
-        //     date: new Date('2018-03-11'),
-        //     // eslint-disable-next-line global-require, import/no-unresolved
-        //     thumbnailUrl: require('../assets/test/steel23.jpg'),
-        //   },
-        //   {
-        //     id: 5,
-        //     board: '조합소식',
-        //     title: '2019년 정기총회 공고',
-        //     date: new Date('2018-01-11'),
-        //     // eslint-disable-next-line global-require, import/no-unresolved
-        //     thumbnailUrl: require('../assets/test/steel23.jpg'),
-        //   },
-        //   {
-        //     id: 6,
-        //     board: '조합소식',
-        //     title: '2020년 임시총회 공고',
-        //     date: new Date('2018-03-11'),
-        //     // eslint-disable-next-line global-require, import/no-unresolved
-        //     thumbnailUrl: require('../assets/test/steel23.jpg'),
-        //   },
-        //   {
-        //     id: 7,
-        //     board: '조합소식',
-        //     title: '2021년 정기총회 공고',
-        //     date: new Date('2018-01-11'),
-        //     // eslint-disable-next-line global-require, import/no-unresolved
-        //     thumbnailUrl: require('../assets/test/steel23.jpg'),
-        //   },
-      ],
+      posts: [],
     };
   },
   computed: {
@@ -346,19 +270,7 @@ export default {
     titleComputed() {
       return `${this.selectedBoardName} - ${this.title}`;
     },
-    // ...titleof(['press', 'cooperative']),
-    // getBoardTitle(...args) {
-    //   console.dir(args);
-    //   const { permalink } = args;
-    //   return () => {
-    //     console.log(this.boards);
-    //     return this.boards.findIndex((item) => {
-    //       console.log(item.permalink);
-    //       console.log(permalink);
-    //       return item.permalink === permalink;
-    //     });
-    //   };
-    // },
+
     /** @returns {string} */
     permalink() {
       return this.$route.params.permalink;
@@ -379,19 +291,6 @@ export default {
       return this.boards.find((board) => board.selected)?.permalinks;
     },
   },
-  // watch: {
-  //   $route(to) {
-  //     console.log('# Board.vue watch route');
-  //     console.log(to.fullPath);
-  //   },
-  // },
-  // beforeRouteEnter(to, from, next) {
-  //   next((vm) => {
-  //     console.log('# Board.vue beforeRouteEnter');
-  //     console.log(vm.$route.fullPath);
-  //     // `vm`을 통한 컴포넌트 인스턴스 접근
-  //   });
-  // },
 
   async mounted() {
     this.startLoading();

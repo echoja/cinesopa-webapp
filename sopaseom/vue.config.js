@@ -4,6 +4,8 @@ module.exports = {
   //   : '/sopaseom/',
   lintOnSave: true,
   devServer: {
+    port: 29538,
+    public: 'localhost:29538',
     proxy: {
       '^/graphql': {
         target: 'http://localhost:4000',

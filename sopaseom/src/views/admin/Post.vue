@@ -54,17 +54,23 @@
         </p>
       </template>
       <template #cell(c_date)="row">
-        <div class="text-monospace">
-          {{ formatDate(row.value) }}
-        </div>
+        {{ formatSimpleDate(row.value) }}
       </template>
       <template #cell(m_date)="row">
-        <div class="text-monospace">
+        <div>
+          {{ formatDateFromNow(row.value) }}
+        </div>
+        <div class="Ttext-xs Ttext-gray-400">
           {{ formatDate(row.value) }}
         </div>
       </template>
     </b-table>
-    <p v-if="state.processing.get">로딩중입니다.</p>
+
+    <template v-if="state.processing.get">
+      <div class="Tflex Titems-center">
+        <small-spinner class="Tmr-2"></small-spinner><span>로딩중입니다.</span>
+      </div>
+    </template>
     <p v-if="!hasData && !state.processing.get">글이 없습니다.</p>
     <hr />
     <b-button
@@ -77,6 +83,16 @@
     <b-button class="mx-1" variant="primary" :to="{ name: 'PostNew' }"
       >새로 추가</b-button
     >
+    <hr />
+    <div class="pagination-wrapper">
+      <b-pagination-nav
+        :link-gen="linkGen"
+        :number-of-pages="totalPages"
+        align="center"
+        :value="pageNav"
+        use-router
+      ></b-pagination-nav>
+    </div>
 
     <!-- <p>페이지: {{ page }}</p> -->
   </div>
@@ -84,7 +100,7 @@
 
 <script>
 import { mapActions } from 'vuex';
-import { BButton, BFormCheckbox, BTable } from 'bootstrap-vue';
+import { BButton, BFormCheckbox, BTable, BPaginationNav } from 'bootstrap-vue';
 import moment from 'moment';
 import { queryString, graphql } from '@/loader';
 import Info from '@/components/admin/Info.vue';
@@ -98,9 +114,11 @@ export default {
   name: 'Post',
   components: {
     BButton,
+    BPaginationNav,
     BFormCheckbox,
     BTable,
     Info,
+    SmallSpinner: () => import('@/components/SmallSpinner'),
   },
   props: ['belongs_to'],
   data() {
@@ -111,6 +129,7 @@ export default {
           get: false,
         },
       },
+      perpage: 20,
       boards: {},
       fields: [
         // {
@@ -135,7 +154,7 @@ export default {
         },
         {
           key: 'c_date',
-          label: '생성일',
+          label: '작성일',
         },
         {
           key: 'm_date',
@@ -155,12 +174,24 @@ export default {
       ],
     };
   },
+  watch: {
+    $route(to) {
+      this.fetchData();
+    },
+  },
   computed: {
     /** @returns {boolean} */
     hasData() {
       return this.items.length !== 0;
     },
     /** @returns {number} */
+    pageNav() {
+      return this.page + 1;
+    },
+    /**
+     * params 가 일단 1 이상의 양수로 정의됨.
+     * @returns {number}
+     * */
     page() {
       const { page } = this.$route.params;
       return page ? parseInt(page, 10) - 1 : 0;
@@ -168,6 +199,13 @@ export default {
     /** @returns {boolean} */
     checkedAtleastOne() {
       return this.items.findIndex((item) => item.checked === true) !== -1;
+    },
+    totalPages() {
+      const o = Math.ceil(this.total / this.perpage);
+      if (o === 0) return 1;
+      // console.log('# Orders totalPages o');
+      // console.log(o);
+      return o;
     },
   },
   async mounted() {
@@ -179,8 +217,14 @@ export default {
   },
   methods: {
     pushMessage: mapActions(['pushMessage']).pushMessage,
+    formatDateFromNow(date) {
+      return moment(date).fromNow();
+    },
+    formatSimpleDate(date) {
+      return moment(date).format('YYYY-MM-DD');
+    },
     formatDate(date) {
-      return moment(date).format('YY-MM-DD hh:mm:ss');
+      return moment(date).format('YYYY-MM-DD HH:mm:ss');
     },
     async boardData() {
       let boards = await graphql(queryString.board.boardsQuery);
@@ -200,7 +244,7 @@ export default {
         {
           condition: {
             page: this.page,
-            perpage: 10,
+            perpage: this.perpage,
           },
         },
         `{total list {
@@ -208,6 +252,9 @@ export default {
           m_date meta featured_image featured_image_link
         }}`,
       );
+
+      console.log('# Post.vue fetchData res');
+      console.log(res);
 
       const { total, list } = res;
       this.total = total;
@@ -266,6 +313,12 @@ export default {
     },
     rowClicked(item) {
       this.$router.push({ name: 'PostEdit', params: { id: item.id } });
+    },
+    linkGen(pageNum) {
+      return {
+        name: 'AdminPostPaged',
+        params: { page: pageNum },
+      };
     },
   },
 };

@@ -978,7 +978,7 @@ export class DBManager {
   }
 
   /**
-   * id에 따라서 게시판을 얻습니다. 
+   * id에 따라서 게시판을 얻습니다.
    * id는 mongodb의 _id 입니다.
    * @param id
    */
@@ -1105,7 +1105,7 @@ export class DBManager {
       board_belongs_to,
     } = condition;
 
-    let query = model.Post.find();
+    let query = model.Post.find().sort({ c_date: -1 });
 
     if (search && search !== '') {
       // console.log('getPosts: search!!');
