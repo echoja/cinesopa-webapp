@@ -307,7 +307,7 @@
               v-model="film.is_featured"
               :value="true"
               :unchecked-value="false"
-              >영화 리스트의 상단 슬라이더에 노출시킵니다.</b-form-checkbox
+              >영화 리스트의 상단 슬라이더에 노출시킵니다. <info>아래에서 <b>상단 노출 스틸컷, 시놉시스, 배경 색상</b>이 모두 설정되어야 실제로 잘 표시됩니다.</info></b-form-checkbox
             >
             <b-form-checkbox
               v-model="film.is_opened"
@@ -669,7 +669,7 @@
                   여부
                 </th>
                 <th>제목</th>
-                <th>Youtube 소스코드</th>
+                <th>Youtube 소스코드 <info>유튜브 영상 오른쪽 클릭 후 <b>소스 코드 복사</b>한 내용을 그대로 붙여넣습니다.</info> </th>
                 <th></th>
               </tr>
 
