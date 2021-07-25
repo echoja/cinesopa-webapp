@@ -9,7 +9,13 @@
       <h2 class="sr-only">특집 작품 목록</h2>
       <div class="featured-height"></div>
       <div
-        class="featured featured-height d-flex align-items-center justify-content-center text-center"
+        class="
+          featured featured-height
+          d-flex
+          align-items-center
+          justify-content-center
+          text-center
+        "
       >
         <!-- indicators -->
 
@@ -56,7 +62,12 @@
               >
                 <b-row class="mx-auto">
                   <b-col
-                    class="featured-poster d-flex align-items-center justify-content-center"
+                    class="
+                      featured-poster
+                      d-flex
+                      align-items-center
+                      justify-content-center
+                    "
                     md="6"
                   >
                     <b-link
@@ -74,7 +85,13 @@
                     </b-link>
                   </b-col>
                   <b-col
-                    class="featured-description text-left d-flex flex-column justify-content-center"
+                    class="
+                      featured-description
+                      text-left
+                      d-flex
+                      flex-column
+                      justify-content-center
+                    "
                     md="6"
                   >
                     <p class="m-0">
@@ -181,7 +198,15 @@
         <!-- 검색창 -->
         <h3 class="sr-only">검색창</h3>
         <div
-          class="search text-center mx-auto my-2 position-relative d-flex align-items-center"
+          class="
+            search
+            text-center
+            mx-auto
+            my-2
+            position-relative
+            d-flex
+            align-items-center
+          "
         >
           <div class="search-icon mr-3 d-flex align-items-center">
             <font-awesome-icon :icon="['fas', 'search']"></font-awesome-icon>
@@ -210,7 +235,15 @@
       <!-- 데스크탑일 때만 보이는 필터 -->
       <div
         v-if="!$store.state.isMobile"
-        class="search text-center mx-auto my-2 position-relative d-flex align-items-center"
+        class="
+          search
+          text-center
+          mx-auto
+          my-2
+          position-relative
+          d-flex
+          align-items-center
+        "
       >
         <div class="search-icon mr-3 d-flex align-items-center">
           <font-awesome-icon :icon="['fas', 'search']"></font-awesome-icon>
@@ -274,7 +307,12 @@
     <b-row class="filmlist" ref="filmlist">
       <transition name="filmlist-fade">
         <div
-          class="filmlist-loading d-flex justify-content-center align-items-center"
+          class="
+            filmlist-loading
+            d-flex
+            justify-content-center
+            align-items-center
+          "
           v-if="loading"
         >
           로딩중입니다.
@@ -297,7 +335,12 @@
         <!-- <b-link :style="{'background-image': `url(${film.poster_url})`}"
            class="poster-link w-100" href=""></b-link> -->
         <div
-          class="poster-wrapper d-flex align-items-center justify-content-center"
+          class="
+            poster-wrapper
+            d-flex
+            align-items-center
+            justify-content-center
+          "
         >
           <b-link
             :title="`${film.title}`"
@@ -344,7 +387,7 @@
       <!-- pills -->
       <b-pagination-nav
         limit="9"
-        v-model="currentPage"
+        :value="currentPage"
         :link-gen="linkGen"
         :number-of-pages="numberOfPages"
         use-router
@@ -393,7 +436,6 @@ function sleep(ms) {
 
 export default {
   name: 'FilmList',
-  title: '작품소개',
   props: {
     type: String,
     page: {
@@ -405,7 +447,6 @@ export default {
   data() {
     return {
       loading: false,
-      currentPage: null,
       slide: null,
       total: 0,
       perpage: 9,
@@ -417,20 +458,7 @@ export default {
       // eslint-disable-next-line global-require
       testBackgroundImage: require('../assets/test/steel23.jpg'),
       testTextColor: '#fff',
-      currnetPage: 1,
-      featured: [
-        // {
-        //   id: 1,
-        //   title: '여름날',
-        //   // eslint-disable-next-line global-require
-        //   poster_url: require('../assets/test/test-poster.jpg'),
-        //   featured_excerpt: `그들은 평범한 일상 속에서 자신처럼 고립되어 있는 폐왕성에 도착하고,
-        //     그곳에서 누구나 언젠가 지나쳐야만 하는 유배된 시간과 만난다.`,
-        //   title_en: 'Days in a Summer',
-        //   open_date: new Date('2020-08-11'),
-        //   badge_text: '개봉예정',
-        // },
-      ],
+      featured: [],
       openedOptionsStringMap: {
         all: '모두',
         opened: '개봉작',
@@ -549,23 +577,32 @@ export default {
     };
   },
   computed: {
+    /** @returns {string[]} */
     selectedTags() {
       return [];
     },
+    /** @returns {boolean} */
     isOpened() {
       if (this.opened === 'all') return null;
       if (this.opened === 'opened') return true;
       return false;
     },
+    /** @returns {number} */
     numberOfPages() {
       if (this.total === 0) return 1;
       return Math.ceil(this.total / this.perpage);
     },
+    /** @returns {boolean} */
     desktopOpenedRadioGroupAutoFocus() {
       if (this.$route.query.f === 'desktop-opened-radio-group') {
         return true;
       }
       return false;
+    },
+    /** @returns {number} */
+    currentPage() {
+      const p = parseInt(this.$route.params.page, 10);
+      return Number.isNaN(p) || p <= 0 ? 1 : p;
     },
   },
   watch: {
@@ -574,14 +611,14 @@ export default {
       // isopen in search focus 처리
 
       if (to.query.f) {
-        const refname = to.query.f;
+        // const refname = to.query.f;
         this.$nextTick(() => {
           // console.log(this.$refs[refname]);
           // const el =
           //   this.$refs[refname].$el ?? this.$refs[refname];
           // console.log(el);
           // el.focus();
-          const el = this.$refs[`d_${this.opened}`];
+          // const el = this.$refs[`d_${this.opened}`];
           // console.log(el);
           this.$refs[`d_${this.opened}`].focus();
         });
@@ -594,7 +631,6 @@ export default {
     this.vuePageTitle = `${
       this.openedOptionsStringMap[this.opened]
     } - 작품소개`;
-    this.currnetPage = parseInt(this.page, 10);
     AOS.init();
     this.fetchFeaturedFilms();
     await this.fetchFilms();
@@ -621,9 +657,7 @@ export default {
     linkGen(page) {
       return { name: this.$route.name, params: { type: this.type, page } };
     },
-    async pageChanged(page) {
-      this.currentPage = page;
-      await this.fetchFilms();
+    async pageChanged() {
       this.$scrollTo(this.$refs.filmlist, 500, {
         offset: -180,
       });
@@ -637,7 +671,6 @@ export default {
       // });
       this.vuePageTitle = `${this.openedOptionsStringMap[value]} - 작품소개`;
       this.opened = value;
-      this.currentPage = 1;
       this.$route.params.type = value;
       this.$router.push({
         name: 'FilmList',
@@ -672,18 +705,6 @@ export default {
           featured_color_blur: hexToRgba(film.featured_color, 0.5),
         })),
       ];
-
-      //       {
-      //   id: 1,
-      //   title: '여름날',
-      //   // eslint-disable-next-line global-require
-      //   poster_url: require('../assets/test/test-poster.jpg'),
-      //   featured_excerpt: `그들은 평범한 일상 속에서 자신처럼 고립되어 있는 폐왕성에 도착하고,
-      //     그곳에서 누구나 언젠가 지나쳐야만 하는 유배된 시간과 만난다.`,
-      //   title_en: 'Days in a Summer',
-      //   open_date: new Date('2020-08-11'),
-      //   badge_text: '개봉예정',
-      // },
     },
     // 영화를 가져오는 함수
     async fetchFilms() {
@@ -695,9 +716,7 @@ export default {
         is_opened: this.isOpened,
         search: this.search,
         tags: this.selectedTags,
-        page: this.currentPage
-          ? this.currentPage - 1
-          : parseInt(this.page, 10) - 1,
+        page: this.currentPage - 1,
         perpage: this.perpage,
       };
       // console.log(condition);
@@ -705,7 +724,8 @@ export default {
         condition,
       });
       await delay;
-      // console.log(result);
+      console.log('#fetchFilms result');
+      console.log(result);
       if (result?.data?.films) {
         const { list, total } = result.data.films;
         this.total = total;

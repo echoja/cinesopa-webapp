@@ -21,8 +21,9 @@
         ></file-manager>
       </b-modal>
       <info>
-        파일/이미지를 삽입하기 위해 파일 매니저를 엽니다. (에디터 내부의 삽입 > 이미지는 url를 이용하여 외부 이미지를
-        가지고 오는 것이기 때문에 업로드가 되지 않습니다.)
+        파일/이미지를 삽입하기 위해 파일 매니저를 엽니다. (에디터 내부의 삽입 >
+        이미지는 url를 이용하여 외부 이미지를 가지고 오는 것이기 때문에 업로드가
+        되지 않습니다.)
       </info>
       <!-- <b-button @click="test1">테스트</b-button> -->
     </div>
@@ -102,7 +103,10 @@ export default {
     },
     /** @returns {object} */
     editorInit() {
-      return tinymceInit({ height: parseInt(this.height, 10), autoresize: this.isAutoresize });
+      return tinymceInit({
+        height: parseInt(this.height, 10),
+        autoresize: this.isAutoresize,
+      });
     },
     /** @returns {string} */
     modalId() {
@@ -129,11 +133,16 @@ export default {
       this.$emit('onInit');
     },
     async fileSelected(files) {
+      console.log(files);
       files.forEach((file) => {
-        const { mimetype, fileurl, alt } = file;
+        const { mimetype, fileurl, alt, origin } = file;
         if (mimetype.startsWith('image')) {
           this.pushHtmlToEditor(
             `<img src="${fileurl}?size=common" alt="${alt}">`,
+          );
+        } else {
+          this.pushHtmlToEditor(
+            `<a href="${fileurl}?action=download">${origin}</a>`,
           );
         }
         // file to do

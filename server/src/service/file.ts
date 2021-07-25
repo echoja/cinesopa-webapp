@@ -320,7 +320,7 @@ class FileService {
 
     // console.log(foundByFilename.path);
     // console.log(__dirname);
-    const { size, action } = req.query; // need check! req.query.size 에서 바로 접근하던 걸  { size } = req.query 로 변경함.
+    const { size, action } = req.query;
 
     // 보내는 로직을 미리 정의해놓음.
     const sendFile = async (file: LeanDocument<IFile>) => {
