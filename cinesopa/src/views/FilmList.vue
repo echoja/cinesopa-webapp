@@ -724,8 +724,8 @@ export default {
         condition,
       });
       await delay;
-      console.log('#fetchFilms result');
-      console.log(result);
+      // console.log('#fetchFilms result');
+      // console.log(result);
       if (result?.data?.films) {
         const { list, total } = result.data.films;
         this.total = total;
