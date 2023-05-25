@@ -42,7 +42,6 @@ npm install -g npm@7.24.2
 
 python 2버전 설치: <https://www.python.org/downloads/release/python-2718/>
 
-
 각 폴더로 들어가서 npm install 해야 함.
 
 api 서버
@@ -179,6 +178,18 @@ RUN apt-get update \
 1. `docker build -t eszqsc112/cinesopa:latest -t eszqsc112/cinesopa:0.4.3 .` 실행하여 최신 및 버전 명시하여 이미지 빌드
 2. `docker push eszqsc112/cinesopa` 실행하여 배포
 3. 배포가 완료되면 특정 버전은 삭제하여도 된다. (`docker image rm eszqsc112/cinesopa:0.4.3`)
+
+### v2 (Mac M1)
+
+docker 로그인
+
+`docker login -u "eszqsc112" -p "xxx" docker.io`
+
+테스트 중인 로컬에서의 docker 버전: `Docker version 20.10.17, build 100c701`
+
+amd64로 빌드: `docker buildx build --platform linux/amd64 --push -t eszqsc112/cinesopa:latest -t eszqsc112/cinesopa:0.9.7 .` (버전은 적절히 수정)
+
+docker 버전이 다름에 따라 서버에서 **에러날 수 있음!!! 실제 테스트 필요**
 
 ### 서버 환경 세팅
 
