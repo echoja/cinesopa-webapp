@@ -12,6 +12,7 @@
     "dev-sopaseom": "cd sopaseom && npm run serve",
     "dev-cinesopa": "cd cinesopa && npm run serve",
     "dev-proxy": "docker-compose up proxy",
+    "install": "cd server && npm install && cd ../client && npm install",
     "install-prod": "cd server && npm install --production && cd ../client && npm install --production",
     "build-client": "cd client && npm run build",
     "start": "npm run install && npm run build-client && npm run copy && npm run start-prod-server",
