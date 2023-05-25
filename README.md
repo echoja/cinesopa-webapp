@@ -19,6 +19,53 @@
 
 ## 로컬 개발환경 세팅
 
+MacBook M1 기준. nodejs 14 버전 권장. `asdf` 이용하면 편함.
+
+chromium 미리 설치해야 함.
+
+```sh
+brew install --cask chromium
+```
+
+puppeteer 에서 이상한 chromium 설치하지 않도록 자동 설치 해제하는 환경변수 추가
+
+```sh
+export PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
+export PUPPETEER_EXECUTABLE_PATH=`which chromium`
+```
+
+npm 버전 7.x대로 맞추기
+
+```sh
+npm install -g npm@7.24.2
+```
+
+python 2버전 설치: <https://www.python.org/downloads/release/python-2718/>
+
+
+각 폴더로 들어가서 npm install 해야 함.
+
+api 서버
+
+```sh
+cd server
+npm install
+```
+
+sopaseom
+
+```sh
+cd sopaseom
+npm install
+```
+
+cinesopa
+
+```sh
+cd cinesopa
+npm install
+```
+
 ### eslint
 
 vscode 에서 `Preferences : Open Workspace Settings (JSON)` 에 들어간다.
@@ -30,16 +77,8 @@ vscode 에서 `Preferences : Open Workspace Settings (JSON)` 에 들어간다.
   "editor.formatOnSave": false,
   "editor.codeActionsOnSave": { "source.fixAll.eslint": true },
   "eslint.alwaysShowStatus": true,
-  "eslint.validate": [
-    "javascript",
-    "javascriptreact",
-    "vue"
-  ],
-  "eslint.workingDirectories": [
-    "./cinesopa/",
-    "./sopaseom/"
-  ] ,
-
+  "eslint.validate": ["javascript", "javascriptreact", "vue"],
+  "eslint.workingDirectories": ["./cinesopa/", "./sopaseom/"],
   "files.exclude": {
     "**/.git": true,
     "**/.vscode": true,
@@ -139,7 +178,7 @@ RUN apt-get update \
 
 1. `docker build -t eszqsc112/cinesopa:latest -t eszqsc112/cinesopa:0.4.3 .` 실행하여 최신 및 버전 명시하여 이미지 빌드
 2. `docker push eszqsc112/cinesopa` 실행하여 배포
-3.  배포가 완료되면 특정 버전은 삭제하여도 된다. (`docker image rm eszqsc112/cinesopa:0.4.3`)
+3. 배포가 완료되면 특정 버전은 삭제하여도 된다. (`docker image rm eszqsc112/cinesopa:0.4.3`)
 
 ### 서버 환경 세팅
 
